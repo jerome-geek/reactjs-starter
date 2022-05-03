@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
-import request from '../core';
+
+import request from 'api/core';
 
 interface CouponsParams {
     endYmd?: String;
@@ -11,17 +12,21 @@ interface CouponsParams {
 
 const coupon = {
     getCoupons: ({
+        endYmd,
         pageNumber = '1',
         pageSize = '30',
         usable = 'true',
+        startYmd,
     }: CouponsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/coupons',
             data: {
+                endYmd,
                 pageNumber,
                 pageSize,
                 usable,
+                startYmd,
             },
         }),
 
@@ -71,7 +76,7 @@ const coupon = {
     postCouponsProductsDownload: (productNo: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
-            url: `/coupons/events/${productNo}/download`,
+            url: `/coupons/products/${productNo}/download`,
         }),
 
     getCouponsProductsIssuable: (
@@ -80,7 +85,7 @@ const coupon = {
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
-            url: `/coupons/products/${productNo}/issable/coupons`,
+            url: `/coupons/products/${productNo}/issuable/coupons`,
             data: { channelType },
         }),
 };
