@@ -23,6 +23,7 @@ const display = {
         request({
             method: 'GET',
             url: '/display/brands',
+            data: { filter, pageNumber, pageSize, hasTotalCount, fromDB, sort },
         }),
 
     getDisplayBrandsDetail: (brandNo: String): Promise<AxiosResponse> =>
