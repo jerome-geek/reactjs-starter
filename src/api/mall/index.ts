@@ -1,9 +1,14 @@
-import request from '../core';
+import { AxiosResponse } from 'axios';
+
+import request from 'api/core';
 
 const mall = {
-    getMall: () => request({ method: 'GET', url: '/malls' }),
-    getMallPartners: () => request({ method: 'GET', url: '/malls/partners' }),
-    getSslInfo: () => request({ method: 'GET', url: '/malls/ssl' }),
+    getMall: (): Promise<AxiosResponse> =>
+        request({ method: 'GET', url: '/malls' }),
+    getMallPartners: (): Promise<AxiosResponse> =>
+        request({ method: 'GET', url: '/malls/partners' }),
+    getSslInfo: (): Promise<AxiosResponse> =>
+        request({ method: 'GET', url: '/malls/ssl' }),
 };
 
 export default mall;
