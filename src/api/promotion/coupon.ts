@@ -36,14 +36,21 @@ const coupon = {
     getCouponsSummary: (expireDay: String): Promise<AxiosResponse> =>
         request({ method: 'GET', url: '/coupons/summary', data: expireDay }),
 
-    postCouponsRegisterCode: (promotionCode: String): Promise<AxiosResponse> =>
+    issuePromotionCoupons: (promotionCode: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
         }),
 
-    postCouponsDownload: (couponNo: String): Promise<AxiosResponse> =>
-        request({ method: 'POST', url: `/coupons/${couponNo}/download` }),
+    issueCoupons: (
+        couponNo: String,
+        channelType: String,
+    ): Promise<AxiosResponse> =>
+        request({
+            method: 'POST',
+            url: `/coupons/${couponNo}/download`,
+            data: { channelType },
+        }),
 
     getCouponsExcludeTargets: (
         couponNo: String,
@@ -67,13 +74,13 @@ const coupon = {
             data: { pageNumber, pageSize },
         }),
 
-    postCouponsEventsDownload: (eventNo: String): Promise<AxiosResponse> =>
+    issueEventsCoupons: (eventNo: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/coupons/events/${eventNo}/download`,
         }),
 
-    postCouponsProductsDownload: (productNo: String): Promise<AxiosResponse> =>
+    issueProductCoupons: (productNo: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/coupons/products/${productNo}/download`,
