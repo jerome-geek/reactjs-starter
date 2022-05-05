@@ -2,12 +2,71 @@ import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
 
+enum Criterion {
+    recentProduct = 'RECENT_PRODUCT',
+}
+
+enum Direction {
+    descDeliveryFeignClient = 'DESCDeliveryFeignClient',
+    desc = 'DESC',
+    asc = 'ASC',
+}
+
+enum SaleStatus {
+    onSale = 'ONSALE',
+    allConditions = 'ALL_CONDITIONS',
+    readyOnSale = 'READY_ONSALE',
+    reservationAndOnSale = 'RESERVATION_AND_ONSALE',
+}
+
+enum discountedComparison {
+    gt = 'GT',
+    lte = 'LTE',
+    gte = 'GTE',
+    eq = 'EQ',
+    between = 'BETWEEN',
+}
+
+enum deliveryConditionType {
+    free = 'FREE',
+    contitional = 'CONDITIONAL',
+    fixedFee = 'FIXED_FEE',
+}
+
+enum by {
+    popular = 'POPULAR',
+    saleYmd = 'SALE_YMD',
+    discountedPrice = 'DISCOUNTED_PRICE',
+    review = 'REVIEW',
+    saleCnt = 'SALE_CNT',
+    recentProduct = 'RECENT_PRODUCT',
+    mdRecommend = 'MD_RECOMMEND',
+    likeCnt = 'LIKE_CNT',
+}
+
+enum shippingAreaType {
+    partner = 'PARTNER',
+    mall = 'MALL',
+}
+
+enum channelType {
+    naverEp = 'NAVER_EP',
+    danawa = 'DANAWA',
+    enuri = 'ENURI',
+    wonder = 'WONDER',
+    coocha = 'COOCHA',
+    facebook = 'FACEBOOK',
+}
+
 interface ProductsParams {
     deliveryTemplateNo: Number;
-    hasOptionValues?: Boolean;
-    pageSize?: Number;
-    pageNumbewr?: Number;
-    productSort?: { criterion?: String; direction?: String };
+    hasOptionValues?: Boolean | null;
+    pageSize?: Number | null;
+    pageNumber?: Number | null;
+    productSort?: {
+        criterion?: Criterion | null;
+        direction?: Direction | null;
+    };
 }
 
 interface RestockParams {
@@ -17,14 +76,19 @@ interface RestockParams {
     phone: String;
 }
 
+interface GroupCodeParams {
+    groupManagementCodes: String[];
+    saleStatus: SaleStatus | null;
+    isSoldOut: Boolean | null;
+}
 interface ProductSearchParams {
     filter?: {
         discountedPrices?: Number;
         keywords?: String;
         keywordInResult?: String;
-        discountedComparison?: String;
-        deliveryConditionType?: String;
-        saleStatus?: String;
+        discountedComparison?: discountedComparison;
+        deliveryConditionType?: deliveryConditionType;
+        saleStatus?: SaleStatus;
         soldout?: Boolean;
         totalReviewCount?: Boolean;
         familyMalls?: Boolean;
@@ -33,8 +97,8 @@ interface ProductSearchParams {
         includeMallProductNo?: Number;
     };
     order?: {
-        by?: String;
-        direction?: String;
+        by?: by;
+        direction?: Direction;
         soldoutPlaceEnd?: Boolean;
     };
     categoryNos?: Number;
@@ -48,17 +112,20 @@ interface ProductSearchParams {
     hasTotalCount?: Boolean;
     hasOptionValues?: Boolean;
     includeSummaryInfo?: Boolean;
-    shippingAreaType?: String;
+    shippingAreaType?: shippingAreaType;
 }
 
 const product = {
     // TODO deliveryTemplateNo을 모름 500 error 발생 추후 테스트 필요
     getProductsBundle: ({
         deliveryTemplateNo,
-        hasOptionValues,
-        pageSize,
-        pageNumbewr,
-        productSort,
+        hasOptionValues = true,
+        pageSize = 30,
+        pageNumber = 1,
+        productSort = {
+            criterion: Criterion.recentProduct,
+            direction: Direction.descDeliveryFeignClient,
+        },
     }: ProductsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -67,7 +134,7 @@ const product = {
                 deliveryTemplateNo,
                 hasOptionValues,
                 pageSize,
-                pageNumbewr,
+                pageNumber,
                 productSort,
             },
         }),
@@ -79,11 +146,11 @@ const product = {
             data: { size },
         }),
 
-    groupManagementCodeInquiry: (
-        groupManagementCodes: String[],
-        saleStatus: String,
-        isSoldOut: Boolean,
-    ): Promise<AxiosResponse> =>
+    groupManagementCodeInquiry: ({
+        groupManagementCodes,
+        saleStatus = SaleStatus.onSale,
+        isSoldOut = false,
+    }: GroupCodeParams): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/products/group-management-code',
@@ -101,7 +168,7 @@ const product = {
     // TODO 샵바이 프리미엄 전용 (400 error)
     requestRestockNoti: ({
         optionNos,
-        privacyInfoAgreement,
+        privacyInfoAgreement = false,
         name,
         phone,
     }: RestockParams): Promise<AxiosResponse> =>
@@ -112,19 +179,23 @@ const product = {
         }),
 
     getProductsSearch: ({
-        filter,
-        order,
+        filter = {
+            soldout: false,
+            totalReviewCount: false,
+            familyMalls: false,
+        },
+        order = { direction: Direction.desc },
         categoryNos,
         brandNos,
         partnerNo,
         clientKey,
         pageNumber,
         pageSize,
-        onlySaleProduct,
-        hasMaxCouponAmt,
-        hasTotalCount,
-        hasOptionValues,
-        includeSummaryInfo,
+        onlySaleProduct = false,
+        hasMaxCouponAmt = false,
+        hasTotalCount = false,
+        hasOptionValues = false,
+        includeSummaryInfo = true,
         shippingAreaType,
     }: ProductSearchParams): Promise<AxiosResponse> =>
         request({
@@ -151,7 +222,7 @@ const product = {
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
     getProductDetail: (
         productNo: String,
-        channelType?: String,
+        channelType?: channelType,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -160,13 +231,13 @@ const product = {
         }),
 
     getProductBestReview: ({
-        filter,
+        filter = { familyMalls: false },
         categoryNos,
         clientKey,
         pageNumber,
         pageSize,
-        hasTotalCount,
-        hasOptionValues,
+        hasTotalCount = false,
+        hasOptionValues = false,
     }: ProductSearchParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -183,13 +254,13 @@ const product = {
         }),
 
     getProductBestSeller: ({
-        filter,
+        filter = { familyMalls: false },
         categoryNos,
         clientKey,
         pageNumber,
         pageSize,
-        hasTotalCount,
-        hasOptionValues,
+        hasTotalCount = false,
+        hasOptionValues = false,
     }: ProductSearchParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',

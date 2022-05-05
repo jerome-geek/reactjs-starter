@@ -1,4 +1,4 @@
-import display from './display';
-import product from './product';
+import display from 'api/product/display';
+import product from 'api/product/product';
 
 export { display, product };
