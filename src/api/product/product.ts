@@ -2,24 +2,24 @@ import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
 
-enum Criterion {
+enum CRITERION {
     recentProduct = 'RECENT_PRODUCT',
 }
 
-enum Direction {
+enum DIRECTION {
     descDeliveryFeignClient = 'DESCDeliveryFeignClient',
     desc = 'DESC',
     asc = 'ASC',
 }
 
-enum SaleStatus {
+enum SALE_STATUS {
     onSale = 'ONSALE',
     allConditions = 'ALL_CONDITIONS',
     readyOnSale = 'READY_ONSALE',
     reservationAndOnSale = 'RESERVATION_AND_ONSALE',
 }
 
-enum discountedComparison {
+enum DISCOUNTED_COMPARISON {
     gt = 'GT',
     lte = 'LTE',
     gte = 'GTE',
@@ -27,13 +27,13 @@ enum discountedComparison {
     between = 'BETWEEN',
 }
 
-enum deliveryConditionType {
+enum DELIVERY_CONDITION_TYPE {
     free = 'FREE',
-    contitional = 'CONDITIONAL',
+    conditional = 'CONDITIONAL',
     fixedFee = 'FIXED_FEE',
 }
 
-enum by {
+enum BY {
     popular = 'POPULAR',
     saleYmd = 'SALE_YMD',
     discountedPrice = 'DISCOUNTED_PRICE',
@@ -44,12 +44,12 @@ enum by {
     likeCnt = 'LIKE_CNT',
 }
 
-enum shippingAreaType {
+enum SHIPPING_AREA_TYPE {
     partner = 'PARTNER',
     mall = 'MALL',
 }
 
-enum channelType {
+enum CHANNEL_TYPE {
     naverEp = 'NAVER_EP',
     danawa = 'DANAWA',
     enuri = 'ENURI',
@@ -64,8 +64,8 @@ interface ProductsParams {
     pageSize?: Number | null;
     pageNumber?: Number | null;
     productSort?: {
-        criterion?: Criterion | null;
-        direction?: Direction | null;
+        criterion?: CRITERION | null;
+        direction?: DIRECTION | null;
     };
 }
 
@@ -78,7 +78,7 @@ interface RestockParams {
 
 interface GroupCodeParams {
     groupManagementCodes: String[];
-    saleStatus: SaleStatus | null;
+    saleStatus: SALE_STATUS | null;
     isSoldOut: Boolean | null;
 }
 interface ProductSearchParams {
@@ -86,9 +86,9 @@ interface ProductSearchParams {
         discountedPrices?: Number;
         keywords?: String;
         keywordInResult?: String;
-        discountedComparison?: discountedComparison;
-        deliveryConditionType?: deliveryConditionType;
-        saleStatus?: SaleStatus;
+        discountedComparison?: DISCOUNTED_COMPARISON;
+        deliveryConditionType?: DELIVERY_CONDITION_TYPE;
+        saleStatus?: SALE_STATUS;
         soldout?: Boolean;
         totalReviewCount?: Boolean;
         familyMalls?: Boolean;
@@ -97,8 +97,8 @@ interface ProductSearchParams {
         includeMallProductNo?: Number;
     };
     order?: {
-        by?: by;
-        direction?: Direction;
+        by?: BY;
+        direction?: DIRECTION;
         soldoutPlaceEnd?: Boolean;
     };
     categoryNos?: Number;
@@ -112,19 +112,19 @@ interface ProductSearchParams {
     hasTotalCount?: Boolean;
     hasOptionValues?: Boolean;
     includeSummaryInfo?: Boolean;
-    shippingAreaType?: shippingAreaType;
+    shippingAreaType?: SHIPPING_AREA_TYPE;
 }
 
 const product = {
     // TODO deliveryTemplateNo을 모름 500 error 발생 추후 테스트 필요
     getProductsBundle: ({
         deliveryTemplateNo,
-        hasOptionValues = true,
+        hasOptionValues = false,
         pageSize = 30,
         pageNumber = 1,
         productSort = {
-            criterion: Criterion.recentProduct,
-            direction: Direction.descDeliveryFeignClient,
+            criterion: CRITERION.recentProduct,
+            direction: DIRECTION.descDeliveryFeignClient,
         },
     }: ProductsParams): Promise<AxiosResponse> =>
         request({
@@ -148,7 +148,7 @@ const product = {
 
     groupManagementCodeInquiry: ({
         groupManagementCodes,
-        saleStatus = SaleStatus.onSale,
+        saleStatus = SALE_STATUS.onSale,
         isSoldOut = false,
     }: GroupCodeParams): Promise<AxiosResponse> =>
         request({
@@ -166,7 +166,7 @@ const product = {
         }),
 
     // TODO 샵바이 프리미엄 전용 (400 error)
-    requestRestockNoti: ({
+    requestRestockNotification: ({
         optionNos,
         privacyInfoAgreement = false,
         name,
@@ -184,7 +184,7 @@ const product = {
             totalReviewCount: false,
             familyMalls: false,
         },
-        order = { direction: Direction.desc },
+        order = { direction: DIRECTION.desc },
         categoryNos,
         brandNos,
         partnerNo,
@@ -222,7 +222,7 @@ const product = {
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
     getProductDetail: (
         productNo: String,
-        channelType?: channelType,
+        channelType?: CHANNEL_TYPE,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',

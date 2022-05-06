@@ -2,11 +2,11 @@ import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
 
-enum Criterion {
+enum CRITERION {
     productCount = 'PRODUCT_COUNT',
 }
 
-enum Direction {
+enum DIRECTION {
     desc = 'DESC',
     asc = 'ASC',
 }
@@ -17,7 +17,7 @@ interface BrandsParams {
     pageSize?: Number;
     hasTotalCount?: Boolean;
     fromDB?: Boolean;
-    sort?: { criterion?: Criterion; direction?: Direction };
+    sort?: { criterion?: CRITERION; direction?: DIRECTION };
 }
 
 const display = {
@@ -27,7 +27,7 @@ const display = {
         pageSize,
         hasTotalCount = false,
         fromDB = false,
-        sort = { criterion: Criterion.productCount, direction: Direction.desc },
+        sort = { criterion: CRITERION.productCount, direction: DIRECTION.desc },
     }: BrandsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
