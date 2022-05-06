@@ -36,7 +36,7 @@ const coupon = {
     getCouponsSummary: (expireDay: String): Promise<AxiosResponse> =>
         request({ method: 'GET', url: '/coupons/summary', data: expireDay }),
 
-    issuePromotionCoupons: (promotionCode: String): Promise<AxiosResponse> =>
+    issuePromotionCoupon: (promotionCode: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
@@ -54,8 +54,8 @@ const coupon = {
 
     getCouponsExcludeTargets: (
         couponNo: String,
-        pageNumber: 1,
-        pageSize: 10,
+        pageNumber: String,
+        pageSize: String,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -63,10 +63,10 @@ const coupon = {
             data: { pageNumber, pageSize },
         }),
 
-    getCouponsTargets: (
+    getCouponsTarget: (
         couponNo: String,
-        pageNumber: 1,
-        pageSize: 10,
+        pageNumber: String,
+        pageSize: String,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -74,21 +74,25 @@ const coupon = {
             data: { pageNumber, pageSize },
         }),
 
-    issueEventsCoupons: (eventNo: String): Promise<AxiosResponse> =>
+    issueEventCoupons: (eventNo: String): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/coupons/events/${eventNo}/download`,
         }),
 
-    issueProductCoupons: (productNo: String): Promise<AxiosResponse> =>
+    issueProductCoupons: (
+        productNo: String,
+        channelType: String,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/coupons/products/${productNo}/download`,
+            data: { channelType },
         }),
 
-    getCouponsProductsIssuable: (
+    searchAvailableCoupons: (
         productNo: String,
-        channelType: String,
+        channelType?: String,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',

@@ -1,3 +1,3 @@
-import coupon from './coupon';
+import coupon from 'api/promotion/coupon';
 
 export { coupon };
