@@ -27,10 +27,7 @@ const display = {
         pageSize,
         hasTotalCount = false,
         fromDB = false,
-        sort = {
-            criterion: CRITERION.PRODUCT_COUNT,
-            direction: DIRECTION.DESC,
-        },
+        sort,
     }: BrandsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -42,7 +39,8 @@ const display = {
                 pageSize,
                 hasTotalCount,
                 fromDB,
-                sort,
+                'sort.criterion': sort?.criterion,
+                'sort.direction': sort?.direction,
             },
         }),
 

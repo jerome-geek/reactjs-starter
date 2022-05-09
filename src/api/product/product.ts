@@ -3,59 +3,59 @@ import { AxiosResponse } from 'axios';
 import request from 'api/core';
 
 enum CRITERION {
-    recentProduct = 'RECENT_PRODUCT',
+    RECENT_PRODUCT = 'RECENT_PRODUCT',
 }
 
 enum DIRECTION {
-    descDeliveryFeignClient = 'DESCDeliveryFeignClient',
-    desc = 'DESC',
-    asc = 'ASC',
+    DESC_DELIVERY_FEIGN_CLIENT = 'DESCDeliveryFeignClient',
+    DESC = 'DESC',
+    ASC = 'ASC',
 }
 
 enum SALE_STATUS {
-    onSale = 'ONSALE',
-    allConditions = 'ALL_CONDITIONS',
-    readyOnSale = 'READY_ONSALE',
-    reservationAndOnSale = 'RESERVATION_AND_ONSALE',
+    ON_SALE = 'ONSALE',
+    ALL_CONDITIONS = 'ALL_CONDITIONS',
+    READY_ON_SALE = 'READY_ONSALE',
+    RESERVATION_AND_ON_SALE = 'RESERVATION_AND_ONSALE',
 }
 
 enum DISCOUNTED_COMPARISON {
-    gt = 'GT',
-    lte = 'LTE',
-    gte = 'GTE',
-    eq = 'EQ',
-    between = 'BETWEEN',
+    GT = 'GT',
+    LTE = 'LTE',
+    GTE = 'GTE',
+    EQ = 'EQ',
+    BETWEEN = 'BETWEEN',
 }
 
 enum DELIVERY_CONDITION_TYPE {
-    free = 'FREE',
-    conditional = 'CONDITIONAL',
-    fixedFee = 'FIXED_FEE',
+    FREE = 'FREE',
+    CONDITIONAL = 'CONDITIONAL',
+    FIXED_FEE = 'FIXED_FEE',
 }
 
 enum BY {
-    popular = 'POPULAR',
-    saleYmd = 'SALE_YMD',
-    discountedPrice = 'DISCOUNTED_PRICE',
-    review = 'REVIEW',
-    saleCnt = 'SALE_CNT',
-    recentProduct = 'RECENT_PRODUCT',
-    mdRecommend = 'MD_RECOMMEND',
-    likeCnt = 'LIKE_CNT',
+    POPULAR = 'POPULAR',
+    SALE_YMD = 'SALE_YMD',
+    DISCOUNTED_PRICE = 'DISCOUNTED_PRICE',
+    REVIEW = 'REVIEW',
+    SALE_CNT = 'SALE_CNT',
+    RECENT_PRODUCT = 'RECENT_PRODUCT',
+    MD_RECOMMEND = 'MD_RECOMMEND',
+    LIKE_CNT = 'LIKE_CNT',
 }
 
 enum SHIPPING_AREA_TYPE {
-    partner = 'PARTNER',
-    mall = 'MALL',
+    PARTNER = 'PARTNER',
+    MALL = 'MALL',
 }
 
 enum CHANNEL_TYPE {
-    naverEp = 'NAVER_EP',
-    danawa = 'DANAWA',
-    enuri = 'ENURI',
-    wonder = 'WONDER',
-    coocha = 'COOCHA',
-    facebook = 'FACEBOOK',
+    NAVER_EP = 'NAVER_EP',
+    DANAWA = 'DANAWA',
+    ENURI = 'ENURI',
+    WONDER = 'WONDER',
+    COOCHA = 'COOCHA',
+    FACEBOOK = 'FACEBOOK',
 }
 
 interface ProductsParams {
@@ -122,20 +122,18 @@ const product = {
         hasOptionValues = false,
         pageSize = 30,
         pageNumber = 1,
-        productSort = {
-            criterion: CRITERION.recentProduct,
-            direction: DIRECTION.descDeliveryFeignClient,
-        },
+        productSort,
     }: ProductsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/bundle-shipping',
-            data: {
+            params: {
                 deliveryTemplateNo,
                 hasOptionValues,
                 pageSize,
                 pageNumber,
-                productSort,
+                'productSort.criterion': productSort?.criterion,
+                'productSort.direction': productSort?.direction,
             },
         }),
 
@@ -143,12 +141,12 @@ const product = {
         request({
             method: 'GET',
             url: '/products/favoriteKeywords',
-            data: { size },
+            params: { size },
         }),
 
     groupManagementCodeInquiry: ({
         groupManagementCodes,
-        saleStatus = SALE_STATUS.onSale,
+        saleStatus = SALE_STATUS.ON_SALE,
         isSoldOut = false,
     }: GroupCodeParams): Promise<AxiosResponse> =>
         request({
@@ -162,7 +160,7 @@ const product = {
         request({
             method: 'GET',
             url: '/products/options',
-            data: { productNos },
+            params: { productNos },
         }),
 
     // TODO 샵바이 프리미엄 전용 (400 error)
@@ -184,7 +182,7 @@ const product = {
             totalReviewCount: false,
             familyMalls: false,
         },
-        order = { direction: DIRECTION.desc },
+        order = { direction: DIRECTION.DESC },
         categoryNos,
         brandNos,
         partnerNo,
@@ -201,9 +199,22 @@ const product = {
         request({
             method: 'GET',
             url: '/products/search',
-            data: {
-                filter,
-                order,
+            params: {
+                'filter.discountedPrices': filter.discountedPrices,
+                'filter.keywords': filter.keywords,
+                'filter.keywordInResult': filter.keywordInResult,
+                'filter.discountedComparison': filter.discountedComparison,
+                'filter.deliveryConditionType': filter.deliveryConditionType,
+                'filter.saleStatus': filter.saleStatus,
+                'filter.soldout': filter.soldout,
+                'filter.totalReviewCount': filter.totalReviewCount,
+                'filter.familyMalls': filter.familyMalls,
+                'filter.productManagementCd': filter.productManagementCd,
+                'filter.excludeMallProductNo': filter.excludeMallProductNo,
+                'filter.includeMallProductNo': filter.includeMallProductNo,
+                'order.by': order.by,
+                'order.direction': order.direction,
+                'order.soldoutPlaceEnd': order.soldoutPlaceEnd,
                 categoryNos,
                 brandNos,
                 partnerNo,
@@ -227,7 +238,7 @@ const product = {
         request({
             method: 'GET',
             url: `/products/${productNo}`,
-            data: { channelType },
+            params: { channelType },
         }),
 
     getProductBestReview: ({
@@ -238,12 +249,21 @@ const product = {
         pageSize,
         hasTotalCount = false,
         hasOptionValues = false,
-    }: ProductSearchParams): Promise<AxiosResponse> =>
+    }: Pick<
+        ProductSearchParams,
+        | 'filter'
+        | 'categoryNos'
+        | 'clientKey'
+        | 'pageNumber'
+        | 'pageSize'
+        | 'hasTotalCount'
+        | 'hasOptionValues'
+    >): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/best-review/search',
-            data: {
-                filter,
+            params: {
+                'filter.familyMalls': filter.familyMalls,
                 categoryNos,
                 clientKey,
                 pageNumber,
@@ -261,12 +281,21 @@ const product = {
         pageSize,
         hasTotalCount = false,
         hasOptionValues = false,
-    }: ProductSearchParams): Promise<AxiosResponse> =>
+    }: Pick<
+        ProductSearchParams,
+        | 'filter'
+        | 'categoryNos'
+        | 'clientKey'
+        | 'pageNumber'
+        | 'pageSize'
+        | 'hasTotalCount'
+        | 'hasOptionValues'
+    >): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/best-seller/search',
-            data: {
-                filter,
+            params: {
+                'filter.familyMalls': filter.familyMalls,
                 categoryNos,
                 clientKey,
                 pageNumber,
