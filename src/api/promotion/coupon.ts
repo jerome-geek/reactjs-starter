@@ -40,7 +40,11 @@ const coupon = {
     }: {
         expireDay: String;
     }): Promise<AxiosResponse> =>
-        request({ method: 'GET', url: '/coupons/summary', data: expireDay }),
+        request({
+            method: 'GET',
+            url: '/coupons/summary',
+            data: { expireDay },
+        }),
 
     issueCouponByPromotionCode: (
         promotionCode: String,
