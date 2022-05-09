@@ -3,12 +3,12 @@ import { AxiosResponse } from 'axios';
 import request from 'api/core';
 
 enum CRITERION {
-    productCount = 'PRODUCT_COUNT',
+    PRODUCT_COUNT = 'PRODUCT_COUNT',
 }
 
 enum DIRECTION {
-    desc = 'DESC',
-    asc = 'ASC',
+    DESC = 'DESC',
+    ASC = 'ASC',
 }
 
 interface BrandsParams {
@@ -27,12 +27,23 @@ const display = {
         pageSize,
         hasTotalCount = false,
         fromDB = false,
-        sort = { criterion: CRITERION.productCount, direction: DIRECTION.desc },
+        sort = {
+            criterion: CRITERION.PRODUCT_COUNT,
+            direction: DIRECTION.DESC,
+        },
     }: BrandsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/brands',
-            data: { filter, pageNumber, pageSize, hasTotalCount, fromDB, sort },
+            params: {
+                'filter.name': filter?.name,
+                'filter.categoryNo': filter?.categoryNo,
+                pageNumber,
+                pageSize,
+                hasTotalCount,
+                fromDB,
+                sort,
+            },
         }),
 
     // TODO brandNo 400 error 발생 추후 테스트 필요
