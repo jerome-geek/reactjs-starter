@@ -10,6 +10,8 @@ interface CouponsParams {
     usable: String;
 }
 
+type TargetParams = Pick<CouponsParams, 'pageNumber' | 'pageSize'>;
+
 const coupon = {
     getCoupons: ({
         endYmd,
@@ -33,10 +35,16 @@ const coupon = {
     getCouponsIssuable: (): Promise<AxiosResponse> =>
         request({ method: 'GET', url: '/coupons/issuable' }),
 
-    getCouponsSummary: (expireDay: String): Promise<AxiosResponse> =>
+    getCouponsSummary: ({
+        expireDay,
+    }: {
+        expireDay: String;
+    }): Promise<AxiosResponse> =>
         request({ method: 'GET', url: '/coupons/summary', data: expireDay }),
 
-    issuePromotionCoupon: (promotionCode: String): Promise<AxiosResponse> =>
+    issueCouponByPromotionCode: (
+        promotionCode: String,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
@@ -44,7 +52,7 @@ const coupon = {
 
     issueCoupons: (
         couponNo: String,
-        channelType: String,
+        { channelType }: { channelType: String },
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -54,8 +62,7 @@ const coupon = {
 
     getCouponsExcludeTargets: (
         couponNo: String,
-        pageNumber: String,
-        pageSize: String,
+        { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -65,8 +72,7 @@ const coupon = {
 
     getCouponsTarget: (
         couponNo: String,
-        pageNumber: String,
-        pageSize: String,
+        { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -82,7 +88,7 @@ const coupon = {
 
     issueProductCoupons: (
         productNo: String,
-        channelType: String,
+        { channelType }: { channelType: String },
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -92,7 +98,7 @@ const coupon = {
 
     searchAvailableCoupons: (
         productNo: String,
-        channelType?: String,
+        { channelType }: { channelType?: String },
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
