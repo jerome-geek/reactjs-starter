@@ -23,7 +23,7 @@ const coupon = {
         request({
             method: 'GET',
             url: '/coupons',
-            data: {
+            params: {
                 endYmd,
                 pageNumber,
                 pageSize,
@@ -43,7 +43,7 @@ const coupon = {
         request({
             method: 'GET',
             url: '/coupons/summary',
-            data: { expireDay },
+            params: { expireDay },
         }),
 
     issueCouponByPromotionCode: (
@@ -64,14 +64,14 @@ const coupon = {
             data: { channelType },
         }),
 
-    getCouponsExcludeTargets: (
+    getExcludeTargetsByCouponNumber: (
         couponNo: String,
         { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/coupons/${couponNo}/exclude-targets`,
-            data: { pageNumber, pageSize },
+            params: { pageNumber, pageSize },
         }),
 
     getCouponsTarget: (
@@ -81,7 +81,7 @@ const coupon = {
         request({
             method: 'GET',
             url: `/coupons/${couponNo}/targets`,
-            data: { pageNumber, pageSize },
+            params: { pageNumber, pageSize },
         }),
 
     issueEventCoupons: (eventNo: String): Promise<AxiosResponse> =>
@@ -107,7 +107,7 @@ const coupon = {
         request({
             method: 'GET',
             url: `/coupons/products/${productNo}/issuable/coupons`,
-            data: { channelType },
+            params: { channelType },
         }),
 };
 
