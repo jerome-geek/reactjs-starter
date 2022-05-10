@@ -67,7 +67,7 @@ interface MyProductReviewsParams {
     searchKeyword: String;
 }
 
-interface MyAvailableReviewsParams {
+interface MyReviewableProductsParams {
     startDate: String;
     endDate: String;
     productName: String;
@@ -314,7 +314,7 @@ const review = {
             }),
         }),
 
-    getMyAvailableReviews: ({
+    getMyReviewableProducts: ({
         pageNumber = 1,
         pageSize,
         hasTotalCount = false,
@@ -323,11 +323,11 @@ const review = {
         productName,
         productNo,
         orderNo,
-    }: MyAvailableReviewsParams & Paging): Promise<AxiosResponse> =>
+    }: MyReviewableProductsParams & Paging): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/order-options/product-reviewable',
-            data: {
+            params: {
                 pageNumber,
                 pageSize,
                 hasTotalCount,
