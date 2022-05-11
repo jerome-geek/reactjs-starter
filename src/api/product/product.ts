@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
+import { defaultHeaders } from 'api/core';
 
 enum CRITERION {
     RECENT_PRODUCT = 'RECENT_PRODUCT',
@@ -142,6 +143,9 @@ const product = {
             method: 'GET',
             url: '/products/favoriteKeywords',
             params: { size },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     groupManagementCodeInquiry: ({
@@ -153,6 +157,9 @@ const product = {
             method: 'POST',
             url: '/products/group-management-code',
             data: { groupManagementCodes, saleStatus, isSoldOut },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     // TODO productNos을 모름 400 error 발생 추후 테스트 필요
@@ -161,6 +168,9 @@ const product = {
             method: 'GET',
             url: '/products/options',
             params: { productNos },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     // TODO 샵바이 프리미엄 전용 (400 error)
@@ -174,6 +184,9 @@ const product = {
             method: 'POST',
             url: '/products/restock',
             data: { optionNos, privacyInfoAgreement, name, phone },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     getProductsSearch: ({
@@ -228,6 +241,9 @@ const product = {
                 includeSummaryInfo,
                 shippingAreaType,
             },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
@@ -239,6 +255,9 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}`,
             params: { channelType },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     getProductBestReview: ({
@@ -271,6 +290,9 @@ const product = {
                 hasTotalCount,
                 hasOptionValues,
             },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     getProductBestSeller: ({
@@ -303,12 +325,18 @@ const product = {
                 hasTotalCount,
                 hasOptionValues,
             },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     getProductDisplayCategories: (productNo: String): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/display-categories`,
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
@@ -316,6 +344,9 @@ const product = {
         request({
             method: 'GET',
             url: `/products/${productNo}/options`,
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     getProductsRelated: (productNo: String): Promise<AxiosResponse> =>
@@ -328,6 +359,9 @@ const product = {
         request({
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
@@ -345,6 +379,9 @@ const product = {
         request({
             method: 'GET',
             url: `/products/${productNo}/options/${optionNo}/images`,
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.accessToken,
+            }),
         }),
 };
 
