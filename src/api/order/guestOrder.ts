@@ -14,7 +14,7 @@ import {
 
 const guestOrder = {
     // TODO parameter 모름 400, 404 error 발생 추후 테스트 필요
-    getShoppingCart: (
+    getCart: (
         {
             orderCnt,
             channelType,
@@ -41,7 +41,7 @@ const guestOrder = {
             ],
         }),
 
-    orderDetail: (
+    getOrderDetail: (
         orderNo: String,
         { orderRequestType }: { orderRequestType?: ORDER_REQUEST_TYPE },
     ): Promise<AxiosResponse> =>
@@ -74,7 +74,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    deliveryCompleted: (
+    requestDeliveryCompletion: (
         orderOptionNo: String,
         { guestToken }: GuestToken,
     ): Promise<AxiosResponse> =>
@@ -85,7 +85,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
-    receiptRequest: (
+    requestReceipt: (
         orderNo: String,
         { guestToken }: GuestToken,
         { cashReceiptIssuePurposeType, cashReceiptKey }: ReceiptBody,
@@ -97,7 +97,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
-    orderCancelDetail: (
+    getOrderCancelDetail: (
         orderNo: String,
         {
             orderRequestType,
@@ -111,7 +111,7 @@ const guestOrder = {
         }),
 
     // TODO guestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
-    modifyDeliveryInfo: (
+    updateDeliveryInfo: (
         orderNo: String,
         guestToken: String,
         {
