@@ -61,12 +61,12 @@ enum CHANNEL_TYPE {
 
 interface ProductsParams {
     deliveryTemplateNo: Number;
-    hasOptionValues?: Boolean | null;
-    pageSize?: Number | null;
-    pageNumber?: Number | null;
+    hasOptionValues?: Boolean;
+    pageSize?: Number;
+    pageNumber?: Number;
     productSort?: {
-        criterion?: CRITERION | null;
-        direction?: DIRECTION | null;
+        criterion?: CRITERION;
+        direction?: DIRECTION;
     };
 }
 
@@ -79,8 +79,8 @@ interface RestockParams {
 
 interface GroupCodeParams {
     groupManagementCodes: String[];
-    saleStatus: SALE_STATUS | null;
-    isSoldOut: Boolean | null;
+    saleStatus?: SALE_STATUS;
+    isSoldOut?: Boolean;
 }
 interface ProductSearchParams {
     filter?: {
