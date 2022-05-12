@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 
-import request from 'api/core';
-import { defaultHeaders } from 'api/core';
+import request, { defaultHeaders } from 'api/core';
 
 export enum SEARCH_TYPE {
     ALL = 'ALL',
@@ -55,7 +54,7 @@ const board = {
         }),
 
     // TODO boardNo 모름, 404 error 발생 추후 테스트 필요
-    getArticlesByBoardId: (
+    getArticlesByBoardNo: (
         boardNo: string,
         {
             pageNumber,
@@ -90,7 +89,7 @@ const board = {
         }),
 
     // TODO 404 error (message: 존재하지 않는 게시판입니다.) boardNo를 모름
-    postArticle: (
+    createArticle: (
         boardNo: string,
         {
             images,
