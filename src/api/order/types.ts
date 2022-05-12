@@ -124,52 +124,52 @@ export enum REPLY_TYPE {
 }
 
 export type GuestToken = {
-    guestToken: String;
+    guestToken: string;
 };
 
 export interface OptionInputsParams {
-    inputValue: String | null;
-    inputLabel: String | null;
+    inputValue?: string;
+    inputLabel?: string;
 }
 
 export interface ShoppingCartBody {
-    orderCnt: Number;
-    channelType: String;
+    orderCnt: number;
+    channelType: string;
     optionInputs: OptionInputsParams[];
-    optionNo: Number;
-    productNo: Number;
-    cartNo: Number;
+    optionNo: number;
+    productNo: number;
+    cartNo: number;
 }
 
 export interface TokenIssueBody {
-    password: String | null;
-    name: String | null;
-    mobileNo: String | null;
-    email: String | null;
+    password?: string;
+    name?: string;
+    mobileNo?: string;
+    email?: string;
     orderRequestType: ORDER_REQUEST_TYPE;
 }
 
 export interface ReceiptBody {
     cashReceiptIssuePurposeType: CASH_RECEIPT_ISSUE_PURPOSE_TYPE;
-    cashReceiptKey: String;
+    cashReceiptKey: string;
 }
 
 export interface DeliveryBody {
-    receiverZipCd: String;
-    receiverAddress: String;
-    receiverJibunAddress: String; // 대한민국 주소의 경우는 필수 값
-    receiverDetailAddress: String;
-    receiverName: String;
-    receiverContact1: String;
-    receiverContact2: String | null;
-    customsIdNumber: String | null;
-    countryCd: COUNTRY_CD | null; // default mall의 국가코드
-    deliveryMemo: String | null;
+    receiverZipCd: string;
+    receiverAddress: string;
+    receiverJibunAddress: string; // 대한민국 주소의 경우는 필수 값
+    receiverDetailAddress: string;
+    receiverName: string;
+    receiverContact1: string;
+    receiverContact2?: string;
+    customsIdnumber?: string;
+    countryCd?: COUNTRY_CD; // default mall의 국가코드
+    deliveryMemo?: string;
 }
 
 export interface PasswordParams {
     replyType: REPLY_TYPE;
-    mobileNo?: String;
-    email?: String;
-    name?: String;
+    mobileNo?: string;
+    email?: string;
+    name?: string;
 }

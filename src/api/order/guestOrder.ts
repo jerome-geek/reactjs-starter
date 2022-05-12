@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
+import { defaultHeaders } from 'api/core';
 import {
     ShoppingCartBody,
     TokenIssueBody,
@@ -14,17 +15,17 @@ import {
 
 const guestOrder = {
     // TODO parameter 모름 400, 404 error 발생 추후 테스트 필요
-    getCart: (
-        {
-            orderCnt,
-            channelType,
-            optionInputs,
-            optionNo,
-            productNo,
-            cartNo,
-        }: ShoppingCartBody,
-        { divideInvalidProducts }: { divideInvalidProducts?: Boolean },
-    ): Promise<AxiosResponse> =>
+    getCart: ({
+        orderCnt,
+        channelType,
+        optionInputs,
+        optionNo,
+        productNo,
+        cartNo,
+        divideInvalidProducts,
+    }: ShoppingCartBody & {
+        divideInvalidProducts?: Boolean;
+    }): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/guest/cart',
@@ -81,14 +82,20 @@ const guestOrder = {
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/delivery-done`,
-            data: { orderOptionNo, guestToken },
+            data: { orderOptionNo },
+            headers: Object.assign({}, defaultHeaders(), {
+                guestToken: guestToken,
+            }),
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     requestReceipt: (
         orderNo: String,
-        { guestToken }: GuestToken,
-        { cashReceiptIssuePurposeType, cashReceiptKey }: ReceiptBody,
+        {
+            cashReceiptIssuePurposeType,
+            cashReceiptKey,
+            guestToken,
+        }: ReceiptBody & GuestToken,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -122,11 +129,11 @@ const guestOrder = {
             receiverName,
             receiverContact1,
             receiverContact2,
-            customsIdNumber,
+            customIdNumber,
             countryCd,
             deliveryMemo,
-        }: DeliveryBody,
-        { add }: { add: Boolean },
+            add,
+        }: DeliveryBody & { add: Boolean },
     ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
@@ -141,7 +148,7 @@ const guestOrder = {
                 receiverName,
                 receiverContact1,
                 receiverContact2,
-                customsIdNumber,
+                customIdNumber,
                 countryCd,
                 deliveryMemo,
             },
