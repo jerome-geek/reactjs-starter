@@ -67,7 +67,7 @@ const coupon = {
             url: `coupons/register-code/${promotionCode}`,
         }),
 
-    issueCoupons: (
+    issueCoupon: (
         couponNo: string,
         { channelType }: { channelType: string },
     ): Promise<AxiosResponse> =>
@@ -90,7 +90,7 @@ const coupon = {
             }),
         }),
 
-    getCouponsTarget: (
+    getCouponTargets: (
         couponNo: string,
         { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
@@ -119,7 +119,7 @@ const coupon = {
             data: { channelType },
         }),
 
-    searchAvailableCoupons: (
+    getIssuableCoupons: (
         productNo: string,
         { channelType }: { channelType?: string },
     ): Promise<AxiosResponse> =>
