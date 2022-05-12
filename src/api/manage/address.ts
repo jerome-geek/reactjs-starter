@@ -3,9 +3,9 @@ import { AxiosResponse } from 'axios';
 import request from 'api/core';
 
 interface AddressParams {
-    pageNumber?: Number;
-    pageSize?: Number;
-    keyword: String;
+    pageNumber?: number;
+    pageSize?: number;
+    keyword: string;
 }
 
 const address = {

@@ -1,4 +1,4 @@
-import { Axios, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
 import { defaultHeaders } from 'api/core';
@@ -16,35 +16,35 @@ export enum DIRECTION {
 }
 
 interface ArticleParams {
-    pageNumber?: Number;
-    pageSize?: Number;
-    hasTotalCount?: Boolean;
-    keyword?: String;
+    pageNumber?: number;
+    pageSize?: number;
+    hasTotalCount?: boolean;
+    keyword?: string;
     searchType?: SEARCH_TYPE;
-    categoryNo?: Number;
-    startYmd?: String; // default 3개월
-    endYmd?: String; // default 오늘
-    withReplied?: Boolean;
+    categoryNo?: number;
+    startYmd?: string; // default 3개월
+    endYmd?: string; // default 오늘
+    withReplied?: boolean;
     direction?: DIRECTION;
-    isMine?: Boolean;
+    isMine?: boolean;
 }
 
 interface ImagesType {
-    originalFileName: String;
-    uploadedFileName: String;
+    originalFileName: string;
+    uploadedFileName: string;
 }
 
 interface PostArticleParams {
     images: ImagesType[];
-    password: String;
-    articleTitle: String;
-    imageUrls: String[];
-    parentBoardArticleNo: Number;
-    articleContent: String;
-    boardCategoryNo: Number;
-    secreted: Boolean;
-    tags: Nullable<String[]>;
-    guestName: String;
+    password: string;
+    articleTitle: string;
+    imageUrls: string[];
+    parentBoardArticleNo: number;
+    articleContent: string;
+    boardCategoryNo: number;
+    secreted: boolean;
+    tags?: string[];
+    guestName: string;
 }
 
 const board = {
@@ -56,7 +56,7 @@ const board = {
 
     // TODO boardNo 모름, 404 error 발생 추후 테스트 필요
     getArticlesByBoardId: (
-        boardNo: String,
+        boardNo: string,
         {
             pageNumber,
             pageSize,
@@ -91,7 +91,7 @@ const board = {
 
     // TODO 404 error (message: 존재하지 않는 게시판입니다.) boardNo를 모름
     postArticle: (
-        boardNo: String,
+        boardNo: string,
         {
             images,
             password,
@@ -121,20 +121,20 @@ const board = {
                 guestName,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
     // TODO 이후 함수들은 boardNo가 없어 전부 400번대 에러가 발생합니다. 테스트 필요함
-    getCategories: (boardNo: String): Promise<AxiosResponse> =>
+    getCategories: (boardNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/boards/${boardNo}/categories`,
         }),
 
     getArticleDetail: (
-        boardNo: String,
-        articleNo: String,
-        { password }: { password?: Nullable<String> },
+        boardNo: string,
+        articleNo: string,
+        { password }: { password?: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -143,8 +143,8 @@ const board = {
         }),
 
     updateArticle: (
-        boardNo: String,
-        articleNo: String,
+        boardNo: string,
+        articleNo: string,
         {
             images,
             password,
@@ -172,59 +172,59 @@ const board = {
                 guestName,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
     deleteArticle: (
-        boardNo: String,
-        articleNo: String,
-        { password }: { password?: Nullable<String> },
+        boardNo: string,
+        articleNo: string,
+        { password }: { password?: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'DELETE',
             url: `board/${boardNo}/articles/${articleNo}`,
             data: { password },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
     checkEditableArticle: (
-        boardNo: String,
-        articleNo: String,
-        { password }: { password?: Nullable<String> },
+        boardNo: string,
+        articleNo: string,
+        { password }: { password?: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `board/${boardNo}/articles/${articleNo}/editable`,
             data: { password },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
     recommendArticle: (
-        boardNo: String,
-        articleNo: String,
+        boardNo: string,
+        articleNo: string,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `board/${boardNo}/articles/${articleNo}/recommend`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
     cancelArticleRecommend: (
-        boardNo: String,
-        articleNo: String,
+        boardNo: string,
+        articleNo: string,
     ): Promise<AxiosResponse> =>
         request({
             method: 'DELETE',
             url: `board/${boardNo}/articles/${articleNo}/recommend`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 };
