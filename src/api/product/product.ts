@@ -358,7 +358,7 @@ const product = {
             url: `/products/${productNo}/related-products`,
         }),
 
-    getProductUrls: (productNo: string): Promise<AxiosResponse> =>
+    getShortUrl: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
