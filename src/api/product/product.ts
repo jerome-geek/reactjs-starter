@@ -144,7 +144,7 @@ const product = {
             url: '/products/favoriteKeywords',
             params: { size },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -158,7 +158,7 @@ const product = {
             url: '/products/group-management-code',
             data: { groupManagementCodes, saleStatus, isSoldOut },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -169,7 +169,7 @@ const product = {
             url: '/products/options',
             params: { productNos },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -185,7 +185,7 @@ const product = {
             url: '/products/restock',
             data: { optionNos, privacyInfoAgreement, name, phone },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -242,7 +242,7 @@ const product = {
                 shippingAreaType,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -256,7 +256,7 @@ const product = {
             url: `/products/${productNo}`,
             params: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -291,7 +291,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -326,7 +326,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -335,7 +335,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/display-categories`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -345,7 +345,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/options`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -360,7 +360,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -380,7 +380,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/options/${optionNo}/images`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 };
