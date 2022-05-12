@@ -3,24 +3,24 @@ import { AxiosResponse } from 'axios';
 import request from 'api/core';
 import { defaultHeaders } from 'api/core';
 
-enum CRITERION {
+export enum CRITERION {
     RECENT_PRODUCT = 'RECENT_PRODUCT',
 }
 
-enum DIRECTION {
+export enum DIRECTION {
     DESC_DELIVERY_FEIGN_CLIENT = 'DESCDeliveryFeignClient',
     DESC = 'DESC',
     ASC = 'ASC',
 }
 
-enum SALE_STATUS {
+export enum SALE_STATUS {
     ON_SALE = 'ONSALE',
     ALL_CONDITIONS = 'ALL_CONDITIONS',
     READY_ON_SALE = 'READY_ONSALE',
     RESERVATION_AND_ON_SALE = 'RESERVATION_AND_ONSALE',
 }
 
-enum DISCOUNTED_COMPARISON {
+export enum DISCOUNTED_COMPARISON {
     GT = 'GT',
     LTE = 'LTE',
     GTE = 'GTE',
@@ -28,13 +28,13 @@ enum DISCOUNTED_COMPARISON {
     BETWEEN = 'BETWEEN',
 }
 
-enum DELIVERY_CONDITION_TYPE {
+export enum DELIVERY_CONDITION_TYPE {
     FREE = 'FREE',
     CONDITIONAL = 'CONDITIONAL',
     FIXED_FEE = 'FIXED_FEE',
 }
 
-enum BY {
+export enum BY {
     POPULAR = 'POPULAR',
     SALE_YMD = 'SALE_YMD',
     DISCOUNTED_PRICE = 'DISCOUNTED_PRICE',
@@ -45,12 +45,12 @@ enum BY {
     LIKE_CNT = 'LIKE_CNT',
 }
 
-enum SHIPPING_AREA_TYPE {
+export enum SHIPPING_AREA_TYPE {
     PARTNER = 'PARTNER',
     MALL = 'MALL',
 }
 
-enum CHANNEL_TYPE {
+export enum CHANNEL_TYPE {
     NAVER_EP = 'NAVER_EP',
     DANAWA = 'DANAWA',
     ENURI = 'ENURI',
@@ -118,12 +118,15 @@ interface ProductSearchParams {
 
 const product = {
     // TODO deliveryTemplateNo을 모름 500 error 발생 추후 테스트 필요
-    getProductsBundle: ({
+    getBundleProducts: ({
         deliveryTemplateNo,
         hasOptionValues = false,
         pageSize = 30,
         pageNumber = 1,
-        productSort,
+        productSort = {
+            criterion: CRITERION.RECENT_PRODUCT,
+            direction: DIRECTION.DESC_DELIVERY_FEIGN_CLIENT,
+        },
     }: ProductsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -148,7 +151,7 @@ const product = {
             }),
         }),
 
-    groupManagementCodeInquiry: ({
+    getGroupManagementCodes: ({
         groupManagementCodes,
         saleStatus = SALE_STATUS.ON_SALE,
         isSoldOut = false,
@@ -189,7 +192,7 @@ const product = {
             }),
         }),
 
-    getProductsSearch: ({
+    searchProducts: ({
         filter = {
             soldout: false,
             totalReviewCount: false,
@@ -260,7 +263,7 @@ const product = {
             }),
         }),
 
-    getProductBestReview: ({
+    getBestReviewProducts: ({
         filter = { familyMalls: false },
         categoryNos,
         clientKey,
@@ -295,7 +298,7 @@ const product = {
             }),
         }),
 
-    getProductBestSeller: ({
+    getBestSellerProducts: ({
         filter = { familyMalls: false },
         categoryNos,
         clientKey,
@@ -349,13 +352,13 @@ const product = {
             }),
         }),
 
-    getProductsRelated: (productNo: string): Promise<AxiosResponse> =>
+    getRelatedProducts: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/related-products`,
         }),
 
-    getProductsUrl: (productNo: string): Promise<AxiosResponse> =>
+    getProductUrls: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
@@ -365,14 +368,14 @@ const product = {
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
-    getProductOptionsImages: (productNo: string): Promise<AxiosResponse> =>
+    getProductOptionImages: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/options/images`,
         }),
 
     // TODO productNo, optionNo을 모름 404 error 발생 추후 테스트 필요
-    getOptionsImages: (
+    getOptionImages: (
         productNo: string,
         optionNo: string,
     ): Promise<AxiosResponse> =>
