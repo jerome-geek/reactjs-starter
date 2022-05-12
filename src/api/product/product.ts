@@ -60,10 +60,10 @@ enum CHANNEL_TYPE {
 }
 
 interface ProductsParams {
-    deliveryTemplateNo: Number;
-    hasOptionValues?: Boolean;
-    pageSize?: Number;
-    pageNumber?: Number;
+    deliveryTemplateNo: number;
+    hasOptionValues?: boolean;
+    pageSize?: number;
+    pageNumber?: number;
     productSort?: {
         criterion?: CRITERION;
         direction?: DIRECTION;
@@ -71,48 +71,48 @@ interface ProductsParams {
 }
 
 interface RestockParams {
-    optionNos: Number[];
-    privacyInfoAgreement: Boolean;
-    name: String;
-    phone: String;
+    optionNos: number[];
+    privacyInfoAgreement: boolean;
+    name: string;
+    phone: string;
 }
 
 interface GroupCodeParams {
-    groupManagementCodes: String[];
+    groupManagementCodes: string[];
     saleStatus?: SALE_STATUS;
-    isSoldOut?: Boolean;
+    isSoldOut?: boolean;
 }
 interface ProductSearchParams {
     filter?: {
-        discountedPrices?: Number;
-        keywords?: String;
-        keywordInResult?: String;
+        discountedPrices?: number;
+        keywords?: string;
+        keywordInResult?: string;
         discountedComparison?: DISCOUNTED_COMPARISON;
         deliveryConditionType?: DELIVERY_CONDITION_TYPE;
         saleStatus?: SALE_STATUS;
-        soldout?: Boolean;
-        totalReviewCount?: Boolean;
-        familyMalls?: Boolean;
-        productManagementCd?: String;
-        excludeMallProductNo?: Number;
-        includeMallProductNo?: Number;
+        soldout?: boolean;
+        totalReviewCount?: boolean;
+        familyMalls?: boolean;
+        productManagementCd?: string;
+        excludeMallProductNo?: number;
+        includeMallProductNo?: number;
     };
     order?: {
         by?: BY;
         direction?: DIRECTION;
-        soldoutPlaceEnd?: Boolean;
+        soldoutPlaceEnd?: boolean;
     };
-    categoryNos?: Number;
-    brandNos?: Number;
-    partnerNo?: Number;
-    clientKey?: String;
-    pageNumber?: Number;
-    pageSize?: Number;
-    onlySaleProduct?: Boolean;
-    hasMaxCouponAmt?: Boolean;
-    hasTotalCount?: Boolean;
-    hasOptionValues?: Boolean;
-    includeSummaryInfo?: Boolean;
+    categoryNos?: number;
+    brandNos?: number;
+    partnerNo?: number;
+    clientKey?: string;
+    pageNumber?: number;
+    pageSize?: number;
+    onlySaleProduct?: boolean;
+    hasMaxCouponAmt?: boolean;
+    hasTotalCount?: boolean;
+    hasOptionValues?: boolean;
+    includeSummaryInfo?: boolean;
     shippingAreaType?: SHIPPING_AREA_TYPE;
 }
 
@@ -138,7 +138,7 @@ const product = {
             },
         }),
 
-    getFavoriteKeywords: (size?: Number): Promise<AxiosResponse> =>
+    getFavoriteKeywords: (size?: number): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/favoriteKeywords',
@@ -163,7 +163,7 @@ const product = {
         }),
 
     // TODO productNos을 모름 400 error 발생 추후 테스트 필요
-    getProductOptions: (productNos: Number): Promise<AxiosResponse> =>
+    getProductOptions: (productNos: number): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/options',
@@ -248,7 +248,7 @@ const product = {
 
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
     getProductDetail: (
-        productNo: String,
+        productNo: string,
         channelType?: CHANNEL_TYPE,
     ): Promise<AxiosResponse> =>
         request({
@@ -330,7 +330,7 @@ const product = {
             }),
         }),
 
-    getProductDisplayCategories: (productNo: String): Promise<AxiosResponse> =>
+    getProductDisplayCategories: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/display-categories`,
@@ -340,7 +340,7 @@ const product = {
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
-    getProductOption: (productNo: String): Promise<AxiosResponse> =>
+    getProductOption: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/options`,
@@ -349,13 +349,13 @@ const product = {
             }),
         }),
 
-    getProductsRelated: (productNo: String): Promise<AxiosResponse> =>
+    getProductsRelated: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/related-products`,
         }),
 
-    getProductsUrl: (productNo: String): Promise<AxiosResponse> =>
+    getProductsUrl: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
@@ -365,7 +365,7 @@ const product = {
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
-    getProductOptionsImages: (productNo: String): Promise<AxiosResponse> =>
+    getProductOptionsImages: (productNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/options/images`,
@@ -373,8 +373,8 @@ const product = {
 
     // TODO productNo, optionNo을 모름 404 error 발생 추후 테스트 필요
     getOptionsImages: (
-        productNo: String,
-        optionNo: String,
+        productNo: string,
+        optionNo: string,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',

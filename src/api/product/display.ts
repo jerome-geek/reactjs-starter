@@ -12,11 +12,11 @@ enum DIRECTION {
 }
 
 interface BrandsParams {
-    filter?: { name?: String; categoryNo?: Number };
-    pageNumber?: Number;
-    pageSize?: Number;
-    hasTotalCount?: Boolean;
-    fromDB?: Boolean;
+    filter?: { name?: string; categoryNo?: number };
+    pageNumber?: number;
+    pageSize?: number;
+    hasTotalCount?: boolean;
+    fromDB?: boolean;
     sort?: { criterion?: CRITERION; direction?: DIRECTION };
 }
 
