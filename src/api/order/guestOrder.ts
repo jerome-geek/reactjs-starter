@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 
-import request from 'api/core';
-import { defaultHeaders } from 'api/core';
+import request, { defaultHeaders } from 'api/core';
 import {
     ShoppingCartBody,
     TokenIssueBody,
@@ -104,7 +103,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
-    getOrderCancelDetail: (
+    getNonMemberOrderDetail: (
         orderNo: String,
         {
             orderRequestType,
@@ -155,7 +154,7 @@ const guestOrder = {
         }),
 
     // TODO orderNo 모름, 400 error 발생 추후 테스트 필요
-    getPasswordByEmail: (
+    sendPasswordByEmail: (
         orderNo: String,
         { replyType, mobileNo, email, name }: PasswordParams,
     ): Promise<AxiosResponse> =>

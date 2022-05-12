@@ -162,7 +162,7 @@ export interface DeliveryBody {
     receiverName: string;
     receiverContact1: string;
     receiverContact2?: string;
-    customsIdnumber?: string;
+    customIdNumber?: string;
     countryCd?: COUNTRY_CD; // default mall의 국가코드
     deliveryMemo?: string;
 }
