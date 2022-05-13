@@ -1,79 +1,14 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-export enum BEST_REVIEW_YN {
-    Y, // 우수 상품평
-    N, // 일반 상품평
-    NULL, // 전체
-}
-
-export enum MY_REVIEW_YN {
-    Y, // 내 상품평
-    N, // 전체 상품평
-}
-
-export enum HAS_ATTACHMENT_FILE {
-    Y, // 파일 첨부
-    N, // 파일 미첨부
-    ALL, // 빈값
-}
-
-export enum REPORT_REASON_CODE {
-    COPYRIGHT = 'COPYRIGHT',
-    SLANDER = 'SLANDER',
-}
-
-export enum SEARCH_TYPE {
-    CONTENT = 'CONTENT',
-    PRODUCT_NAME = 'PRODUCT_NAME',
-    ALL = 'ALL',
-}
-
-interface CategoryProductReviewsParams {
-    hasAttachmentFile: Boolean;
-    categoryDepth: Number;
-    categoryNo: Number;
-    productName: String;
-    brandName: String;
-    bestReviewYn: BEST_REVIEW_YN;
-    myReviewYn: MY_REVIEW_YN;
-}
-
-interface ProductReviewsParams {
-    hasAttachmentFile: HAS_ATTACHMENT_FILE;
-    bestReviewYn: BEST_REVIEW_YN;
-}
-
-interface ProductReviewBody {
-    optionNo: Number;
-    orderOptionNo: Number;
-    content: String;
-    rate: Number;
-    urls: String[];
-    extraJson: String;
-}
-
-interface ReportProductReviewBody {
-    reportReasonCd: REPORT_REASON_CODE;
-    content: String;
-}
-
-interface MyProductReviewsParams {
-    startYmd: String;
-    endYmd: String;
-    bestReviewYn: BEST_REVIEW_YN;
-    searchType: SEARCH_TYPE;
-    searchKeyword: String;
-}
-
-interface MyReviewableProductsParams {
-    startDate: String;
-    endDate: String;
-    productName: String;
-    productNo: Number;
-    orderNo: String;
-}
+import {
+    CategoryProductReviewsParams,
+    MyProductReviewsParams,
+    MyReviewableProductsParams,
+    ProductReviewBody,
+    ProductReviewsParams,
+    ReportProductReviewBody,
+} from 'models/display';
 
 const review = {
     getCategoryProductReviews: ({

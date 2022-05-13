@@ -1,22 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-interface ProductInquirySearch {
-    searchType: string;
-    searchKeyword: string;
-    answered: boolean;
-    isMyInquiries: boolean;
-}
-
-interface ProductInquiry {
-    parentInquiryNo: number;
-    title: string;
-    content: string;
-    secreted: boolean;
-    type: INQUIRY_TYPE;
-    email: string;
-}
+import { ProductInquiry, ProductInquirySearch } from 'models/display';
 
 const productInquiry = {
     getAllProductInquiries: ({

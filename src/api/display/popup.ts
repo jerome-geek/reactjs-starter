@@ -1,23 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-export enum PAGE_TYPE {
-    MAIN = 'MAIN', // 메인페이지
-    CATEGORY = 'CATEGORY', // 전시카테고리
-    EVENT = 'EVENT', // 기획전
-    PRODUCT = 'PRODUCT', // 상품
-}
-
-interface DesignPopup {
-    displayUrl?: string;
-    parameter?: string;
-}
-
-interface Popup {
-    pageType: PAGE_TYPE;
-    targetNo: number;
-}
+import { DesignPopup, Popup } from 'models/display';
 
 const popup = {
     getDesignPopups: ({

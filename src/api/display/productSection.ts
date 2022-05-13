@@ -1,16 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-interface ProductSection {
-    sectionNo: string;
-    sectionId: string;
-    by: BY;
-    direction: ORDER_DIRECTION;
-    soldout: boolean;
-    saleStatus: SALE_STATUS;
-    hasOptionValues: boolean;
-}
+import { ProductSection } from 'models/display';
 
 const productSection = {
     getProductSections: (): Promise<AxiosResponse> =>

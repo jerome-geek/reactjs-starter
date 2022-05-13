@@ -44,6 +44,35 @@ enum SEARCH_TYPE {
     PRODUCT_NAME = 'PRODUCT_NAME',
 }
 
+enum PAGE_TYPE {
+    MAIN = 'MAIN', // 메인페이지
+    CATEGORY = 'CATEGORY', // 전시카테고리
+    EVENT = 'EVENT', // 기획전
+    PRODUCT = 'PRODUCT', // 상품
+}
+
+enum BEST_REVIEW_YN {
+    Y, // 우수 상품평
+    N, // 일반 상품평
+    NULL, // 전체
+}
+
+enum MY_REVIEW_YN {
+    Y, // 내 상품평
+    N, // 전체 상품평
+}
+
+enum HAS_ATTACHMENT_FILE {
+    Y, // 파일 첨부
+    N, // 파일 미첨부
+    ALL, // 빈값
+}
+
+enum REPORT_REASON_CODE {
+    COPYRIGHT = 'COPYRIGHT',
+    SLANDER = 'SLANDER',
+}
+
 interface Sort {
     orderBy: ORDER_BY;
     orderDirection: ORDER_DIRECTION;

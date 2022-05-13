@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { skinBanners } from 'models/display';
 
 const banner = {
     getBanners: (bannerSectionCodes: string[]): Promise<AxiosResponse> =>
@@ -15,10 +16,7 @@ const banner = {
     getSkinBanners: ({
         skinCode,
         bannerGroupCodes,
-    }: {
-        skinCode: string;
-        bannerGroupCodes: string;
-    }): Promise<AxiosResponse> =>
+    }: skinBanners): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/skin-banners',
