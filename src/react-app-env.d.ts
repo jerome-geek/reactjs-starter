@@ -2,12 +2,6 @@
 
 type Nullable<T> = T | null;
 
-interface Paging {
-    pageNumber: Number;
-    pageSize: Number;
-    hasTotalCount: Boolean;
-}
-
 enum ORDER_DIRECTION {
     ASC = 'ASC',
     DESC = 'DESC',
@@ -18,6 +12,12 @@ enum ORDER_BY {
     REGISTER_YMDT = 'REGISTER_YMDT',
     RATING = 'RATING',
     BEST_REVIEW = 'BEST_REVIEW',
+}
+
+interface Paging {
+    pageNumber: Number;
+    pageSize: Number;
+    hasTotalCount: Boolean;
 }
 
 interface Sort {
