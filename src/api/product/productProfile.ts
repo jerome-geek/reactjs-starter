@@ -11,7 +11,7 @@ interface RecentProductBody {
 
 const productProfile = {
     // TODO mallProductNos 모름
-    getNonMemberRecentViewProducts: ({
+    getGuestRecentViewProducts: ({
         mallProductNos,
         soldout,
         hasOptionValues,
