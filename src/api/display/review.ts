@@ -108,7 +108,7 @@ const review = {
                 hasTotalCount,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -140,7 +140,7 @@ const review = {
                 hasTotalCount,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -167,7 +167,7 @@ const review = {
                 extraJson,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -180,7 +180,7 @@ const review = {
             url: `/products/${productNo}/reviewable-options`,
             params: { orderNo },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -192,7 +192,7 @@ const review = {
             method: 'GET',
             url: `/products/${productNo}/product-reviews/${reviewNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -214,7 +214,7 @@ const review = {
                 content,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -226,7 +226,7 @@ const review = {
             method: 'DELETE',
             url: `/products/${productNo}/product-reviews/${reviewNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -244,7 +244,7 @@ const review = {
                 size: pageSize,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -256,7 +256,7 @@ const review = {
             method: 'POST',
             url: `/products/${productNo}/product-reviews/${reviewNo}/recommend`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -268,7 +268,7 @@ const review = {
             method: 'DELETE',
             url: `/products/${productNo}/product-reviews/${reviewNo}/recommend`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -282,7 +282,7 @@ const review = {
             url: `/products/${productNo}/product-reviews/${reviewNo}/report`,
             data: { reviewNo, reportReasonCd, content },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -310,7 +310,7 @@ const review = {
                 searchKeyword,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -338,7 +338,7 @@ const review = {
                 orderNo,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 };

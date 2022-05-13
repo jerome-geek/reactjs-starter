@@ -3,12 +3,12 @@ import { AxiosResponse } from 'axios';
 import request, { defaultHeaders } from 'api/core';
 
 const banner = {
-    getBanners: (bannerSectionCodes: Array<String>): Promise<AxiosResponse> =>
+    getBanners: (bannerSectionCodes: string[]): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/display/banners/${bannerSectionCodes}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -16,8 +16,8 @@ const banner = {
         skinCode,
         bannerGroupCodes,
     }: {
-        skinCode: String;
-        bannerGroupCodes: String;
+        skinCode: string;
+        bannerGroupCodes: string;
     }): Promise<AxiosResponse> =>
         request({
             method: 'GET',

@@ -39,48 +39,48 @@ export enum OPEN_ID_PROVIDER {
 interface CertificatedNumber {
     type: AUTH_TYPE;
     usage: CERTIFICATED_USAGE;
-    certificatedNumber: String;
-    memberNo?: Nullable<Number>;
-    notiAccount?: Nullable<String>;
-    memberName: Nullable<String>;
+    certificatedNumber: string;
+    memberNo?: number;
+    notiAccount?: string;
+    memberName: string;
 }
 
 interface CheckBizmallBody {
-    companyNo: Number;
-    name: String;
-    idNo: String;
+    companyNo: number;
+    name: string;
+    idNo: string;
 }
 
 interface CertificatedNumberViaEmail<T> {
     usage: T;
-    email: String;
-    certificatedNumber: String;
-    memberName: Nullable<String>;
-    uri: Nullable<String>;
+    email: string;
+    certificatedNumber: string;
+    memberName: string;
+    uri: string;
 }
 
 interface CertificatedNumberViaSMS<T> {
     usage: T;
-    mobileNo: String;
-    key: String;
-    memberName: String;
+    mobileNo: string;
+    key: string;
+    memberName: string;
 }
 
 interface OpenIdAccessToken {
     provider: OPEN_ID_PROVIDER;
-    code: String;
-    openAccessToken: String;
-    redirectUri: String;
-    state: String;
+    code: string;
+    openAccessToken: string;
+    redirectUri: string;
+    state: string;
     platformType: PLATFORM_TYPE;
 }
 
 interface AccessTokenBody {
-    memberId: String;
-    password: String;
+    memberId: string;
+    password: string;
     keepLogin: Boolean;
-    captcha?: String;
-    provider?: Nullable<String>;
+    captcha?: string;
+    provider?: string;
 }
 
 const authentication = {
@@ -272,7 +272,7 @@ const authentication = {
             method: 'DELETE',
             url: '/oauth/token',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         });
     },
@@ -282,7 +282,7 @@ const authentication = {
             method: 'GET',
             url: '/openid/token',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         });
     },
