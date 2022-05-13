@@ -14,13 +14,48 @@ enum ORDER_BY {
     BEST_REVIEW = 'BEST_REVIEW',
 }
 
+enum BY {
+    SALE_YMD = 'SALE_YMD',
+    ADMIN_SETTING = 'ADMIN_SETTING',
+    POPULAR = 'POPULAR',
+    RECOMMENDATION = 'RECOMMENDATION',
+    DISCOUNTED_PRICE = 'DISCOUNTED_PRICE',
+}
+
+enum SALE_STATUS {
+    READY_ONSALE = 'READY_ONSALE', // 판매대기, 판매중 상품만 조회
+    ONSALE = 'ONSALE', // 판매중인 상품만 조회
+    RESERVATION_AND_ONSALE = 'RESERVATION_AND_ONSALE', // 예약판매중인 상품과 판매중인 상품만 조회
+}
+
+enum INQUIRY_TYPE {
+    PRODUCT = 'PRODUCT',
+    DELIVERY = 'DELIVERY',
+    CANCEL = 'CANCEL',
+    RETURN = 'RETURN',
+    EXCHANGE = 'EXCHANGE',
+    REFUND = 'REFUND',
+    OTHER = 'OTHER',
+}
+
+enum SEARCH_TYPE {
+    ALL = 'ALL',
+    CONTENT = 'CONTENT',
+    PRODUCT_NAME = 'PRODUCT_NAME',
+}
+
+interface Sort {
+    orderBy: ORDER_BY;
+    orderDirection: ORDER_DIRECTION;
+}
+
 interface Paging {
     pageNumber: Number;
     pageSize: Number;
     hasTotalCount: Boolean;
 }
 
-interface Sort {
-    orderBy: ORDER_BY;
-    orderDirection: ORDER_DIRECTION;
+interface SearchDate {
+    startYmd: string;
+    endYmd: string;
 }
