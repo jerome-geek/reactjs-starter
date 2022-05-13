@@ -89,7 +89,7 @@ const board = {
         }),
 
     // TODO 404 error (message: 존재하지 않는 게시판입니다.) boardNo를 모름
-    createArticle: (
+    writeArticle: (
         boardNo: string,
         {
             images,
