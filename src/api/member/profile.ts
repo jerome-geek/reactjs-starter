@@ -481,7 +481,7 @@ const profile = {
         }),
 
     // TODO certificationNumber 모름
-    updateProfileId: ({
+    updateId: ({
         updatesEmail,
         currentMemberId,
         newMemberId,
@@ -623,7 +623,7 @@ const profile = {
             params: { email },
         }),
 
-    sendUpdateIDEmail: ({ url }: { url: string }): Promise<AxiosResponse> =>
+    sendUpdateIdEmail: ({ url }: { url: string }): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/profile/id/email',
