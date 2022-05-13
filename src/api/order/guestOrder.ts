@@ -63,7 +63,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    purchaseConfirm: (
+    confirmOrder: (
         orderOptionNo: String,
         { guestToken }: GuestToken,
     ): Promise<AxiosResponse> =>
@@ -74,7 +74,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    requestDeliveryCompletion: (
+    processDeliveryCompletion: (
         orderOptionNo: String,
         { guestToken }: GuestToken,
     ): Promise<AxiosResponse> =>
@@ -83,7 +83,7 @@ const guestOrder = {
             url: `/guest/order-options/${orderOptionNo}/delivery-done`,
             data: { orderOptionNo },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: guestToken,
+                guestToken,
             }),
         }),
 
@@ -103,7 +103,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
-    getNonMemberOrderDetail: (
+    getGuestOrderDetail: (
         orderNo: String,
         {
             orderRequestType,
