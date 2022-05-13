@@ -29,7 +29,7 @@ const popup = {
             url: '/design-popups',
             data: { displayUrl, parameter },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -39,7 +39,7 @@ const popup = {
             url: '/display/popups',
             params: { pageType, targetNo },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
@@ -52,7 +52,7 @@ const popup = {
             url: `/display/popups/${popupNos}`,
             params: { pageType, targetNo },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 };

@@ -2,15 +2,30 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 
+interface Events {
+    keyword: string;
+    eventTitle: string;
+    categoryNos: number;
+    productNos: number;
+    onlyIngStatus: boolean;
+}
+
+interface Event {
+    eventNo: string;
+    order: string;
+    soldout: boolean;
+    saleStatus: string;
+}
+
 const event = {
     // TODO: categoryNos는 콤마로 구분되어 들어가니 number인지 string인지 확인 필요!
     getEvents: ({
         keyword,
         categoryNos,
-    }: {
-        keyword: string;
-        categoryNos: number;
-    }): Promise<AxiosResponse> =>
+    }: Omit<
+        Events,
+        'eventTitle' | 'productNos' | 'onlyIngStatus'
+    >): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/events',
@@ -26,13 +41,8 @@ const event = {
         pageNumber = 1,
         pageSize = 10,
         hasTotalCount = false,
-    }: {
-        keyword: string;
-        eventTitle: string;
-        pageNumber: number;
-        pageSize: number;
-        hasTotalCount: boolean;
-    }): Promise<AxiosResponse> =>
+    }: Omit<Events, 'categoryNos' | 'productNos' | 'onlyIngStatus'> &
+        Paging): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/event/close',
@@ -52,10 +62,10 @@ const event = {
     getEventsByProducts: ({
         productNos,
         categoryNos,
-    }: {
-        productNos: number;
-        categoryNos: number;
-    }): Promise<AxiosResponse> =>
+    }: Omit<
+        Events,
+        'keyword' | 'eventTitle' | 'onlyIngStatus'
+    >): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/events/products',
@@ -69,11 +79,7 @@ const event = {
         keyword,
         categoryNos,
         onlyIngStatus,
-    }: {
-        keyword: string;
-        categoryNos: string;
-        onlyIngStatus: boolean;
-    }): Promise<AxiosResponse> =>
+    }: Omit<Events, 'eventTitle' | 'productNos'>): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/events/search-by-name',
@@ -88,16 +94,11 @@ const event = {
         order,
         soldout,
         saleStatus,
-    }: {
-        eventNo: string;
-        order: string;
-        soldout: boolean;
-        saleStatus: string;
-    }): Promise<AxiosResponse> =>
+    }: Event): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/display/events/${eventNo}`,
-            params: { eventNo, order, soldout, saleStatus },
+            params: { order, soldout, saleStatus },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: localStorage.getItem('accessToken') || '',
             }),
@@ -107,7 +108,6 @@ const event = {
         request({
             method: 'GET',
             url: `/display/events/products/${productNo}`,
-            params: { productNo },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: localStorage.getItem('accessToken') || '',
             }),
