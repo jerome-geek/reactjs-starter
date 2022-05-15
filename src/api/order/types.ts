@@ -123,10 +123,6 @@ export enum REPLY_TYPE {
     SMS = 'SMS',
 }
 
-export type GuestToken = {
-    guestToken: string;
-};
-
 export interface OptionInputsParams {
     inputValue?: string;
     inputLabel?: string;

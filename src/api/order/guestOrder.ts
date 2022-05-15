@@ -5,7 +5,6 @@ import {
     ShoppingCartBody,
     TokenIssueBody,
     ReceiptBody,
-    GuestToken,
     DeliveryBody,
     PasswordParams,
     ORDER_REQUEST_TYPE,
@@ -63,43 +62,40 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    confirmOrder: (
-        orderOptionNo: String,
-        { guestToken }: GuestToken,
-    ): Promise<AxiosResponse> =>
+    confirmOrder: (orderOptionNo: String): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/confirm`,
-            data: { guestToken },
+            headers: Object.assign({}, defaultHeaders(), {
+                guestToken: localStorage.getItem('guestToken') || '',
+            }),
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
     processDeliveryCompletion: (
         orderOptionNo: String,
-        { guestToken }: GuestToken,
     ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/delivery-done`,
             data: { orderOptionNo },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken,
+                guestToken: localStorage.getItem('guestToken') || '',
             }),
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     requestReceipt: (
         orderNo: String,
-        {
-            cashReceiptIssuePurposeType,
-            cashReceiptKey,
-            guestToken,
-        }: ReceiptBody & GuestToken,
+        { cashReceiptIssuePurposeType, cashReceiptKey }: ReceiptBody,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/guest/orders/${orderNo}/cashReceipt`,
-            data: { guestToken, cashReceiptIssuePurposeType, cashReceiptKey },
+            data: { cashReceiptIssuePurposeType, cashReceiptKey },
+            headers: Object.assign({}, defaultHeaders(), {
+                guestToken: localStorage.getItem('guestToken') || '',
+            }),
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
@@ -119,7 +115,6 @@ const guestOrder = {
     // TODO guestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     updateDeliveryInfo: (
         orderNo: String,
-        guestToken: String,
         {
             receiverZipCd,
             receiverAddress,
@@ -139,7 +134,6 @@ const guestOrder = {
             url: `/guest/order/${orderNo}/deliveries`,
             params: { add },
             data: {
-                guestToken,
                 receiverZipCd,
                 receiverAddress,
                 receiverJibunAddress,
@@ -151,6 +145,9 @@ const guestOrder = {
                 countryCd,
                 deliveryMemo,
             },
+            headers: Object.assign({}, defaultHeaders(), {
+                guestToken: localStorage.getItem('guestToken') || '',
+            }),
         }),
 
     // TODO orderNo 모름, 400 error 발생 추후 테스트 필요
