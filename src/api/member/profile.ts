@@ -1,7 +1,6 @@
-import { Axios, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 
-import request from 'api/core';
-import { defaultHeaders } from 'api/core';
+import request, { defaultHeaders } from 'api/core';
 
 export enum SEX {
     MALE = 'M',
@@ -23,6 +22,7 @@ export enum AUTH_TYPE {
     NONE = 'NONE',
     SMS = 'SMS',
     EMAIL = 'EMAIL',
+    MOBILE = 'MOBILE',
 }
 
 interface ProfileBody {
@@ -55,6 +55,9 @@ interface ProfileBody {
     openIdAccessToken?: string;
     ci?: string;
     recommenderId?: string;
+    countryCd: string;
+    groupNo: number;
+    memberId: string;
 }
 
 interface AddressBody {
@@ -183,7 +186,14 @@ const profile = {
         jibunDetailAddress,
     }: Omit<
         ProfileBody,
-        'firstName' | 'lastName' | 'openIdAccessToken' | 'ci' | 'recommenderId'
+        | 'firstName'
+        | 'lastName'
+        | 'openIdAccessToken'
+        | 'ci'
+        | 'recommenderId'
+        | 'countryCd'
+        | 'groupNo'
+        | 'memberId'
     >): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
@@ -226,7 +236,6 @@ const profile = {
         certificated,
         smsAgreed,
         sex,
-        smsAuthKey,
         memberName,
         jibunAddress,
         zipCd,
@@ -236,10 +245,8 @@ const profile = {
         telephoneNo,
         directMailAgreed,
         joinTermsAgreements,
-        additionalInfo,
         nickname,
         detailAddress,
-        refundBankAccount,
         email,
         jibunDetailAddress,
         firstName,
@@ -247,9 +254,17 @@ const profile = {
         openIdAccessToken,
         ci,
         recommenderId,
+        countryCd,
+        groupNo,
+        memberId,
     }: Omit<
         ProfileBody,
-        'currentPassword' | 'refundBankDepositorName' | 'refundBank'
+        | 'currentPassword'
+        | 'refundBankDepositorName'
+        | 'refundBank'
+        | 'refundBankAccount'
+        | 'additionalInfo'
+        | 'smsAuthKey'
     >): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -260,7 +275,6 @@ const profile = {
                 certificated,
                 smsAgreed,
                 sex,
-                smsAuthKey,
                 memberName,
                 jibunAddress,
                 zipCd,
@@ -270,10 +284,8 @@ const profile = {
                 telephoneNo,
                 directMailAgreed,
                 joinTermsAgreements,
-                additionalInfo,
                 nickname,
                 detailAddress,
-                refundBankAccount,
                 email,
                 jibunDetailAddress,
                 firstName,
@@ -281,10 +293,13 @@ const profile = {
                 openIdAccessToken,
                 ci,
                 recommenderId,
+                countryCd,
+                groupNo,
+                memberId,
             },
         }),
 
-    deleteProfile: (reason?: string): Promise<AxiosResponse> =>
+    deleteProfile: ({ reason }: { reason?: string }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile',
@@ -355,7 +370,7 @@ const profile = {
         }),
 
     // TODO 휴면 회원이 아니라 확인 불가 message: "회원의 상태값을 확인 바랍니다."
-    getDormancyAccount: (): Promise<AxiosResponse> =>
+    getDormantAccount: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/dormancy',
@@ -498,7 +513,7 @@ const profile = {
             },
         }),
 
-    getLeakageWhether: (): Promise<AxiosResponse> =>
+    getLeakageStatus: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/leakage',
@@ -719,7 +734,7 @@ const profile = {
         }),
 
     // TODO key 값 모름
-    updatePasswordAfterCertification: ({
+    updatePasswordByCertificationKey: ({
         newPassword,
         key,
     }: Omit<
@@ -732,7 +747,7 @@ const profile = {
             data: { newPassword, key },
         }),
 
-    updatePasswordAfterEmailCertification: ({
+    updatePasswordByEmailCertification: ({
         certificationNumber,
         memberId,
         newPassword,
@@ -743,7 +758,7 @@ const profile = {
             data: { certificationNumber, memberId, newPassword },
         }),
 
-    updatePasswordAfterSMSCertification: ({
+    updatePasswordBySMSCertification: ({
         certificationNumber,
         memberId,
         newPassword,
