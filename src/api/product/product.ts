@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 
-import request from 'api/core';
-import { defaultHeaders } from 'api/core';
+import request, { defaultHeaders } from 'api/core';
 
 export enum CRITERION {
     RECENT_PRODUCT = 'RECENT_PRODUCT',
