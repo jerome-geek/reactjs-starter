@@ -47,7 +47,7 @@ const productProfile = {
         }),
 
     // TODO productNos 모름 400 error message: "좋아요 불가능한 상품입니다. [상품번호 : 10001]"
-    likeProducts: ({
+    updateProductsLike: ({
         productNos,
     }: {
         productNos: number[];

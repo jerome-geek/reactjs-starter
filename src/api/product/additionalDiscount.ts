@@ -11,7 +11,7 @@ const additionalDiscount = {
     }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
-            url: 'additional-discounts/by-product-no',
+            url: '/additional-discounts/by-product-no',
             params: { productNo },
         }),
 };
