@@ -1,26 +1,38 @@
 import { FC } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useQuery } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 import Main from 'pages/Main';
 import NotFound from 'pages/NotFound';
-import GlobalStyle from 'styles/global-styles';
 import Header from 'components/shared/Header';
 import Footer from 'components/shared/Footer';
 import Login from 'pages/Member/Login';
+import mall from 'api/mall';
 
 const App: FC = () => {
+    const { data, isLoading } = useQuery('mallInfo', async () =>
+        mall.getMall(),
+    );
+
     return (
         <>
-            <GlobalStyle />
-            <Header />
-            <BrowserRouter>
-                <Routes>
-                    <Route path='/' element={<Main />} />
-                    <Route path='/member/login' element={<Login />} />
-                    <Route path='/*' element={<NotFound />} />
-                </Routes>
-            </BrowserRouter>
-            <Footer />
+            {isLoading ? (
+                <div>Loading...</div>
+            ) : (
+                <>
+                    <Header />
+                    <BrowserRouter>
+                        <Routes>
+                            <Route path='/' element={<Main />} />
+                            <Route path='/member/login' element={<Login />} />
+                            <Route path='/*' element={<NotFound />} />
+                        </Routes>
+                    </BrowserRouter>
+                    <Footer />
+                </>
+            )}
+            <ReactQueryDevtools initialIsOpen={false} />
         </>
     );
 };
