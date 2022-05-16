@@ -1,21 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-interface Events {
-    keyword: string;
-    eventTitle: string;
-    categoryNos: number;
-    productNos: number;
-    onlyIngStatus: boolean;
-}
-
-interface Event {
-    eventNo: string;
-    order: string;
-    soldout: boolean;
-    saleStatus: string;
-}
+import { Event, Events } from 'models/display';
 
 const event = {
     // TODO: categoryNos는 콤마로 구분되어 들어가니 number인지 string인지 확인 필요!

@@ -2,19 +2,18 @@ import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
 
-interface CaptchaImageBody {
-    code: String;
-    key: String;
+interface CaptchaImage {
+    code: string;
+    key: string;
 }
 
 const captcha = {
-    generateCaptchaImage: ({ key }: { key: string }): Promise<AxiosResponse> =>
+    generateCaptchaImage: ({
+        key,
+    }: Omit<CaptchaImage, 'code'>): Promise<AxiosResponse> =>
         request({ url: '/captcha/image', data: { key } }),
 
-    checkCaptchaImage: ({
-        code,
-        key,
-    }: CaptchaImageBody): Promise<AxiosResponse> =>
+    checkCaptchaImage: ({ code, key }: CaptchaImage): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/captcha/verify',

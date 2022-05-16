@@ -1,24 +1,22 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { skinBanners } from 'models/display';
 
 const banner = {
-    getBanners: (bannerSectionCodes: Array<String>): Promise<AxiosResponse> =>
+    getBanners: (bannerSectionCodes: string[]): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/display/banners/${bannerSectionCodes}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: JSON.parse(localStorage.accessToken).accessToken,
+                accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
 
     getSkinBanners: ({
         skinCode,
         bannerGroupCodes,
-    }: {
-        skinCode: String;
-        bannerGroupCodes: String;
-    }): Promise<AxiosResponse> =>
+    }: skinBanners): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/display/skin-banners',
