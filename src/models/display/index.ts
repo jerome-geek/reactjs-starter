@@ -1,9 +1,9 @@
 export interface CategoryProductReviewsParams {
-    hasAttachmentFile: Boolean;
-    categoryDepth: Number;
-    categoryNo: Number;
-    productName: String;
-    brandName: String;
+    hasAttachmentFile: boolean;
+    categoryDepth: number;
+    categoryNo: number;
+    productName: string;
+    brandName: string;
     bestReviewYn: BEST_REVIEW_YN;
     myReviewYn: MY_REVIEW_YN;
 }
@@ -14,33 +14,33 @@ export interface ProductReviewsParams {
 }
 
 export interface ProductReviewBody {
-    optionNo: Number;
-    orderOptionNo: Number;
-    content: String;
-    rate: Number;
-    urls: String[];
-    extraJson: String;
+    optionNo: number;
+    orderOptionNo: number;
+    content: string;
+    rate: number;
+    urls: string[];
+    extraJson: string;
 }
 
 export interface ReportProductReviewBody {
     reportReasonCd: REPORT_REASON_CODE;
-    content: String;
+    content: string;
 }
 
 export interface MyProductReviewsParams {
-    startYmd: String;
-    endYmd: String;
+    startYmd: string;
+    endYmd: string;
     bestReviewYn: BEST_REVIEW_YN;
     searchType: SEARCH_TYPE;
-    searchKeyword: String;
+    searchKeyword: string;
 }
 
 export interface MyReviewableProductsParams {
-    startDate: String;
-    endDate: String;
-    productName: String;
-    productNo: Number;
-    orderNo: String;
+    startDate: string;
+    endDate: string;
+    productName: string;
+    productNo: number;
+    orderNo: string;
 }
 
 export interface ProductInquiry {
