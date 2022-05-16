@@ -1,13 +1,13 @@
 import { AxiosResponse } from 'axios';
 
-import request from 'api/core';
+import request, { defaultHeaders } from 'api/core';
 
 interface CouponsParams {
-    endYmd?: String;
-    pageNumber: String;
-    pageSize: String;
-    startYmd?: String;
-    usable: String;
+    endYmd?: string;
+    pageNumber: number;
+    pageSize: number;
+    startYmd?: string;
+    usable: boolean | null;
 }
 
 type TargetParams = Pick<CouponsParams, 'pageNumber' | 'pageSize'>;
@@ -15,48 +15,60 @@ type TargetParams = Pick<CouponsParams, 'pageNumber' | 'pageSize'>;
 const coupon = {
     getCoupons: ({
         endYmd,
-        pageNumber = '1',
-        pageSize = '30',
-        usable = 'true',
+        pageNumber,
+        pageSize,
+        usable,
         startYmd,
     }: CouponsParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/coupons',
-            data: {
+            params: {
                 endYmd,
                 pageNumber,
                 pageSize,
                 usable,
                 startYmd,
             },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
         }),
 
     getCouponsIssuable: (): Promise<AxiosResponse> =>
-        request({ method: 'GET', url: '/coupons/issuable' }),
+        request({
+            method: 'GET',
+            url: '/coupons/issuable',
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
+        }),
 
     getCouponsSummary: ({
         expireDay,
     }: {
-        expireDay: String;
+        expireDay: string;
     }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/coupons/summary',
-            data: { expireDay },
+            params: { expireDay },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
         }),
 
     issueCouponByPromotionCode: (
-        promotionCode: String,
+        promotionCode: string,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
         }),
 
-    issueCoupons: (
-        couponNo: String,
-        { channelType }: { channelType: String },
+    issueCoupon: (
+        couponNo: string,
+        { channelType }: { channelType: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -64,35 +76,41 @@ const coupon = {
             data: { channelType },
         }),
 
-    getCouponsExcludeTargets: (
-        couponNo: String,
+    getExcludeTargetsByCouponNumber: (
+        couponNo: string,
         { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/coupons/${couponNo}/exclude-targets`,
-            data: { pageNumber, pageSize },
+            params: { pageNumber, pageSize },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
         }),
 
-    getCouponsTarget: (
-        couponNo: String,
+    getCouponTargets: (
+        couponNo: string,
         { pageNumber, pageSize }: TargetParams,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/coupons/${couponNo}/targets`,
-            data: { pageNumber, pageSize },
+            params: { pageNumber, pageSize },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
         }),
 
-    issueEventCoupons: (eventNo: String): Promise<AxiosResponse> =>
+    issueEventCoupons: (eventNo: string): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: `/coupons/events/${eventNo}/download`,
         }),
 
     issueProductCoupons: (
-        productNo: String,
-        { channelType }: { channelType: String },
+        productNo: string,
+        { channelType }: { channelType: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -100,14 +118,17 @@ const coupon = {
             data: { channelType },
         }),
 
-    searchAvailableCoupons: (
-        productNo: String,
-        { channelType }: { channelType?: String },
+    getIssuableCoupons: (
+        productNo: string,
+        { channelType }: { channelType?: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/coupons/products/${productNo}/issuable/coupons`,
-            data: { channelType },
+            params: { channelType },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: localStorage.getItem('accessToken') || '',
+            }),
         }),
 };
 
