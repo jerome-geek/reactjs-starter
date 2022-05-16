@@ -27,9 +27,9 @@ const guestOrder = {
         request({
             method: 'POST',
             url: '/guest/cart',
+            params: { divideInvalidProducts },
             data: [
                 {
-                    divideInvalidProducts,
                     orderCnt,
                     channelType,
                     optionInputs,
@@ -48,6 +48,9 @@ const guestOrder = {
             method: 'GET',
             url: `/guest/orders/${orderNo}`,
             params: { orderRequestType },
+            headers: Object.assign({}, defaultHeaders(), {
+                guestToken: localStorage.getItem('guestToken') || '',
+            }),
         }),
 
     // TODO orderNo 모름, 404 error 발생 추후 테스트 필요
@@ -72,7 +75,7 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    processDeliveryCompletion: (
+    confirmDeliveryCompletion: (
         orderOptionNo: String,
     ): Promise<AxiosResponse> =>
         request({
