@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { HAS_ATTACHMENT_FILE, MY_REVIEW_YN, ORDER_DIRECTION } from 'models';
 import {
     CategoryProductReviewsParams,
     MyProductReviewsParams,

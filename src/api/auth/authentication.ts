@@ -2,86 +2,15 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { getPlatform } from 'utils';
-
-export enum AUTH_TYPE {
-    SMS = 'SMS',
-    EMAIL = 'EMAIL',
-}
-
-export enum CERTIFICATED_USAGE {
-    FIND_ID = 'FIND_ID',
-    FIND_PASSWORD = 'FIND_PASSWORD',
-    CHANGE_MOBILE_NO = 'CHANGE_MOBILE_NO',
-    RELEASE_DORMANT = 'RELEASE_DORMANT',
-    ADMIN = 'ADMIN',
-    JOIN = 'JOIN',
-    JOIN_URI = 'JOIN_URI',
-    CHANGE_ID = 'CHANGE_ID',
-    ADMIN_SECONDARY = 'ADMIN_SECONDARY',
-    CHANGE_EMAIL = 'CHANGE_EMAIL',
-}
-
-export enum PLATFORM_TYPE {
-    PC = 'PC',
-    MOBILE_WEB = 'MOBILE_WEB',
-    AOS = 'AOS',
-    IOS = 'IOS',
-}
-
-export enum OPEN_ID_PROVIDER {
-    NCP_NAVER = 'ncp_naver',
-    NCP_KAKAO = 'ncp_kakao',
-    NCP_LINE = 'ncp_line',
-    NCP_FACEBOOK = 'ncp_facebook',
-    NCP_PAYCO = 'ncp_payco',
-}
-
-interface CertificatedNumber {
-    type: AUTH_TYPE;
-    usage: CERTIFICATED_USAGE;
-    certificatedNumber: string;
-    memberNo?: number;
-    notiAccount?: string;
-    memberName: string;
-}
-
-interface CheckBizmallBody {
-    companyNo: number;
-    name: string;
-    idNo: string;
-}
-
-interface CertificatedNumberViaEmail<T> {
-    usage: T;
-    email: string;
-    certificatedNumber: string;
-    memberName: string;
-    uri: string;
-}
-
-interface CertificatedNumberViaSMS<T> {
-    usage: T;
-    mobileNo: string;
-    key: string;
-    memberName: string;
-}
-
-interface OpenIdAccessToken {
-    provider: OPEN_ID_PROVIDER;
-    code: string;
-    openAccessToken: string;
-    redirectUri: string;
-    state: string;
-    platformType: PLATFORM_TYPE;
-}
-
-interface AccessTokenBody {
-    memberId: string;
-    password: string;
-    keepLogin: Boolean;
-    captcha?: string;
-    provider?: string;
-}
+import { CERTIFICATED_USAGE } from 'models';
+import {
+    AccessTokenBody,
+    CertificatedNumber,
+    CertificatedNumberViaEmail,
+    CertificatedNumberViaSMS,
+    CheckBizmallBody,
+    OpenIdAccessToken,
+} from 'models/auth';
 
 const authentication = {
     checkCertificatedNumber: ({
