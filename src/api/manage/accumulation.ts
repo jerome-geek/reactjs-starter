@@ -17,7 +17,8 @@ const accumulation = {
         direction = ORDER_DIRECTION.DESC,
     }: Omit<Paging, 'hasTotalCount'> & {
         accumulationReason?: ACCUMULATION_REASON;
-    } & SearchDate & { direction?: ORDER_DIRECTION }): Promise<AxiosResponse> =>
+        direction?: ORDER_DIRECTION;
+    } & SearchDate): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/accumulations',
@@ -50,7 +51,7 @@ const accumulation = {
             }),
         }),
 
-    getMemberExpectAccumulation: (): Promise<AxiosResponse> =>
+    getExpectAccumulation: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/accumulations/waiting',
