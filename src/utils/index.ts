@@ -1,6 +1,6 @@
 import { deviceDetect } from 'react-device-detect';
 
-import { PLATFORM_TYPE } from 'api/auth/authentication';
+import { PLATFORM_TYPE } from 'models';
 
 const getPlatform = (): PLATFORM_TYPE => {
     const device = deviceDetect(navigator.userAgent);

@@ -1,3 +1,16 @@
+import {
+    BEST_REVIEW_YN,
+    BY,
+    HAS_ATTACHMENT_FILE,
+    INQUIRY_TYPE,
+    MY_REVIEW_YN,
+    ORDER_DIRECTION,
+    PAGE_TYPE,
+    REPORT_REASON_CODE,
+    SALE_STATUS,
+    SEARCH_TYPE,
+} from 'models';
+
 export interface CategoryProductReviewsParams {
     hasAttachmentFile: boolean;
     categoryDepth: number;

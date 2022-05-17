@@ -1,15 +1,14 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
 import {
-    ShoppingCartBody,
-    TokenIssueBody,
-    ReceiptBody,
     DeliveryBody,
     PasswordParams,
-    ORDER_REQUEST_TYPE,
-    CLAIM_TYPE,
-} from 'api/order/types';
+    ReceiptBody,
+    ShoppingCartBody,
+    TokenIssueBody,
+} from 'models/order';
 
 const guestOrder = {
     // TODO parameter 모름 400, 404 error 발생 추후 테스트 필요

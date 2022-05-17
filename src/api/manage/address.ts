@@ -1,12 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
-
-interface AddressParams {
-    pageNumber?: number;
-    pageSize?: number;
-    keyword: string;
-}
+import { AddressParams } from 'models/manage';
 
 const address = {
     searchAddress: ({

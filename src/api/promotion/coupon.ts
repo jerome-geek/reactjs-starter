@@ -1,16 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-interface CouponsParams {
-    endYmd?: string;
-    pageNumber: number;
-    pageSize: number;
-    startYmd?: string;
-    usable: boolean | null;
-}
-
-type TargetParams = Pick<CouponsParams, 'pageNumber' | 'pageSize'>;
+import { CouponsParams, TargetParams } from 'models/promotion';
 
 const coupon = {
     getCoupons: ({

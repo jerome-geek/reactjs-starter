@@ -1,50 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-export enum SEARCH_TYPE {
-    ALL = 'ALL',
-    TITLE = 'TITLE',
-    CONTENT = 'CONTENT',
-    WRITER = 'WRITER',
-}
-
-export enum DIRECTION {
-    DESC = 'DESC',
-    ASC = 'ASC',
-}
-
-interface ArticleParams {
-    pageNumber?: number;
-    pageSize?: number;
-    hasTotalCount?: boolean;
-    keyword?: string;
-    searchType?: SEARCH_TYPE;
-    categoryNo?: number;
-    startYmd?: string; // default 3개월
-    endYmd?: string; // default 오늘
-    withReplied?: boolean;
-    direction?: DIRECTION;
-    isMine?: boolean;
-}
-
-interface ImagesType {
-    originalFileName: string;
-    uploadedFileName: string;
-}
-
-interface PostArticleParams {
-    images: ImagesType[];
-    password: string;
-    articleTitle: string;
-    imageUrls: string[];
-    parentBoardArticleNo: number;
-    articleContent: string;
-    boardCategoryNo: number;
-    secreted: boolean;
-    tags?: string[];
-    guestName: string;
-}
+import { ArticleParams, PostArticleParams } from 'models/manage';
 
 const board = {
     getConfigs: (): Promise<AxiosResponse> =>
