@@ -56,3 +56,15 @@ export interface CaptchaImage {
     code: string;
     key: string;
 }
+
+export interface IssueAccessTokenResponse {
+    accessToken: string;
+    daysFromLastPasswordChange: number;
+    dormantMemberResponse?: {
+        memberName?: string;
+        mobileNo?: string;
+        email?: string;
+    };
+    expireIn: number;
+    passwordChangeRequired: boolean;
+}
