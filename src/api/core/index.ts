@@ -37,7 +37,7 @@ request.interceptors.response.use((res) => {
         case RESPONSE.HTTP_NOT_FOUND:
             return window.location.replace('/not_found');
 
-        // TODO: 500d에러 처리
+        // TODO: 500 에러 처리
         case RESPONSE.HTTP_INTERNAL_SERVER_ERROR:
             return window.location.replace('/error-server');
 
