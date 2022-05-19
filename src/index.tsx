@@ -1,26 +1,37 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { ThemeProvider } from 'styled-components';
+import { Provider } from 'react-redux';
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { ThemeProvider } from 'styled-components';
 
 import App from 'App';
 import { lightTheme } from 'styles/theme';
 import GlobalStyle from 'styles/global-styles';
 import reportWebVitals from './reportWebVitals';
+import store from 'state/store';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement,
 );
+
+const persistor = persistStore(store);
+
 const queryClient = new QueryClient();
 
 root.render(
     <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={lightTheme}>
-                <GlobalStyle />
-                <App />
-            </ThemeProvider>
-        </QueryClientProvider>
+        <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+                <QueryClientProvider client={queryClient}>
+                    <ThemeProvider theme={lightTheme}>
+                        <GlobalStyle />
+                        <App />
+                    </ThemeProvider>
+                </QueryClientProvider>
+            </PersistGate>
+        </Provider>
     </React.StrictMode>,
 );
 
