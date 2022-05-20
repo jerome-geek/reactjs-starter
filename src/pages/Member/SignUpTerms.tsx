@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { terms } from 'api/manage/index';
 import { TERMS_TYPES } from 'api/manage/terms';
+import { VCTerms } from 'const/VCTerms';
 
 const SignUpTerms = () => {
     const [isAllChecked, setIsAllChecked] = useState<boolean>(false);
@@ -10,19 +11,11 @@ const SignUpTerms = () => {
 
     const navigate = useNavigate();
 
-    const VCTerms = [
-        { id: 'USE', name: '서비스 이용약관' },
-        { id: 'PI_PROCESS', name: '개인정보 처리방침' },
-        { id: 'LOCATION_INFO', name: '위치정보사업 이용약관' },
-        { id: 'LOCATION_SERVICE', name: '위치기반 서비스 이용약관' },
-        { id: 'VSE', name: 'VSE 서비스 이용약관' },
-    ];
-
     const agreeAllButton = (checked: boolean) => {
         setIsAllChecked(!isAllChecked);
 
         if (checked) {
-            let checkArr: string[] = [];
+            const checkArr: string[] = [];
 
             VCTerms.forEach(({ id }) => {
                 checkArr.push(id);
@@ -68,7 +61,7 @@ const SignUpTerms = () => {
             <input
                 type='checkbox'
                 id='agreeAll'
-                onChange={(e: any) => agreeAllButton(e.target.checked)}
+                onChange={(e) => agreeAllButton(e.target.checked)}
                 checked={checkAgree.length === VCTerms.length}
             />
             <label htmlFor='agreeAll'>전체 동의</label>

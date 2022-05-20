@@ -55,9 +55,9 @@ interface ProfileBody {
     openIdAccessToken?: string;
     ci?: string;
     recommenderId?: string;
-    countryCd: string;
-    groupNo: number;
-    memberId: string;
+    countryCd?: string;
+    groupNo?: number;
+    memberId?: string;
 }
 
 interface AddressBody {
