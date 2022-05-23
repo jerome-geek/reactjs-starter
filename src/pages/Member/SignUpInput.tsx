@@ -9,9 +9,8 @@ import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
 
 const SignUpInput = () => {
-    const [isAllChecked, setIsAllChecked] = useState<boolean>(false);
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
-    const [captchaImage, setCaptchaImage] = useState(null);
+    const [captchaImage, setCaptchaImage] = useState('');
 
     interface LocationState {
         joinTermsAgreements: TERM[];
@@ -32,8 +31,6 @@ const SignUpInput = () => {
     interface Id {
         [id: string]: boolean | string;
     }
-
-    // type IDD = `id`
 
     const location = useLocation();
     const state = location.state as LocationState;
@@ -61,7 +58,7 @@ const SignUpInput = () => {
     // };
 
     const goBackButton = () => {
-        navigate(-1);
+        navigate('/signup/term');
     };
 
     const getCaptchaImage = () => {
@@ -85,7 +82,6 @@ const SignUpInput = () => {
     }, 1000);
 
     const agreeAllButton = (checked: boolean) => {
-        setIsAllChecked(!isAllChecked);
         if (checked) {
             let checkArr: string[] = [];
             VCMarketingTerms.forEach(({ id }) => {
@@ -103,7 +99,7 @@ const SignUpInput = () => {
 
     const agreeButton = (checked: boolean, id: string) => {
         if (checked) {
-            setCheckAgree([...checkAgree, id]);
+            setCheckAgree((prev) => [...prev, id]);
             setValue(id, true);
         } else {
             setCheckAgree(checkAgree.filter((check) => check !== id));
@@ -129,7 +125,7 @@ const SignUpInput = () => {
         return false;
     };
 
-    const signUpButton = async (data: SignUp) => {
+    const signUpButton = (data: SignUp) => {
         const {
             email,
             memberName,
@@ -142,7 +138,7 @@ const SignUpInput = () => {
             sex,
         } = data;
 
-        if (!(await checkCaptchaCode())) {
+        if (!checkCaptchaCode()) {
             return;
         }
 
@@ -169,6 +165,10 @@ const SignUpInput = () => {
 
     useEffect(() => {
         getCaptchaImage();
+
+        return () => {
+            setCaptchaImage('');
+        };
     }, []);
 
     useEffect(() => {
@@ -372,7 +372,7 @@ const SignUpInput = () => {
                     </div>
                     <div onClick={getCaptchaImage}>새로고침 버튼</div>
                 </div>
-                <button>회원가입</button>
+                <button type='submit'>회원가입</button>
             </form>
         </>
     );

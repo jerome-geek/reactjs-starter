@@ -8,6 +8,8 @@ import NotFound from 'pages/NotFound';
 import Header from 'components/shared/Header';
 import Footer from 'components/shared/Footer';
 import Login from 'pages/Member/Login';
+import SignUpTerms from 'pages/Member/SignUpTerms';
+import SignUpInput from 'pages/Member/SignUpInput';
 import mall from 'api/mall';
 
 const App: FC = () => {
@@ -27,6 +29,14 @@ const App: FC = () => {
                             <Route path='/' element={<Main />} />
                             <Route path='/member/login' element={<Login />} />
                             <Route path='/*' element={<NotFound />} />
+                            <Route
+                                path='/signup/term'
+                                element={<SignUpTerms />}
+                            />
+                            <Route
+                                path='/signup/input'
+                                element={<SignUpInput />}
+                            />
                         </Routes>
                     </BrowserRouter>
                     <Footer />

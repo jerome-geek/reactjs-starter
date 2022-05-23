@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { terms } from 'api/manage/index';
@@ -6,14 +6,11 @@ import { TERMS_TYPES } from 'api/manage/terms';
 import { VCTerms } from 'const/VCTerms';
 
 const SignUpTerms = () => {
-    const [isAllChecked, setIsAllChecked] = useState<boolean>(false);
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
 
     const navigate = useNavigate();
 
     const agreeAllButton = (checked: boolean) => {
-        setIsAllChecked(!isAllChecked);
-
         if (checked) {
             const checkArr: string[] = [];
 
@@ -29,14 +26,14 @@ const SignUpTerms = () => {
 
     const agreeButton = (checked: boolean, id: string) => {
         if (checked) {
-            setCheckAgree([...checkAgree, id]);
+            setCheckAgree((prev) => [...prev, id]);
         } else {
             setCheckAgree(checkAgree.filter((check) => check !== id));
         }
     };
 
     const checkIsAllAgree = () => {
-        if (!isAllChecked) {
+        if (checkAgree.length !== VCTerms.length) {
             alert('모든 약관에 동의해주세요');
         } else {
             navigate('/signUp/input', {
