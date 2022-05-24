@@ -1,23 +1,32 @@
 import { useEffect } from 'react';
 import { AxiosError, AxiosResponse } from 'axios';
 import { useQuery } from 'react-query';
+import { useDispatch } from 'react-redux';
 
+import { setMall } from 'state/slices/mallSlice';
+import { useTypedSelector } from 'state/reducers';
+import { MallResponse } from 'models/mall';
 import mall from 'api/mall';
-import { IssueAccessTokenResponse } from 'models/auth';
 
+// TODO: 당일 00시까지 캐시 처리 필요
 const useMall = () => {
+    const { mallInfo } = useTypedSelector((state) => ({
+        mallInfo: state.mall,
+    }));
+
     const { data, isLoading } = useQuery<
-        AxiosResponse<IssueAccessTokenResponse>,
+        AxiosResponse<MallResponse>,
         AxiosError
     >('mallInfo', async () => await mall.getMall(), {
-        enabled: !localStorage.getItem('VC_MALL'),
+        enabled: !mallInfo,
     });
 
+    const dispatch = useDispatch();
     useEffect(() => {
         if (data?.data) {
-            localStorage.setItem('VC_MALL', JSON.stringify(data.data));
+            dispatch(setMall(data.data));
         }
-    }, [data?.data]);
+    }, [data?.data, dispatch]);
 
     return [data, isLoading];
 };
