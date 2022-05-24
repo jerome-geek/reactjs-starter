@@ -7,6 +7,7 @@ import App from 'App';
 import { lightTheme } from 'styles/theme';
 import GlobalStyle from 'styles/global-styles';
 import reportWebVitals from './reportWebVitals';
+import 'locales';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement,
