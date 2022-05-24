@@ -7,7 +7,6 @@ import App from 'App';
 import { lightTheme } from 'styles/theme';
 import GlobalStyle from 'styles/global-styles';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement,
@@ -19,9 +18,7 @@ root.render(
         <QueryClientProvider client={queryClient}>
             <ThemeProvider theme={lightTheme}>
                 <GlobalStyle />
-                <BrowserRouter>
-                    <App />
-                </BrowserRouter>
+                <App />
             </ThemeProvider>
         </QueryClientProvider>
     </React.StrictMode>,

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
@@ -21,13 +21,16 @@ const App: FC = () => {
                 <div>Loading...</div>
             ) : (
                 <>
-                    <Header />
-                    <Routes>
-                        <Route path='/' element={<Main />} />
-                        <Route path='/member/login' element={<Login />} />
-                        <Route path='/*' element={<NotFound />} />
-                    </Routes>
-                    <Footer />
+                    <BrowserRouter>
+                        <Header />
+
+                        <Routes>
+                            <Route path='/' element={<Main />} />
+                            <Route path='/member/login' element={<Login />} />
+                            <Route path='/*' element={<NotFound />} />
+                        </Routes>
+                        <Footer />
+                    </BrowserRouter>
                 </>
             )}
             <ReactQueryDevtools initialIsOpen={false} />
