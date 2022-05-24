@@ -21,15 +21,16 @@ const App: FC = () => {
                 <div>Loading...</div>
             ) : (
                 <>
-                    <Header />
                     <BrowserRouter>
+                        <Header />
+
                         <Routes>
                             <Route path='/' element={<Main />} />
                             <Route path='/member/login' element={<Login />} />
                             <Route path='/*' element={<NotFound />} />
                         </Routes>
+                        <Footer />
                     </BrowserRouter>
-                    <Footer />
                 </>
             )}
             <ReactQueryDevtools initialIsOpen={false} />
