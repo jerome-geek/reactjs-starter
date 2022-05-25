@@ -2,11 +2,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
+import StyledInput from 'components/Input/StyledInput';
 import { setAccessToken } from 'state/slices/tokenSlice';
 import { authentication } from 'api/auth';
 import { useQueryString } from 'hooks';
 import paths from 'const/paths';
-import StyledInput from 'components/Input/StyledInput';
+
+interface LoginFormData {
+    memberId: string;
+    password: string;
+    keepLogin: boolean;
+}
 
 const Login = () => {
     const navigate = useNavigate();
@@ -16,15 +22,15 @@ const Login = () => {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm();
+    } = useForm<LoginFormData>();
 
     const dispatch = useDispatch();
 
-    const onSubmit = async (formData: any) => {
+    const onSubmit = handleSubmit(async ({ memberId, password, keepLogin }) => {
         const { data } = await authentication.issueAccessToken({
-            memberId: formData.email,
-            password: formData.password,
-            keepLogin: formData.keepLogin,
+            memberId,
+            password,
+            keepLogin,
         });
 
         if (data) {
@@ -46,23 +52,17 @@ const Login = () => {
                         }),
                     );
 
-                    navigate(
-                        (returnUrl as string)
-                            ? (returnUrl as string)
-                            : paths.MAIN,
-                        {
-                            replace: true,
-                        },
-                    );
+                    const pathname = (returnUrl ?? paths.MAIN) as string;
+                    navigate({ pathname }, { replace: true });
                 }
             }
         }
-    };
+    });
 
     return (
         <div style={{ margin: '0 auto' }}>
             <form
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={onSubmit}
                 style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -85,7 +85,7 @@ const Login = () => {
                     border='1px solid rgb(163, 166, 174)'
                     borderRadius='5px'
                     padding='5px'
-                    {...register('email', {
+                    {...register('memberId', {
                         required: {
                             value: true,
                             message: '이메일을 입력해주세요',
@@ -96,7 +96,7 @@ const Login = () => {
                         // },
                     })}
                 />
-                {errors?.email && <p>{errors.email.message}</p>}
+                {errors?.memberId && <p>{errors.memberId.message}</p>}
                 <StyledInput
                     type='password'
                     placeholder='PW'
