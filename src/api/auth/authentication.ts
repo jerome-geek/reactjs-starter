@@ -9,6 +9,7 @@ import {
     CertificatedNumberViaEmail,
     CertificatedNumberViaSMS,
     CheckBizmallBody,
+    IssueAccessTokenResponse,
     OpenIdAccessToken,
 } from 'models/auth';
 
@@ -184,12 +185,12 @@ const authentication = {
             },
         }),
 
-    getAccessToken: ({
+    issueAccessToken: ({
         memberId,
         password,
         keepLogin = false,
         provider,
-    }: AccessTokenBody): Promise<AxiosResponse> =>
+    }: AccessTokenBody): Promise<AxiosResponse<IssueAccessTokenResponse>> =>
         request({
             method: 'POST',
             url: '/oauth/token',
