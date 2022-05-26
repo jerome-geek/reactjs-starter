@@ -105,7 +105,7 @@ const cart = {
             }),
         }),
 
-    getCartValidation: (): Promise<AxiosResponse> =>
+    checkCartValidation: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/cart/validate',
