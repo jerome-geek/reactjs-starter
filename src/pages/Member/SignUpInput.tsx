@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import { SEX, TERM } from 'models/profile';
@@ -134,26 +134,20 @@ const SignUpInput = () => {
 
         try {
             await checkCaptchaCode();
-            await profile
-                .createProfile({
-                    email,
-                    memberId: email,
-                    memberName,
-                    password,
-                    birthday: year + '' + month + '' + day,
-                    smsAgreed,
-                    directMailAgreed,
-                    joinTermsAgreements,
-                    sex,
-                })
-                .then((res) => {
-                    // TODO 다음 페이지로 넘김
-                    console.log(res);
-                })
-                .catch((res) => {
-                    // TODO 회원가입 실패 로직(alert 등 추가할게 있으면 추가할것)
-                    console.log(res);
-                });
+            const successSignUpResponse = await profile.createProfile({
+                email,
+                memberId: email,
+                memberName,
+                password,
+                birthday: year + '' + month + '' + day,
+                smsAgreed,
+                directMailAgreed,
+                joinTermsAgreements,
+                sex,
+            });
+            if (successSignUpResponse) {
+                // TODO navigate('/', { state: successSignUpResponse.data }); 회원가입 완료 페이지로 이동
+            }
         } catch (error) {
             if (error instanceof AxiosError) {
                 alert(error.response?.data.message);
