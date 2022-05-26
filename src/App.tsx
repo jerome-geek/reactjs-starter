@@ -9,6 +9,10 @@ import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
 import Header from 'components/shared/Header';
 import Footer from 'components/shared/Footer';
+import Login from 'pages/Member/Login';
+import SignUpTerms from 'pages/Member/SignUpTerms';
+import SignUpInput from 'pages/Member/SignUpInput';
+import mall from 'api/mall';
 import { useMall } from 'hooks';
 
 const App: FC = () => {
@@ -29,6 +33,14 @@ const App: FC = () => {
                             <Route path='/' element={<Main />} />
                             <Route path='/member/login' element={<Login />} />
                             <Route path='/*' element={<NotFound />} />
+                            <Route
+                                path='/signup/term'
+                                element={<SignUpTerms />}
+                            />
+                            <Route
+                                path='/signup/input'
+                                element={<SignUpInput />}
+                            />
                         </Routes>
                         <Footer />
                     </BrowserRouter>
