@@ -55,7 +55,7 @@ const SignUpInput = () => {
     const watchYear = watch('year');
     const watchMonth = watch('month');
 
-    // const certificatePhone = () => { 핸드폰 인증 해야 함
+    // TODO const certificatePhone = () => {  핸드폰 인증 해야 함
     // };
 
     const goBackButton = () => {
@@ -109,7 +109,6 @@ const SignUpInput = () => {
     };
 
     const checkCaptchaCode = () => {
-        // 현재 회원가입 진행중 이 api 를 먼저 거쳐가는데 key 탓 인지 '자동등록방지 문자 입력 대상자가 아닙니다.' 라고 뜸
         if (!captchaCode.current?.value) {
             alert('자동등록 방지 코드를 입력해주세요');
             throw new Error('자동등록 방지 코드를 입력해주세요');
@@ -135,38 +134,37 @@ const SignUpInput = () => {
 
         try {
             await checkCaptchaCode();
+            await profile
+                .createProfile({
+                    email,
+                    memberId: email,
+                    memberName,
+                    password,
+                    birthday: year + '' + month + '' + day,
+                    smsAgreed,
+                    directMailAgreed,
+                    joinTermsAgreements,
+                    sex,
+                })
+                .then((res) => {
+                    // TODO 다음 페이지로 넘김
+                    console.log(res);
+                })
+                .catch((res) => {
+                    // TODO 회원가입 실패 로직(alert 등 추가할게 있으면 추가할것)
+                    console.log(res);
+                });
         } catch (error) {
             if (error instanceof AxiosError) {
                 alert(error.response?.data.message);
-                throw new Error(error.message);
+                return;
             } else if (error instanceof Error) {
-                throw new Error(error.message);
+                return;
             } else {
                 alert('알수 없는 에러가 발생했습니다.');
-                return false;
+                return;
             }
         }
-
-        await profile
-            .createProfile({
-                email,
-                memberId: email,
-                memberName,
-                password,
-                birthday: year + '' + month + '' + day,
-                smsAgreed,
-                directMailAgreed,
-                joinTermsAgreements,
-                sex,
-            })
-            .then((res) => {
-                // TODO 다음 페이지로 넘김
-                console.log(res);
-            })
-            .catch((res) => {
-                // TODO 회원가입 실패 로직(alert 등 추가할게 있으면 추가할것)
-                console.log(res);
-            });
     };
 
     useEffect(() => {
