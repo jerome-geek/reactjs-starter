@@ -4,6 +4,7 @@ import request, { defaultHeaders } from 'api/core';
 import { ShoppingCartBody } from 'models/order/index';
 
 const cart = {
+    //TODO getCart, getCartCount, getCartValidation를 제외한 나머지는 cartNo 혹은 orderNo가 필수로 들어가므로 나중에 test 해야 함
     getCart: ({
         divideInvalidProducts,
     }: {
@@ -18,7 +19,6 @@ const cart = {
             }),
         }),
 
-    // TODO 400 에러, cartNo 모름, 테스트 필요
     updateCart: ({
         cartNo,
         orderCnt,
@@ -36,7 +36,6 @@ const cart = {
             }),
         }),
 
-    // TODO 400 에러, cartNo 모름, 테스트 필요
     registerCart: ({
         orderCnt,
         channelType,
