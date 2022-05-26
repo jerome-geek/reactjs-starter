@@ -1,4 +1,20 @@
 import { ORDER_DIRECTION, SEARCH_TYPE } from 'models';
+import { INQUIRY_SEARCH_TYPE } from 'models/index';
+
+type INQUIRY_STATUS = 'ISSUED' | 'ASKED' | 'IN_PROGRESS' | 'ANSWERED';
+
+type INQUIRY_STATUSES =
+    | `${INQUIRY_STATUS}`
+    | `${INQUIRY_STATUS},${INQUIRY_STATUS}`
+    | `${INQUIRY_STATUS},${INQUIRY_STATUS},${INQUIRY_STATUS}`
+    | `${INQUIRY_STATUS},${INQUIRY_STATUS},${INQUIRY_STATUS},${INQUIRY_STATUS}`;
+
+type PAGE_TYPE = 'CART';
+
+export type PAGE_TYPES =
+    | `${PAGE_TYPE}`
+    | `${PAGE_TYPE},${PAGE_TYPE}`
+    | `${PAGE_TYPE},${PAGE_TYPE},${PAGE_TYPE}`;
 
 export interface AddressParams {
     pageNumber?: number;
@@ -38,14 +54,24 @@ export interface PostArticleParams {
     guestName: string;
 }
 
-// export enum SEARCH_TYPE {
-//     ALL = 'ALL',
-//     TITLE = 'TITLE',
-//     CONTENT = 'CONTENT',
-//     WRITER = 'WRITER',
-// }
+export interface InquiryTypes {
+    inquiryTypeNo?: number;
+    inquiryStatus?: INQUIRY_STATUS;
+    inquiryStatuses?: INQUIRY_STATUSES;
+    keyword?: string;
+    searchType?: INQUIRY_SEARCH_TYPE;
+}
 
-// export enum DIRECTION {
-//     DESC = 'DESC',
-//     ASC = 'ASC',
-// }
+export interface WriteInquiry {
+    originalFileName?: string[];
+    inquiryTitle?: string;
+    answerEmailSendYn?: boolean;
+    uploadedFileName?: string[];
+    orderNo?: string;
+    captcha?: string;
+    inquiryTypeNo?: number;
+    answerSmsSendYn?: boolean;
+    inquiryContent?: string;
+    email?: string;
+    productNo?: number;
+}
