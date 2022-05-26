@@ -1,36 +1,37 @@
-import React, { useState, useEffect, useRef, Ref } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
-import { SEX, TERM } from 'api/member/profile';
+import { SEX, TERM } from 'models/profile';
 import { profile } from 'api/member/index';
 import { captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
+import { AxiosError } from 'axios';
+
+interface LocationState {
+    joinTermsAgreements: TERM[];
+}
+
+interface SignUp {
+    email: string;
+    memberName: string;
+    password: string;
+    year: number;
+    month: number;
+    day: number;
+    smsAgreed: boolean;
+    directMailAgreed: boolean;
+    sex: SEX;
+}
+
+interface Id {
+    [id: string]: boolean | string;
+}
 
 const SignUpInput = () => {
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
     const [captchaImage, setCaptchaImage] = useState('');
-
-    interface LocationState {
-        joinTermsAgreements: TERM[];
-    }
-
-    interface SignUp {
-        email: string;
-        memberName: string;
-        password: string;
-        year: number;
-        month: number;
-        day: number;
-        smsAgreed: boolean;
-        directMailAgreed: boolean;
-        sex: SEX;
-    }
-
-    interface Id {
-        [id: string]: boolean | string;
-    }
 
     const location = useLocation();
     const state = location.state as LocationState;
@@ -83,12 +84,12 @@ const SignUpInput = () => {
 
     const agreeAllButton = (checked: boolean) => {
         if (checked) {
-            let checkArr: string[] = [];
+            const checkList: string[] = [];
             VCMarketingTerms.forEach(({ id }) => {
-                checkArr.push(id);
+                checkList.push(id);
                 setValue(id, true);
             });
-            setCheckAgree(checkArr);
+            setCheckAgree(checkList);
         } else {
             setCheckAgree([]);
             VCMarketingTerms.forEach(({ id }) => {
@@ -107,25 +108,19 @@ const SignUpInput = () => {
         }
     };
 
-    const checkCaptchaCode = (): boolean => {
+    const checkCaptchaCode = () => {
         // 현재 회원가입 진행중 이 api 를 먼저 거쳐가는데 key 탓 인지 '자동등록방지 문자 입력 대상자가 아닙니다.' 라고 뜸
-        captcha
-            .checkCaptchaImage({
-                key: '1234qwer',
-                code: captchaCode.current?.value || '',
-            })
-            .then(() => {
-                return true;
-            })
-            .catch((res) => {
-                alert('자동 등록 방지 번호를 확인해주세요');
-                console.log(res);
-                return false;
-            });
-        return false;
+        if (!captchaCode.current?.value) {
+            alert('자동등록 방지 코드를 입력해주세요');
+            throw new Error('자동등록 방지 코드를 입력해주세요');
+        }
+        return captcha.checkCaptchaImage({
+            key: '1234qwer',
+            code: captchaCode.current?.value,
+        });
     };
 
-    const signUpButton = (data: SignUp) => {
+    const signUp = async (data: SignUp) => {
         const {
             email,
             memberName,
@@ -138,11 +133,21 @@ const SignUpInput = () => {
             sex,
         } = data;
 
-        if (!checkCaptchaCode()) {
-            return;
+        try {
+            await checkCaptchaCode();
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                alert(error.response?.data.message);
+                throw new Error(error.message);
+            } else if (error instanceof Error) {
+                throw new Error(error.message);
+            } else {
+                alert('알수 없는 에러가 발생했습니다.');
+                return false;
+            }
         }
 
-        profile
+        await profile
             .createProfile({
                 email,
                 memberId: email,
@@ -155,10 +160,11 @@ const SignUpInput = () => {
                 sex,
             })
             .then((res) => {
+                // TODO 다음 페이지로 넘김
                 console.log(res);
-                // 다음 페이지로 넘김
             })
             .catch((res) => {
+                // TODO 회원가입 실패 로직(alert 등 추가할게 있으면 추가할것)
                 console.log(res);
             });
     };
@@ -186,7 +192,7 @@ const SignUpInput = () => {
                 <button onClick={goBackButton}>{'<'}</button>
                 <h2>회원 가입</h2>
             </header>
-            <form onSubmit={handleSubmit(signUpButton)}>
+            <form onSubmit={handleSubmit(signUp)}>
                 <div>
                     <label>이메일</label>
                     <input

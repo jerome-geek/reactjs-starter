@@ -12,13 +12,13 @@ const SignUpTerms = () => {
 
     const agreeAllButton = (checked: boolean) => {
         if (checked) {
-            const checkArr: string[] = [];
+            const checkList: string[] = [];
 
             VCTerms.forEach(({ id }) => {
-                checkArr.push(id);
+                checkList.push(id);
             });
 
-            setCheckAgree(checkArr);
+            setCheckAgree(checkList);
         } else {
             setCheckAgree([]);
         }

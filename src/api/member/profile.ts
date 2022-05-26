@@ -1,17 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-
-export enum SEX {
-    MALE = 'M',
-    FEMALE = 'F',
-}
-
-export enum TERM {
-    PI_COLLECTION_AND_USE_OPTIONAL = 'PI_COLLECTION_AND_USE_OPTIONAL',
-    PI_PROCESS_CONSIGNMENT = 'PI_PROCESS_CONSIGNMENT',
-    PI_THIRD_PARTY_PROVISION = 'PI_THIRD_PARTY_PROVISION',
-}
+import { SEX, TERM } from 'models/profile';
 
 export enum OPEN_ID_TERM {
     PERSONAL_PROCESS_CONSIGNMENT = 'PERSONAL_PROCESS_CONSIGNMENT',
