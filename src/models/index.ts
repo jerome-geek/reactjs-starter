@@ -304,6 +304,12 @@ enum CHANNEL_TYPE {
     FACEBOOK = 'FACEBOOK',
 }
 
+enum INQUIRY_SEARCH_TYPE {
+    ALL = 'ALL',
+    TITLE = 'TITLE',
+    CONTENT = 'CONTENT',
+}
+
 export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
@@ -335,4 +341,5 @@ export {
     PRODUCT_BY,
     SHIPPING_AREA_TYPE,
     CHANNEL_TYPE,
+    INQUIRY_SEARCH_TYPE,
 };
