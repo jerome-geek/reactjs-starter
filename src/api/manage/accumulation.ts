@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { ORDER_DIRECTION } from 'models';
 
 export enum ACCUMULATION_REASON {
     ADD = 'ADD',

@@ -1,143 +1,20 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { SEX, TERM } from 'models/profile';
-
-export enum OPEN_ID_TERM {
-    PERSONAL_PROCESS_CONSIGNMENT = 'PERSONAL_PROCESS_CONSIGNMENT',
-    PERSONAL_THIRD_PARTY_PROVISION = 'PERSONAL_THIRD_PARTY_PROVISION',
-}
-
-export enum AUTH_TYPE {
-    NONE = 'NONE',
-    SMS = 'SMS',
-    EMAIL = 'EMAIL',
-    MOBILE = 'MOBILE',
-}
-
-interface ProfileBody {
-    birthday?: string;
-    address?: string;
-    certificated?: boolean;
-    smsAgreed?: boolean;
-    sex?: SEX;
-    smsAuthKey?: string;
-    memberName?: string;
-    jibunAddress?: string;
-    zipCd?: string;
-    mobileNo?: string;
-    pushNotificationAgreed?: boolean;
-    refundBank?: string;
-    currentPassword: string;
-    refundBankDepositorName?: string;
-    password?: string;
-    telephoneNo?: string;
-    directMailAgreed?: boolean;
-    joinTermsAgreements?: TERM[];
-    additionalInfo?: string;
-    nickname?: string;
-    detailAddress?: string;
-    refundBankAccount?: string;
-    email?: string;
-    jibunDetailAddress?: string;
-    firstName?: string;
-    lastName?: string;
-    openIdAccessToken?: string;
-    ci?: string;
-    recommenderId?: string;
-    countryCd?: string;
-    groupNo?: number;
-    memberId?: string;
-}
-
-interface AddressBody {
-    zipCd: string;
-    streetAddress: string;
-    streetAddressDetail: string;
-    jibunAddress: string;
-    jibunAddressDetail: string;
-}
-
-interface PasswordBody {
-    currentPassword: string;
-    newPassword: string;
-    willChangeNextTime: boolean;
-}
-
-interface DormancyBody {
-    certificationNumber: string;
-    mobileNo: string;
-    authType: AUTH_TYPE;
-    email: string;
-}
-
-interface FindIdBody {
-    findMethod: AUTH_TYPE;
-    certificationNo?: string;
-    memberName?: string;
-    mobileNo: string;
-    key: string;
-    email: string;
-}
-
-interface FindPasswordBody {
-    memberId: string;
-    uri: string;
-    content?: string;
-    authType: string;
-    inputType: string;
-    receiveType: string;
-}
-
-interface FindIdByCertificationParams {
-    companyNo?: number;
-    memberName?: string;
-    mobileNo?: string;
-    email?: string;
-    ci?: string;
-    certificationNumber?: string;
-}
-
-interface UpdateProfileIdBody {
-    updatesEmail: boolean;
-    currentMemberId: string;
-    newMemberId: string;
-    certificationNumber: string;
-}
-
-interface SignUpByOpenIdBody {
-    birthday?: string;
-    address?: string;
-    certificated?: boolean;
-    smsAgreed?: boolean;
-    sex?: string;
-    jibunAddress?: string;
-    memberName?: string;
-    zipCd?: number;
-    mobileNo?: string;
-    pushNotificationAgreed?: boolean;
-    telephoneNoo?: string;
-    joinTermsAgreements?: OPEN_ID_TERM;
-    directMailAgreed?: boolean;
-    nickname?: string;
-    detailAddress?: string;
-    email?: string;
-    jibunDetailAddress?: string;
-}
-
-interface DuplicateMemberParams {
-    memberId: string;
-    memberName: string;
-    email: string;
-    mobileNo: string;
-}
-
-interface UpdatePasswordParams {
-    newPassword: string;
-    memberId: string;
-    key: string;
-    certificationNumber: string;
-}
+import { AUTH_TYPE } from 'models';
+import {
+    AddressBody,
+    DormancyBody,
+    DuplicateMemberParams,
+    FindIdBody,
+    FindIdByCertificationParams,
+    FindPasswordBody,
+    PasswordBody,
+    ProfileBody,
+    SignUpByOpenIdBody,
+    UpdatePasswordParams,
+    UpdateProfileIdBody,
+} from 'models/member';
 
 const profile = {
     getProfile: (): Promise<AxiosResponse> =>
@@ -607,11 +484,11 @@ const profile = {
         }),
 
     // TODO CI 모름 400 error message: 파라미터 [ci] 이 누락되었습니다.
-    checkDuplicateCI: ({ CI }: { CI: string }): Promise<AxiosResponse> =>
+    checkDuplicateCI: ({ ci }: { ci: string }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/ci/exists',
-            params: { CI },
+            params: { ci },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: localStorage.getItem('accessToken') || '',
             }),

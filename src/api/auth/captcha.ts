@@ -1,11 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
-
-interface CaptchaImage {
-    code: string;
-    key: string;
-}
+import { CaptchaImage } from 'models/auth';
 
 const captcha = {
     generateCaptchaImage: ({

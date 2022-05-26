@@ -1,24 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
-
-enum CRITERION {
-    PRODUCT_COUNT = 'PRODUCT_COUNT',
-}
-
-enum DIRECTION {
-    DESC = 'DESC',
-    ASC = 'ASC',
-}
-
-interface BrandsParams {
-    filter?: { name?: string; categoryNo?: number };
-    pageNumber?: number;
-    pageSize?: number;
-    hasTotalCount?: boolean;
-    fromDB?: boolean;
-    sort?: { criterion?: CRITERION; direction?: DIRECTION };
-}
+import { BrandsParams } from 'models/product';
 
 const display = {
     getDisplayBrands: ({
