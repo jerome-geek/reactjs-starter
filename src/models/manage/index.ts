@@ -56,7 +56,7 @@ export interface PostArticleParams {
 
 export interface InquiryTypes {
     inquiryTypeNo?: number;
-    inquiryStatus?: string;
+    inquiryStatus?: INQUIRY_STATUS;
     inquiryStatuses?: INQUIRY_STATUSES;
     keyword?: string;
     searchType?: INQUIRY_SEARCH_TYPE;
