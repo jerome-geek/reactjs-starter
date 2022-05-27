@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import {
+    faCartShopping,
+    faMagnifyingGlass,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import paths from 'const/paths';
 
 const Header = () => {
     const [isLogin, setIsLogin] = useState(false);
@@ -59,11 +66,11 @@ const Header = () => {
                             로그인
                         </Link>
                     )}
-                    <Link style={headerRightBoxStyle} to='/'>
-                        검색 버튼
+                    <Link style={headerRightBoxStyle} to={paths.SEARCH}>
+                        <FontAwesomeIcon icon={faMagnifyingGlass} />
                     </Link>
-                    <Link style={headerRightBoxStyle} to='/'>
-                        장바구니
+                    <Link style={headerRightBoxStyle} to={paths.CART}>
+                        <FontAwesomeIcon icon={faCartShopping} />
                     </Link>
                 </div>
                 <div className='after' style={{ clear: 'both' }}></div>
