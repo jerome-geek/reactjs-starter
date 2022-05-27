@@ -5,7 +5,7 @@ import {
     OrderSheetBody,
     GetCalculatedOrderSheet,
     CouponRequest,
-} from 'models/order/index';
+} from 'models/order';
 
 const orderSheet = {
     // TODO 400 error, message: "구매불가한 옵션이 포함되어 있습니다."
@@ -56,7 +56,7 @@ const orderSheet = {
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
-            url: `/order-sheets/${orderSheetNo}`,
+            url: `/order-sheets/${orderSheetNo}/calculate`,
             data: {
                 addressRequest,
                 couponRequest,
@@ -133,7 +133,7 @@ const orderSheet = {
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
-            url: `/order-sheets/${orderSheetNo}/coupons/calculate`,
+            url: `/order-sheets/${orderSheetNo}/coupons/maximum`,
             data: {
                 channelType,
             },

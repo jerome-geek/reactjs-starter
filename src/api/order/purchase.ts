@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { PaymentReserve } from 'models/order/index';
+import { PaymentReserve } from 'models/order';
 
 const purchase = {
     // TODO orderSheetNo 를 모르므로 차후 테스트 必

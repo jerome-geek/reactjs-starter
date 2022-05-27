@@ -92,8 +92,6 @@ interface PaymentCoupons {
     promotionCode?: string;
 }
 
-interface NaverItems {}
-
 export interface CouponRequest {
     productCoupons?: ProductCoupons[];
     cartCouponIssueNo: number;
@@ -103,13 +101,13 @@ export interface CouponRequest {
 
 interface ShippingAddresses {
     payProductParams: Omit<Products, 'channelType'>[];
-    requestShippingDate: string; // sdf
+    requestShippingDate: string;
     addressNo: number;
-    usesShippingInfoLaterInput: boolean; // sdf
+    usesShippingInfoLaterInput: boolean;
     useDefaultAddress: boolean;
     shippingAddress: Omit<AddressRequest, 'addressType'>;
-    addressName: string; // sdf
-    shippingInfoLaterInputContact: string; // sdf
+    addressName: string;
+    shippingInfoLaterInputContact: string;
 }
 
 interface Orderer {
