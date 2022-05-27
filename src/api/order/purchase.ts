@@ -5,7 +5,7 @@ import { PaymentReserve } from 'models/order/index';
 
 const purchase = {
     // TODO orderSheetNo 를 모르므로 차후 테스트 必
-    paymentReserve: ({
+    reservePayment: ({
         clientParams,
         extraData,
         orderMemo,

@@ -104,7 +104,7 @@ const orderSheet = {
             }),
         }),
 
-    appliedCouponPrice: (
+    getAppliedCouponPrice: (
         orderSheetNo: string,
         {
             cartCouponIssueNo,
@@ -127,7 +127,7 @@ const orderSheet = {
             }),
         }),
 
-    maximumAppliedCouponPrice: (
+    getMaximumAppliedCouponPrice: (
         orderSheetNo: string,
         { channelType }: { channelType?: string },
     ): Promise<AxiosResponse> =>
