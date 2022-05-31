@@ -30,8 +30,8 @@ export interface ProfileBody {
     openIdAccessToken?: string;
     ci?: string;
     recommenderId?: string;
-    countryCd: string;
-    groupNo: number;
+    countryCd?: string;
+    groupNo?: number;
     memberId: string;
 }
 
