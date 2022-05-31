@@ -13,7 +13,6 @@ import {
 const guest = {
     // TODO guestToken이 없기 때문에 나중에 테스트 필요
     cancelPendingDepositOrder: ({
-        // TODO 함수명 생각하기, 입금 대기 상태의 주문을 취소하는 함수
         claimReasonDetail,
         responsibleObjectType,
         claimType,
@@ -48,7 +47,7 @@ const guest = {
         productCnt,
         claimReasonType,
         returnWayType,
-    }: CanceledPrice): Promise<AxiosResponse> => // TODO 함수명 생각하기
+    }: CanceledPrice): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/guest/claims/estimate',
@@ -65,7 +64,7 @@ const guest = {
             }),
         }),
 
-    requestReturn: ({
+    requestReturnOfMultipleOptions: ({
         claimImageUrls,
         claimType,
         productCnt,
@@ -116,7 +115,7 @@ const guest = {
             }),
         }),
 
-    checkCancelOfClaimValidation: (claimNo: string): Promise<AxiosResponse> =>
+    checkClaimValidation: (claimNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/guest/claims/${claimNo}/check-withdraw`,
@@ -143,7 +142,7 @@ const guest = {
             }),
         }),
 
-    getClaimInformation: (
+    getContentsForClaim: (
         orderOptionNo: string,
         { claimType }: { claimType: CLAIM_TYPE },
     ): Promise<AxiosResponse> =>
@@ -156,7 +155,7 @@ const guest = {
             }),
         }),
 
-    cancelClaimOption: (
+    requestCancelClaimOption: (
         orderOptionNo: string,
         {
             claimReasonDetail,
@@ -268,7 +267,7 @@ const guest = {
             }),
         }),
 
-    requestReturnOption: (
+    requestReturnOfSingleOption: (
         orderOptionNo: string,
         {
             claimImageUrls,
@@ -307,7 +306,9 @@ const guest = {
             }),
         }),
 
-    cancelClaimByOrderNo: (orderOptionNo: string): Promise<AxiosResponse> =>
+    cancelClaimByOrderOptionNo: (
+        orderOptionNo: string,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/claims/withdraw`,
@@ -316,7 +317,7 @@ const guest = {
             }),
         }),
 
-    cancelOrder: (
+    requestCancel: (
         orderNo: string,
         {
             claimReasonDetail,
@@ -345,3 +346,5 @@ const guest = {
             }),
         }),
 };
+
+export default guest;
