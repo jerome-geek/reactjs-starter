@@ -9,7 +9,6 @@ const OAuthCallback = {
         clientId,
         provider,
         nextUrl,
-        platform,
         state,
     }: Omit<OAuthBegin, 'code'>): Promise<AxiosResponse> =>
         request({
@@ -19,7 +18,7 @@ const OAuthCallback = {
                 clientId,
                 provider,
                 nextUrl,
-                platform,
+                platform: getPlatform(),
                 state,
             },
             headers: {},
@@ -31,7 +30,7 @@ const OAuthCallback = {
         code,
         state,
         nextUrl,
-    }: Omit<OAuthBegin, 'platform'>): Promise<AxiosResponse> =>
+    }: OAuthBegin): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/oauth/callback',

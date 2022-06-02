@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
+import { Domestic } from 'models';
 
 const KCPCertification = {
     authenticateAdult: ({ key }: { key: string }): Promise<AxiosResponse> =>
@@ -18,7 +19,7 @@ const KCPCertification = {
         domestic,
     }: {
         returnUrl: string;
-        domestic?: string;
+        domestic?: Domestic;
     }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
