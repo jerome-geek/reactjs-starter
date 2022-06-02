@@ -13,6 +13,7 @@ const wish = {
             }),
         }),
 
+    // TODO getWishList, getWishListCount를 제외한 나머지 함수는 wishNo || optionNo || productNo 등을 몰라서 error 발생함
     updateWishList: ({
         orderCnt,
         optionInputs,
@@ -60,10 +61,10 @@ const wish = {
     deleteWishList: ({
         wishNos,
     }: {
-        wishNos: number;
+        wishNos: string;
     }): Promise<AxiosResponse> =>
         request({
-            method: 'delete',
+            method: 'DELETE',
             url: '/wish',
             data: { wishNos },
             headers: Object.assign({}, defaultHeaders(), {
