@@ -224,3 +224,12 @@ export interface NaverPayOrderSheet {
     items: Omit<ShoppingCartBody, 'cartNo'> &
         { additionalProductNo?: number }[];
 }
+
+export interface OAuthBegin {
+    clientId: string;
+    provider: string;
+    nextUrl: string;
+    platform: string;
+    state?: string;
+    code: string;
+}
