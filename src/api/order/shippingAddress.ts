@@ -117,9 +117,7 @@ const shippingAddress = {
             }),
         }),
 
-    changeShippingAddressToDefault: (
-        addressNo: string,
-    ): Promise<AxiosResponse> =>
+    updateDefaultShippingAddress: (addressNo: string): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/profile/shipping-addresses/${addressNo}/default`,
