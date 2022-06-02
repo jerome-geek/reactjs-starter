@@ -9,7 +9,7 @@ import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
 import Header from 'components/shared/Header';
 import Footer from 'components/shared/Footer';
-// import Login from 'pages/Member/Login';
+import Login from 'pages/Member/Login';
 import SignUpTerms from 'pages/Member/SignUpTerms';
 import SignUpInput from 'pages/Member/SignUpInput';
 import mall from 'api/mall';
