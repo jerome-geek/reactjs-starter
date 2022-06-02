@@ -48,17 +48,17 @@ interface Products {
     productNo: number;
 }
 
-interface AddressRequest {
+export interface AddressRequest {
     receiverAddress: string;
-    receiverJibunAddress: string;
+    receiverJibunAddress?: string;
     defaultYn: string; // boolean?
     addressType: ADDRESS_TYPE;
     receiverName: string;
-    customsIdNumber: string;
-    countryCd: COUNTRY_CD;
+    customsIdNumber?: string;
+    countryCd?: COUNTRY_CD;
     receiverZipCd: string;
-    addressName: string;
-    receiverDetailAddress: string;
+    addressName?: string;
+    receiverDetailAddress?: string;
     receiverContact1: string;
     receiverContact2: string;
 }
