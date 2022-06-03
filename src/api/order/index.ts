@@ -4,6 +4,7 @@ import orderConfiguration from 'api/order/orderConfiguration';
 import orderSheet from 'api/order/orderSheet';
 import purchase from 'api/order/purchase';
 import naverPay from 'api/order/naverPay';
+import myOrder from 'api/order/myOrder';
 import wish from 'api/order/wish';
 import shippingAddress from 'api/order/shippingAddress';
 
@@ -14,6 +15,7 @@ export {
     orderSheet,
     purchase,
     naverPay,
+    myOrder,
     wish,
     shippingAddress,
 };
