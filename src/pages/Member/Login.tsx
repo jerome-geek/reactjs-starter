@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
+import { useForm } from 'react-hook-form';
+import { DevTool } from '@hookform/devtools';
 
 import StyledInput from 'components/Input/StyledInput';
 import { setAccessToken } from 'state/slices/tokenSlice';
@@ -21,6 +22,7 @@ const Login = () => {
     const {
         register,
         handleSubmit,
+        control,
         formState: { errors },
     } = useForm<LoginFormData>();
 
@@ -61,6 +63,7 @@ const Login = () => {
 
     return (
         <div style={{ margin: '0 auto' }}>
+            <DevTool control={control} placement='top-right' />
             <form
                 onSubmit={onSubmit}
                 style={{
