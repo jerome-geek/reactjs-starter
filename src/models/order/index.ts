@@ -7,6 +7,7 @@ import {
     ADDRESS_TYPE,
     PAY_TYPE,
     PG_TYPE,
+    OPEN_ID_PROVIDER,
 } from 'models';
 
 interface ProductCoupons {
@@ -48,17 +49,17 @@ interface Products {
     productNo: number;
 }
 
-interface AddressRequest {
+export interface AddressRequest {
     receiverAddress: string;
-    receiverJibunAddress: string;
+    receiverJibunAddress?: string;
     defaultYn: string; // boolean?
     addressType: ADDRESS_TYPE;
     receiverName: string;
-    customsIdNumber: string;
-    countryCd: COUNTRY_CD;
+    customsIdNumber?: string;
+    countryCd?: COUNTRY_CD;
     receiverZipCd: string;
-    addressName: string;
-    receiverDetailAddress: string;
+    addressName?: string;
+    receiverDetailAddress?: string;
     receiverContact1: string;
     receiverContact2: string;
 }
@@ -223,4 +224,12 @@ export interface NaverPayOrderSheet {
     naco?: string;
     items: Omit<ShoppingCartBody, 'cartNo'> &
         { additionalProductNo?: number }[];
+}
+
+export interface OAuthBegin {
+    clientId: string;
+    provider: OPEN_ID_PROVIDER;
+    nextUrl: string;
+    state?: string;
+    code: string;
 }
