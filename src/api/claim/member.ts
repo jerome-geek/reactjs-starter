@@ -19,7 +19,7 @@ const member = {
         pageSize,
         startYmd,
     }: Paging &
-        SearchDate & { claimTypes: CLAIM_TYPE }): Promise<AxiosResponse> =>
+        SearchDate & { claimTypes?: CLAIM_TYPE }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/profile/claims',
@@ -128,9 +128,7 @@ const member = {
         }),
 
     updateReturnAccount: (
-        claimNo: {
-            claimNo: string;
-        },
+        claimNo: string,
         { bank, account, depositorName }: ReturnAccount,
     ): Promise<AxiosResponse> =>
         request({
@@ -142,9 +140,7 @@ const member = {
             }),
         }),
 
-    checkClaimValidation: (claimNo: {
-        claimNo: string;
-    }): Promise<AxiosResponse> =>
+    checkClaimValidation: (claimNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/profile/claims/${claimNo}/check-withdraw`,
@@ -287,9 +283,9 @@ const member = {
             }),
         }),
 
-    getClaimDetailByOptionNo: (orderOptionNo: {
-        orderOptionNo: string;
-    }): Promise<AxiosResponse> =>
+    getClaimDetailByOrderOptionNo: (
+        orderOptionNo: string,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/profile/order-options/${orderOptionNo}/claims/result`,
@@ -299,9 +295,7 @@ const member = {
         }),
 
     requestReturnOfSingleOption: (
-        orderOptionNo: {
-            orderOptionNo: string;
-        },
+        orderOptionNo: string,
         {
             claimImageUrls,
             claimType,
