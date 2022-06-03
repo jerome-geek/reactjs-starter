@@ -7,6 +7,7 @@ import {
     ADDRESS_TYPE,
     PAY_TYPE,
     PG_TYPE,
+    OPEN_ID_PROVIDER,
 } from 'models';
 
 interface ProductCoupons {
@@ -223,4 +224,12 @@ export interface NaverPayOrderSheet {
     naco?: string;
     items: Omit<ShoppingCartBody, 'cartNo'> &
         { additionalProductNo?: number }[];
+}
+
+export interface OAuthBegin {
+    clientId: string;
+    provider: OPEN_ID_PROVIDER;
+    nextUrl: string;
+    state?: string;
+    code: string;
 }

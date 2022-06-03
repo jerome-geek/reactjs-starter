@@ -504,6 +504,12 @@ enum PG_TYPE {
     VERITRANS = 'VERITRANS',
 }
 
+enum DOMESTIC {
+    TRUE = 'true',
+    FALSE = 'false',
+    NULL = 'null',
+}
+
 export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
@@ -545,4 +551,5 @@ export {
     ADDRESS_TYPE,
     PAY_TYPE,
     PG_TYPE,
+    DOMESTIC,
 };
