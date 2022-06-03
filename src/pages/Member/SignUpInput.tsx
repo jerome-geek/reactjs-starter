@@ -8,6 +8,7 @@ import { captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
 import { AxiosError } from 'axios';
+import Loader from 'components/shared/Loader';
 
 interface LocationState {
     joinTermsAgreements: TERM[];
@@ -32,6 +33,7 @@ interface Id {
 const SignUpInput = () => {
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
     const [captchaImage, setCaptchaImage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const location = useLocation();
     const state = location.state as LocationState;
@@ -133,6 +135,7 @@ const SignUpInput = () => {
         } = data;
 
         try {
+            setIsLoading(true);
             await checkCaptchaCode();
             const successSignUpResponse = await profile.createProfile({
                 email,
@@ -146,7 +149,9 @@ const SignUpInput = () => {
                 sex,
             });
             if (successSignUpResponse) {
-                // TODO navigate('/', { state: successSignUpResponse.data }); 회원가입 완료 페이지로 이동
+                navigate('/signup/signUpCompleted', {
+                    state: successSignUpResponse.data,
+                });
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -158,6 +163,8 @@ const SignUpInput = () => {
                 alert('알수 없는 에러가 발생했습니다.');
                 return;
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -178,7 +185,9 @@ const SignUpInput = () => {
         }
     }, [watchYear, watchMonth, setFocus]);
 
-    return (
+    return isLoading ? (
+        <Loader />
+    ) : (
         <>
             <header>
                 <button onClick={goBackButton}>{'<'}</button>
