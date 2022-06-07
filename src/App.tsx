@@ -41,10 +41,6 @@ const App: FC = () => {
                                 </PrivateRoute>
                             }
                         />
-                        <Route
-                            path='/event/:eventNo'
-                            element={<EventDetail />}
-                        />
                         <Route path='/signup/term' element={<SignUpTerms />} />
                         <Route path='/signup/input' element={<SignUpInput />} />
                         <Route path='/*' element={<NotFound />} />
