@@ -10,7 +10,7 @@ import {
 interface BankAccountInfo {
     bankAccount?: string;
     bankDepositorName?: string;
-    bank: string;
+    bank: BANK;
     bankName?: string;
 }
 
