@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import { DevTool } from '@hookform/devtools';
 
-import StyledInput from 'components/Input/StyledInput';
-import { setAccessToken } from 'state/slices/tokenSlice';
-import { authentication } from 'api/auth';
-import { useQueryString } from 'hooks';
 import paths from 'const/paths';
 import { event } from 'api/display';
 import SEOHelmet from 'components/shared/SEOHelmet';
