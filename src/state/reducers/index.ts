@@ -3,10 +3,12 @@ import { TypedUseSelectorHook, useSelector } from 'react-redux';
 
 import mallSlice from 'state/slices/mallSlice';
 import tokenSlice from 'state/slices/tokenSlice';
+import memberSlice from 'state/slices/memberSlice';
 
 const rootReducer = combineReducers({
     mall: mallSlice.reducer,
     token: tokenSlice.reducer,
+    member: memberSlice.reducer,
 });
 
 export default rootReducer;
