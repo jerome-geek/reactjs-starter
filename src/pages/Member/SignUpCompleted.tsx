@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import { coupon } from 'api/promotion';
-import { AxiosResponse } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { SEX } from 'models';
 
 interface SignUp {
@@ -28,11 +28,30 @@ const SignUpCompleted = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        coupon
-            .getCoupons({ pageNumber: 1, pageSize: 30, usable: true })
-            .then((res: AxiosResponse) => {
-                setCouponList((prev: any) => [...prev, ...res.data]);
-            });
+        const getCouponList = async () => {
+            try {
+                await coupon
+                    .getCoupons({ pageNumber: 1, pageSize: 30, usable: true })
+                    .then((res: AxiosResponse) => {
+                        console.log(res);
+                        setCouponList((prev: any) => [
+                            ...prev,
+                            ...res.data.items,
+                        ]);
+                    });
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    alert(error.response?.data.message);
+                    return;
+                } else if (error instanceof Error) {
+                    return;
+                } else {
+                    alert('알수 없는 에러가 발생했습니다.');
+                    return;
+                }
+            }
+        };
+        getCouponList();
     }, []);
 
     return (
