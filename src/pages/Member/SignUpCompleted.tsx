@@ -19,8 +19,8 @@ interface SignUp {
 
 const SignUpCompleted = () => {
     const [couponList, setCouponList] = useState<
-        { id: string; title: string; content: string }[] | null
-    >();
+        { id: string; title: string; content: string }[]
+    >([]);
 
     const location = useLocation();
     const state = location.state as SignUp;
@@ -31,11 +31,8 @@ const SignUpCompleted = () => {
         coupon
             .getCoupons({ pageNumber: 1, pageSize: 30, usable: true })
             .then((res: AxiosResponse) => {
-                setCouponList((prev: any) => [{ ...prev, ...res }]);
+                setCouponList((prev: any) => [...prev, ...res.data]);
             });
-        return () => {
-            setCouponList(null);
-        };
     }, []);
 
     return (
@@ -49,7 +46,7 @@ const SignUpCompleted = () => {
             <div style={{ width: '380px', margin: '30px auto' }}>
                 {<p>{memberName}</p>}님, 환영합니다. <br />
                 할인받고 구매해보세요!
-                {/* {couponList?.map(({ id, title, content }) => {
+                {/* TODO 쿠폰 있을 때와 없을 경우 처리 {couponList.length > 0 && .map(({ id, title, content }) => {
                 return;
                 })} */}
                 <div
