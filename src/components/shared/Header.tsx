@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
     faCartShopping,
@@ -7,11 +6,11 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import paths from 'const/paths';
+import { isEmptyObject } from 'utils';
+import { useMember } from 'hooks';
 
 const Header = () => {
-    const [isLogin, setIsLogin] = useState(false);
-    const [userName, setUserName] = useState('이윤환');
-
+    const member = useMember();
     const headerStyle = {
         background: '#fff',
         boxShadow: '0 3px 5px #999',
@@ -57,9 +56,9 @@ const Header = () => {
                     </NavLink>
                 </nav>
                 <div style={headerRightStyle}>
-                    {isLogin ? (
-                        <Link style={headerRightBoxStyle} to='/'>
-                            {userName}
+                    {!isEmptyObject(member) ? (
+                        <Link style={headerRightBoxStyle} to='/my-page/index'>
+                            {member.memberName}
                         </Link>
                     ) : (
                         <Link style={headerRightBoxStyle} to='/member/login'>
