@@ -17,10 +17,14 @@ interface SignUp {
     sex: SEX;
 }
 
+interface CouponType {
+    id: string;
+    title: string;
+    content: string;
+}
+
 const SignUpCompleted = () => {
-    const [couponList, setCouponList] = useState<
-        { id: string; title: string; content: string }[]
-    >([]);
+    const [couponList, setCouponList] = useState<CouponType[]>([]);
 
     const location = useLocation();
     const state = location.state as SignUp;
@@ -30,15 +34,15 @@ const SignUpCompleted = () => {
     useEffect(() => {
         const getCouponList = async () => {
             try {
-                await coupon
-                    .getCoupons({ pageNumber: 1, pageSize: 30, usable: true })
-                    .then((res: AxiosResponse) => {
-                        console.log(res);
-                        setCouponList((prev: any) => [
-                            ...prev,
-                            ...res.data.items,
-                        ]);
-                    });
+                const newCoupon = await coupon.getCoupons({
+                    pageNumber: 1,
+                    pageSize: 30,
+                    usable: true,
+                });
+                setCouponList((prev: CouponType[]) => [
+                    ...prev,
+                    ...newCoupon.data.items,
+                ]);
             } catch (error) {
                 if (error instanceof AxiosError) {
                     alert(error.response?.data.message);
