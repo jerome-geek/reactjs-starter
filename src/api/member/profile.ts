@@ -17,14 +17,15 @@ import {
 } from 'models/member';
 
 const profile = {
-    getProfile: (): Promise<AxiosResponse> =>
-        request({
+    getProfile: (accessToken: string): Promise<AxiosResponse> => {
+        return request({
             method: 'GET',
             url: '/profile',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken,
             }),
-        }),
+        });
+    },
 
     updateProfile: ({
         birthday,
