@@ -1,36 +1,39 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from 'react-query';
+import dayjs from 'dayjs';
 
 import paths from 'const/paths';
 import { event } from 'api/display';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import { getPlatform } from 'utils';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 
 const EventList = () => {
     const [eventList, setEventList] = useState([]);
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const getEventList = async () => {
-            try {
-                const events = await event.getEvents({});
-                setEventList(events.data);
-            } catch (error) {
+    const { data, isError } = useQuery<AxiosResponse, AxiosError>(
+        'eventList',
+        async () => await event.getEvents({}),
+        {
+            onSuccess: (eventData) => {
+                setEventList(eventData.data);
+            },
+            onError: (error) => {
                 if (error instanceof AxiosError) {
-                    alert(error.response?.data.message);
-                    return;
-                } else if (error instanceof Error) {
-                    return;
-                } else {
-                    alert('알수 없는 에러가 발생했습니다.');
+                    alert(error.message);
                     return;
                 }
-            }
-        };
-        getEventList();
-    }, []);
+                alert('알수 없는 에러가 발생했습니다.');
+            },
+        },
+    );
+
+    const goEventDetailHandler = (eventNo: string) => {
+        navigate(`${paths.EVENT_DETAIL}/${eventNo}`);
+    };
 
     return (
         <>
@@ -54,31 +57,20 @@ const EventList = () => {
                     {eventList.length > 0 &&
                         eventList.map(
                             ({
-                                displayPeriodType,
                                 endYmdt,
                                 eventNo,
-                                eventYn,
                                 label,
                                 mobileImageUrl,
                                 pcImageUrl,
-                                promotionText,
                                 startYmdt,
-                                tag,
-                                url,
-                                urlType,
                             }) => {
                                 return (
                                     <div
                                         style={{ marginBottom: '20px' }}
                                         key={eventNo}
-                                        onClick={() => {
-                                            navigate(
-                                                `${paths.EVENT_DETAIL}/${eventNo}`,
-                                                {
-                                                    state: { eventNo },
-                                                },
-                                            );
-                                        }}
+                                        onClick={() =>
+                                            goEventDetailHandler(eventNo)
+                                        }
                                     >
                                         <div>
                                             <img
@@ -93,7 +85,13 @@ const EventList = () => {
                                         <div>
                                             <p>{label}</p>
                                             <p>
-                                                {startYmdt} - {endYmdt}
+                                                {`${dayjs(startYmdt).format(
+                                                    'YY.MM.DD',
+                                                )}`}{' '}
+                                                -{' '}
+                                                {`${dayjs(endYmdt).format(
+                                                    'YY.MM.DD',
+                                                )}`}
                                             </p>
                                         </div>
                                     </div>
