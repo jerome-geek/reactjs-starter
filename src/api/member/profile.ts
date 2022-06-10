@@ -15,14 +15,17 @@ import {
     UpdatePasswordParams,
     UpdateProfileIdBody,
 } from 'models/member';
+import { tokenStorage } from 'utils/storage';
 
 const profile = {
-    getProfile: (accessToken: string): Promise<AxiosResponse> => {
+    getProfile: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
         return request({
             method: 'GET',
             url: '/profile',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken,
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         });
     },

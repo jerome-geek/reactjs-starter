@@ -1,4 +1,4 @@
-const paths = {
+const PATHS = {
     MAIN: '/',
     LOGIN: '/member/login',
     MY_PAGE: '/mypage/index',
@@ -8,4 +8,4 @@ const paths = {
     ERROR: '/error-server',
 };
 
-export default paths;
+export default PATHS;
