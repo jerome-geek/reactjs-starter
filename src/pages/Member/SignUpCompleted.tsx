@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { AxiosError } from 'axios';
 
 import { coupon } from 'api/promotion';
-import { AxiosError, AxiosResponse } from 'axios';
 import { SEX } from 'models';
 
 interface SignUp {
@@ -39,10 +39,7 @@ const SignUpCompleted = () => {
                     pageSize: 30,
                     usable: true,
                 });
-                setCouponList((prev: CouponType[]) => [
-                    ...prev,
-                    ...newCoupon.data.items,
-                ]);
+                setCouponList([newCoupon.data.items]);
             } catch (error) {
                 if (error instanceof AxiosError) {
                     alert(error.response?.data.message);
