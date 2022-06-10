@@ -11,7 +11,6 @@ import Footer from 'components/shared/Footer';
 import SignUpTerms from 'pages/Member/SignUpTerms';
 import SignUpInput from 'pages/Member/SignUpInput';
 import { useMall, useMember } from 'hooks';
-import EventDetail from 'pages/Event/EventDetail';
 import PrivateRoute from 'hoc/PrivateRoute';
 
 const App: FC = () => {
