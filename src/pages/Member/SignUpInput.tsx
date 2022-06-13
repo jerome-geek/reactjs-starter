@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 import { SEX, TERM } from 'models/profile';
 import { profile } from 'api/member/index';
-import { captcha } from 'api/auth';
+import { authentication, captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
 import { AxiosError } from 'axios';
+import Loader from 'components/shared/Loader';
+import { useDispatch } from 'react-redux';
+import { setAccessToken } from 'state/slices/tokenSlice';
 
 interface LocationState {
     joinTermsAgreements: TERM[];
@@ -32,6 +35,8 @@ interface Id {
 const SignUpInput = () => {
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
     const [captchaImage, setCaptchaImage] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [captchaKey, setCaptchaKey] = useState('');
 
     const location = useLocation();
     const state = location.state as LocationState;
@@ -55,17 +60,54 @@ const SignUpInput = () => {
     const watchYear = watch('year');
     const watchMonth = watch('month');
 
-    // TODO const certificatePhone = () => {  핸드폰 인증 해야 함
+    const dispatch = useDispatch();
+
+    // TODO const certificatePhone = () => {  핸드폰 인증 로직
     // };
+
+    useEffect(() => {
+        if (captchaKey.length > 0) {
+            return;
+        }
+        let key = '';
+        const stringAll =
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        const eightToSixteen = Math.floor(Math.random() * 8) + 8;
+
+        for (let i = 0; i < eightToSixteen; i++) {
+            key += stringAll.charAt(
+                Math.floor(Math.random() * stringAll.length),
+            );
+        }
+        setCaptchaKey(key);
+    }, [captchaImage, captchaKey]);
 
     const goBackButton = () => {
         navigate('/signup/term');
     };
 
     const getCaptchaImage = () => {
-        captcha.generateCaptchaImage({ key: '1234qwer' }).then((res) => {
+        captcha.generateCaptchaImage({ key: captchaKey }).then((res) => {
             setCaptchaImage(res.data.url);
         });
+    };
+
+    const handleLogin = async (memberId: string, password: string) => {
+        const { data } = await authentication.issueAccessToken({
+            memberId: memberId,
+            password: password,
+            keepLogin: false,
+        });
+
+        if (data) {
+            dispatch(
+                setAccessToken({
+                    ...data,
+                    expiry: new Date().getTime() + data.expireIn,
+                }),
+            );
+        }
     };
 
     const checkExistEmail = useDebounce(() => {
@@ -114,12 +156,12 @@ const SignUpInput = () => {
             throw new Error('자동등록 방지 코드를 입력해주세요');
         }
         return captcha.checkCaptchaImage({
-            key: '1234qwer',
+            key: captchaKey,
             code: captchaCode.current?.value,
         });
     };
 
-    const signUp = async (data: SignUp) => {
+    const signUp = async (inputData: SignUp) => {
         const {
             email,
             memberName,
@@ -130,9 +172,9 @@ const SignUpInput = () => {
             smsAgreed,
             directMailAgreed,
             sex,
-        } = data;
-
+        } = inputData;
         try {
+            setIsLoading(true);
             await checkCaptchaCode();
             const successSignUpResponse = await profile.createProfile({
                 email,
@@ -146,9 +188,12 @@ const SignUpInput = () => {
                 sex,
             });
             if (successSignUpResponse) {
-                // TODO navigate('/', { state: successSignUpResponse.data }); 회원가입 완료 페이지로 이동
+                handleLogin(email, password)
+                    .then(() => navigate('/signup/signUpCompleted'))
+                    .catch(() => navigate('/'));
             }
         } catch (error) {
+            setIsLoading(false);
             if (error instanceof AxiosError) {
                 alert(error.response?.data.message);
                 return;
@@ -163,10 +208,6 @@ const SignUpInput = () => {
 
     useEffect(() => {
         getCaptchaImage();
-
-        return () => {
-            setCaptchaImage('');
-        };
     }, []);
 
     useEffect(() => {
@@ -178,7 +219,9 @@ const SignUpInput = () => {
         }
     }, [watchYear, watchMonth, setFocus]);
 
-    return (
+    return isLoading ? (
+        <Loader />
+    ) : (
         <>
             <header>
                 <button onClick={goBackButton}>{'<'}</button>
