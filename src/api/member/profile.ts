@@ -15,16 +15,20 @@ import {
     UpdatePasswordParams,
     UpdateProfileIdBody,
 } from 'models/member';
+import { tokenStorage } from 'utils/storage';
 
 const profile = {
-    getProfile: (): Promise<AxiosResponse> =>
-        request({
+    getProfile: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     updateProfile: ({
         birthday,

@@ -1,11 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 
+import { fetchProfile } from 'state/slices/memberSlice';
+import { useAppDispatch } from 'state/reducers';
 import StyledInput from 'components/Input/StyledInput';
-import { setAccessToken } from 'state/slices/tokenSlice';
+import Button from 'components/Common/Button';
+import Header from 'components/shared/Header';
 import { authentication } from 'api/auth';
+import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
 import paths from 'const/paths';
 
@@ -26,43 +29,51 @@ const Login = () => {
         formState: { errors },
     } = useForm<LoginFormData>();
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const onSubmit = handleSubmit(async ({ memberId, password, keepLogin }) => {
-        const { data } = await authentication.issueAccessToken({
-            memberId,
-            password,
-            keepLogin,
-        });
+        try {
+            const { data } = await authentication.issueAccessToken({
+                memberId,
+                password,
+                keepLogin,
+            });
 
-        if (data) {
-            if (
-                data.dormantMemberResponse !== null ||
-                data.dormantMemberResponse === 'M0020'
-            ) {
-                // TODO: 휴면회원인 경우 로직
-            } else {
-                // 휴면회원이 아닌 경우
-                if (data.daysFromLastPasswordChange > 90) {
-                    // TODO: 비밀번호 90일 초과시 로직 비밀번호 변경 성공 => 로그아웃 / 비밀번호 변경 안함 => 로그인
+            if (data) {
+                if (
+                    data.dormantMemberResponse !== null ||
+                    data.dormantMemberResponse === 'M0020'
+                ) {
+                    // TODO: 휴면회원인 경우 로직
                 } else {
-                    // TODO: 비밀번호 90일 초과하지 않은 경우 로그인 처리
-                    dispatch(
-                        setAccessToken({
-                            ...data,
-                            expiry: new Date().getTime() + data.expireIn,
-                        }),
-                    );
+                    // 휴면회원이 아닌 경우
+                    if (data.daysFromLastPasswordChange > 90) {
+                        // TODO: 비밀번호 90일 초과시 로직 비밀번호 변경 성공 => 로그아웃 / 비밀번호 변경 안함 => 로그인
+                    } else {
+                        // TODO: 비밀번호 90일 초과하지 않은 경우 로그인 처리
+                        tokenStorage.setAccessToken(
+                            JSON.stringify({
+                                ...data,
+                                expiry:
+                                    new Date().getTime() + data.expireIn * 1000,
+                            }),
+                        );
 
-                    const pathname = (returnUrl ?? paths.MAIN) as string;
-                    navigate({ pathname }, { replace: true });
+                        dispatch(fetchProfile());
+
+                        const pathname = (returnUrl ?? paths.MAIN) as string;
+                        navigate({ pathname });
+                    }
                 }
             }
+        } catch (error) {
+            console.error(error);
         }
     });
 
     return (
         <div style={{ margin: '0 auto' }}>
+            <Header />
             <DevTool control={control} placement='top-right' />
             <form
                 onSubmit={onSubmit}
@@ -93,6 +104,7 @@ const Login = () => {
                             value: true,
                             message: '이메일을 입력해주세요',
                         },
+                        // FIXME: 테스트용으로 주석처리
                         // pattern: {
                         //     value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
                         //     message: '이메일 형식에 맞지 않습니다',
@@ -118,7 +130,7 @@ const Login = () => {
                     <input type='checkbox' {...register('keepLogin')} />
                     로그인 상태 유지
                 </label>
-                <button
+                <Button
                     style={{
                         backgroundColor: 'black',
                         color: 'white',
@@ -126,7 +138,7 @@ const Login = () => {
                     }}
                 >
                     이메일로 로그인
-                </button>
+                </Button>
                 <div style={{ marginTop: '10px' }}>
                     <Link to='/'>비밀번호 찾기</Link> |{' '}
                     <Link to='/'>회원가입</Link>
@@ -202,7 +214,7 @@ const Login = () => {
 
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                     <p>혹시 비회원으로 주문하셨나요?</p>
-                    <button
+                    <Button
                         style={{
                             border: '1px solid rgb(198, 203, 216)',
                             padding: '5px 10px',
@@ -211,7 +223,7 @@ const Login = () => {
                         }}
                     >
                         비회원 주문 조회
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>
