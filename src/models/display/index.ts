@@ -100,9 +100,9 @@ export interface Event {
 }
 
 export interface Events {
-    keyword: string;
+    keyword?: string;
     eventTitle: string;
-    categoryNos: number;
+    categoryNos?: number;
     productNos: number;
     onlyIngStatus: boolean;
 }
