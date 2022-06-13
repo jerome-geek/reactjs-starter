@@ -7,8 +7,8 @@ import { setMall } from 'state/slices/mallSlice';
 import { useTypedSelector } from 'state/reducers';
 import { MallResponse } from 'models/mall';
 import mall from 'api/mall';
+import { isEmptyObject } from 'utils';
 
-// TODO: 당일 00시까지 캐시 처리 필요
 const useMall = () => {
     const { mallInfo } = useTypedSelector((state) => ({
         mallInfo: state.mall,
@@ -18,7 +18,9 @@ const useMall = () => {
         AxiosResponse<MallResponse>,
         AxiosError
     >('mallInfo', async () => await mall.getMall(), {
-        enabled: !mallInfo,
+        enabled: isEmptyObject(mallInfo),
+        staleTime: 5000,
+        cacheTime: 5000,
     });
 
     const dispatch = useDispatch();

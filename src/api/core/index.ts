@@ -1,7 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 
-import { RESPONSE } from 'const/http';
+import HTTP_RESPONSE from 'const/http';
+import PATHS from 'const/paths';
 import { getPlatform } from 'utils';
+import { tokenStorage } from 'utils/storage';
 
 export const defaultHeaders = () => {
     return {
@@ -25,25 +27,32 @@ request.interceptors.request.use((config) => {
 });
 
 // 응답 인터셉터 추가
-request.interceptors.response.use((res) => {
-    switch (res.status) {
-        case RESPONSE.HTTP_UNAUTHORIZED:
-            alert('로그인 상태가 만료되었습니다. 다시 로그인해주세요.');
-            localStorage.removeItem('VC_ACCESS_TOKEN');
-            localStorage.removeItem('VC_GUESS_TOKEN');
-            return window.location.replace('/member/login');
+request.interceptors.response.use(
+    (res) => {
+        return res;
+    },
+    (error) => {
+        switch (error.request.status) {
+            case HTTP_RESPONSE.HTTP_UNAUTHORIZED:
+                tokenStorage.clear();
+                alert('로그인 상태가 만료되었습니다. 다시 로그인해주세요.');
+                return window.location.replace(PATHS.LOGIN);
 
-        // TODO: API를 찾을 수 없습니다
-        case RESPONSE.HTTP_NOT_FOUND:
-            return window.location.replace('/not_found');
+            case HTTP_RESPONSE.HTTP_NOT_FOUND:
+                return window.location.replace(PATHS.NOT_FOUND);
 
-        // TODO: 500 에러 처리
-        case RESPONSE.HTTP_INTERNAL_SERVER_ERROR:
-            return window.location.replace('/error-server');
+            case HTTP_RESPONSE.HTTP_INTERNAL_SERVER_ERROR:
+                return window.location.replace(PATHS.ERROR);
 
-        default:
-            return res;
-    }
-});
+            case HTTP_RESPONSE.HTTP_BAD_REQUEST:
+                alert(error.response.data.message);
+                return window.location.replace(PATHS.LOGIN);
+
+            default:
+                alert(error.response.data.message);
+                return error;
+        }
+    },
+);
 
 export default request;
