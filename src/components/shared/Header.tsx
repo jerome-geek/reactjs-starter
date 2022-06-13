@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import {
     faCartShopping,
@@ -6,11 +5,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import paths from 'const/paths';
+import PATHS from 'const/paths';
+import { useMember } from 'hooks';
 
 const Header = () => {
-    const [isLogin, setIsLogin] = useState(false);
-    const [userName, setUserName] = useState('이윤환');
+    const { member } = useMember();
 
     const headerStyle = {
         background: '#fff',
@@ -57,19 +56,20 @@ const Header = () => {
                     </NavLink>
                 </nav>
                 <div style={headerRightStyle}>
-                    {isLogin ? (
-                        <Link style={headerRightBoxStyle} to='/'>
-                            {userName}
+                    {member ? (
+                        <Link style={headerRightBoxStyle} to='/my-page/index'>
+                            {member.memberName}
                         </Link>
                     ) : (
                         <Link style={headerRightBoxStyle} to='/member/login'>
                             로그인
                         </Link>
                     )}
-                    <Link style={headerRightBoxStyle} to={paths.SEARCH}>
+
+                    <Link style={headerRightBoxStyle} to={PATHS.SEARCH}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} />
                     </Link>
-                    <Link style={headerRightBoxStyle} to={paths.CART}>
+                    <Link style={headerRightBoxStyle} to={PATHS.CART}>
                         <FontAwesomeIcon icon={faCartShopping} />
                     </Link>
                 </div>
