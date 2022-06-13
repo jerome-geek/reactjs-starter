@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
 
@@ -9,18 +8,28 @@ import SEOHelmet from 'components/shared/SEOHelmet';
 import { getPlatform } from 'utils';
 import { AxiosError, AxiosResponse } from 'axios';
 
-const EventList = () => {
-    const [eventList, setEventList] = useState([]);
+interface EventListResponse {
+    eventNo: number;
+    label: string;
+    url: string;
+    urlType: string;
+    displayPeriodType: string;
+    startYmdt: string;
+    endYmdt: string;
+    pcImageUrl: string;
+    mobileimageUrl: string;
+    promotionText: string;
+    tag: string;
+    eventYn: string;
+}
 
+const EventList = () => {
     const navigate = useNavigate();
 
-    const { data, isError } = useQuery<AxiosResponse, AxiosError>(
+    const { data } = useQuery<AxiosResponse, AxiosError>(
         'eventList',
         async () => await event.getEvents({}),
         {
-            onSuccess: (eventData) => {
-                setEventList(eventData.data);
-            },
             onError: (error) => {
                 if (error instanceof AxiosError) {
                     alert(error.message);
@@ -31,7 +40,9 @@ const EventList = () => {
         },
     );
 
-    const goEventDetailHandler = (eventNo: string) => {
+    const eventList: EventListResponse[] = data?.data;
+
+    const goEventDetailHandler = (eventNo: number) => {
         navigate(`${paths.EVENT_DETAIL}/${eventNo}`);
     };
 
@@ -60,7 +71,7 @@ const EventList = () => {
                                 endYmdt,
                                 eventNo,
                                 label,
-                                mobileImageUrl,
+                                mobileimageUrl,
                                 pcImageUrl,
                                 startYmdt,
                             }) => {
@@ -77,7 +88,7 @@ const EventList = () => {
                                                 src={
                                                     getPlatform() === 'PC'
                                                         ? pcImageUrl
-                                                        : mobileImageUrl
+                                                        : mobileimageUrl
                                                 }
                                                 alt={label}
                                             />
