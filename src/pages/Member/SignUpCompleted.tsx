@@ -1,22 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AxiosError, AxiosResponse } from 'axios';
 
 import { coupon } from 'api/promotion';
-import { SEX } from 'models';
 import { useQuery } from 'react-query';
-
-interface SignUp {
-    email: string;
-    memberName: string;
-    password: string;
-    year: number;
-    month: number;
-    day: number;
-    smsAgreed: boolean;
-    directMailAgreed: boolean;
-    sex: SEX;
-}
 
 interface CouponType {
     id: string;
@@ -43,7 +30,7 @@ const SignUpCompleted = () => {
         },
     );
 
-    const couponList = data?.data;
+    const couponList: CouponType[] = data?.data;
 
     return (
         <>
@@ -55,34 +42,54 @@ const SignUpCompleted = () => {
             </header>
             <div style={{ width: '380px', margin: '30px auto' }}>
                 {/* TODO 유저 정보 이름 추가 */}님, 환영합니다. <br />
-                할인받고 구매해보세요!
-                {/* TODO 쿠폰 있을 때와 없을 경우 처리 {couponList.length > 0 && .map(({ id, title, content }) => {
-                return;
-                })} */}
-                <div
-                    style={{
-                        margin: '20px 0',
-                        border: '1px solid #aaa',
-                        padding: '30px 0',
-                        textAlign: 'center',
-                    }}
-                >
-                    <p>신규 회원 감사쿠폰</p>
-                    <p style={{ fontSize: '1.3em', fontWeight: 'bold' }}>
-                        3,000원
-                    </p>
-                </div>
-                <div
-                    style={{
-                        fontWeight: 'bold',
-                        color: '#fff',
-                        background: '#000',
-                        padding: '20px 0',
-                        textAlign: 'center',
-                    }}
-                >
-                    쿠폰 다운로드
-                </div>
+                <p>할인받고 구매해보세요!</p>
+                {couponList?.length > 0 ? (
+                    couponList.map(({ id, title, content }) => (
+                        <React.Fragment key={id}>
+                            <div
+                                style={{
+                                    margin: '20px 0',
+                                    border: '1px solid #aaa',
+                                    padding: '30px 0',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                <p>{title}</p>
+                                <p
+                                    style={{
+                                        fontSize: '1.3em',
+                                        fontWeight: 'bold',
+                                    }}
+                                ></p>
+                            </div>
+                            <div
+                                style={{
+                                    fontWeight: 'bold',
+                                    color: '#fff',
+                                    background: '#000',
+                                    padding: '20px 0',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                {content}
+                            </div>
+                            <div
+                                style={{
+                                    fontWeight: 'bold',
+                                    color: '#fff',
+                                    background: '#000',
+                                    padding: '20px 0',
+                                    textAlign: 'center',
+                                }}
+                                id={id}
+                            >
+                                쿠폰 다운로드
+                            </div>
+                        </React.Fragment>
+                    ))
+                ) : (
+                    <p>다운로드 받을 쿠폰이 없습니다</p>
+                )}
                 <div style={{ marginBottom: '30px' }}>
                     <p
                         style={{
