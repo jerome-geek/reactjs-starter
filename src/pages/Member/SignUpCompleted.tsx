@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 
 import { coupon } from 'api/promotion';
 import { SEX } from 'models';
+import { useQuery } from 'react-query';
 
 interface SignUp {
     email: string;
@@ -24,36 +25,25 @@ interface CouponType {
 }
 
 const SignUpCompleted = () => {
-    const [couponList, setCouponList] = useState<CouponType[]>([]);
-
-    const location = useLocation();
-    const state = location.state as SignUp;
-    const { memberName } = state;
+    // TODO 리덕스에서 유저 정보(이름) 조회
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const getCouponList = async () => {
-            try {
-                const newCoupon = await coupon.getCoupons({
-                    pageNumber: 1,
-                    pageSize: 30,
-                    usable: true,
-                });
-                setCouponList([newCoupon.data.items]);
-            } catch (error) {
+    const { data } = useQuery<AxiosResponse, AxiosError>(
+        'couponList',
+        async () => await coupon.getCouponsIssuable(),
+        {
+            onError: (error) => {
                 if (error instanceof AxiosError) {
                     alert(error.response?.data.message);
                     return;
-                } else if (error instanceof Error) {
-                    return;
-                } else {
-                    alert('알수 없는 에러가 발생했습니다.');
-                    return;
                 }
-            }
-        };
-        getCouponList();
-    }, []);
+                alert('알수 없는 에러가 발생했습니다.');
+                return;
+            },
+        },
+    );
+
+    const couponList = data?.data;
 
     return (
         <>
@@ -64,7 +54,7 @@ const SignUpCompleted = () => {
                 </h2>
             </header>
             <div style={{ width: '380px', margin: '30px auto' }}>
-                {<p>{memberName}</p>}님, 환영합니다. <br />
+                {/* TODO 유저 정보 이름 추가 */}님, 환영합니다. <br />
                 할인받고 구매해보세요!
                 {/* TODO 쿠폰 있을 때와 없을 경우 처리 {couponList.length > 0 && .map(({ id, title, content }) => {
                 return;
