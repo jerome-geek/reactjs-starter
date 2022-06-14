@@ -12,7 +12,6 @@ import SignUpTerms from 'pages/Member/SignUpTerms';
 import SignUpInput from 'pages/Member/SignUpInput';
 import SignUpCompleted from 'pages/Member/SignUpCompleted';
 import PrivateRoute from 'hoc/PrivateRoute';
-import mall from 'api/mall';
 import { useMall } from 'hooks';
 
 const App: FC = () => {
