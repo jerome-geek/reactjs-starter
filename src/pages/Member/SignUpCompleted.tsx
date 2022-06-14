@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError, AxiosResponse } from 'axios';
 
 import { coupon } from 'api/promotion';
 import { useQuery } from 'react-query';
+import { useTypedSelector } from 'state/reducers';
+import { IssuableCouponResponse } from 'models/promotion';
+import { CHANNEL_TYPE } from 'models';
 
 interface CouponType {
     id: string;
@@ -13,12 +16,19 @@ interface CouponType {
 
 const SignUpCompleted = () => {
     // TODO 리덕스에서 유저 정보(이름) 조회
+    const { member } = useTypedSelector(({ member }) => ({
+        member,
+    }));
     const navigate = useNavigate();
+    const [couponList, setCouponList] = useState<IssuableCouponResponse[]>([]);
 
-    const { data } = useQuery<AxiosResponse, AxiosError>(
+    useQuery<AxiosResponse<IssuableCouponResponse[]>, AxiosError>(
         'couponList',
         async () => await coupon.getCouponsIssuable(),
         {
+            onSuccess: (res) => {
+                setCouponList([...res.data]);
+            },
             onError: (error) => {
                 if (error instanceof AxiosError) {
                     alert(error.response?.data.message);
@@ -30,7 +40,21 @@ const SignUpCompleted = () => {
         },
     );
 
-    const couponList: CouponType[] = data?.data;
+    const downloadCoupon = async (couponNo: number) => {
+        try {
+            await coupon.issueCoupon(couponNo, {
+                channelType: CHANNEL_TYPE.NAVER_EP, // TODO 외부채널 타입
+            });
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                alert(error.response?.data.message);
+                return;
+            } else {
+                alert('알수 없는 에러가 발생했습니다.');
+                return;
+            }
+        }
+    };
 
     return (
         <>
@@ -41,52 +65,82 @@ const SignUpCompleted = () => {
                 </h2>
             </header>
             <div style={{ width: '380px', margin: '30px auto' }}>
-                {/* TODO 유저 정보 이름 추가 */}님, 환영합니다. <br />
+                {member.data?.memberName}님, 환영합니다. <br />
                 <p>할인받고 구매해보세요!</p>
-                {couponList?.length > 0 ? (
-                    couponList.map(({ id, title, content }) => (
-                        <React.Fragment key={id}>
-                            <div
-                                style={{
-                                    margin: '20px 0',
-                                    border: '1px solid #aaa',
-                                    padding: '30px 0',
-                                    textAlign: 'center',
-                                }}
-                            >
-                                <p>{title}</p>
+                {couponList.length > 0 ? (
+                    couponList.map(
+                        ({
+                            couponName,
+                            couponNo,
+                            discountInfo,
+                            useConstraint,
+                            dateInfo,
+                        }) => (
+                            <React.Fragment key={couponNo}>
+                                <div
+                                    style={{
+                                        margin: '20px 0',
+                                        border: '1px solid #aaa',
+                                        padding: '30px 0',
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <p
+                                        style={{
+                                            fontSize: '1.3em',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {couponName}
+                                    </p>
+                                </div>
                                 <p
                                     style={{
                                         fontSize: '1.3em',
                                         fontWeight: 'bold',
                                     }}
-                                ></p>
-                            </div>
-                            <div
-                                style={{
-                                    fontWeight: 'bold',
-                                    color: '#fff',
-                                    background: '#000',
-                                    padding: '20px 0',
-                                    textAlign: 'center',
-                                }}
-                            >
-                                {content}
-                            </div>
-                            <div
-                                style={{
-                                    fontWeight: 'bold',
-                                    color: '#fff',
-                                    background: '#000',
-                                    padding: '20px 0',
-                                    textAlign: 'center',
-                                }}
-                                id={id}
-                            >
-                                쿠폰 다운로드
-                            </div>
-                        </React.Fragment>
-                    ))
+                                >
+                                    {discountInfo.discountRate}%
+                                </p>
+                                <p
+                                    style={{
+                                        fontSize: '1.3em',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {discountInfo.discountRate}%
+                                </p>
+                                <p
+                                    style={{
+                                        fontSize: '1.3em',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {`최대 ${discountInfo.maxDiscountAmt}원 할인 ${useConstraint.minSalePrice}원 이상 ~ ${useConstraint.maxSalePrice}원 이하 사용 가능`}
+                                </p>
+                                <p
+                                    style={{
+                                        fontSize: '1.3em',
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {dateInfo.issueEndYmdt} 까지 발급 가능
+                                </p>
+                                <div
+                                    style={{
+                                        fontWeight: 'bold',
+                                        color: '#fff',
+                                        background: '#000',
+                                        padding: '20px 0',
+                                        textAlign: 'center',
+                                    }}
+                                    onClick={() => downloadCoupon(couponNo)}
+                                >
+                                    쿠폰 다운로드
+                                </div>
+                            </React.Fragment>
+                        ),
+                    )
                 ) : (
                     <p>다운로드 받을 쿠폰이 없습니다</p>
                 )}

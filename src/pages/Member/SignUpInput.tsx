@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { AxiosError } from 'axios';
+import { v4 } from 'uuid';
 
 import { SEX, TERM } from 'models/profile';
 import { profile } from 'api/member/index';
 import { authentication, captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
-import { AxiosError } from 'axios';
 import Loader from 'components/shared/Loader';
-import { useDispatch } from 'react-redux';
-import { setAccessToken } from 'state/slices/tokenSlice';
+import { tokenStorage } from 'utils/storage';
+import { fetchProfile } from 'state/slices/memberSlice';
+import { useAppDispatch } from 'state/reducers';
 
 interface LocationState {
     joinTermsAgreements: TERM[];
@@ -60,53 +62,52 @@ const SignUpInput = () => {
     const watchYear = watch('year');
     const watchMonth = watch('month');
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     // TODO const certificatePhone = () => {  핸드폰 인증 로직
     // };
 
     useEffect(() => {
-        if (captchaKey.length > 0) {
+        if (captchaKey !== '') {
             return;
         }
-        let key = '';
-        const stringAll =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        const eightToSixteen = Math.floor(Math.random() * 8) + 8;
-
-        for (let i = 0; i < eightToSixteen; i++) {
-            key += stringAll.charAt(
-                Math.floor(Math.random() * stringAll.length),
-            );
-        }
-        setCaptchaKey(key);
-    }, [captchaImage, captchaKey]);
+        setCaptchaKey(v4());
+    }, []);
 
     const goBackButton = () => {
         navigate('/signup/term');
     };
 
     const getCaptchaImage = () => {
-        captcha.generateCaptchaImage({ key: captchaKey }).then((res) => {
-            setCaptchaImage(res.data.url);
-        });
+        if (captchaKey.length > 0) {
+            captcha.generateCaptchaImage({ key: captchaKey }).then((res) => {
+                setCaptchaImage(res.data.url);
+            });
+        }
     };
 
     const handleLogin = async (memberId: string, password: string) => {
-        const { data } = await authentication.issueAccessToken({
-            memberId: memberId,
-            password: password,
-            keepLogin: false,
-        });
+        try {
+            const { data } = await authentication.issueAccessToken({
+                memberId: memberId,
+                password: password,
+                keepLogin: false,
+            });
 
-        if (data) {
-            dispatch(
-                setAccessToken({
-                    ...data,
-                    expiry: new Date().getTime() + data.expireIn,
-                }),
-            );
+            if (data) {
+                tokenStorage.setAccessToken(
+                    JSON.stringify({
+                        ...data,
+                        expiry: new Date().getTime() + data.expireIn * 1000,
+                    }),
+                );
+
+                dispatch(fetchProfile());
+                navigate('/signup/signUpCompleted');
+            }
+        } catch (error) {
+            navigate('/');
+            throw new Error('알 수 없는 에러 발생!');
         }
     };
 
@@ -188,9 +189,7 @@ const SignUpInput = () => {
                 sex,
             });
             if (successSignUpResponse) {
-                handleLogin(email, password)
-                    .then(() => navigate('/signup/signUpCompleted'))
-                    .catch(() => navigate('/'));
+                handleLogin(email, password);
             }
         } catch (error) {
             setIsLoading(false);
@@ -198,6 +197,7 @@ const SignUpInput = () => {
                 alert(error.response?.data.message);
                 return;
             } else if (error instanceof Error) {
+                alert(error.message);
                 return;
             } else {
                 alert('알수 없는 에러가 발생했습니다.');
@@ -208,7 +208,7 @@ const SignUpInput = () => {
 
     useEffect(() => {
         getCaptchaImage();
-    }, []);
+    }, [captchaKey]);
 
     useEffect(() => {
         if (watchYear?.toString().length === 4) {

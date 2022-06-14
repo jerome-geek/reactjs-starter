@@ -1,7 +1,11 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { CouponsParams, TargetParams } from 'models/promotion';
+import {
+    CouponsParams,
+    IssuableCouponResponse,
+    TargetParams,
+} from 'models/promotion';
 
 const coupon = {
     getCoupons: ({
@@ -58,7 +62,7 @@ const coupon = {
         }),
 
     issueCoupon: (
-        couponNo: string,
+        couponNo: number,
         { channelType }: { channelType: string },
     ): Promise<AxiosResponse> =>
         request({
