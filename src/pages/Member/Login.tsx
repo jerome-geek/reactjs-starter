@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
+import { ErrorMessage } from '@hookform/error-message';
 
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
@@ -10,7 +11,7 @@ import Header from 'components/shared/Header';
 import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
-import paths from 'const/paths';
+import PATHS from 'const/paths';
 
 interface LoginFormData {
     memberId: string;
@@ -61,7 +62,7 @@ const Login = () => {
 
                         dispatch(fetchProfile());
 
-                        const pathname = (returnUrl ?? paths.MAIN) as string;
+                        const pathname = (returnUrl ?? PATHS.MAIN) as string;
                         navigate({ pathname });
                     }
                 }
@@ -111,7 +112,11 @@ const Login = () => {
                         // },
                     })}
                 />
-                {errors?.memberId && <p>{errors.memberId.message}</p>}
+                <ErrorMessage
+                    errors={errors}
+                    name='memberId'
+                    render={({ message }) => <p>{message}</p>}
+                />
                 <StyledInput
                     type='password'
                     placeholder='PW'
@@ -125,7 +130,11 @@ const Login = () => {
                         },
                     })}
                 />
-                {errors?.password && <p>{errors.password.message}</p>}
+                <ErrorMessage
+                    errors={errors}
+                    name='password'
+                    render={({ message }) => <p>{message}</p>}
+                />
                 <label htmlFor=''>
                     <input type='checkbox' {...register('keepLogin')} />
                     로그인 상태 유지
