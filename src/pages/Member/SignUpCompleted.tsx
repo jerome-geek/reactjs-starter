@@ -9,7 +9,6 @@ import { IssuableCouponResponse } from 'models/promotion';
 import { CHANNEL_TYPE } from 'models';
 
 const SignUpCompleted = () => {
-    // TODO 리덕스에서 유저 정보(이름) 조회
     const { member } = useTypedSelector(({ member }) => ({
         member,
     }));
