@@ -1,11 +1,19 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 
-const ButtonBlock = styled.button``;
+export interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {
+    color?: string;
+    fontSize?: string;
+    backgroundColor?: string;
+}
 
-interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {}
+const ButtonBlock = styled.button<ButtonProps>`
+    color: ${(props) => props.color};
+    font-size: ${(props) => props.fontSize};
+    background-color: ${(props) => props.backgroundColor};
+`;
 
-const Button: FC<ButtonProps> = ({ children, ...args }) => {
+const Button: FC<ButtonProps> = ({ children, ...args }: ButtonProps) => {
     const htmlProps = args as any;
 
     return <ButtonBlock {...htmlProps}>{children}</ButtonBlock>;

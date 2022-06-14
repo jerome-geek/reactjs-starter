@@ -1,41 +1,37 @@
-import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { withKnobs } from '@storybook/addon-knobs';
+import { action } from '@storybook/addon-actions';
 
-import { Button } from './Button';
+import Button from 'components/Common/Button';
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-    title: 'Example/Button',
     component: Button,
-    // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-    argTypes: {
-        backgroundColor: { control: 'color' },
+    decorators: [withKnobs],
+    parameters: {
+        componentSubtitle: '기본 버튼 컴포넌트',
     },
 } as ComponentMeta<typeof Button>;
 
-// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Button> = (args) => <Button {...args} />;
+const Template: ComponentStory<typeof Button> = ({ children, ...args }) => (
+    <Button onClick={action('onClick')} {...args}>
+        {children}
+    </Button>
+);
 
-export const Primary = Template.bind({});
-// More on args: https://storybook.js.org/docs/react/writing-stories/args
-Primary.args = {
-    primary: true,
-    label: 'Button',
+export const DefaultButton = Template.bind({});
+DefaultButton.args = {
+    children: 'Button',
 };
 
-export const Secondary = Template.bind({});
-Secondary.args = {
-    label: 'Button',
+export const RedButton = Template.bind({});
+RedButton.args = {
+    children: 'Button',
+    color: 'red',
 };
 
-export const Large = Template.bind({});
-Large.args = {
-    size: 'large',
-    label: 'Button',
-};
-
-export const Small = Template.bind({});
-Small.args = {
-    size: 'small',
-    label: 'Button',
+export const BigButton = Template.bind({});
+BigButton.args = {
+    children: 'Button',
+    color: 'red',
+    fontSize: '20px',
 };
