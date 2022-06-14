@@ -65,7 +65,7 @@ const EventList = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    {eventList.length > 0 &&
+                    {eventList?.length > 0 &&
                         eventList.map(
                             ({
                                 endYmdt,

@@ -14,6 +14,7 @@ import SignUpCompleted from 'pages/Member/SignUpCompleted';
 import PrivateRoute from 'hoc/PrivateRoute';
 import mall from 'api/mall';
 import { useMall } from 'hooks';
+import EventRouter from 'router/EventRouter';
 
 const App: FC = () => {
     const [data, isLoading] = useMall();
@@ -54,6 +55,14 @@ const App: FC = () => {
                             <Route
                                 path='/signup/signUpCompleted'
                                 element={<SignUpCompleted />}
+                            />
+                            <Route
+                                path='/event/*'
+                                element={
+                                    <PrivateRoute option={false}>
+                                        <EventRouter />
+                                    </PrivateRoute>
+                                }
                             />
                             <Route path='/*' element={<NotFound />} />
                         </Routes>
