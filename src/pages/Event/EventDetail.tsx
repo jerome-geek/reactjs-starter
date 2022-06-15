@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { AxiosError, AxiosResponse } from 'axios';
+import { useQuery } from 'react-query';
 
 import { event } from 'api/display';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import { getPlatform } from 'utils';
-import { EventDetailResponse } from './eventType';
+import { EventDetailResponse } from 'models/display';
 import Loader from 'components/shared/Loader';
-import { AxiosError, AxiosResponse } from 'axios';
-import { useQuery } from 'react-query';
 
 const EventDetail = () => {
     const { eventNo } = useParams<{ eventNo: any }>();
