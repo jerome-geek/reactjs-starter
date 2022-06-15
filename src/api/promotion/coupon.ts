@@ -1,11 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import {
-    CouponsParams,
-    IssuableCouponResponse,
-    TargetParams,
-} from 'models/promotion';
+import { CouponsParams, TargetParams } from 'models/promotion';
 import { tokenStorage } from 'utils/storage';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
