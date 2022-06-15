@@ -6,6 +6,8 @@ const PATHS = {
     SEARCH: '/search',
     EVENT_LIST: '/event/list',
     EVENT_DETAIL: '/event/detail',
+    GUEST_LOGIN: '/guest/login',
+    GUEST_ORDER_DETAIL: '/guest/order/detail',
     NOT_FOUND: '/not-found',
     ERROR: '/error-server',
 };
