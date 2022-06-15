@@ -67,50 +67,6 @@ const SignUpInput = () => {
     // TODO const certificatePhone = () => {  핸드폰 인증 로직
     // };
 
-    useEffect(() => {
-        if (captchaKey !== '') {
-            return;
-        }
-        setCaptchaKey(v4());
-    }, []);
-
-    const goBackButton = () => {
-        navigate('/signup/term');
-    };
-
-    const getCaptchaImage = () => {
-        if (captchaKey.length > 0) {
-            captcha.generateCaptchaImage({ key: captchaKey }).then((res) => {
-                setCaptchaImage(res.data.url);
-            });
-        }
-    };
-
-    const handleLogin = async (memberId: string, password: string) => {
-        try {
-            const { data } = await authentication.issueAccessToken({
-                memberId: memberId,
-                password: password,
-                keepLogin: false,
-            });
-
-            if (data) {
-                tokenStorage.setAccessToken(
-                    JSON.stringify({
-                        ...data,
-                        expiry: new Date().getTime() + data.expireIn * 1000,
-                    }),
-                );
-
-                dispatch(fetchProfile());
-                navigate('/signup/signUpCompleted');
-            }
-        } catch (error) {
-            navigate('/');
-            throw new Error('알 수 없는 에러 발생!');
-        }
-    };
-
     const checkExistEmail = useDebounce(() => {
         profile
             .checkDuplicateEmail({ email: getValues('email') })
@@ -148,6 +104,64 @@ const SignUpInput = () => {
         } else {
             setCheckAgree(checkAgree.filter((check) => check !== id));
             setValue(id, false);
+        }
+    };
+
+    const getCaptchaImage = async () => {
+        if (captchaKey.length > 0) {
+            try {
+                const captchaImage = await captcha.generateCaptchaImage({
+                    key: captchaKey,
+                });
+                setCaptchaImage(captchaImage.data.url);
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    alert(error.response?.data.message);
+                    return;
+                }
+                if (error instanceof Error) {
+                    alert(error.message);
+                    return;
+                }
+                alert('알수 없는 에러가 발생했습니다.');
+                return;
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (captchaKey !== '') {
+            return;
+        }
+        setCaptchaKey(v4());
+    }, []);
+
+    useEffect(() => {
+        getCaptchaImage();
+    }, [captchaKey]);
+
+    const handleLogin = async (memberId: string, password: string) => {
+        try {
+            const { data } = await authentication.issueAccessToken({
+                memberId: memberId,
+                password: password,
+                keepLogin: false,
+            });
+
+            if (data) {
+                tokenStorage.setAccessToken(
+                    JSON.stringify({
+                        ...data,
+                        expiry: new Date().getTime() + data.expireIn * 1000,
+                    }),
+                );
+
+                dispatch(fetchProfile());
+                navigate('/signup/signUpCompleted');
+            }
+        } catch (error) {
+            alert('알 수 없는 에러 발생!');
+            navigate('/');
         }
     };
 
@@ -207,10 +221,6 @@ const SignUpInput = () => {
     };
 
     useEffect(() => {
-        getCaptchaImage();
-    }, [captchaKey]);
-
-    useEffect(() => {
         if (watchYear?.toString().length === 4) {
             setFocus('month');
         }
@@ -218,6 +228,10 @@ const SignUpInput = () => {
             setFocus('day');
         }
     }, [watchYear, watchMonth, setFocus]);
+
+    const goBackButton = () => {
+        navigate('/signup/term');
+    };
 
     return isLoading ? (
         <Loader />

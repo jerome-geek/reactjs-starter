@@ -6,6 +6,9 @@ import {
     IssuableCouponResponse,
     TargetParams,
 } from 'models/promotion';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const coupon = {
     getCoupons: ({
@@ -26,7 +29,7 @@ const coupon = {
                 startYmd,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -35,7 +38,7 @@ const coupon = {
             method: 'GET',
             url: '/coupons/issuable',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -49,7 +52,7 @@ const coupon = {
             url: '/coupons/summary',
             params: { expireDay },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -80,7 +83,7 @@ const coupon = {
             url: `/coupons/${couponNo}/exclude-targets`,
             params: { pageNumber, pageSize },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -93,7 +96,7 @@ const coupon = {
             url: `/coupons/${couponNo}/targets`,
             params: { pageNumber, pageSize },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -122,7 +125,7 @@ const coupon = {
             url: `/coupons/products/${productNo}/issuable/coupons`,
             params: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };

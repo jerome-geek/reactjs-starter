@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AxiosError, AxiosResponse } from 'axios';
+import { useQuery } from 'react-query';
+import dayjs from 'dayjs';
 
 import { coupon } from 'api/promotion';
-import { useQuery } from 'react-query';
 import { useTypedSelector } from 'state/reducers';
 import { IssuableCouponResponse } from 'models/promotion';
 import { CHANNEL_TYPE } from 'models';
 
 const SignUpCompleted = () => {
     const { member } = useTypedSelector(({ member }) => ({
-        member,
+        member: member.data,
     }));
     const navigate = useNavigate();
     const [couponList, setCouponList] = useState<IssuableCouponResponse[]>([]);
@@ -58,7 +59,7 @@ const SignUpCompleted = () => {
                 </h2>
             </header>
             <div style={{ width: '380px', margin: '30px auto' }}>
-                {member.data?.memberName}님, 환영합니다. <br />
+                {member?.memberName}님, 환영합니다. <br />
                 <p>할인받고 구매해보세요!</p>
                 {couponList.length > 0 ? (
                     couponList.map(
@@ -101,14 +102,6 @@ const SignUpCompleted = () => {
                                         fontWeight: 'bold',
                                     }}
                                 >
-                                    {discountInfo.discountRate}%
-                                </p>
-                                <p
-                                    style={{
-                                        fontSize: '1.3em',
-                                        fontWeight: 'bold',
-                                    }}
-                                >
                                     {`최대 ${discountInfo.maxDiscountAmt}원 할인 ${useConstraint.minSalePrice}원 이상 ~ ${useConstraint.maxSalePrice}원 이하 사용 가능`}
                                 </p>
                                 <p
@@ -117,7 +110,10 @@ const SignUpCompleted = () => {
                                         fontWeight: 'bold',
                                     }}
                                 >
-                                    {dateInfo.issueEndYmdt} 까지 발급 가능
+                                    {`${dayjs(dateInfo.issueEndYmdt).format(
+                                        'YY.MM.DD',
+                                    )}`}
+                                    까지 발급 가능
                                 </p>
                                 <div
                                     style={{
