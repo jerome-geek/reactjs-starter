@@ -1,12 +1,10 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { withKnobs } from '@storybook/addon-knobs';
 import { action } from '@storybook/addon-actions';
 
 import Button from 'components/Common/Button';
 
 export default {
     component: Button,
-    decorators: [withKnobs],
     parameters: {
         componentSubtitle: '기본 버튼 컴포넌트',
     },
