@@ -11,7 +11,7 @@ import { tokenStorage } from 'utils/storage';
 const accessTokenInfo = tokenStorage.getAccessToken();
 
 const coupon = {
-    getCoupons: ({
+    getUsersCoupons: ({
         endYmd,
         pageNumber,
         pageSize,
@@ -64,9 +64,9 @@ const coupon = {
             url: `coupons/register-code/${promotionCode}`,
         }),
 
-    issueCoupon: (
+    getIssuableCoupon: (
         couponNo: number,
-        { channelType }: { channelType: string },
+        { channelType }: { channelType?: string },
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',

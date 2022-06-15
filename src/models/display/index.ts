@@ -93,7 +93,6 @@ export interface Popup {
 }
 
 export interface Event {
-    eventNo: string;
     order: string;
     soldout: boolean;
     saleStatus: string;

@@ -75,12 +75,10 @@ const event = {
             }),
         }),
 
-    getEvent: ({
-        eventNo,
-        order,
-        soldout,
-        saleStatus,
-    }: Event): Promise<AxiosResponse> =>
+    getEvent: (
+        eventNo: string,
+        { order, soldout, saleStatus }: Event,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/display/events/${eventNo}`,
