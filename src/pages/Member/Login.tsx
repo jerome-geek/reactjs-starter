@@ -1,3 +1,4 @@
+import { MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
@@ -71,6 +72,11 @@ const Login = () => {
             console.error(error);
         }
     });
+
+    const onGuestLoginClick = (e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        navigate('/guest/login');
+    };
 
     return (
         <div style={{ margin: '0 auto' }}>
@@ -230,6 +236,7 @@ const Login = () => {
                             width: '100%',
                             marginTop: '5px',
                         }}
+                        onClick={onGuestLoginClick}
                     >
                         비회원 주문 조회
                     </Button>
