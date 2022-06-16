@@ -8,6 +8,7 @@ const PATHS = {
     EVENT_DETAIL: '/event/detail',
     GUEST_LOGIN: '/guest/login',
     GUEST_ORDER_DETAIL: '/guest/order/detail',
+    FAQ: '/etc/faq',
     NOT_FOUND: '/not-found',
     ERROR: '/error-server',
 };

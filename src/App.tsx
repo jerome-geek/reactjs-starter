@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import MyPageRouter from 'router/MyPageRouter';
 import MemberRouter from 'router/MemberRouter';
 import GuestRouter from 'router/GuestRouter';
+import EtcRouter from 'router/EtcRouter';
 import Main from 'pages/Main';
 import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
@@ -44,6 +45,7 @@ const App: FC = () => {
                                 }
                             />
                             <Route path='/guest/*' element={<GuestRouter />} />
+                            <Route path='/etc/*' element={<EtcRouter />} />
                             <Route
                                 path='/signup/term'
                                 element={<SignUpTerms />}
