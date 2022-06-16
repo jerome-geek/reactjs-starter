@@ -27,6 +27,7 @@ const GuestOrderDetail = () => {
         navigate('/');
     }
 
+    // TODO: 주문 취소 처리 추가
     const onCancelOrderClick = () => {
         console.log(
             '주문취소 버튼은 입금대기 / 결제완료 상태인 경우에만 노출됩니다.',
@@ -37,7 +38,6 @@ const GuestOrderDetail = () => {
         navigate(PATHS.FAQ);
     };
 
-    // http://localhost:3000/guest/order/detail/1231231
     return (
         <>
             <Header />

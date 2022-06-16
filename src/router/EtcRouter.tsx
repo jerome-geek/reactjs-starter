@@ -2,10 +2,12 @@ import { Routes, Route } from 'react-router-dom';
 
 import Faq from 'pages/Etc/Faq';
 import NotFound from 'pages/NotFound';
+import Notice from 'pages/Etc/Notice';
 
 const EtcRouter = () => {
     return (
         <Routes>
+            <Route path='notice' element={<Notice />} />
             <Route path='faq' element={<Faq />} />
             <Route path='*' element={<NotFound />} />
         </Routes>
