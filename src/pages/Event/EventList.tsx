@@ -14,7 +14,7 @@ const EventList = () => {
     const [eventList, setEventList] = useState<EventListResponse[]>([]);
     const navigate = useNavigate();
 
-    const { data } = useQuery<AxiosResponse<EventListResponse[]>, AxiosError>(
+    useQuery<AxiosResponse<EventListResponse[]>, AxiosError>(
         'eventList',
         async () => await event.getEvents({}),
         {
