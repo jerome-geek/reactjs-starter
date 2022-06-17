@@ -16,7 +16,7 @@ const EventDetail = () => {
     const { isLoading } = useQuery<
         AxiosResponse<EventDetailResponse>,
         AxiosError
-    >(`eventDetail${eventNo}`, async () => await event.getEvent(eventNo, {}), {
+    >(['eventDetail', eventNo], async () => await event.getEvent(eventNo, {}), {
         onSuccess: (res) => {
             setEventDetail({ ...res.data });
         },
