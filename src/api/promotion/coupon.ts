@@ -7,7 +7,7 @@ import { tokenStorage } from 'utils/storage';
 const accessTokenInfo = tokenStorage.getAccessToken();
 
 const coupon = {
-    getUsersCoupons: ({
+    getUserCoupons: ({
         endYmd,
         pageNumber,
         pageSize,
@@ -60,7 +60,7 @@ const coupon = {
             url: `coupons/register-code/${promotionCode}`,
         }),
 
-    getIssuableCoupon: (
+    issueCoupon: (
         couponNo: number,
         { channelType }: { channelType?: string },
     ): Promise<AxiosResponse> =>
