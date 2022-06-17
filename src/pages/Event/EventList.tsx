@@ -4,11 +4,11 @@ import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
 import { AxiosError, AxiosResponse } from 'axios';
 
-import paths from 'const/paths';
 import { event } from 'api/display';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import { getPlatform } from 'utils';
 import { EventListResponse } from 'models/display';
+import paths from 'const/paths';
 
 const EventList = () => {
     const [eventList, setEventList] = useState<EventListResponse[]>([]);
