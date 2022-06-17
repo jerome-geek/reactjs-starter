@@ -1,17 +1,21 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { Event, Events } from 'models/display';
+import {
+    Event,
+    EventDetailResponse,
+    EventListResponse,
+    Events,
+} from 'models/display';
 
 const event = {
     // TODO: categoryNos는 콤마로 구분되어 들어가니 number인지 string인지 확인 필요!
     getEvents: ({
         keyword,
         categoryNos,
-    }: Omit<
-        Events,
-        'eventTitle' | 'productNos' | 'onlyIngStatus'
-    >): Promise<AxiosResponse> =>
+    }: Omit<Events, 'eventTitle' | 'productNos' | 'onlyIngStatus'>): Promise<
+        AxiosResponse<EventListResponse[]>
+    > =>
         request({
             method: 'GET',
             url: '/display/events',
@@ -75,12 +79,10 @@ const event = {
             }),
         }),
 
-    getEvent: ({
-        eventNo,
-        order,
-        soldout,
-        saleStatus,
-    }: Event): Promise<AxiosResponse> =>
+    getEvent: (
+        eventNo: string,
+        { order, soldout, saleStatus }: Event,
+    ): Promise<AxiosResponse<EventDetailResponse>> =>
         request({
             method: 'GET',
             url: `/display/events/${eventNo}`,

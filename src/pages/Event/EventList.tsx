@@ -1,35 +1,26 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
+import { AxiosError, AxiosResponse } from 'axios';
 
-import paths from 'const/paths';
 import { event } from 'api/display';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import { getPlatform } from 'utils';
-import { AxiosError, AxiosResponse } from 'axios';
-
-interface EventListResponse {
-    eventNo: number;
-    label: string;
-    url: string;
-    urlType: string;
-    displayPeriodType: string;
-    startYmdt: string;
-    endYmdt: string;
-    pcImageUrl: string;
-    mobileimageUrl: string;
-    promotionText: string;
-    tag: string;
-    eventYn: string;
-}
+import { EventListResponse } from 'models/display';
+import paths from 'const/paths';
 
 const EventList = () => {
+    const [eventList, setEventList] = useState<EventListResponse[]>([]);
     const navigate = useNavigate();
 
-    const { data } = useQuery<AxiosResponse, AxiosError>(
+    useQuery<AxiosResponse<EventListResponse[]>, AxiosError>(
         'eventList',
         async () => await event.getEvents({}),
         {
+            onSuccess: (res) => {
+                setEventList([...res.data]);
+            },
             onError: (error) => {
                 if (error instanceof AxiosError) {
                     alert(error.message);
@@ -39,8 +30,6 @@ const EventList = () => {
             },
         },
     );
-
-    const eventList: EventListResponse[] = data?.data;
 
     const goEventDetailHandler = (eventNo: number) => {
         navigate(`${paths.EVENT_DETAIL}/${eventNo}`);
@@ -65,7 +54,7 @@ const EventList = () => {
                         flexWrap: 'wrap',
                     }}
                 >
-                    {eventList.length > 0 &&
+                    {eventList?.length > 0 &&
                         eventList.map(
                             ({
                                 endYmdt,

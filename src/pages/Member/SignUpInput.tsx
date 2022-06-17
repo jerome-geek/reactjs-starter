@@ -84,7 +84,7 @@ const SignUpInput = () => {
     }, [captchaImage, captchaKey]);
 
     const goBackButton = () => {
-        navigate('/signup/term');
+        navigate(-1);
     };
 
     const getCaptchaImage = () => {
