@@ -133,7 +133,7 @@ const Footer = () => {
                         <Link to={'/'}>공지사항</Link>
                     </li>
                 </FooterTopMenu>
-                <FooterFamilySiteBox onChange={(e) => handleLink(e)}>
+                <FooterFamilySiteBox onChange={handleLink}>
                     <option value={''}>Family Site</option>
                     <option value={'https://www.vse.co.kr/index.vse'}>
                         VSE
