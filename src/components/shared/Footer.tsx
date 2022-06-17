@@ -88,13 +88,13 @@ const Footer = () => {
         mallInfo: state.mall,
     }));
 
-    const handleLink = (e: any) => {
-        if (e.target.value.length > 0) {
-            window.open(e.target.value);
+    const handleLink = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        if (event.target.value.length > 0) {
+            window.open(event.target.value);
         }
     };
 
-    const formatPhoneNumber = (str: string): string | null => {
+    const formatPhoneNumber = (str: string): string => {
         const cleaned = ('' + str).replace(/\D/g, '');
         let match;
         if (str.length === 9) {
@@ -107,7 +107,7 @@ const Footer = () => {
             return match[1] + '-' + match[2] + '-' + match[3];
         }
 
-        return null;
+        return '';
     };
 
     return (
@@ -115,34 +115,22 @@ const Footer = () => {
             <FooterTopBox>
                 <FooterTopMenu>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            서비스 이용약관
-                        </Link>
+                        <Link to={'/'}>서비스 이용약관</Link>
                     </li>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            개인정보 처리방침
-                        </Link>
+                        <Link to={'/'}>개인정보 처리방침</Link>
                     </li>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            위치정보 이용약관
-                        </Link>
+                        <Link to={'/'}>위치정보 이용약관</Link>
                     </li>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            VSE 서비스 이용약관
-                        </Link>
+                        <Link to={'/'}>VSE 서비스 이용약관</Link>
                     </li>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            대리점 안내
-                        </Link>
+                        <Link to={'/'}>대리점 안내</Link>
                     </li>
                     <li>
-                        <Link to={'/'} target='_blank'>
-                            공지사항
-                        </Link>
+                        <Link to={'/'}>공지사항</Link>
                     </li>
                 </FooterTopMenu>
                 <FooterFamilySiteBox onChange={(e) => handleLink(e)}>
@@ -157,47 +145,55 @@ const Footer = () => {
                     <p>Follow us</p>
                     <FooterSnsBox>
                         <FooterSns>
-                            <Link
-                                to={
-                                    'https://www.youtube.com/channel/UCmJ_7PzHjRJzxT24I4l2_HA'
-                                }
+                            <a
+                                href='https://www.youtube.com/channel/UCmJ_7PzHjRJzxT24I4l2_HA'
+                                target='_blank'
+                                rel='noopener noreferrer'
                             >
                                 유튜브
-                            </Link>
+                            </a>
                         </FooterSns>
                         <FooterSns>
-                            <Link
-                                to={'https://www.facebook.com/vc.voicecaddie'}
+                            <a
+                                href='https://www.facebook.com/vc.voicecaddie'
+                                target='_blank'
+                                rel='noopener noreferrer'
                             >
                                 페이스북
-                            </Link>
+                            </a>
                         </FooterSns>
                         <FooterSns>
-                            <Link
-                                to={'https://www.instagram.com/voicecaddie_kor'}
+                            <a
+                                href='https://www.instagram.com/voicecaddie_kor'
+                                target='_blank'
+                                rel='noopener noreferrer'
                             >
                                 인스타
-                            </Link>
+                            </a>
                         </FooterSns>
                         <FooterSns>
-                            <Link to={'https://blog.naver.com/voicecaddiek'}>
+                            <a
+                                href='https://blog.naver.com/voicecaddiek'
+                                target='_blank'
+                                rel='noopener noreferrer'
+                            >
                                 블로그
-                            </Link>
+                            </a>
                         </FooterSns>
                     </FooterSnsBox>
                     <div>
                         <FooterNoticeBox>
                             <li>
-                                <Link to={''}>전자공고</Link>
+                                <Link to={'/'}>전자공고</Link>
                             </li>
                             <li>
-                                <Link to={''}>뉴스&이벤트</Link>
+                                <Link to={'/'}>뉴스&이벤트</Link>
                             </li>
                             <li>
-                                <Link to={''}>펌웨어 업데이트 안내</Link>
+                                <Link to={'/'}>펌웨어 업데이트 안내</Link>
                             </li>
                             <li>
-                                <Link to={''}>KC인증 식별 표기</Link>
+                                <Link to={'/'}>KC인증 식별 표기</Link>
                             </li>
                         </FooterNoticeBox>
                     </div>
@@ -247,8 +243,8 @@ const Footer = () => {
                     <p>기업특판 : 070-8290-5372</p>
                     <br />
                     <div>
-                        <Link to={''}>{'고객센터 바로가기 >'}</Link>
-                        <Link to={''}>{'FAQ 바로가기 >'}</Link>
+                        <Link to={'/'}>{'고객센터 바로가기 >'}</Link>
+                        <Link to={'/'}>{'FAQ 바로가기 >'}</Link>
                     </div>
                     <p>VSE 고객센터 1544-4667</p>
                 </FooterBottomRight>
