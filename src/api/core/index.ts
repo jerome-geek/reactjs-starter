@@ -38,9 +38,6 @@ request.interceptors.response.use(
                 alert('로그인 상태가 만료되었습니다. 다시 로그인해주세요.');
                 return window.location.replace(PATHS.LOGIN);
 
-            case HTTP_RESPONSE.HTTP_NOT_FOUND:
-                return window.location.replace(PATHS.NOT_FOUND);
-
             case HTTP_RESPONSE.HTTP_INTERNAL_SERVER_ERROR:
                 return window.location.replace(PATHS.ERROR);
 

@@ -11,6 +11,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const StyledInput = styled.input<InputProps>`
     border: ${(props) => props.border || '1px solid black'};
     border-radius: ${(props) => props.borderRadius};
+    background-color: transparent;
     outline: none;
     font-size: 20px;
     font-weight: 600;
