@@ -9,6 +9,7 @@ const PATHS = {
     GUEST_LOGIN: '/guest/login',
     GUEST_ORDER_DETAIL: '/guest/order/detail',
     FAQ: '/etc/faq',
+    NOTICE: '/etc/notice',
     NOT_FOUND: '/not-found',
     ERROR: '/error-server',
 };
