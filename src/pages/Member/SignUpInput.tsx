@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { AxiosError } from 'axios';
+import { v4 } from 'uuid';
 
 import { SEX, TERM } from 'models/profile';
 import { profile } from 'api/member/index';
 import { authentication, captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
 import { VCMarketingTerms } from 'const/VCTerms';
-import { AxiosError } from 'axios';
 import Loader from 'components/shared/Loader';
-import { useDispatch } from 'react-redux';
-import { setAccessToken } from 'state/slices/tokenSlice';
+import { tokenStorage } from 'utils/storage';
+import { fetchProfile } from 'state/slices/memberSlice';
+import { useAppDispatch } from 'state/reducers';
 
 interface LocationState {
     joinTermsAgreements: TERM[];
@@ -60,7 +62,7 @@ const SignUpInput = () => {
     const watchYear = watch('year');
     const watchMonth = watch('month');
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     // TODO const certificatePhone = () => {  핸드폰 인증 로직
     // };
@@ -150,6 +152,64 @@ const SignUpInput = () => {
         }
     };
 
+    const getCaptchaImage = async () => {
+        if (captchaKey.length > 0) {
+            try {
+                const captchaImage = await captcha.generateCaptchaImage({
+                    key: captchaKey,
+                });
+                setCaptchaImage(captchaImage.data.url);
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    alert(error.response?.data.message);
+                    return;
+                }
+                if (error instanceof Error) {
+                    alert(error.message);
+                    return;
+                }
+                alert('알수 없는 에러가 발생했습니다.');
+                return;
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (captchaKey !== '') {
+            return;
+        }
+        setCaptchaKey(v4());
+    }, []);
+
+    useEffect(() => {
+        getCaptchaImage();
+    }, [captchaKey]);
+
+    const handleLogin = async (memberId: string, password: string) => {
+        try {
+            const { data } = await authentication.issueAccessToken({
+                memberId: memberId,
+                password: password,
+                keepLogin: false,
+            });
+
+            if (data) {
+                tokenStorage.setAccessToken(
+                    JSON.stringify({
+                        ...data,
+                        expiry: new Date().getTime() + data.expireIn * 1000,
+                    }),
+                );
+
+                dispatch(fetchProfile());
+                navigate('/signup/signUpCompleted');
+            }
+        } catch (error) {
+            alert('알 수 없는 에러 발생!');
+            navigate('/');
+        }
+    };
+
     const checkCaptchaCode = () => {
         if (!captchaCode.current?.value) {
             alert('자동등록 방지 코드를 입력해주세요');
@@ -188,9 +248,7 @@ const SignUpInput = () => {
                 sex,
             });
             if (successSignUpResponse) {
-                handleLogin(email, password)
-                    .then(() => navigate('/signup/signUpCompleted'))
-                    .catch(() => navigate('/'));
+                handleLogin(email, password);
             }
         } catch (error) {
             setIsLoading(false);
@@ -198,6 +256,7 @@ const SignUpInput = () => {
                 alert(error.response?.data.message);
                 return;
             } else if (error instanceof Error) {
+                alert(error.message);
                 return;
             } else {
                 alert('알수 없는 에러가 발생했습니다.');
@@ -207,10 +266,6 @@ const SignUpInput = () => {
     };
 
     useEffect(() => {
-        getCaptchaImage();
-    }, []);
-
-    useEffect(() => {
         if (watchYear?.toString().length === 4) {
             setFocus('month');
         }
@@ -218,6 +273,10 @@ const SignUpInput = () => {
             setFocus('day');
         }
     }, [watchYear, watchMonth, setFocus]);
+
+    const goBackButton = () => {
+        navigate('/signup/term');
+    };
 
     return isLoading ? (
         <Loader />
