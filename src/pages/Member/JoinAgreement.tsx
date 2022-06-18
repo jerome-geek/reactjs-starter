@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { terms } from 'api/manage/index';
-import { TERMS_TYPES } from 'api/manage/terms';
 import { VCTerms } from 'const/VCTerms';
 
-const SignUpTerms = () => {
+const JoinAgreement = () => {
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
 
     const navigate = useNavigate();
@@ -78,4 +76,4 @@ const SignUpTerms = () => {
     );
 };
 
-export default SignUpTerms;
+export default JoinAgreement;

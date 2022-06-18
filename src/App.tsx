@@ -6,16 +6,13 @@ import MyPageRouter from 'router/MyPageRouter';
 import MemberRouter from 'router/MemberRouter';
 import GuestRouter from 'router/GuestRouter';
 import EtcRouter from 'router/EtcRouter';
+import EventRouter from 'router/EventRouter';
 import Main from 'pages/Main';
 import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
-import SignUpTerms from 'pages/Member/SignUpTerms';
-import SignUpInput from 'pages/Member/SignUpInput';
-import SignUpCompleted from 'pages/Member/SignUpCompleted';
 import PrivateRoute from 'hoc/PrivateRoute';
 import { useMall } from 'hooks';
-import EventRouter from 'router/EventRouter';
 
 const App: FC = () => {
     const [data, isLoading] = useMall();
@@ -47,26 +44,7 @@ const App: FC = () => {
                             />
                             <Route path='/guest/*' element={<GuestRouter />} />
                             <Route path='/etc/*' element={<EtcRouter />} />
-                            <Route
-                                path='/signup/term'
-                                element={<SignUpTerms />}
-                            />
-                            <Route
-                                path='/signup/input'
-                                element={<SignUpInput />}
-                            />
-                            <Route
-                                path='/signup/signUpCompleted'
-                                element={<SignUpCompleted />}
-                            />
-                            <Route
-                                path='/event/*'
-                                element={
-                                    <PrivateRoute option={false}>
-                                        <EventRouter />
-                                    </PrivateRoute>
-                                }
-                            />
+                            <Route path='/event/*' element={<EventRouter />} />
                             <Route path='/*' element={<NotFound />} />
                         </Routes>
                         <Footer />
