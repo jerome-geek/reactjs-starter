@@ -1,7 +1,12 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { ArticleParams, PostArticleParams } from 'models/manage';
+import {
+    ArticleParams,
+    BoardCategory,
+    BoardList,
+    PostArticleParams,
+} from 'models/manage';
 
 const board = {
     getConfigs: (): Promise<AxiosResponse> =>
@@ -10,7 +15,6 @@ const board = {
             url: '/boards/configurations',
         }),
 
-    // TODO boardNo 모름, 404 error 발생 추후 테스트 필요
     getArticlesByBoardNo: (
         boardNo: string,
         {
@@ -26,7 +30,7 @@ const board = {
             direction,
             isMine = false,
         }: ArticleParams,
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<BoardList>> =>
         request({
             method: 'GET',
             url: `/boards/${boardNo}/articles`,
@@ -80,8 +84,8 @@ const board = {
                 accessToken: localStorage.getItem('accessToken') || '',
             }),
         }),
-    // TODO 이후 함수들은 boardNo가 없어 전부 400번대 에러가 발생합니다. 테스트 필요함
-    getCategories: (boardNo: string): Promise<AxiosResponse> =>
+
+    getCategories: (boardNo: string): Promise<AxiosResponse<BoardCategory[]>> =>
         request({
             method: 'GET',
             url: `/boards/${boardNo}/categories`,
@@ -90,12 +94,18 @@ const board = {
     getArticleDetail: (
         boardNo: string,
         articleNo: string,
-        { password }: { password?: string },
+        query?: {
+            password?: string;
+            withReplied?: boolean;
+        },
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
-            url: `board/${boardNo}/articles/${articleNo}`,
-            params: { password },
+            url: `boards/${boardNo}/articles/${articleNo}`,
+            params: {
+                password: query?.password,
+                withReplied: query?.withReplied,
+            },
         }),
 
     updateArticle: (

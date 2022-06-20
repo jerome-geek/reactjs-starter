@@ -75,3 +75,70 @@ export interface WriteInquiry {
     email?: string;
     productNo?: number;
 }
+
+export interface BoardCategory {
+    categoryNo: number;
+    label: string;
+}
+
+export interface BoardList {
+    totalCount: number;
+    items: BoardListItem[];
+}
+
+export interface BoardListItem {
+    articleNo: number;
+    title: string;
+    imageUrl: string;
+    viewCnt: number;
+    categoryNo: number;
+    categoryLabel: string;
+    registerName: string;
+    registerYmdt: Date;
+    registerNo: number;
+    registerType: string;
+    modifierName: string;
+    modifyYmdt: null;
+    modifierNo: null;
+    modifierType: null;
+    secreted: boolean;
+    repliedCnt: number;
+    replied: boolean;
+    notice: boolean;
+    attached: boolean;
+    recommendCount: number;
+    tags: string[];
+}
+
+export interface BoardDetailState {
+    boardNo: string;
+    articleNo: string;
+}
+
+export interface BoardDetail {
+    articleNo: number;
+    title: string;
+    content: string;
+    imageUrl: string;
+    viewCnt: number;
+    categoryNo: number;
+    categoryLabel: string;
+    attachments: string[];
+    registerName: string;
+    registerGroupNames: null;
+    registerYmdt: string;
+    registerNo: number;
+    registerType: string;
+    modifierName: string;
+    modifyYmdt: string;
+    modifierNo: null;
+    modifierType: string;
+    memberId: string;
+    modifiable: boolean;
+    childArticles: number[];
+    secreted: boolean;
+    notice: boolean;
+    parentArticle: number;
+    recommendCount: number;
+    tags: string[];
+}
