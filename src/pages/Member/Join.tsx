@@ -34,7 +34,7 @@ interface Id {
     [id: string]: boolean | string;
 }
 
-const SignUpInput = () => {
+const Join = () => {
     const [checkAgree, setCheckAgree] = useState<string[]>([]);
     const [captchaImage, setCaptchaImage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -64,53 +64,9 @@ const SignUpInput = () => {
 
     const dispatch = useAppDispatch();
 
-    // TODO const certificatePhone = () => {  핸드폰 인증 로직
+    // TODO: 핸드폰 인증 로직
+    // const certificatePhone = () => {
     // };
-
-    useEffect(() => {
-        if (captchaKey.length > 0) {
-            return;
-        }
-        let key = '';
-        const stringAll =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-        const eightToSixteen = Math.floor(Math.random() * 8) + 8;
-
-        for (let i = 0; i < eightToSixteen; i++) {
-            key += stringAll.charAt(
-                Math.floor(Math.random() * stringAll.length),
-            );
-        }
-        setCaptchaKey(key);
-    }, [captchaImage, captchaKey]);
-
-    const goBackButton = () => {
-        navigate(-1);
-    };
-
-    const getCaptchaImage = () => {
-        captcha.generateCaptchaImage({ key: captchaKey }).then((res) => {
-            setCaptchaImage(res.data.url);
-        });
-    };
-
-    const handleLogin = async (memberId: string, password: string) => {
-        const { data } = await authentication.issueAccessToken({
-            memberId: memberId,
-            password: password,
-            keepLogin: false,
-        });
-
-        if (data) {
-            dispatch(
-                setAccessToken({
-                    ...data,
-                    expiry: new Date().getTime() + data.expireIn,
-                }),
-            );
-        }
-    };
 
     const checkExistEmail = useDebounce(() => {
         profile
@@ -478,4 +434,4 @@ const SignUpInput = () => {
     );
 };
 
-export default SignUpInput;
+export default Join;

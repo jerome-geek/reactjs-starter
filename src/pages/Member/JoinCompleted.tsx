@@ -9,7 +9,7 @@ import { useTypedSelector } from 'state/reducers';
 import { IssuableCouponResponse } from 'models/promotion';
 import { CHANNEL_TYPE } from 'models';
 
-const SignUpCompleted = () => {
+const JoinCompleted = () => {
     const { member } = useTypedSelector(({ member }) => ({
         member: member.data,
     }));
@@ -169,4 +169,4 @@ const SignUpCompleted = () => {
     );
 };
 
-export default SignUpCompleted;
+export default JoinCompleted;
