@@ -3,13 +3,14 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
 import Main from 'pages/Main';
-import MyPageRouter from 'router/MyPageRouter';
 import MemberRouter from 'router/MemberRouter';
+import MyPageRouter from 'router/MyPageRouter';
+import ProductRouter from 'router/ProductRouter';
+import ManualRouter from 'router/ManualRouter';
+import GolfCourseRouter from 'router/GolfCourseRouter';
 import GuestRouter from 'router/GuestRouter';
 import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
-import ManualRouter from 'router/ManualRouter';
-import GolfCourseRouter from 'router/GolfCourseRouter';
 import Manager from 'pages/Manager';
 import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
@@ -44,6 +45,10 @@ const App: FC = () => {
                                         <MyPageRouter />
                                     </PrivateRoute>
                                 }
+                            />
+                            <Route
+                                path='/product/*'
+                                element={<ProductRouter />}
                             />
                             <Route
                                 path='/manual/*'
