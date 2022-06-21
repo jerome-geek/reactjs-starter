@@ -13,6 +13,7 @@ const PATHS = {
     EVENT_LIST: '/event/list',
     EVENT_DETAIL: '/event/detail',
     GUEST_LOGIN: '/guest/login',
+    GUEST_ORDER: '/guest/order',
     GUEST_ORDER_DETAIL: '/guest/order/detail',
     MANAGER: '/manager',
     MANUAL_LIST: '/manual/list',
