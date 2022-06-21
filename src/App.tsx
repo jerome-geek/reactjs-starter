@@ -2,12 +2,15 @@ import { FC } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ReactQueryDevtools } from 'react-query/devtools';
 
+import Main from 'pages/Main';
 import MyPageRouter from 'router/MyPageRouter';
 import MemberRouter from 'router/MemberRouter';
 import GuestRouter from 'router/GuestRouter';
 import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
-import Main from 'pages/Main';
+import ManualRouter from 'router/ManualRouter';
+import GolfCourseRouter from 'router/GolfCourseRouter';
+import Manager from 'pages/Manager';
 import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
@@ -42,9 +45,18 @@ const App: FC = () => {
                                     </PrivateRoute>
                                 }
                             />
+                            <Route
+                                path='/manual/*'
+                                element={<ManualRouter />}
+                            />
+                            <Route
+                                path='/golf-course/*'
+                                element={<GolfCourseRouter />}
+                            />
                             <Route path='/guest/*' element={<GuestRouter />} />
                             <Route path='/etc/*' element={<EtcRouter />} />
                             <Route path='/event/*' element={<EventRouter />} />
+                            <Route path='/manager' element={<Manager />} />
                             <Route path='/*' element={<NotFound />} />
                         </Routes>
                         <Footer />
