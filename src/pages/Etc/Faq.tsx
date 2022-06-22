@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import media from 'utils/styles/media';
@@ -9,6 +10,8 @@ import { board } from 'api/manage';
 import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
 import SectionDropdown from 'components/SectionDropdown';
 import Loader from 'components/shared/Loader';
+import { useTypedSelector } from 'state/reducers';
+import paths from 'const/paths';
 
 const FaqContainer = styled.div`
     max-width: 1440px;
@@ -84,21 +87,41 @@ const FaqDetailLabel = styled.p`
     color: #888;
 `;
 
+const InquiryButton = styled.div`
+    width: 150px;
+    text-align: center;
+    padding: 10px 10px;
+    border-radius: 5px;
+    border: 2px solid #000;
+    font-weight: bold;
+    font-size: 15px;
+    margin: 10px auto;
+    cursor: pointer;
+    :hover {
+        background: #000;
+        color: #fff;
+    }
+`;
+
+interface KeyValue<T> {
+    [id: string]: T;
+}
+
 const Faq = () => {
-    const [faqList, setFaqList] = useState<BoardCategory[]>([]);
+    const [faqCategoryList, setFaqCategoryList] = useState<BoardCategory[]>([]);
     const [faqData, setFaqData] = useState<BoardList>();
     const [faqDataList, setFaqDataList] =
-        useState<{ [id: string]: (BoardListItem & { content?: string })[] }>();
+        useState<KeyValue<(BoardListItem & { content?: string })[]>>();
     const [currentCategoryNo, setCurrentCategoryNo] = useState<number>(0);
     const [listItemCount, setListItemCount] = useState(5);
-    const [isLoading, setIsLoading] = useState(true);
+    const [keyword, setKeyword] = useState('');
 
     useQuery<AxiosResponse<BoardCategory[]>, AxiosError>(
-        ['faqList'],
+        ['faqCategoryList'],
         async () => await board.getCategories('9216'),
         {
             onSuccess: (res) => {
-                setFaqList([...res.data]);
+                setFaqCategoryList([...res.data]);
             },
             onError: (error) => {
                 if (error instanceof AxiosError) {
@@ -107,12 +130,16 @@ const Faq = () => {
                 }
                 alert('알수 없는 에러가 발생했습니다.');
             },
+            refetchOnWindowFocus: false,
         },
     );
 
-    useQuery<AxiosResponse<BoardList>, AxiosError>(
-        ['faqData'],
-        async () => await board.getArticlesByBoardNo('9216', {}),
+    const { isLoading } = useQuery<AxiosResponse<BoardList>, AxiosError>(
+        ['faqData', keyword],
+        async () =>
+            await board.getArticlesByBoardNo('9216', {
+                keyword,
+            }),
         {
             onSuccess: (res) => {
                 setFaqData(res.data);
@@ -124,23 +151,21 @@ const Faq = () => {
                 }
                 alert('알수 없는 에러가 발생했습니다.');
             },
-            onSettled: () => {
-                setIsLoading(false);
-            },
+            refetchOnWindowFocus: false,
         },
     );
 
     useEffect(() => {
-        setCurrentCategoryNo(faqList[0]?.categoryNo);
-    }, [faqList]);
+        setCurrentCategoryNo(faqCategoryList[0]?.categoryNo);
+    }, [faqCategoryList]);
 
     useEffect(() => {
-        const faqDataListObject: {
-            [id: string]: (BoardListItem & { content?: string })[];
-        } = {};
+        const faqDataListObject: KeyValue<
+            (BoardListItem & { content?: string })[]
+        > = {};
 
         setFaqDataList((prev) => {
-            faqList.forEach((boardCategory) => {
+            faqCategoryList.forEach((boardCategory) => {
                 const categoryNo = boardCategory.categoryNo;
                 faqDataListObject[`${categoryNo}`] = [];
 
@@ -153,24 +178,34 @@ const Faq = () => {
 
             return { ...prev, ...faqDataListObject };
         });
-    }, [faqData?.items, faqList]);
+    }, [faqData?.items, faqCategoryList]);
 
     const getNoticeDetailHandler = async (articleNo: number) => {
-        try {
-            const noticeDetail = await board.getArticleDetail(
-                '9216',
-                articleNo.toString(),
-            );
-            setFaqDataList((prev) => {
-                prev?.[currentCategoryNo].forEach((ele) => {
-                    if (ele.articleNo === articleNo) {
-                        ele.content = noticeDetail.data.content;
-                    }
+        let isContent = false;
+        faqDataList?.[currentCategoryNo].forEach((ele) => {
+            if (ele.articleNo === articleNo && ele.content) {
+                isContent = true;
+            }
+        });
+        if (isContent) {
+            return;
+        } else {
+            try {
+                const noticeDetail = await board.getArticleDetail(
+                    '9216',
+                    articleNo.toString(),
+                );
+                setFaqDataList((prev) => {
+                    prev?.[currentCategoryNo].forEach((ele) => {
+                        if (ele.articleNo === articleNo) {
+                            ele.content = noticeDetail.data.content;
+                        }
+                    });
+                    return Object.assign({}, prev);
                 });
-                return Object.assign({}, prev);
-            });
-        } catch (err) {
-            alert(err);
+            } catch (err) {
+                alert(err);
+            }
         }
     };
 
@@ -188,19 +223,22 @@ const Faq = () => {
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsLoading(true);
-        try {
-            const data = await board.getArticlesByBoardNo('9216', {
-                keyword: searchKeyword.current?.value,
-            });
-            if (data) {
-                setFaqData(data.data);
-            }
-        } catch (error) {
-            alert('알 수 없는 에러 발생!');
-        } finally {
-            setIsLoading(false);
+        if (searchKeyword.current) {
+            setKeyword(searchKeyword.current?.value);
         }
+    };
+
+    const navigate = useNavigate();
+    const { member } = useTypedSelector(({ member }) => ({
+        member: member.data,
+    }));
+
+    const goInquiryPage = () => {
+        if (!member) {
+            alert('로그인 후 이용해주세요');
+            navigate(paths.LOGIN);
+        }
+        // TODO inquiry 페이지로 넘어감
     };
 
     return (
@@ -229,20 +267,21 @@ const Faq = () => {
                 </FaqSearchBox>
             </FaqBox>
             <FaqCategoryContainer>
-                {faqList.map(({ categoryNo, label }) => {
+                {faqCategoryList.map(({ categoryNo, label }) => {
                     return (
-                        <FaqCategoryBox
-                            className={
-                                currentCategoryNo === categoryNo
-                                    ? 'isActive'
-                                    : ''
-                            }
-                            id={`${categoryNo}`}
-                            key={categoryNo}
-                            onClick={() => handleCategoryClick(categoryNo)}
-                        >
-                            {label}({faqDataList?.[`${categoryNo}`]?.length})
-                        </FaqCategoryBox>
+                        faqDataList?.[categoryNo] && (
+                            <FaqCategoryBox
+                                className={
+                                    currentCategoryNo === categoryNo
+                                        ? 'isActive'
+                                        : ''
+                                }
+                                key={categoryNo}
+                                onClick={() => handleCategoryClick(categoryNo)}
+                            >
+                                {label}({faqDataList[categoryNo].length})
+                            </FaqCategoryBox>
+                        )
                     );
                 })}
             </FaqCategoryContainer>
@@ -250,57 +289,69 @@ const Faq = () => {
                 <Loader />
             ) : (
                 <FaqDetailContainer>
-                    <p>
-                        {
-                            faqList?.filter(
-                                (item) => item.categoryNo === currentCategoryNo,
-                            )[0]?.label
-                        }
-                        ({faqDataList?.[`${currentCategoryNo}`]?.length})
-                    </p>
-                    <div>
-                        {faqDataList?.[`${currentCategoryNo}`]
-                            ?.slice(0, listItemCount)
-                            ?.map(
-                                ({
-                                    categoryLabel,
-                                    articleNo,
-                                    title,
-                                    content,
-                                }) => {
-                                    return (
-                                        <FaqDetailBox
-                                            onClick={() =>
-                                                getNoticeDetailHandler(
-                                                    articleNo,
-                                                )
-                                            }
-                                            key={articleNo}
-                                        >
-                                            <FaqDetailLabel>
-                                                {categoryLabel}
-                                            </FaqDetailLabel>
-                                            <SectionDropdown title={title}>
-                                                {content && (
-                                                    <p
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: content,
-                                                        }}
-                                                    ></p>
-                                                )}
-                                            </SectionDropdown>
-                                        </FaqDetailBox>
-                                    );
-                                },
-                            )}
-                    </div>
+                    {faqDataList?.[currentCategoryNo].length ? (
+                        <>
+                            <p>
+                                {
+                                    faqCategoryList?.filter(
+                                        (item) =>
+                                            item.categoryNo ===
+                                            currentCategoryNo,
+                                    )[0]?.label
+                                }
+                                ({faqDataList[currentCategoryNo].length})
+                            </p>
+                            <div>
+                                {faqDataList[currentCategoryNo]
+                                    .slice(0, listItemCount)
+                                    .map(
+                                        ({
+                                            categoryLabel,
+                                            articleNo,
+                                            title,
+                                            content,
+                                        }) => {
+                                            return (
+                                                <FaqDetailBox
+                                                    onClick={() =>
+                                                        getNoticeDetailHandler(
+                                                            articleNo,
+                                                        )
+                                                    }
+                                                    key={articleNo}
+                                                >
+                                                    <FaqDetailLabel>
+                                                        {categoryLabel}
+                                                    </FaqDetailLabel>
+                                                    <SectionDropdown
+                                                        title={title}
+                                                    >
+                                                        {content && (
+                                                            <p
+                                                                dangerouslySetInnerHTML={{
+                                                                    __html: content,
+                                                                }}
+                                                            ></p>
+                                                        )}
+                                                    </SectionDropdown>
+                                                </FaqDetailBox>
+                                            );
+                                        },
+                                    )}
+                            </div>
+                        </>
+                    ) : (
+                        <p>검색결과가 없습니다.</p>
+                    )}
                 </FaqDetailContainer>
             )}
-            {faqDataList?.[`${currentCategoryNo}`]?.length &&
-                faqDataList?.[`${currentCategoryNo}`]?.length >
-                    listItemCount && (
-                    <div onClick={onMoreButtonClick}>더보기</div>
-                )}
+            {faqDataList?.[currentCategoryNo]?.length &&
+            faqDataList[currentCategoryNo]?.length > listItemCount ? (
+                <div onClick={onMoreButtonClick}>더보기</div>
+            ) : (
+                ''
+            )}
+            <InquiryButton onClick={goInquiryPage}>1:1 문의하기</InquiryButton>
         </FaqContainer>
     );
 };
