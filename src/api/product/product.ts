@@ -4,7 +4,6 @@ import request, { defaultHeaders } from 'api/core';
 import {
     CHANNEL_TYPE,
     CRITERION,
-    ORDER_DIRECTION,
     PRODUCT_DIRECTION,
     PRODUCT_SALE_STATUS,
 } from 'models';
@@ -91,61 +90,54 @@ const product = {
             }),
         }),
 
-    searchProducts: ({
-        filter = {
-            soldout: false,
-            totalReviewCount: false,
-            familyMalls: false,
-        },
-        order = { direction: ORDER_DIRECTION.DESC },
-        categoryNos,
-        brandNos,
-        partnerNo,
-        clientKey,
-        pageNumber,
-        pageSize,
-        onlySaleProduct = false,
-        hasMaxCouponAmt = false,
-        hasTotalCount = false,
-        hasOptionValues = false,
-        includeSummaryInfo = true,
-        shippingAreaType,
-    }: ProductSearchParams): Promise<AxiosResponse> =>
+    /**
+     * 상품 검색(search engine)하기
+     * - 상품 목록 조회하는 API입니다
+     *   - Paging 기능 제공합니다
+     *   - 아래 Parameters에 해당하는 검색조건들의 경우, 매 10분 마다 캐시가 됩니다 ( ex. 10시 10분, 10시 20분, 10시 30분...)
+     *   - ex. 10시 13분에 상품명을 [테스트 상품 -> 임시 상품]으로 변경 후 '임시 상품'으로 검색 시, 10시 19분까지 검색되지않고, 10시 20분이후에 검색 가능합니다.
+     *
+     * @param params ProductSearchParams
+     * @returns Promise<AxiosResponse>
+     */
+    searchProducts: (params?: ProductSearchParams): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/search',
             params: {
-                'filter.discountedPrices': filter.discountedPrices,
-                'filter.keywords': filter.keywords,
-                'filter.keywordInResult': filter.keywordInResult,
-                'filter.discountedComparison': filter.discountedComparison,
-                'filter.deliveryConditionType': filter.deliveryConditionType,
-                'filter.saleStatus': filter.saleStatus,
-                'filter.soldout': filter.soldout,
-                'filter.totalReviewCount': filter.totalReviewCount,
-                'filter.familyMalls': filter.familyMalls,
-                'filter.productManagementCd': filter.productManagementCd,
-                'filter.excludeMallProductNo': filter.excludeMallProductNo,
-                'filter.includeMallProductNo': filter.includeMallProductNo,
-                'order.by': order.by,
-                'order.direction': order.direction,
-                'order.soldoutPlaceEnd': order.soldoutPlaceEnd,
-                categoryNos,
-                brandNos,
-                partnerNo,
-                clientKey,
-                pageNumber,
-                pageSize,
-                onlySaleProduct,
-                hasMaxCouponAmt,
-                hasTotalCount,
-                hasOptionValues,
-                includeSummaryInfo,
-                shippingAreaType,
+                'filter.discountedPrices': params?.filter?.discountedPrices,
+                'filter.keywords': params?.filter?.keywords,
+                'filter.keywordInResult': params?.filter?.keywordInResult,
+                'filter.discountedComparison':
+                    params?.filter?.discountedComparison,
+                'filter.deliveryConditionType':
+                    params?.filter?.deliveryConditionType,
+                'filter.saleStatus': params?.filter?.saleStatus,
+                'filter.soldout': params?.filter?.soldout,
+                'filter.totalReviewCount': params?.filter?.totalReviewCount,
+                'filter.familyMalls': params?.filter?.familyMalls,
+                'filter.productManagementCd':
+                    params?.filter?.productManagementCd,
+                'filter.excludeMallProductNo':
+                    params?.filter?.excludeMallProductNo,
+                'filter.includeMallProductNo':
+                    params?.filter?.includeMallProductNo,
+                'order.by': params?.order?.by,
+                'order.direction': params?.order?.direction,
+                'order.soldoutPlaceEnd': params?.order?.soldoutPlaceEnd,
+                categoryNos: params?.categoryNos,
+                brandNos: params?.brandNos,
+                partnerNo: params?.partnerNo,
+                clientKey: params?.clientKey,
+                pageNumber: params?.pageNumber,
+                pageSize: params?.pageSize,
+                onlySaleProduct: params?.onlySaleProduct,
+                hasMaxCouponAmt: params?.hasMaxCouponAmt,
+                hasTotalCount: params?.hasTotalCount,
+                hasOptionValues: params?.hasOptionValues,
+                includeSummaryInfo: params?.includeSummaryInfo,
+                shippingAreaType: params?.shippingAreaType,
             },
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
-            }),
         }),
 
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
