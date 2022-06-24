@@ -19,7 +19,17 @@ const root = ReactDOM.createRoot(
 
 const persistor = persistStore(store);
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 0,
+            useErrorBoundary: true,
+        },
+        mutations: {
+            useErrorBoundary: true,
+        },
+    },
+});
 
 root.render(
     <React.StrictMode>
