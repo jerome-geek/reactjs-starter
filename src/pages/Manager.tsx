@@ -31,7 +31,7 @@ const ManagerCategoryListItem = styled.li<{ isActive?: boolean }>`
 
 const Manager = () => {
     const [selectedCategory, setSelectedCategory] = useState(0);
-    const { t } = useTranslation('manager');
+    const { t: manager } = useTranslation('manager');
     const navigate = useNavigate();
 
     const onMacDownload = () => {};
@@ -84,7 +84,7 @@ const Manager = () => {
 
     return (
         <>
-            <SEOHelmet data={{ title: '보이스캐디 매니저' }} />
+            <SEOHelmet data={{ title: manager('title') }} />
             <Header />
             {isMobile ? (
                 <div
@@ -96,7 +96,7 @@ const Manager = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <p>{t('vcManagerOnlyPC')}</p>
+                    <p>{manager('onlyPc')}</p>
                 </div>
             ) : (
                 <div>
@@ -108,8 +108,8 @@ const Manager = () => {
                         }}
                     >
                         <div>
-                            <h1>{t('vcManager')}</h1>
-                            <p>{t('vcManagerDesc')}</p>
+                            <h1>{manager('title')}</h1>
+                            <p>{manager('desc')}</p>
                         </div>
 
                         <div>
@@ -121,7 +121,7 @@ const Manager = () => {
                                 }}
                                 onClick={() => navigate('/etc/notice')}
                             >
-                                {t('howToUse')}
+                                {manager('howToUse')}
                             </PrimaryButton>
                         </div>
                     </div>
@@ -173,17 +173,21 @@ const Manager = () => {
                                                 alt={productName}
                                             />
                                         </div>
-                                        <p>{productName}</p>
+                                        <p style={{ padding: '10px' }}>
+                                            {productName}
+                                        </p>
                                         <div>
                                             <SecondaryButton
+                                                style={{ borderRadius: '40px' }}
                                                 onClick={onMacDownload}
                                             >
-                                                {t('macDownload')}
+                                                {manager('macDownload')}
                                             </SecondaryButton>
                                             <SecondaryButton
+                                                style={{ borderRadius: '40px' }}
                                                 onClick={onWindowsDownload}
                                             >
-                                                {t('windowsDownload')}
+                                                {manager('windowsDownload')}
                                             </SecondaryButton>
                                         </div>
                                     </div>
