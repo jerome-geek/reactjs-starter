@@ -1,8 +1,9 @@
-import React, { useRef, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { shallowEqual } from 'react-redux';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import media from 'utils/styles/media';
@@ -55,7 +56,7 @@ const FaqCategoryContainer = styled.div`
     border-left: 1px solid #aaa;
 `;
 
-const FaqCategoryBox = styled.div`
+const FaqCategoryBox = styled.div<{ isActive?: boolean }>`
     width: calc(100% / 3);
     border: 1px solid #aaa;
     margin-top: -0.5px;
@@ -65,10 +66,8 @@ const FaqCategoryBox = styled.div`
     padding: 18px 0;
     color: #aaa;
     cursor: pointer;
-    &.isActive {
-        background: #000;
-        color: #fff;
-    }
+    background: ${(props) => (props.isActive ? '#000' : '#fff')};
+    color: ${(props) => (props.isActive ? '#fff' : '#000')};
     :hover {
         color: #fff;
         background: #000;
@@ -117,10 +116,12 @@ const Faq = () => {
     const [listItemCount, setListItemCount] = useState(count);
     const [keyword, setKeyword] = useState('');
     const navigate = useNavigate();
-    const { member } = useTypedSelector(({ member }) => ({
-        member: member.data,
-    }));
-    const searchKeyword = useRef<HTMLInputElement>(null);
+    const { member } = useTypedSelector(
+        ({ member }) => ({
+            member: member.data,
+        }),
+        shallowEqual,
+    );
 
     useQuery<AxiosResponse<BoardCategory[]>, AxiosError>(
         ['faqCategoryList'],
@@ -141,8 +142,11 @@ const Faq = () => {
         },
     );
 
-    const { isLoading } = useQuery<AxiosResponse<BoardList>, AxiosError>(
-        ['faqData', keyword],
+    const { isLoading, refetch } = useQuery<
+        AxiosResponse<BoardList>,
+        AxiosError
+    >(
+        ['faqList'],
         async () =>
             await board.getArticlesByBoardNo('9216', {
                 keyword,
@@ -206,13 +210,6 @@ const Faq = () => {
         setListItemCount(count);
     };
 
-    const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        if (searchKeyword.current) {
-            setKeyword(searchKeyword.current.value);
-        }
-    };
-
     const goInquiryPage = () => {
         if (!member) {
             alert('로그인 후 이용해주세요');
@@ -238,10 +235,16 @@ const Faq = () => {
             />
             <FaqTitle>자주 묻는 질문</FaqTitle>
             <FaqBox>
-                <FaqSearchBox onSubmit={handleSearch}>
+                <FaqSearchBox
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        refetch();
+                    }}
+                >
                     <FaqSearchInput
                         placeholder='궁금한 점을 검색해보세요!'
-                        ref={searchKeyword}
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
                     />
                     <FaqSearchButton>검색</FaqSearchButton>
                 </FaqSearchBox>
@@ -251,11 +254,7 @@ const Faq = () => {
                     return (
                         faqList.get(categoryNo) && (
                             <FaqCategoryBox
-                                className={
-                                    currentCategoryNo === categoryNo
-                                        ? 'isActive'
-                                        : ''
-                                }
+                                isActive={categoryNo === currentCategoryNo}
                                 key={categoryNo}
                                 onClick={handleCategoryClick(categoryNo)}
                             >
