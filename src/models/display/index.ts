@@ -323,3 +323,46 @@ export interface EventListResponse {
     tag: string;
     eventYn: string;
 }
+
+export interface Category {
+    multiLevelCategories: MultiLevelCategory[];
+    flatCategories: FlatCategory[];
+}
+
+export interface FlatCategory {
+    fullCategoryName: string;
+    depth1CategoryNo: number;
+    depth1Label: string;
+    depth1DisplayOrder: number;
+    depth1Icon: string;
+    depth1Content: string;
+    depth2CategoryNo: number;
+    depth2Label: string;
+    depth2DisplayOrder: number;
+    depth2Icon: string;
+    depth2Content: string;
+    depth3CategoryNo: number;
+    depth3Label: string;
+    depth3DisplayOrder: number;
+    depth3Icon: string;
+    depth3Content: string;
+    depth4CategoryNo: number;
+    depth4Label: string;
+    depth4DisplayOrder: number;
+    depth4Icon: string;
+    depth4Content: string;
+    depth5CategoryNo: number;
+    depth5Label: string;
+    depth5DisplayOrder: number;
+    depth5Icon: string;
+    depth5Content: string;
+}
+
+export interface MultiLevelCategory {
+    categoryNo: number;
+    label: string;
+    depth: number;
+    icon: string;
+    content: string;
+    children: MultiLevelCategory[];
+}
