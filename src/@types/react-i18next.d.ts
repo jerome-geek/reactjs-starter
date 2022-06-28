@@ -11,6 +11,8 @@ declare module 'react-i18next' {
         // custom resources type
         resources: {
             main: typeof ko.main;
+            manager: typeof ko.manager;
+            manual: typeof ko.manual;
             // about: typeof ko.about;
             //   about: typeof ko
         };

@@ -8,6 +8,7 @@ export interface ButtonProps extends React.HTMLProps<HTMLButtonElement> {
 }
 
 const ButtonBlock = styled.button<ButtonProps>`
+    cursor: pointer;
     color: ${(props) => props.color};
     font-size: ${(props) => props.fontSize};
     background-color: ${(props) => props.backgroundColor};
