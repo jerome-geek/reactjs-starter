@@ -142,7 +142,7 @@ const Faq = () => {
         },
     );
 
-    const { isLoading, refetch } = useQuery<
+    const { isFetching, refetch } = useQuery<
         AxiosResponse<BoardList>,
         AxiosError
     >(
@@ -264,7 +264,7 @@ const Faq = () => {
                     );
                 })}
             </FaqCategoryContainer>
-            {isLoading ? (
+            {isFetching ? (
                 <Loader />
             ) : (
                 <FaqDetailContainer>
