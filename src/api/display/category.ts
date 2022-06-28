@@ -3,7 +3,11 @@ import { AxiosResponse } from 'axios';
 import request from 'api/core';
 
 const category = {
-    getCategories: ({ keyword }: { keyword: String }): Promise<AxiosResponse> =>
+    getCategories: ({
+        keyword,
+    }: {
+        keyword?: string;
+    }): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/categories',
@@ -15,7 +19,7 @@ const category = {
     getNewProductCategories: (): Promise<AxiosResponse> =>
         request({ method: 'GET', url: '/categories/new-product-categories' }),
 
-    getCategory: (categoryNo: String): Promise<AxiosResponse> =>
+    getCategory: (categoryNo: string): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/categories/${categoryNo}`,
