@@ -140,18 +140,24 @@ const product = {
             },
         }),
 
-    //TODO productNo을 모름 403 error 발생 추후 테스트 필요
+    /**
+     * 상품 상세 조회하기
+     * - 해당 상품 번호에 대한 상세, 이미지, 옵션 정보를 조회하는 API입니다
+     *
+     * @param productNo
+     * @param params { channelType: CHANNEL_TYPE }
+     * @returns Promise<AxiosResponse>
+     */
     getProductDetail: (
         productNo: string,
-        channelType?: CHANNEL_TYPE,
+        params?: {
+            channelType: CHANNEL_TYPE;
+        },
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: `/products/${productNo}`,
-            params: { channelType },
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
-            }),
+            params: { channelType: params?.channelType },
         }),
 
     getBestReviewProducts: ({
