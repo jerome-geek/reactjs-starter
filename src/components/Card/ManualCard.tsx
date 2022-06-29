@@ -42,6 +42,7 @@ const Title = styled.p`
 `;
 
 const ManualCard: FC<ManualCardProps> = ({
+    children,
     title,
     imgUrl,
     ...props
@@ -53,6 +54,7 @@ const ManualCard: FC<ManualCardProps> = ({
         <TitleContainer>
             <Title>{title}</Title>
         </TitleContainer>
+        {children}
     </CardContainer>
 );
 

@@ -6,8 +6,8 @@ export interface PrimaryButtonProps extends ButtonProps {}
 
 const PrimaryButton = styled(Button)<PrimaryButtonProps>`
     color: #fff;
-    background-color: #000;
-    border: 1px solid #000;
+    background-color: #222943;
+    border: 1px solid #222943;
     width: 50%;
     padding: 10px;
 `;
