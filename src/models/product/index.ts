@@ -186,3 +186,173 @@ export interface OptionValue {
     optionValue: string;
     stockCnt: number;
 }
+
+export interface ProductResponse {
+    totalCount: number;
+    pageCount: number;
+    minPrice: number;
+    maxPrice: number;
+    items: Item[];
+    brands: Brand[];
+    depth1Categories: Depth1Category[];
+    depth2Categories: Depth2Category[];
+    depth3Categories: Depth3Category[];
+    depth4Categories: Depth4Category[];
+    depth5Categories: Depth5Category[];
+    multiLevelCategories: MultiLevelCategory[];
+    clickUrlPrefix: ClickUrlPrefix;
+    displayableStock: boolean;
+}
+
+export interface Item {
+    items: Item;
+    optionValues: OptionValue[];
+    shippingArea: string;
+    brandNameKo: string;
+    brandNameType: string;
+    maxSalePrice: number;
+    salePrice: number;
+    productNo: number;
+    productName: string;
+    minSalePrice: number;
+    brandNo: number;
+    productType: string;
+    stickerLabels: string[];
+    groupManagementCode: string;
+    groupManagementCodeName: string;
+    additionDiscountUnitType: string;
+    immediateDiscountAmt: number;
+    immediateDiscountUnitType: string;
+    additionDiscountAmt: number;
+    productNameEn: string;
+    partnerName: string;
+    promotionText: string;
+    totalReviewCount: number;
+    deliveryConditionType: string;
+    productSalePeriodType: any;
+    liked: boolean;
+    likeCount: number;
+    reviewRating: number;
+    saleCnt: number;
+    stockCnt: number;
+    mainStockCnt: number;
+    brandName: string;
+    brandNameEn: string;
+    stickerInfos: StickerInfo[];
+    adult: boolean;
+    saleStartYmdt: string;
+    saleEndYmdt: string;
+    saleStatusType: string;
+    reservationData: ReservationData;
+    imageUrls: string[];
+    listImageUrls: string[];
+    hasCoupons: HasCoupons;
+    maxCouponAmt: number;
+    registerYmdt: string;
+    couponDiscountAmt: number;
+    contentsIfPausing: string;
+    displayCategoryNos: string;
+    urlDirectDisplayYn: boolean;
+    productManagementCd: string;
+    searchProductId: string;
+    frontDisplayYn: boolean;
+    mainBestProductYn: boolean;
+    sectionProductStartYmdt: any;
+    sectionProductEndYmdt: any;
+    couponTag: string;
+    salePeriodType: string;
+    enableCoupons: boolean;
+    hsCode: string;
+    maxDiscountAmount: number;
+    isSoldOut: boolean;
+}
+
+export interface OptionValue {
+    mallProductNo: number;
+    optionValue: string;
+    stockCnt: number;
+}
+
+export interface StickerInfo {
+    type: string;
+    label: string;
+    name: string;
+}
+
+export interface ReservationData {
+    reservationStartYmdt: string;
+    reservationEndYmdt: string;
+    reservationDeliveryYmdt: string;
+    reservationStockCnt: number;
+}
+
+export interface HasCoupons {
+    product: boolean;
+    brand: boolean;
+    category: boolean;
+    partner: boolean;
+    event: boolean;
+}
+
+export interface Brand {
+    brandNo: number;
+    brandName: string;
+    brandNameKo: string;
+    brandNameEn: string;
+    brandNameType: string;
+    count: number;
+}
+
+export interface Depth1Category {
+    categoryNo: number;
+    count: number;
+    displayOrder: number;
+    label: string;
+    parentCategoryNo: number;
+}
+
+export interface Depth2Category {
+    categoryNo: number;
+    count: number;
+    displayOrder: number;
+    label: string;
+    parentCategoryNo: number;
+}
+
+export interface Depth3Category {
+    categoryNo: number;
+    count: number;
+    displayOrder: number;
+    label: string;
+    parentCategoryNo: number;
+}
+
+export interface Depth4Category {
+    categoryNo: number;
+    count: number;
+    displayOrder: number;
+    label: string;
+    parentCategoryNo: number;
+}
+
+export interface Depth5Category {
+    categoryNo: number;
+    count: number;
+    displayOrder: number;
+    label: string;
+    parentCategoryNo: number;
+}
+
+export interface MultiLevelCategory {
+    categoryNo: number;
+    parentCategoryNo: number;
+    label: string;
+    count: number;
+    displayOrder: number;
+    childCategories: any[];
+}
+
+export interface ClickUrlPrefix {
+    url: string;
+    param: string;
+}

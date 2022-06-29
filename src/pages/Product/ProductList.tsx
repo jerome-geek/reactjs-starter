@@ -6,7 +6,7 @@ import { useQuery } from 'react-query';
 import { category } from 'api/display';
 import { product } from 'api/product';
 import Header from 'components/shared/Header';
-import { Item } from 'api/product/product';
+import { Item } from 'models/product';
 import { filter } from 'const/filter';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import SEOHelmet from 'components/shared/SEOHelmet';
@@ -48,18 +48,16 @@ const ProductList = () => {
     const { categoryNo } = useParams() as { categoryNo: string };
     const [orderBy, setOrderBy] = useState(PRODUCT_BY.RECENT_PRODUCT);
     const [direction, setDirection] = useState(ORDER_DIRECTION.DESC);
-    const [currentCategoryNo, setCurrentCategoryNo] = useState('');
-    const [secondaryCategory, setSecondaryCategory] = useState('');
+    const [currentCategoryNo, setCurrentCategoryNo] = useState(categoryNo);
     const navigate = useNavigate();
 
     useEffect(() => {
         setCurrentCategoryNo(categoryNo);
-        setSecondaryCategory(categoryNo);
     }, [categoryNo]);
 
     const { data: productCategoryList } = useQuery(
-        ['productCategoryList', { currentCategoryNo }],
-        async () => await category.getCategory(currentCategoryNo),
+        ['productCategoryList', { categoryNo }],
+        async () => await category.getCategory(categoryNo),
         {
             select: ({ data }) => {
                 return data?.multiLevelCategories;
@@ -68,10 +66,10 @@ const ProductList = () => {
     );
 
     const { data: items } = useQuery(
-        ['productList', { secondaryCategory, orderBy, direction }],
+        ['productList', { currentCategoryNo, orderBy, direction }],
         async () =>
             await product.searchProducts({
-                categoryNos: secondaryCategory?.toString(),
+                categoryNos: currentCategoryNo?.toString(),
                 hasOptionValues: true,
                 order: { by: orderBy, direction: direction },
             }),
@@ -84,9 +82,9 @@ const ProductList = () => {
     );
 
     const filterChangeHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const valueList = e.target.value.split(',');
-        setOrderBy(valueList[0] as PRODUCT_BY);
-        setDirection(valueList[1] as ORDER_DIRECTION);
+        const [orderBy, orderDirection] = e.target.value.split(',');
+        setOrderBy(orderBy as PRODUCT_BY);
+        setDirection(orderDirection as ORDER_DIRECTION);
     };
 
     return (
@@ -102,7 +100,7 @@ const ProductList = () => {
                         {productCategoryList?.[0]?.children?.length! > 0 && (
                             <ProductListCategory
                                 key={categoryNo}
-                                onClick={() => setSecondaryCategory(categoryNo)}
+                                onClick={() => setCurrentCategoryNo(categoryNo)}
                             >
                                 전체보기
                             </ProductListCategory>
@@ -113,7 +111,7 @@ const ProductList = () => {
                                     <ProductListCategory
                                         key={categoryNo}
                                         onClick={() =>
-                                            setSecondaryCategory(
+                                            setCurrentCategoryNo(
                                                 categoryNo.toString(),
                                             )
                                         }
