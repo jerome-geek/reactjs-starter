@@ -9,6 +9,7 @@ import Header from 'components/shared/Header';
 import { Item } from 'api/product/product';
 import { filter } from 'const/filter';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
+import SEOHelmet from 'components/shared/SEOHelmet';
 
 const ProductListContainer = styled.div`
     padding: 0 20px;
@@ -89,7 +90,8 @@ const ProductList = () => {
     };
 
     return (
-        <div>
+        <>
+            <SEOHelmet data={{ title: productCategoryList?.[0].label }} />
             <Header />
             <ProductListContainer>
                 <ProductListTop>
@@ -169,7 +171,7 @@ const ProductList = () => {
                     )}
                 </ProductContainer>
             </ProductListContainer>
-        </div>
+        </>
     );
 };
 
