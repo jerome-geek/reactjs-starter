@@ -6,8 +6,8 @@ import NotFound from 'pages/NotFound';
 
 const ProductRouter = () => (
     <Routes>
-        <Route path='product/list' element={<ProductList />} />
-        <Route path='product/detail:/productNo' element={<ProductDetail />} />
+        <Route path='/:categoryNo' element={<ProductList />} />
+        <Route path='detail/:productNo' element={<ProductDetail />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
 );
