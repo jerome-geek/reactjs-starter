@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
 import ManualDetail from 'pages/Manual/ManualDetail';
@@ -8,7 +7,7 @@ import NotFound from 'pages/NotFound';
 const ManualRouter = () => (
     <Routes>
         <Route path='list' element={<ManualList />} />
-        <Route path='detail/:manualNo' element={<ManualDetail />} />
+        <Route path='detail/:productNo' element={<ManualDetail />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
 );

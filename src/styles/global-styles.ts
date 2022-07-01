@@ -7,14 +7,18 @@ const GlobalStyle = createGlobalStyle`
         box-sizing: border-box;
     }
     html {
-        font-size: 12px;
+        font-size: 16px;
+        letter-spacing: -0.64px;
         -webkit-text-size-adjust: none;
-        font-family: -apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;       
+        font-family: Noto Sans KR,-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
         font-display: fallback;
         -ms-overflow-style: none;
         scrollbar-width: none;
         padding: 0;
-    margin: 0;
+        margin: 0;
+    }
+    html, body, #root {
+        height: 100%;
     }
     a {
         color: inherit;
@@ -31,9 +35,6 @@ const GlobalStyle = createGlobalStyle`
     }
     ::-webkit-scrollbar {
         display: none;
-    }
-    h1, h2, h3, h4, h5, h6{
-        font-family:'Maven Pro', sans-serif;
     }
 
     @media only screen and (max-width: 768px) {

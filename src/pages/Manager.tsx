@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { isMobile } from 'react-device-detect';
+import { MobileView, BrowserView } from 'react-device-detect';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { head } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import PrimaryButton from 'components/Button/PrimaryButton';
-import SecondaryButton from 'components/Button/SecondaryButton';
 import Header from 'components/shared/Header';
+import ManualCard from 'components/Card/ManualCard';
 import { category } from 'api/display';
 import { product } from 'api/product';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
@@ -32,7 +32,6 @@ const ManagerCategoryListItem = styled.li<{ isActive?: boolean }>`
 const Manager = () => {
     const [selectedCategory, setSelectedCategory] = useState(0);
     const { t: manager } = useTranslation('manager');
-    const navigate = useNavigate();
 
     const onMacDownload = () => {};
 
@@ -84,9 +83,9 @@ const Manager = () => {
 
     return (
         <>
-            <SEOHelmet data={{ title: manager('title') }} />
+            <SEOHelmet data={{ title: manager('managerTitle') }} />
             <Header />
-            {isMobile ? (
+            <MobileView>
                 <div
                     style={{
                         whiteSpace: 'pre-line',
@@ -98,107 +97,122 @@ const Manager = () => {
                 >
                     <p>{manager('onlyPc')}</p>
                 </div>
-            ) : (
-                <div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <div>
-                            <h1>{manager('title')}</h1>
-                            <p>{manager('desc')}</p>
-                        </div>
+            </MobileView>
+            <BrowserView>
+                <div
+                    style={{
+                        padding: '10px',
+                        width: '1280px',
+                        margin: '0 auto',
+                    }}
+                >
+                    <div style={{ marginTop: '4rem' }}>
+                        <h1 style={{ fontSize: '24px' }}>
+                            {manager('managerTitle')}
+                        </h1>
 
-                        <div>
-                            <PrimaryButton
-                                style={{
-                                    width: '100%',
-                                    borderRadius: '40px',
-                                    padding: '10px 40px',
-                                }}
-                                onClick={() => navigate('/etc/notice')}
-                            >
-                                {manager('howToUse')}
-                            </PrimaryButton>
-                        </div>
+                        <p
+                            style={{
+                                whiteSpace: 'pre-line',
+                                fontSize: '16px',
+                                margin: '10px 0 30px 0',
+                            }}
+                        >
+                            {manager('managerDesc')}
+                        </p>
+                        <Link to='/etc/notice' style={{ fontSize: '16px' }}>
+                            {manager('howToUse')}
+                        </Link>
                     </div>
 
-                    <ManagerCategoryList>
-                        <ManagerCategoryListItem
-                            isActive={selectedCategory === 0}
-                            onClick={() => setSelectedCategory(0)}
-                        >
-                            전체보기
-                        </ManagerCategoryListItem>
-                        {multiLevelCategories?.map(({ categoryNo, label }) => (
+                    <div style={{ marginTop: '1.5rem' }}>
+                        <ManagerCategoryList>
                             <ManagerCategoryListItem
-                                isActive={selectedCategory === categoryNo}
-                                key={categoryNo}
-                                onClick={() => setSelectedCategory(categoryNo)}
+                                isActive={selectedCategory === 0}
+                                onClick={() => setSelectedCategory(0)}
                             >
-                                {label}
+                                {manager('allContents')}
                             </ManagerCategoryListItem>
-                        ))}
-                    </ManagerCategoryList>
+                            {multiLevelCategories?.map(
+                                ({ categoryNo, label }) => (
+                                    <ManagerCategoryListItem
+                                        isActive={
+                                            selectedCategory === categoryNo
+                                        }
+                                        key={categoryNo}
+                                        onClick={() =>
+                                            setSelectedCategory(categoryNo)
+                                        }
+                                    >
+                                        {label}
+                                    </ManagerCategoryListItem>
+                                ),
+                            )}
+                        </ManagerCategoryList>
+                    </div>
 
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        {productList?.length > 0 ? (
-                            productList?.map(
-                                ({
-                                    productNo,
-                                    imageUrls,
-                                    productName,
-                                }: ProductItem) => (
+                    <div style={{ display: 'flex', marginTop: '2rem' }}>
+                        <main style={{ flex: '1 1 0%' }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    margin: '-1rem',
+                                }}
+                            >
+                                {productList?.length > 0 ? (
+                                    productList?.map(
+                                        ({
+                                            productNo,
+                                            imageUrls,
+                                            productName,
+                                        }: ProductItem) => (
+                                            <ManualCard
+                                                key={productNo}
+                                                title={productName}
+                                                imgUrl={head<string[]>(
+                                                    imageUrls,
+                                                )}
+                                            >
+                                                <div>
+                                                    <PrimaryButton
+                                                        onClick={onMacDownload}
+                                                    >
+                                                        {manager('macDownload')}
+                                                    </PrimaryButton>
+                                                    <PrimaryButton
+                                                        onClick={
+                                                            onWindowsDownload
+                                                        }
+                                                    >
+                                                        {manager(
+                                                            'windowsDownload',
+                                                        )}
+                                                    </PrimaryButton>
+                                                </div>
+                                            </ManualCard>
+                                        ),
+                                    )
+                                ) : (
                                     <div
                                         style={{
-                                            flex: '0 0 25%',
-                                            padding: '10px',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                            padding: '100px',
                                         }}
-                                        key={productNo}
                                     >
-                                        <div
-                                            style={{
-                                                width: '200px',
-                                                height: '200px',
-                                                border: '1px solid black',
-                                            }}
-                                        >
-                                            <img
-                                                src={head<string[]>(imageUrls)}
-                                                width='100%'
-                                                height='100%'
-                                                alt={productName}
-                                            />
-                                        </div>
-                                        <p style={{ padding: '10px' }}>
-                                            {productName}
-                                        </p>
-                                        <div>
-                                            <SecondaryButton
-                                                style={{ borderRadius: '40px' }}
-                                                onClick={onMacDownload}
-                                            >
-                                                {manager('macDownload')}
-                                            </SecondaryButton>
-                                            <SecondaryButton
-                                                style={{ borderRadius: '40px' }}
-                                                onClick={onWindowsDownload}
-                                            >
-                                                {manager('windowsDownload')}
-                                            </SecondaryButton>
-                                        </div>
+                                        <p>{manager('noContents')}</p>
                                     </div>
-                                ),
-                            )
-                        ) : (
-                            <div>해당 카테고리에 등록된 상품이 없습니다.</div>
-                        )}
+                                )}
+                            </div>
+                        </main>
                     </div>
                 </div>
-            )}
+            </BrowserView>
         </>
     );
 };
