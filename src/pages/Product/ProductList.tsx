@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { head } from '@fxts/core';
 
 import { category } from 'api/display';
 import { product } from 'api/product';
@@ -10,6 +11,8 @@ import { Item } from 'models/product';
 import { filter } from 'const/filter';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import SEOHelmet from 'components/shared/SEOHelmet';
+import Loader from 'components/shared/Loader';
+import currency from 'currency.js';
 
 const ProductListContainer = styled.div`
     padding: 0 20px;
@@ -45,31 +48,34 @@ const ProductBox = styled.div`
 `;
 
 const ProductList = () => {
-    const { categoryNo } = useParams() as { categoryNo: string };
+    const { categoryNo } = useParams<{ categoryNo: string }>();
     const [orderBy, setOrderBy] = useState(PRODUCT_BY.RECENT_PRODUCT);
     const [direction, setDirection] = useState(ORDER_DIRECTION.DESC);
-    const [currentCategoryNo, setCurrentCategoryNo] = useState(categoryNo);
+    const [currentCategoryNo, setCurrentCategoryNo] =
+        useState<string | undefined>(categoryNo);
     const navigate = useNavigate();
 
     useEffect(() => {
         setCurrentCategoryNo(categoryNo);
     }, [categoryNo]);
 
-    const { data: productCategoryList } = useQuery(
-        ['productCategoryList', { categoryNo }],
-        async () => await category.getCategory(categoryNo),
-        {
-            select: ({ data }) => {
-                return data?.multiLevelCategories;
+    const { data: productCategoryList, isFetching: categoryFetching } =
+        useQuery(
+            ['productCategoryList', { categoryNo }],
+            async () => await category.getCategory(categoryNo!),
+            {
+                select: ({ data }) => {
+                    return data?.multiLevelCategories;
+                },
+                refetchOnWindowFocus: false,
             },
-        },
-    );
+        );
 
-    const { data: items } = useQuery(
+    const { data: productItems, isFetching: productFetching } = useQuery(
         ['productList', { currentCategoryNo, orderBy, direction }],
         async () =>
             await product.searchProducts({
-                categoryNos: currentCategoryNo?.toString(),
+                categoryNos: currentCategoryNo,
                 hasOptionValues: true,
                 order: { by: orderBy, direction: direction },
             }),
@@ -89,86 +95,114 @@ const ProductList = () => {
 
     return (
         <>
-            <SEOHelmet data={{ title: productCategoryList?.[0].label }} />
+            <SEOHelmet
+                data={{
+                    title:
+                        productCategoryList && head(productCategoryList)?.label,
+                }}
+            />
             <Header />
-            <ProductListContainer>
-                <ProductListTop>
-                    <ProductListTitle>
-                        {productCategoryList?.[0].label}
-                    </ProductListTitle>
-                    <ProductListCategoryBox>
-                        {productCategoryList?.[0]?.children?.length! > 0 && (
-                            <ProductListCategory
-                                key={categoryNo}
-                                onClick={() => setCurrentCategoryNo(categoryNo)}
-                            >
-                                전체보기
-                            </ProductListCategory>
-                        )}
-                        {productCategoryList?.[0]?.children?.map(
-                            ({ categoryNo, label }) => {
-                                return (
+            {categoryFetching ? (
+                <Loader />
+            ) : (
+                productCategoryList && (
+                    <ProductListContainer>
+                        <ProductListTop>
+                            <ProductListTitle>
+                                {head(productCategoryList)?.label}
+                            </ProductListTitle>
+                            <ProductListCategoryBox>
+                                {head(productCategoryList)?.children?.length! >
+                                    0 && (
                                     <ProductListCategory
                                         key={categoryNo}
                                         onClick={() =>
-                                            setCurrentCategoryNo(
-                                                categoryNo.toString(),
-                                            )
+                                            setCurrentCategoryNo(categoryNo)
                                         }
                                     >
-                                        {label}
+                                        전체보기
                                     </ProductListCategory>
-                                );
-                            },
-                        )}
-                    </ProductListCategoryBox>
-                    <ProductListFilterBox onChange={filterChangeHandler}>
-                        {filter.map(({ title, orderBy, direction }) => {
-                            return (
-                                <ProductListFilter
-                                    key={title}
-                                    value={[orderBy, direction]}
-                                >
-                                    {title}
-                                </ProductListFilter>
-                            );
-                        })}
-                    </ProductListFilterBox>
-                </ProductListTop>
-                <ProductContainer>
-                    {items?.map(
-                        ({
-                            productNo,
-                            listImageUrls,
-                            productName,
-                            promotionText,
-                            salePrice,
-                        }: Item) => {
-                            return (
-                                <ProductBox
-                                    key={productNo}
-                                    onClick={() => {
-                                        navigate(
-                                            `/product/detail/${productNo}`,
+                                )}
+                                {head(productCategoryList)?.children?.map(
+                                    ({ categoryNo, label }) => {
+                                        return (
+                                            <ProductListCategory
+                                                key={categoryNo}
+                                                onClick={() =>
+                                                    setCurrentCategoryNo(
+                                                        categoryNo.toString(),
+                                                    )
+                                                }
+                                            >
+                                                {label}
+                                            </ProductListCategory>
                                         );
-                                    }}
-                                >
-                                    <img
-                                        src={listImageUrls[0]}
-                                        alt={productName}
-                                    />
-                                    <p>{productName}</p>
-                                    <p>{promotionText}</p>
-                                    <p>
-                                        {salePrice}
-                                        <span>원</span>
-                                    </p>
-                                </ProductBox>
-                            );
-                        },
-                    )}
-                </ProductContainer>
-            </ProductListContainer>
+                                    },
+                                )}
+                            </ProductListCategoryBox>
+                            <ProductListFilterBox
+                                onChange={filterChangeHandler}
+                            >
+                                {filter.map(({ title, orderBy, direction }) => {
+                                    return (
+                                        <ProductListFilter
+                                            key={title}
+                                            value={[orderBy, direction]}
+                                        >
+                                            {title}
+                                        </ProductListFilter>
+                                    );
+                                })}
+                            </ProductListFilterBox>
+                        </ProductListTop>
+                        {productFetching ? (
+                            <Loader />
+                        ) : (
+                            <ProductContainer>
+                                {productItems?.map(
+                                    ({
+                                        productNo,
+                                        listImageUrls,
+                                        productName,
+                                        promotionText,
+                                        salePrice,
+                                        immediateDiscountAmt,
+                                    }: Item) => {
+                                        return (
+                                            <ProductBox
+                                                key={productNo}
+                                                onClick={() => {
+                                                    navigate(
+                                                        `/product/detail/${productNo}`,
+                                                    );
+                                                }}
+                                            >
+                                                <img
+                                                    src={head(listImageUrls)}
+                                                    alt={productName}
+                                                />
+                                                <p>{productName}</p>
+                                                <p>{promotionText}</p>
+                                                <p>
+                                                    {currency(
+                                                        salePrice -
+                                                            immediateDiscountAmt,
+                                                        {
+                                                            symbol: '',
+                                                            precision: 0,
+                                                        },
+                                                    ).format()}
+                                                    <span>원</span>
+                                                </p>
+                                            </ProductBox>
+                                        );
+                                    },
+                                )}
+                            </ProductContainer>
+                        )}
+                    </ProductListContainer>
+                )
+            )}
         </>
     );
 };
