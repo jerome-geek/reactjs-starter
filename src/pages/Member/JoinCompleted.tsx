@@ -19,7 +19,7 @@ const JoinCompleted = () => {
     // TODO 회원가입시 쿠폰 발급 로직은 현재 샵바이에 따로 기능이 확인되지 않고, VC측에서 요구한 사항이 아니기 때문에 보류중
     useQuery<AxiosResponse<IssuableCouponResponse[]>, AxiosError>(
         ['couponList'],
-        async () => await coupon.getCouponsIssuable(),
+        async () => await coupon.getIssuableCoupons(),
         {
             onSuccess: (res) => {
                 setCouponList([...res.data]);
