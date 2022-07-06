@@ -6,6 +6,7 @@ import { head } from '@fxts/core';
 import { AxiosResponse } from 'axios';
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useTranslation } from 'react-i18next';
 
 import { product } from 'api/product';
 import media from 'utils/styles/media';
@@ -377,6 +378,8 @@ const ProductDetail = () => {
 
     const navigate = useNavigate();
 
+    const { t } = useTranslation(['productDetail']);
+
     const { data: productData } = useQuery(
         ['productDetail', { productNo }],
         async () => await product.getProductDetail(productNo),
@@ -448,7 +451,7 @@ const ProductDetail = () => {
 
     const productCountHandler = (number: number, optionNo: number) => () => {
         if (optionProduct.get(optionNo)?.count! + number <= 0) {
-            alert('1개 이상 구매하여야 합니다!');
+            alert(t('productDetail:countAlert'));
             return;
         }
         setOptionProduct((prev) => {
@@ -471,11 +474,10 @@ const ProductDetail = () => {
             await cart.registerCart(cartList),
         {
             onSuccess: (res) => {
-                console.log(res);
-                alert('장바구니 등록이 완료됐습니다.');
+                alert(t('productDetail:successCartAlert'));
             },
             onError: () => {
-                alert('장바구니 등록이 실패했습니다. 다시 등록해주세요');
+                alert(t('productDetail:failCartAlert'));
             },
         },
     );
@@ -504,7 +506,10 @@ const ProductDetail = () => {
             <ProductContainerTop>
                 <ProductImageBox>
                     <ProductImage>
-                        <img src={representImage} alt='' />
+                        <img
+                            src={representImage}
+                            alt={productData?.data.baseInfo.productName}
+                        />
                     </ProductImage>
                     <ProductSubImageList>
                         {productImageList?.map((element) => {
@@ -535,9 +540,7 @@ const ProductDetail = () => {
                                 {productData?.data.baseInfo.promotionText}
                             </ProductText>
                         </div>
-                        <ShareButton>
-                            공유하기 버튼(따로 컴포넌트로 빼자)
-                        </ShareButton>
+                        <ShareButton>공유하기 버튼</ShareButton>
                     </ProductTitleBox>
                     <ProductPriceBox>
                         <ProductPrice>
@@ -556,9 +559,9 @@ const ProductDetail = () => {
                             </p>
                         </ProductPrice>
                         <ProductAccumulationBox>
-                            <p>적립혜택</p>
+                            <p>{t('productDetail:accumulateBenefits')}</p>
                             <p>
-                                회원 적립금{' '}
+                                {t('productDetail:accumulateBenefits')}{' '}
                                 {
                                     productData?.data.price
                                         .accumulationAmtWhenBuyConfirm
@@ -568,9 +571,11 @@ const ProductDetail = () => {
                         </ProductAccumulationBox>
                     </ProductPriceBox>
                     <ProductOptionBox>
-                        <p>원하는 옵션을 선택하세요</p>
+                        <p>{t('productDetail:chooseOption')}</p>
                         <select onChange={optionSelectHandler}>
-                            <option value={0}>원하는 옵션을 선택하세요.</option>
+                            <option value={0}>
+                                {t('productDetail:chooseOption')}.
+                            </option>
                             {productOptions?.map((element) => {
                                 return (
                                     <option
@@ -640,9 +645,9 @@ const ProductDetail = () => {
                     </ProductOptionBox>
                     <ProductAmount>
                         <p>
-                            총 상품 금액{' '}
+                            {t('productDetail:amountPrice')}{' '}
                             <span>
-                                총{' '}
+                                {t('productDetail:amount')}{' '}
                                 {optionProduct.size > 0 &&
                                     Array.from(optionProduct.values()).reduce(
                                         (prev, cur) => {
@@ -650,7 +655,7 @@ const ProductDetail = () => {
                                         },
                                         0,
                                     )}
-                                개
+                                {t('productDetail:count')}
                             </span>
                         </p>
                         <p>
@@ -665,9 +670,9 @@ const ProductDetail = () => {
                         </p>
                     </ProductAmount>
                     <DeliveryInfoBox>
-                        <p>배송정보</p>
+                        <p>{t('productDetail:shippingInformation')}</p>
                         <DeliveryFee>
-                            배송비{' '}
+                            {t('productDetail:shippingCost')}{' '}
                             <span>
                                 {productData?.data.deliveryFee.deliveryAmt}
                             </span>
@@ -689,7 +694,7 @@ const ProductDetail = () => {
                                 </div>
                             )}
                         </CartButton>
-                        <Link to={''}>바로구매</Link>
+                        <Link to={''}>{t('productDetail:buyNow')}</Link>
                     </PurchaseBox>
                 </ProductInfoBox>
             </ProductContainerTop>
@@ -697,15 +702,17 @@ const ProductDetail = () => {
                 <ExternalLinkBox>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>{' '}
-                        <span>매뉴얼 바로가기 &gt;</span>
+                        <span>{t('productDetail:goToManual')} &gt;</span>
                     </a>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>{' '}
-                        <span>보이스캐디 매니저 &gt;</span>
+                        <span>
+                            {t('productDetail:voiceCaddieManager')} &gt;
+                        </span>
                     </a>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>
-                        <span>보이스캐디 매뉴얼 &gt;</span>
+                        <span>{t('productDetail:voiceCaddieManual')} &gt;</span>
                     </a>
                 </ExternalLinkBox>
                 <ProductDescriptionBox>
@@ -713,19 +720,25 @@ const ProductDetail = () => {
                         isActive={selectedDesc === 0}
                         onClick={() => setSelectedDesc(0)}
                     >
-                        <a href='#productContent'>제품 상세</a>
+                        <a href='#productContent'>
+                            {t('productDetail:productDetail')}
+                        </a>
                     </ProductDescription>
                     <ProductDescription
                         isActive={selectedDesc === 1}
                         onClick={() => setSelectedDesc(1)}
                     >
-                        <a href='#productContent'>제품 스펙</a>
+                        <a href='#productContent'>
+                            {t('productDetail:productSpecifications')}
+                        </a>
                     </ProductDescription>
                     <ProductDescription
                         isActive={selectedDesc === 2}
                         onClick={() => setSelectedDesc(2)}
                     >
-                        <a href='#productContent'>유의사항</a>
+                        <a href='#productContent'>
+                            {t('productDetail:notice')}
+                        </a>
                     </ProductDescription>
                 </ProductDescriptionBox>
                 <ProductContentBox

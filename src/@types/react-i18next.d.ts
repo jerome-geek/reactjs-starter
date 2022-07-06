@@ -13,6 +13,7 @@ declare module 'react-i18next' {
             main: typeof ko.main;
             manager: typeof ko.manager;
             manual: typeof ko.manual;
+            productDetail: typeof ko.productDetail;
             // about: typeof ko.about;
             //   about: typeof ko
         };
