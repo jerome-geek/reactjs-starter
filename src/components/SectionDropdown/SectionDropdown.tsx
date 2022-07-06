@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { ReactComponent as More } from 'assets/icon-select-more.svg';
 
 const DropdownContainer = styled.div`
-    background-color: ${({ theme }) => theme.white};
+    background-color: ${({ theme }) => theme.bg1};
     margin-bottom: 10px;
 `;
 
@@ -12,7 +12,7 @@ const DropdownTitleContainer = styled.div`
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    border-bottom: 1px solid ${(props) => props.theme.gray1};
+    border-bottom: 1px solid ${(props) => props.theme.line1};
 `;
 
 const Title = styled.p``;
@@ -20,19 +20,19 @@ const Title = styled.p``;
 const ToggleArrow = styled(More)`
     width: 30px;
     height: 30px;
-    stroke: ${(props) => props.theme.black};
+    stroke: ${(props) => props.theme.line1};
     transition: 0.5s ease-in-out;
     ${(props: { $isVisible: boolean }) => (props.$isVisible ? openStyles : '')}
 `;
 
 const openStyles = css`
     transform: rotate(180deg);
-    stroke: ${(props) => props.theme.blue};
+    stroke: ${(props) => props.theme.line1};
 `;
 
 const DropdownContentsContainer = styled.div`
     display: block;
-    background: ${(props) => props.theme.gray1};
+    background: ${(props) => props.theme.bg1};
     font-size: 14px;
     color: #767676;
     line-height: 16px;

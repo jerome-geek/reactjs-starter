@@ -366,3 +366,9 @@ export interface MultiLevelCategory {
     content: string;
     children: MultiLevelCategory[];
 }
+
+export interface Brand {
+    brandNo: number;
+    name: string;
+    productCnt: number;
+}

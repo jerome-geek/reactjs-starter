@@ -67,7 +67,10 @@ const Manager = () => {
 
             return await product.searchProducts(
                 selectedCategory
-                    ? { ...searchParams, categoryNos: selectedCategory }
+                    ? {
+                          ...searchParams,
+                          categoryNos: selectedCategory.toString(),
+                      }
                     : { ...searchParams },
             );
         },

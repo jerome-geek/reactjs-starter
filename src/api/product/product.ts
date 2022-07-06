@@ -13,6 +13,9 @@ import {
     ProductsParams,
     RestockParams,
 } from 'models/product';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const product = {
     // TODO deliveryTemplateNo을 모름 500 error 발생 추후 테스트 필요
@@ -45,7 +48,7 @@ const product = {
             url: '/products/favoriteKeywords',
             params: { size },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -59,7 +62,7 @@ const product = {
             url: '/products/group-management-code',
             data: { groupManagementCodes, saleStatus, isSoldOut },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -70,7 +73,7 @@ const product = {
             url: '/products/options',
             params: { productNos },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -86,7 +89,7 @@ const product = {
             url: '/products/restock',
             data: { optionNos, privacyInfoAgreement, name, phone },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -158,6 +161,9 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}`,
             params: { channelType: params?.channelType },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
         }),
 
     getBestReviewProducts: ({
@@ -191,7 +197,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -226,7 +232,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -235,7 +241,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/display-categories`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -245,7 +251,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/options`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -260,7 +266,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -280,7 +286,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/options/${optionNo}/images`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };
