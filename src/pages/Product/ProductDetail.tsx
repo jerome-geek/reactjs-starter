@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQueries, useQuery, useMutation } from 'react-query';
 import { head } from '@fxts/core';
 import { AxiosResponse } from 'axios';
@@ -11,8 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { product } from 'api/product';
 import media from 'utils/styles/media';
 import { CHANNEL_TYPE } from 'models';
-import { cart } from 'api/order';
-import { ShoppingCartBody } from 'models/order';
+import { cart, orderSheet } from 'api/order';
+import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { ProductDetailResponse } from 'models/product/index';
 
 const ProductContainer = styled.div`
@@ -216,18 +216,6 @@ const PurchaseBox = styled.div`
     margin-top: 30px;
     display: flex;
     justify-content: space-between;
-    > a {
-        width: 80%;
-        text-align: center;
-        padding: 15px 0;
-        background: #191919;
-        color: #fff;
-        font-weight: bold;
-        font-size: 24px;
-        > span {
-            vertical-align: middle;
-        }
-    }
 `;
 
 const CartButton = styled.div`
@@ -242,6 +230,19 @@ const CartButton = styled.div`
             width: 40px;
             height: 40px;
         }
+    }
+`;
+
+const BuyNow = styled.div`
+    width: 80%;
+    text-align: center;
+    padding: 15px 0;
+    background: #191919;
+    color: #fff;
+    font-weight: bold;
+    font-size: 24px;
+    > span {
+        vertical-align: middle;
     }
 `;
 
@@ -472,11 +473,11 @@ const ProductDetail = () => {
         });
     };
 
-    const { mutate, isLoading: isCartLoading } = useMutation(
+    const { mutate: cartMutate, isLoading: isCartLoading } = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
             await cart.registerCart(cartList),
         {
-            onSuccess: (res) => {
+            onSuccess: () => {
                 alert(t('productDetail:successCartAlert'));
             },
             onError: () => {
@@ -485,7 +486,7 @@ const ProductDetail = () => {
         },
     );
 
-    const cartHandler = async () => {
+    const cartHandler = () => {
         if (optionProduct.size <= 0) {
             return;
         }
@@ -501,7 +502,43 @@ const ProductDetail = () => {
             };
             cartList.push(currentCart);
         });
-        mutate(cartList);
+        cartMutate(cartList);
+    };
+
+    const { mutate: purchaseMutate } = useMutation(
+        async (orderSheetList: OrderSheetBody) =>
+            await orderSheet.writeOrderSheet(orderSheetList),
+        {
+            onSuccess: (res) => {
+                navigate({ pathname: `/order/sheet${res.data}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
+            },
+            onError: () => {
+                alert(t('productDetail:failBuyAlert'));
+            },
+        },
+    );
+
+    const purchaseHandler = () => {
+        if (optionProduct.size <= 0) {
+            return;
+        }
+
+        const orderSheet: Omit<ShoppingCartBody, 'cartNo'>[] = [];
+        Array.from(optionProduct.values()).forEach((ele) => {
+            const currentCart = {
+                orderCnt: ele.count,
+                channelType: CHANNEL_TYPE.NAVER_EP,
+                optionInputs: [],
+                optionNo: ele.optionNo,
+                productNo: parseFloat(ele.productNo),
+            };
+            orderSheet.push(currentCart);
+        });
+        purchaseMutate({
+            trackingKey: '',
+            channelType: CHANNEL_TYPE.NAVER_EP,
+            products: orderSheet,
+        });
     };
 
     return (
@@ -697,9 +734,9 @@ const ProductDetail = () => {
                                 </div>
                             )}
                         </CartButton>
-                        <Link to={''}>
+                        <BuyNow onClick={purchaseHandler}>
                             <span>{t('productDetail:buyNow')}</span>
-                        </Link>
+                        </BuyNow>
                     </PurchaseBox>
                 </ProductInfoBox>
             </ProductContainerTop>

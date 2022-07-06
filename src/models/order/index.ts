@@ -119,14 +119,15 @@ interface Orderer {
 }
 
 export interface OptionInputsParams {
-    inputValue?: string;
-    inputLabel?: string;
+    inputValue: string;
+    inputLabel: string;
+    required: boolean;
 }
 
 export interface ShoppingCartBody {
     orderCnt: number;
     channelType: string;
-    optionInputs: OptionInputsParams[];
+    optionInputs?: OptionInputsParams[];
     optionNo: number;
     productNo: number;
     cartNo: number;
