@@ -9,10 +9,15 @@ import {
 } from 'models';
 import {
     GroupCodeParams,
+    OptionResponse,
+    ProductDetailResponse,
     ProductSearchParams,
     ProductsParams,
     RestockParams,
 } from 'models/product';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const product = {
     // TODO deliveryTemplateNo을 모름 500 error 발생 추후 테스트 필요
@@ -45,7 +50,7 @@ const product = {
             url: '/products/favoriteKeywords',
             params: { size },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -59,7 +64,7 @@ const product = {
             url: '/products/group-management-code',
             data: { groupManagementCodes, saleStatus, isSoldOut },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -70,7 +75,7 @@ const product = {
             url: '/products/options',
             params: { productNos },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -86,7 +91,7 @@ const product = {
             url: '/products/restock',
             data: { optionNos, privacyInfoAgreement, name, phone },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -140,17 +145,39 @@ const product = {
             },
         }),
 
+    /**
+     *상품번호 리스트로 상품을 조회하는 API입니다.
+     *(hasOptionValues: 옵션값 포함여부, default: false)
+     */
+    getProductsByProductNoList: (data: {
+        productNos: number[];
+        hasOptionValues?: boolean;
+    }): Promise<AxiosResponse> =>
+        request({
+            method: 'POST',
+            url: '/products/search-by-nos',
+            data: {
+                productNos: data.productNos,
+                hasOptionValues: data.hasOptionValues
+                    ? data.hasOptionValues
+                    : true,
+            },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
+        }),
+
     //TODO productNo을 모름 403 error 발생 추후 테스트 필요
     getProductDetail: (
         productNo: string,
         channelType?: CHANNEL_TYPE,
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<ProductDetailResponse>> =>
         request({
             method: 'GET',
             url: `/products/${productNo}`,
             params: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -185,7 +212,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -220,7 +247,7 @@ const product = {
                 hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -229,17 +256,19 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/display-categories`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
-    getProductOption: (productNo: string): Promise<AxiosResponse> =>
+    getProductOption: (
+        productNo: string,
+    ): Promise<AxiosResponse<OptionResponse>> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/options`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -254,7 +283,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/url-shortening`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -274,7 +303,7 @@ const product = {
             method: 'GET',
             url: `/products/${productNo}/options/${optionNo}/images`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };

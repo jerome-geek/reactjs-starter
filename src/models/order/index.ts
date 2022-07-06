@@ -41,7 +41,7 @@ interface OptionInputs {
 
 interface Products {
     rentalInfos?: RentalInfos[];
-    recurringPaymentDelivery: RecurringPaymentDelivery;
+    recurringPaymentDelivery?: RecurringPaymentDelivery;
     channelType: string;
     orderCnt: number;
     optionInputs?: OptionInputs[];
@@ -232,4 +232,17 @@ export interface OAuthBegin {
     nextUrl: string;
     state?: string;
     code: string;
+}
+
+export interface OrderSheetResponse {
+    products: Products[];
+    productCoupons: any[];
+    cartNos: any[];
+    trackingKey: string;
+    channelType: string;
+}
+
+export interface RentalInfo {
+    rentalPeriod: number;
+    monthlyRentalAmount: number;
 }

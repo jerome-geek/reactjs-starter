@@ -19,7 +19,7 @@ const StyledInput = styled.input<InputProps>`
 
     &::placeholder {
         font-size: ${(props) => props.fontSize || '16px'};
-        color: ${(props) => props.theme.gray3};
+        color: ${(props) => props.theme.line2};
     }
 
     &:focus {
