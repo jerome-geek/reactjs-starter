@@ -224,6 +224,9 @@ const PurchaseBox = styled.div`
         color: #fff;
         font-weight: bold;
         font-size: 24px;
+        > span {
+            vertical-align: middle;
+        }
     }
 `;
 
@@ -694,7 +697,9 @@ const ProductDetail = () => {
                                 </div>
                             )}
                         </CartButton>
-                        <Link to={''}>{t('productDetail:buyNow')}</Link>
+                        <Link to={''}>
+                            <span>{t('productDetail:buyNow')}</span>
+                        </Link>
                     </PurchaseBox>
                 </ProductInfoBox>
             </ProductContainerTop>
