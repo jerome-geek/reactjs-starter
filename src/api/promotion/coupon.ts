@@ -5,8 +5,6 @@ import { CouponsParams, TargetParams } from 'models/promotion';
 import { tokenStorage } from 'utils/storage';
 import { CHANNEL_TYPE } from 'models';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
 const coupon = {
     /**
      * 내 쿠폰 가져오기
@@ -14,8 +12,10 @@ const coupon = {
      * @param CouponParams
      * @returns Promise<AxiosResponse>
      */
-    getUserCoupons: (params?: CouponsParams): Promise<AxiosResponse> =>
-        request({
+    getUserCoupons: (params?: CouponsParams): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/coupons',
             params: {
@@ -28,21 +28,25 @@ const coupon = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 발급 가능한 쿠폰 조회하기
      * - 상품과 상관없이 오늘 날짜 기준으로 다운로드 가능한 쿠폰을 모두 조회합니다.
      * @returns Promise<AxiosResponse>
      */
-    getIssuableCoupons: (): Promise<AxiosResponse> =>
-        request({
+    getIssuableCoupons: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/coupons/issuable',
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 내 쿠폰 요약정보 가져오기
@@ -52,15 +56,18 @@ const coupon = {
      */
     getCouponsSummary: (params?: {
         expireDay: string;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/coupons/summary',
             params: { expireDay: params?.expireDay },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 코드 쿠폰 발급하기
@@ -70,14 +77,17 @@ const coupon = {
      */
     issueCouponByPromotionCode: (
         promotionCode: string,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 쿠폰 발급하기
@@ -91,15 +101,18 @@ const coupon = {
         body?: {
             channelType: CHANNEL_TYPE;
         },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/coupons/${couponNo}/download`,
             data: { channelType: body?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 쿠폰번호로 제외상품 조회하기
@@ -111,8 +124,10 @@ const coupon = {
     getExcludeTargetsByCouponNumber: (
         couponNo: string,
         params?: TargetParams,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/${couponNo}/exclude-targets`,
             params: {
@@ -122,7 +137,8 @@ const coupon = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 쿠폰번호로 타겟상품 조회하기
@@ -134,8 +150,10 @@ const coupon = {
     getCouponTargets: (
         couponNo: string,
         params?: TargetParams,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/${couponNo}/targets`,
             params: {
@@ -145,7 +163,8 @@ const coupon = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 기획전 번호로 쿠폰 발급하기
@@ -153,14 +172,17 @@ const coupon = {
      * @param eventNo string
      * @returns Promise<AxiosResponse>
      */
-    issueEventCoupons: (eventNo: string): Promise<AxiosResponse> =>
-        request({
+    issueEventCoupons: (eventNo: string): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/coupons/events/${eventNo}/download`,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상품 번호로 쿠폰 발급하기
@@ -172,15 +194,18 @@ const coupon = {
     issueProductCoupons: (
         productNo: string,
         body?: { channelType: CHANNEL_TYPE },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/coupons/products/${productNo}/download`,
             data: { channelType: body?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상품 번호로 발급 가능한 쿠폰 조회하기
@@ -192,15 +217,18 @@ const coupon = {
     getIssuableCouponsByProductNo: (
         productNo: string,
         params?: { channelType: CHANNEL_TYPE },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/products/${productNo}/issuable/coupons`,
             params: { channelType: params?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default coupon;

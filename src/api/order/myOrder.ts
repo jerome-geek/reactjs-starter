@@ -18,8 +18,10 @@ const myOrder = {
     getOrderList: (
         params?: { orderRequestTypes?: ORDER_REQUEST_TYPE } & Paging &
             SearchDate,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/orders',
             params: {
@@ -33,7 +35,8 @@ const myOrder = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 주문 상세 조회하기
@@ -51,15 +54,18 @@ const myOrder = {
                 'ALL' | 'CLAIM' | 'NORMAL'
             >;
         },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/profile/orders/${orderNo}`,
             params: { orderRequestTypes: params?.orderRequestTypes },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상태별 주문 옵션별 수량 조회하기
@@ -71,16 +77,18 @@ const myOrder = {
      */
     getOrderOptionStatus: (
         params?: SearchDate,
-    ): Promise<AxiosResponse<OrderSummary>> =>
-        request({
+    ): Promise<AxiosResponse<OrderSummary>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/order-options/summary/status',
             params: { startYmd: params?.startYmd, endYmd: params?.endYmd },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
-
+        });
+    },
     /**
      * 상품 주문 구매 확정하기
      * - 배송중, 배송완료 상태의 상태주문을 구매확정 처리하는 API 입니다.
@@ -88,14 +96,17 @@ const myOrder = {
      * @param orderOptionNo string
      * @returns Promise<AxiosResponse>
      */
-    confirmPurchase: (orderOptionNo: string): Promise<AxiosResponse> =>
-        request({
+    confirmPurchase: (orderOptionNo: string): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'PUT',
             url: `/profile/order-options/${orderOptionNo}/confirm`,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상품 주문 배송완료 처리하기
@@ -104,14 +115,17 @@ const myOrder = {
      * @param orderOptionNo string
      * @returns Promise<AxiosResponse>
      */
-    processDeliveryDone: (orderOptionNo: string): Promise<AxiosResponse> =>
-        request({
+    processDeliveryDone: (orderOptionNo: string): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'PUT',
             url: `/profile/order-options/${orderOptionNo}/delivery-done`,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상태별 주문 수량 및 금액 조회하기
@@ -128,8 +142,10 @@ const myOrder = {
                 'ALL' | 'CLAIM' | 'NORMAL'
             >;
         } & SearchDate,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/orders/summary/amount',
             params: {
@@ -140,7 +156,8 @@ const myOrder = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 상태별 주문 수량 조회하기
@@ -148,14 +165,17 @@ const myOrder = {
      * - 옵션별로 카운트 합니다.(FIX ME: 옵션별이 아니고 주문별인듯)
      * @returns Promise<AxiosResponse>
      */
-    getOrderStatus: (): Promise<AxiosResponse> =>
-        request({
+    getOrderStatus: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/orders/summary/status',
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 현금영수증 신청하기
@@ -168,8 +188,10 @@ const myOrder = {
     requestCashReceipt: (
         orderNo: string,
         params?: CashReceiptBody,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/profile/orders/${orderNo}/cashReceipt`,
             data: {
@@ -180,7 +202,8 @@ const myOrder = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 전체 주문취소를 위한 주문 상세 조회하기 (클레임 상세사유 포함)
@@ -196,8 +219,10 @@ const myOrder = {
             orderRequestType?: ORDER_REQUEST_TYPE;
             claimType: CLAIM_TYPE;
         },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/profile/orders/${orderNo}/claim`,
             params: {
@@ -207,7 +232,8 @@ const myOrder = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     /**
      * 주문단위 배송정보 수정하기
@@ -220,8 +246,10 @@ const myOrder = {
     updateDeliveryInformation: (
         orderNo: string,
         body?: DeliveryBody,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'PUT',
             url: `/profile/orders/${orderNo}/deliveries`,
             data: {
@@ -239,7 +267,8 @@ const myOrder = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default myOrder;
