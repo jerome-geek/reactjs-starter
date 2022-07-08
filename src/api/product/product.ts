@@ -144,12 +144,18 @@ const product = {
                 shippingAreaType: params?.shippingAreaType,
             },
         }),
-
     /**
      *상품번호 리스트로 상품을 조회하는 API입니다.
      *(hasOptionValues: 옵션값 포함여부, default: false)
+     *
+     * @param body
+     *
+     *  productNos: number[];
+     *  hasOptionValues?: boolean;
+     *
+     * @returns Promise<AxiosResponse>
      */
-    getProductsByProductNoList: (data: {
+    getProductsByProductNoList: (body: {
         productNos: number[];
         hasOptionValues?: boolean;
     }): Promise<AxiosResponse> =>
@@ -157,10 +163,8 @@ const product = {
             method: 'POST',
             url: '/products/search-by-nos',
             data: {
-                productNos: data.productNos,
-                hasOptionValues: data.hasOptionValues
-                    ? data.hasOptionValues
-                    : true,
+                productNos: body.productNos,
+                hasOptionValues: body.hasOptionValues,
             },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',

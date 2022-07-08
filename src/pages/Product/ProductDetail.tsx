@@ -7,6 +7,7 @@ import { AxiosResponse } from 'axios';
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
+import { shallowEqual } from 'react-redux';
 
 import { product } from 'api/product';
 import media from 'utils/styles/media';
@@ -14,6 +15,8 @@ import { CHANNEL_TYPE } from 'models';
 import { cart, orderSheet } from 'api/order';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { ProductDetailResponse } from 'models/product/index';
+import { useAppDispatch, useTypedSelector } from 'state/reducers';
+import { setCart } from 'state/slices/cartSlice';
 
 const ProductContainer = styled.div`
     padding: 0 20px;
@@ -372,7 +375,7 @@ const ProductDetail = () => {
     const { productNo } = useParams() as { productNo: string };
     const [productImageList, setProductImageList] = useState<string[]>();
     const [representImage, setRepresentImage] = useState('');
-    const [optionProduct, setOptionProduct] = useState(
+    const [optionProducts, setOptionProducts] = useState(
         new Map<number, ProductOption>(),
     );
     const [relatedProducts, setRelatedProducts] = useState<
@@ -382,7 +385,16 @@ const ProductDetail = () => {
 
     const navigate = useNavigate();
 
-    const { t } = useTranslation(['productDetail']);
+    const dispatch = useAppDispatch();
+
+    const { member } = useTypedSelector(
+        ({ member }) => ({
+            member: member.data,
+        }),
+        shallowEqual,
+    );
+
+    const { t: productDetail } = useTranslation('productDetail');
 
     const { data: productData } = useQuery(
         ['productDetail', { productNo }],
@@ -428,37 +440,34 @@ const ProductDetail = () => {
     );
 
     const optionSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (e.target.value !== '0') {
-            const optionValue = JSON.parse(e.target.value);
-            setProductImageList(
-                optionValue.images.map((element: { url: string }) => {
-                    return element.url;
-                }),
-            );
-            if (
-                optionProduct.get(optionValue.optionNo) === optionValue.optionNo
-            )
-                return;
-            setOptionProduct((prev) => {
-                prev.set(optionValue.optionNo, {
-                    label: optionValue.label,
-                    price: optionValue.buyPrice,
-                    count: 1,
-                    optionNo: optionValue.optionNo,
-                    productNo,
-                    amountPrice: optionValue.buyPrice,
-                });
-                return new Map(prev);
-            });
+        if (e.target.value === 'false') {
+            return;
         }
+        const optionValue = JSON.parse(e.target.value);
+        setProductImageList(
+            optionValue.images.map((image: { url: string }) => {
+                return image.url;
+            }),
+        );
+        setOptionProducts((prev) => {
+            prev.set(optionValue.optionNo, {
+                label: optionValue.label,
+                price: optionValue.buyPrice,
+                count: 1,
+                optionNo: optionValue.optionNo,
+                productNo,
+                amountPrice: optionValue.buyPrice,
+            });
+            return new Map(prev);
+        });
     };
 
     const productCountHandler = (number: number, optionNo: number) => () => {
-        if (optionProduct.get(optionNo)?.count! + number <= 0) {
-            alert(t('productDetail:countAlert'));
+        if (optionProducts.get(optionNo)?.count! + number <= 0) {
+            alert(productDetail('countAlert'));
             return;
         }
-        setOptionProduct((prev) => {
+        setOptionProducts((prev) => {
             prev.set(optionNo, {
                 label: prev.get(optionNo)?.label!,
                 price: prev.get(optionNo)?.price!,
@@ -477,31 +486,36 @@ const ProductDetail = () => {
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
             await cart.registerCart(cartList),
         {
-            onSuccess: () => {
-                alert(t('productDetail:successCartAlert'));
+            onSuccess: (res) => {
+                alert(productDetail('successCartAlert'));
             },
             onError: () => {
-                alert(t('productDetail:failCartAlert'));
+                alert(productDetail('failCartAlert'));
             },
         },
     );
 
     const cartHandler = () => {
-        if (optionProduct.size <= 0) {
-            return;
-        }
+        if (optionProducts.size <= 0) return;
 
         const cartList: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        Array.from(optionProduct.values()).forEach((ele) => {
+        Array.from(optionProducts.values()).forEach((optionProduct) => {
             const currentCart = {
-                orderCnt: ele.count,
+                orderCnt: optionProduct.count,
                 channelType: CHANNEL_TYPE.NAVER_EP,
                 optionInputs: [],
-                optionNo: ele.optionNo,
-                productNo: parseFloat(ele.productNo),
+                optionNo: optionProduct.optionNo,
+                productNo: parseFloat(optionProduct.productNo),
             };
             cartList.push(currentCart);
         });
+
+        if (!member) {
+            dispatch(setCart(cartList));
+            alert(productDetail('successCartAlert'));
+            return;
+        }
+
         cartMutate(cartList);
     };
 
@@ -513,27 +527,28 @@ const ProductDetail = () => {
                 navigate({ pathname: `/order/sheet${res.data}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
             },
             onError: () => {
-                alert(t('productDetail:failBuyAlert'));
+                alert(productDetail('failBuyAlert'));
             },
         },
     );
 
     const purchaseHandler = () => {
-        if (optionProduct.size <= 0) {
+        if (optionProducts.size <= 0) {
             return;
         }
 
         const orderSheet: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        Array.from(optionProduct.values()).forEach((ele) => {
+        Array.from(optionProducts.values()).forEach((product) => {
             const currentCart = {
-                orderCnt: ele.count,
+                orderCnt: product.count,
                 channelType: CHANNEL_TYPE.NAVER_EP,
                 optionInputs: [],
-                optionNo: ele.optionNo,
-                productNo: parseFloat(ele.productNo),
+                optionNo: product.optionNo,
+                productNo: parseFloat(product.productNo),
             };
             orderSheet.push(currentCart);
         });
+
         purchaseMutate({
             trackingKey: '',
             channelType: CHANNEL_TYPE.NAVER_EP,
@@ -552,14 +567,16 @@ const ProductDetail = () => {
                         />
                     </ProductImage>
                     <ProductSubImageList>
-                        {productImageList?.map((element) => {
+                        {productImageList?.map((productImage) => {
                             return (
                                 <ProductSubImage
-                                    onClick={() => setRepresentImage(element)}
-                                    key={element}
+                                    onClick={() =>
+                                        setRepresentImage(productImage)
+                                    }
+                                    key={productImage}
                                 >
                                     <img
-                                        src={element}
+                                        src={productImage}
                                         alt={
                                             productData?.data.baseInfo
                                                 .productName
@@ -599,9 +616,9 @@ const ProductDetail = () => {
                             </p>
                         </ProductPrice>
                         <ProductAccumulationBox>
-                            <p>{t('productDetail:accumulateBenefits')}</p>
+                            <p>{productDetail('accumulateBenefits')}</p>
                             <p>
-                                {t('productDetail:accumulateBenefits')}{' '}
+                                {productDetail('accumulateBenefits')}{' '}
                                 {
                                     productData?.data.price
                                         .accumulationAmtWhenBuyConfirm
@@ -611,24 +628,24 @@ const ProductDetail = () => {
                         </ProductAccumulationBox>
                     </ProductPriceBox>
                     <ProductOptionBox>
-                        <p>{t('productDetail:chooseOption')}</p>
+                        <p>{productDetail('chooseOption')}</p>
                         <select onChange={optionSelectHandler}>
-                            <option value={0}>
-                                {t('productDetail:chooseOption')}.
+                            <option value={'false'}>
+                                {productDetail('chooseOption')}.
                             </option>
-                            {productOptions?.map((element) => {
+                            {productOptions?.map((productOption) => {
                                 return (
                                     <option
-                                        key={element.optionNo}
-                                        value={JSON.stringify(element)}
+                                        key={productOption.optionNo}
+                                        value={JSON.stringify(productOption)}
                                     >
-                                        {element.label}
+                                        {productOption.label}
                                     </option>
                                 );
                             })}
                         </select>
                         <div>
-                            {Array.from(optionProduct.values()).map(
+                            {Array.from(optionProducts.values()).map(
                                 ({ count, label, amountPrice, optionNo }) => {
                                     return (
                                         <ProductOptionCountBox key={optionNo}>
@@ -638,7 +655,7 @@ const ProductDetail = () => {
                                                 </ProductOptionTitle>
                                                 <ProductOptionClose
                                                     onClick={() =>
-                                                        setOptionProduct(
+                                                        setOptionProducts(
                                                             (prev) => {
                                                                 prev.delete(
                                                                     optionNo,
@@ -685,22 +702,22 @@ const ProductDetail = () => {
                     </ProductOptionBox>
                     <ProductAmount>
                         <p>
-                            {t('productDetail:amountPrice')}{' '}
+                            {productDetail('amountPrice')}{' '}
                             <span>
-                                {t('productDetail:amount')}{' '}
-                                {optionProduct.size > 0 &&
-                                    Array.from(optionProduct.values()).reduce(
+                                {productDetail('amount')}{' '}
+                                {optionProducts.size > 0 &&
+                                    Array.from(optionProducts.values()).reduce(
                                         (prev, cur) => {
                                             return prev + cur.count!;
                                         },
                                         0,
                                     )}
-                                {t('productDetail:count')}
+                                {productDetail('count')}
                             </span>
                         </p>
                         <p>
-                            {optionProduct.size > 0 &&
-                                Array.from(optionProduct.values()).reduce(
+                            {optionProducts.size > 0 &&
+                                Array.from(optionProducts.values()).reduce(
                                     (prev, cur) => {
                                         return prev + cur.amountPrice!;
                                     },
@@ -710,9 +727,9 @@ const ProductDetail = () => {
                         </p>
                     </ProductAmount>
                     <DeliveryInfoBox>
-                        <p>{t('productDetail:shippingInformation')}</p>
+                        <p>{productDetail('shippingInformation')}</p>
                         <DeliveryFee>
-                            {t('productDetail:shippingCost')}{' '}
+                            {productDetail('shippingCost')}{' '}
                             <span>
                                 {productData?.data.deliveryFee.deliveryAmt}
                             </span>
@@ -727,7 +744,7 @@ const ProductDetail = () => {
                     <PurchaseBox>
                         <CartButton onClick={cartHandler}>
                             {isCartLoading ? (
-                                '등록중'
+                                <div>'등록중'</div>
                             ) : (
                                 <div>
                                     <FontAwesomeIcon icon={faBasketShopping} />
@@ -735,7 +752,7 @@ const ProductDetail = () => {
                             )}
                         </CartButton>
                         <BuyNow onClick={purchaseHandler}>
-                            <span>{t('productDetail:buyNow')}</span>
+                            <span>{productDetail('buyNow')}</span>
                         </BuyNow>
                     </PurchaseBox>
                 </ProductInfoBox>
@@ -744,17 +761,15 @@ const ProductDetail = () => {
                 <ExternalLinkBox>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>{' '}
-                        <span>{t('productDetail:goToManual')} &gt;</span>
+                        <span>{productDetail('goToManual')} &gt;</span>
                     </a>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>{' '}
-                        <span>
-                            {t('productDetail:voiceCaddieManager')} &gt;
-                        </span>
+                        <span>{productDetail('voiceCaddieManager')} &gt;</span>
                     </a>
                     <a href=''>
                         <ExternalIcon></ExternalIcon>
-                        <span>{t('productDetail:voiceCaddieManual')} &gt;</span>
+                        <span>{productDetail('voiceCaddieManual')} &gt;</span>
                     </a>
                 </ExternalLinkBox>
                 <ProductDescriptionBox>
@@ -763,7 +778,7 @@ const ProductDetail = () => {
                         onClick={() => setSelectedDesc(0)}
                     >
                         <a href='#productContent'>
-                            {t('productDetail:productDetail')}
+                            {productDetail('productDetail')}
                         </a>
                     </ProductDescription>
                     <ProductDescription
@@ -771,16 +786,14 @@ const ProductDetail = () => {
                         onClick={() => setSelectedDesc(1)}
                     >
                         <a href='#productContent'>
-                            {t('productDetail:productSpecifications')}
+                            {productDetail('productSpecifications')}
                         </a>
                     </ProductDescription>
                     <ProductDescription
                         isActive={selectedDesc === 2}
                         onClick={() => setSelectedDesc(2)}
                     >
-                        <a href='#productContent'>
-                            {t('productDetail:notice')}
-                        </a>
+                        <a href='#productContent'>{productDetail('notice')}</a>
                     </ProductDescription>
                 </ProductDescriptionBox>
                 <ProductContentBox

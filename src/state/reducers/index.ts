@@ -5,11 +5,13 @@ import store from 'state/store';
 import mallSlice from 'state/slices/mallSlice';
 import tokenSlice from 'state/slices/tokenSlice';
 import memberSlice from 'state/slices/memberSlice';
+import cartSlice from 'state/slices/cartSlice';
 
 const rootReducer = combineReducers({
     mall: mallSlice.reducer,
     token: tokenSlice.reducer,
     member: memberSlice.reducer,
+    cart: cartSlice.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

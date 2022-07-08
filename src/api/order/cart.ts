@@ -40,12 +40,12 @@ const cart = {
         }),
 
     registerCart: (
-        data: Omit<ShoppingCartBody, 'cartNo'>[],
+        body: Omit<ShoppingCartBody, 'cartNo'>[],
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/cart',
-            data,
+            data: body,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
