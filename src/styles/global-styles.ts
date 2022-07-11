@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
         font-size: 16px;
         letter-spacing: -0.64px;
         -webkit-text-size-adjust: none;
-        font-family: Noto Sans KR,-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
+        font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
         font-display: fallback;
         -ms-overflow-style: none;
         scrollbar-width: none;

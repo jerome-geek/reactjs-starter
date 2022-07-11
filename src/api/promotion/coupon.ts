@@ -1,7 +1,11 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { CouponsParams, TargetParams } from 'models/promotion';
+import {
+    IssueCouponResponse,
+    CouponsParams,
+    TargetParams,
+} from 'models/promotion';
 import { tokenStorage } from 'utils/storage';
 import { CHANNEL_TYPE } from 'models';
 
@@ -101,7 +105,7 @@ const coupon = {
         body?: {
             channelType: CHANNEL_TYPE;
         },
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<IssueCouponResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({

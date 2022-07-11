@@ -73,3 +73,37 @@ export interface CouponStatus {
     myIssuedCnt: number;
     myIssuedCntToday: number;
 }
+
+export interface IssueCouponResponse {
+    items: Coupon[];
+    totalCount: number;
+}
+
+export interface Coupon {
+    couponIssueNo: number;
+    couponName: string;
+    couponNo: number;
+    couponType: string;
+    discountAmt: number;
+    discountRate: number;
+    fixedAmt: boolean;
+    issueYmdt: Date;
+    limitPayType: null;
+    maxDiscountAmt: number;
+    maxSalePrice: number;
+    minSalePrice: number;
+    otherCouponUsable: boolean;
+    cartCouponUsable: boolean;
+    productCouponUsable: boolean;
+    skipsAccumulation: boolean;
+    usablePlatforms: string[];
+    useEndYmdt: Date;
+    useYmdt: Nullable<Date>;
+    used: boolean;
+    couponTargetType: string;
+    memberGradeNames: null;
+    memberGroupNames: null;
+    freeDelivery: boolean;
+    minDeliveryAmt: null;
+    fiexdAmt: boolean;
+}
