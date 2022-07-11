@@ -1,10 +1,12 @@
 import { FC, HTMLAttributes } from 'react';
 import styled from 'styled-components';
+import dayjs from 'dayjs';
 
 interface CouponProps extends HTMLAttributes<HTMLDivElement> {
-    price: string;
-    title: string;
-    limitDt: string;
+    discountAmt: number;
+    discountRate: number;
+    couponName: string;
+    useEndYmdt: Date;
 }
 
 const CouponContainer = styled.div`
@@ -26,11 +28,13 @@ const CouponPrice = styled.span`
     color: #191919;
     font-size: 38px;
     padding-bottom: 10px;
+    font-weight: bold;
 `;
 
 const CouponTitle = styled.span`
     font-size: 12px;
     color: #999999;
+    text-align: left;
 `;
 
 const CouponLimit = styled.span`
@@ -40,15 +44,32 @@ const CouponLimit = styled.span`
     text-align: right;
 `;
 
-const Coupon: FC<CouponProps> = ({ price, title, limitDt, ...args }) => {
+const Coupon: FC<CouponProps> = ({
+    discountAmt,
+    discountRate,
+    couponName,
+    useEndYmdt,
+    ...args
+}) => {
     return (
         <CouponContainer {...args}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <CouponPrice>{price}</CouponPrice>
-                <CouponTitle>{title}</CouponTitle>
+                <CouponPrice>
+                    {discountRate > 0 ? (
+                        <>
+                            {discountRate}
+                            <span style={{ fontSize: '20px' }}>%</span>
+                        </>
+                    ) : (
+                        discountAmt
+                    )}
+                </CouponPrice>
+                <CouponTitle>{couponName}</CouponTitle>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <CouponLimit>{`${limitDt} 까지 사용 가능`}</CouponLimit>
+                <CouponLimit>{`${dayjs(useEndYmdt).format(
+                    'YY-MM-DD',
+                )} 까지 사용 가능`}</CouponLimit>
             </div>
         </CouponContainer>
     );
