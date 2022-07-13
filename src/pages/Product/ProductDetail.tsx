@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQueries, useQuery, useMutation } from 'react-query';
-import { head } from '@fxts/core';
-import { AxiosResponse } from 'axios';
+import { useQuery, useMutation } from 'react-query';
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
@@ -14,9 +12,12 @@ import media from 'utils/styles/media';
 import { CHANNEL_TYPE } from 'models';
 import { cart, orderSheet } from 'api/order';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
-import { ProductDetailResponse } from 'models/product/index';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
+import ProductImageList from 'components/Product/ProductImageList';
+import ProductOptionList from 'components/Product/ProductOptionList';
+import RelatedProduct from 'components/Product/RelatedProduct';
+import { ProductOption } from 'models/product';
 
 const ProductContainer = styled.div`
     padding: 0 20px;
@@ -30,44 +31,6 @@ const ProductContainer = styled.div`
 const ProductContainerTop = styled.div`
     display: flex;
     width: 100%;
-`;
-
-const ProductImageBox = styled.div`
-    width: 50%;
-`;
-
-const ProductImage = styled.div`
-    > img {
-        display: block;
-        margin: 0 auto;
-    }
-`;
-
-const ProductSubImageList = styled.div`
-    display: flex;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    align-items: center;
-    &::-webkit-scrollbar {
-        display: block;
-        background-color: #ddd;
-        border-radius: 6px;
-    }
-    &::-webkit-scrollbar-thumb {
-        display: block;
-        background-color: #fff;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-    }
-`;
-
-const ProductSubImage = styled.div`
-    width: 20%;
-    flex: 0 0 auto;
-    > img {
-        width: 100%;
-        vertical-align: middle;
-    }
 `;
 
 const ProductInfoBox = styled.div`
@@ -120,67 +83,6 @@ const ProductAccumulationBox = styled.div`
     > p:first-child {
         font-size: 16px;
     }
-`;
-
-const ProductOptionBox = styled.div`
-    margin: 26px 0;
-    border-bottom: 1px solid #000;
-    padding-bottom: 26px;
-    > p {
-        font-size: 16px;
-        color: #191919;
-    }
-    > select {
-        margin: 22px 0;
-        border: 2px solid #ababab;
-        width: 100%;
-        color: #ababab;
-        font-size: 16px;
-        padding: 15px 10px;
-    }
-`;
-
-const ProductOptionCountBox = styled.div`
-    background: #f9f7f7;
-    padding: 10px 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    > div {
-        display: flex;
-        justify-content: space-between;
-    }
-    div:last-child {
-        align-items: flex-end;
-    }
-`;
-
-const ProductOptionTitle = styled.div`
-    font-size: 16px;
-    color: #191919;
-`;
-
-const ProductOptionClose = styled.div`
-    cursor: pointer;
-    color: #bdbdbd;
-`;
-
-const ProductCountBox = styled.div`
-    color: #bdbdbd;
-    background: #fff;
-    display: flex;
-    > div {
-        padding: 10px;
-    }
-`;
-
-const ProductCountMinus = styled.div``;
-
-const ProductCountPlus = styled.div``;
-
-const ProductCount = styled.div`
-    color: #191919;
 `;
 
 const ProductAmount = styled.div`
@@ -301,86 +203,15 @@ const ProductContentBox = styled.div`
     }
 `;
 
-const RelatedProductContainer = styled.div`
-    display: flex;
-    justify-content: left;
-    overflow-y: hidden;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    &::-webkit-scrollbar {
-        display: block;
-        background-color: #ddd;
-        border-radius: 6px;
-    }
-    &::-webkit-scrollbar-thumb {
-        display: block;
-        background-color: #fff;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-    }
-`;
-
-const RelatedProduct = styled.div`
-    width: 20%;
-    margin-right: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex: 0 0 auto;
-    > img {
-        display: block;
-        width: 100%;
-    }
-`;
-
-const RelatedProductImage = styled.div`
-    background: #f8f8fa;
-    > img {
-        width: 70%;
-        padding: 15% 0;
-        display: block;
-        margin: 0 auto;
-    }
-`;
-
-const RelatedProductDesc = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-top: 19px;
-    > div {
-        > p {
-            color: #858585;
-            margin-bottom: 5px;
-        }
-        > p:first-child {
-            color: #191919;
-        }
-    }
-`;
-
-const RelatedProductTitle = styled.div``;
-
-const RelatedProductPrice = styled.div``;
-
-interface ProductOption {
-    label?: string;
-    price?: number;
-    count: number;
-    optionNo: number;
-    productNo: string;
-    amountPrice?: number;
-}
-
 const ProductDetail = () => {
     const { productNo } = useParams() as { productNo: string };
-    const [productImageList, setProductImageList] = useState<string[]>();
-    const [representImage, setRepresentImage] = useState('');
-    const [optionProducts, setOptionProducts] = useState(
+    const [productImageData, setProductImageData] = useState<{
+        [id: number]: string[];
+    }>({ 0: [] });
+    const [currentOptionNo, setCurrentOptionNo] = useState<number>(0);
+    const [selectOptionProducts, setSelectOptionProducts] = useState(
         new Map<number, ProductOption>(),
     );
-    const [relatedProducts, setRelatedProducts] = useState<
-        ProductDetailResponse[]
-    >([]);
     const [selectedDesc, setSelectedDesc] = useState<number>(0);
 
     const navigate = useNavigate();
@@ -401,86 +232,14 @@ const ProductDetail = () => {
         async () => await product.getProductDetail(productNo),
         {
             onSuccess: (res) => {
-                setProductImageList(res.data?.baseInfo?.imageUrls);
-                setRepresentImage(res.data?.baseInfo?.imageUrls?.[0]);
+                setProductImageData((prev) => {
+                    prev[0] = res.data?.baseInfo?.imageUrls;
+                    return prev;
+                });
             },
             refetchOnWindowFocus: false,
         },
     );
-
-    useEffect(() => {
-        setRepresentImage(productImageList?.[0]!);
-    }, [productImageList]);
-
-    const { data: productOptions } = useQuery(
-        ['productOptionDetail', { productNo }],
-        async () => await product.getProductOption(productNo),
-        {
-            select: ({ data }) => {
-                return data?.flatOptions;
-            },
-            refetchOnWindowFocus: false,
-        },
-    );
-
-    useQueries(
-        productData?.data.relatedProductNos?.map((productNo) => {
-            return {
-                queryKey: ['relatedProduct', productNo],
-                queryFn: async () =>
-                    await product.getProductDetail(productNo.toString()),
-                onSuccess: (res: AxiosResponse<ProductDetailResponse>) => {
-                    setRelatedProducts((prev) => {
-                        return [...prev, res.data];
-                    });
-                },
-                refetchOnWindowFocus: false,
-            };
-        }) ?? [],
-    );
-
-    const optionSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (e.target.value === 'false') {
-            return;
-        }
-        const optionValue = JSON.parse(e.target.value);
-        setProductImageList(
-            optionValue.images.map((image: { url: string }) => {
-                return image.url;
-            }),
-        );
-        setOptionProducts((prev) => {
-            prev.set(optionValue.optionNo, {
-                label: optionValue.label,
-                price: optionValue.buyPrice,
-                count: 1,
-                optionNo: optionValue.optionNo,
-                productNo,
-                amountPrice: optionValue.buyPrice,
-            });
-            return new Map(prev);
-        });
-    };
-
-    const productCountHandler = (number: number, optionNo: number) => () => {
-        if (optionProducts.get(optionNo)?.count! + number <= 0) {
-            alert(productDetail('countAlert'));
-            return;
-        }
-        setOptionProducts((prev) => {
-            prev.set(optionNo, {
-                label: prev.get(optionNo)?.label!,
-                price: prev.get(optionNo)?.price!,
-                count: prev.get(optionNo)?.count! + number,
-                optionNo,
-                productNo,
-                amountPrice:
-                    prev.get(optionNo)?.price! *
-                    (prev.get(optionNo)?.count! + number),
-            });
-            return new Map(prev);
-        });
-    };
 
     const { mutate: cartMutate, isLoading: isCartLoading } = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
@@ -495,11 +254,11 @@ const ProductDetail = () => {
         },
     );
 
-    const cartHandler = () => {
-        if (optionProducts.size <= 0) return;
+    const addCartHandler = () => {
+        if (selectOptionProducts.size <= 0) return;
 
         const cartList: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        Array.from(optionProducts.values()).forEach((optionProduct) => {
+        Array.from(selectOptionProducts.values()).forEach((optionProduct) => {
             const currentCart = {
                 orderCnt: optionProduct.count,
                 channelType: CHANNEL_TYPE.NAVER_EP,
@@ -533,12 +292,12 @@ const ProductDetail = () => {
     );
 
     const purchaseHandler = () => {
-        if (optionProducts.size <= 0) {
+        if (selectOptionProducts.size <= 0) {
             return;
         }
 
         const orderSheet: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        Array.from(optionProducts.values()).forEach((product) => {
+        Array.from(selectOptionProducts.values()).forEach((product) => {
             const currentCart = {
                 orderCnt: product.count,
                 channelType: CHANNEL_TYPE.NAVER_EP,
@@ -559,34 +318,13 @@ const ProductDetail = () => {
     return (
         <ProductContainer>
             <ProductContainerTop>
-                <ProductImageBox>
-                    <ProductImage>
-                        <img
-                            src={representImage}
-                            alt={productData?.data.baseInfo.productName}
-                        />
-                    </ProductImage>
-                    <ProductSubImageList>
-                        {productImageList?.map((productImage) => {
-                            return (
-                                <ProductSubImage
-                                    onClick={() =>
-                                        setRepresentImage(productImage)
-                                    }
-                                    key={productImage}
-                                >
-                                    <img
-                                        src={productImage}
-                                        alt={
-                                            productData?.data.baseInfo
-                                                .productName
-                                        }
-                                    />
-                                </ProductSubImage>
-                            );
-                        })}
-                    </ProductSubImageList>
-                </ProductImageBox>
+                <ProductImageList
+                    productImageData={productImageData}
+                    setProductImageData={setProductImageData}
+                    productImageAlt={productData?.data.baseInfo.productName}
+                    currentOptionNo={currentOptionNo}
+                    productNo={productNo}
+                />
                 <ProductInfoBox>
                     <ProductTitleBox>
                         <div>
@@ -627,102 +365,34 @@ const ProductDetail = () => {
                             </p>
                         </ProductAccumulationBox>
                     </ProductPriceBox>
-                    <ProductOptionBox>
-                        <p>{productDetail('chooseOption')}</p>
-                        <select onChange={optionSelectHandler}>
-                            <option value={'false'}>
-                                {productDetail('chooseOption')}.
-                            </option>
-                            {productOptions?.map((productOption) => {
-                                return (
-                                    <option
-                                        key={productOption.optionNo}
-                                        value={JSON.stringify(productOption)}
-                                    >
-                                        {productOption.label}
-                                    </option>
-                                );
-                            })}
-                        </select>
-                        <div>
-                            {Array.from(optionProducts.values()).map(
-                                ({ count, label, amountPrice, optionNo }) => {
-                                    return (
-                                        <ProductOptionCountBox key={optionNo}>
-                                            <div>
-                                                <ProductOptionTitle>
-                                                    {label}
-                                                </ProductOptionTitle>
-                                                <ProductOptionClose
-                                                    onClick={() =>
-                                                        setOptionProducts(
-                                                            (prev) => {
-                                                                prev.delete(
-                                                                    optionNo,
-                                                                );
-                                                                return new Map(
-                                                                    prev,
-                                                                );
-                                                            },
-                                                        )
-                                                    }
-                                                >
-                                                    X
-                                                </ProductOptionClose>
-                                            </div>
-                                            <div>
-                                                <ProductCountBox>
-                                                    <ProductCountMinus
-                                                        onClick={productCountHandler(
-                                                            -1,
-                                                            optionNo,
-                                                        )}
-                                                    >
-                                                        -
-                                                    </ProductCountMinus>
-                                                    <ProductCount>
-                                                        {count}
-                                                    </ProductCount>
-                                                    <ProductCountPlus
-                                                        onClick={productCountHandler(
-                                                            1,
-                                                            optionNo,
-                                                        )}
-                                                    >
-                                                        +
-                                                    </ProductCountPlus>
-                                                </ProductCountBox>
-                                                <p>{amountPrice}</p>
-                                            </div>
-                                        </ProductOptionCountBox>
-                                    );
-                                },
-                            )}
-                        </div>
-                    </ProductOptionBox>
+                    <ProductOptionList
+                        setCurrentOptionNo={setCurrentOptionNo}
+                        setSelectOptionProducts={setSelectOptionProducts}
+                        productNo={productNo}
+                        selectOptionProducts={selectOptionProducts}
+                        setProductImageData={setProductImageData}
+                    />
                     <ProductAmount>
                         <p>
                             {productDetail('amountPrice')}{' '}
                             <span>
                                 {productDetail('amount')}{' '}
-                                {optionProducts.size > 0 &&
-                                    Array.from(optionProducts.values()).reduce(
-                                        (prev, cur) => {
-                                            return prev + cur.count!;
-                                        },
-                                        0,
-                                    )}
+                                {selectOptionProducts.size > 0 &&
+                                    Array.from(
+                                        selectOptionProducts.values(),
+                                    ).reduce((prev, cur) => {
+                                        return prev + cur.count!;
+                                    }, 0)}
                                 {productDetail('count')}
                             </span>
                         </p>
                         <p>
-                            {optionProducts.size > 0 &&
-                                Array.from(optionProducts.values()).reduce(
-                                    (prev, cur) => {
-                                        return prev + cur.amountPrice!;
-                                    },
-                                    0,
-                                )}
+                            {selectOptionProducts.size > 0 &&
+                                Array.from(
+                                    selectOptionProducts.values(),
+                                ).reduce((prev, cur) => {
+                                    return prev + cur.amountPrice!;
+                                }, 0)}
                             원
                         </p>
                     </ProductAmount>
@@ -742,7 +412,7 @@ const ProductDetail = () => {
                         </DeliveryDesc>
                     </DeliveryInfoBox>
                     <PurchaseBox>
-                        <CartButton onClick={cartHandler}>
+                        <CartButton onClick={addCartHandler}>
                             {isCartLoading ? (
                                 <div>'등록중'</div>
                             ) : (
@@ -796,46 +466,13 @@ const ProductDetail = () => {
                         <a href='#productContent'>{productDetail('notice')}</a>
                     </ProductDescription>
                 </ProductDescriptionBox>
-                <ProductContentBox
+                {/* <ProductContentBox
                     id='productContent'
                     dangerouslySetInnerHTML={{
                         __html: productData?.data.baseInfo.content ?? '',
                     }}
-                ></ProductContentBox>
-                <RelatedProductContainer>
-                    {relatedProducts.map(({ baseInfo, price }) => {
-                        return (
-                            <RelatedProduct
-                                onClick={() =>
-                                    navigate(
-                                        `/product/detail/${baseInfo.productNo}`,
-                                    )
-                                }
-                                key={baseInfo.productNo}
-                            >
-                                <RelatedProductImage>
-                                    <img
-                                        src={head(baseInfo.imageUrls)}
-                                        alt={baseInfo.productName}
-                                    />
-                                </RelatedProductImage>
-                                <RelatedProductDesc>
-                                    <RelatedProductTitle>
-                                        <p>{baseInfo.productName}</p>
-                                        <p>{baseInfo.promotionText}</p>
-                                    </RelatedProductTitle>
-                                    <RelatedProductPrice>
-                                        <p>{price.salePrice}</p>
-                                        <p>
-                                            {price.salePrice -
-                                                price.immediateDiscountAmt}
-                                        </p>
-                                    </RelatedProductPrice>
-                                </RelatedProductDesc>
-                            </RelatedProduct>
-                        );
-                    })}
-                </RelatedProductContainer>
+                ></ProductContentBox> */}
+                <RelatedProduct productData={productData} />
             </ProductContainerBottom>
         </ProductContainer>
     );

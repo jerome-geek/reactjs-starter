@@ -511,3 +511,12 @@ export interface Input {
     inputMatchingType: string;
     required: boolean;
 }
+
+export interface ProductOption {
+    label?: string;
+    price?: number;
+    count: number;
+    optionNo: number;
+    productNo: string;
+    amountPrice?: number;
+}
