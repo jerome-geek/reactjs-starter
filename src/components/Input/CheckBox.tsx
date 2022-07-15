@@ -31,8 +31,11 @@ const HiddenCheckbox = styled.input<CheckboxProps>`
     width: 1px;
 `;
 
-const StyledP = styled.p`
+const StyledP = styled.p<{ checked: boolean }>`
     margin-left: 0.25rem;
+    font-size: 12px;
+    letter-spacing: 0;
+    color: ${(props) => (props.checked ? '#222943' : '#8F8F8F')};
 `;
 
 const Checkbox = forwardRef(
@@ -50,7 +53,7 @@ const Checkbox = forwardRef(
                         {...props}
                     />
                     {checked ? <Checked /> : <UnChecked />}
-                    <StyledP>{label}</StyledP>
+                    <StyledP checked={checked}>{label}</StyledP>
                 </CheckBoxLabel>
             </CheckboxContainer>
         );
