@@ -257,7 +257,25 @@ const ProductDetail = () => {
     const addCartHandler = () => {
         if (selectOptionProducts.size <= 0) return;
 
-        const cartList: Omit<ShoppingCartBody, 'cartNo'>[] = [];
+        const cartList: ShoppingCartBody[] = [];
+        if (!member) {
+            Array.from(selectOptionProducts.values()).forEach(
+                (optionProduct) => {
+                    const currentCart = {
+                        orderCnt: optionProduct.count,
+                        channelType: CHANNEL_TYPE.NAVER_EP,
+                        optionInputs: [],
+                        optionNo: optionProduct.optionNo,
+                        productNo: parseFloat(optionProduct.productNo),
+                        cartNo: optionProduct.optionNo,
+                    };
+                    cartList.push(currentCart);
+                },
+            );
+            dispatch(setCart(cartList));
+            alert(productDetail('successCartAlert'));
+            return;
+        }
         Array.from(selectOptionProducts.values()).forEach((optionProduct) => {
             const currentCart = {
                 orderCnt: optionProduct.count,
@@ -268,12 +286,6 @@ const ProductDetail = () => {
             };
             cartList.push(currentCart);
         });
-
-        if (!member) {
-            dispatch(setCart(cartList));
-            alert(productDetail('successCartAlert'));
-            return;
-        }
 
         cartMutate(cartList);
     };

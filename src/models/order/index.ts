@@ -130,7 +130,7 @@ export interface ShoppingCartBody {
     optionInputs?: OptionInputsParams[];
     optionNo: number;
     productNo: number;
-    cartNo: number;
+    cartNo?: number;
 }
 
 export interface TokenIssueBody {
