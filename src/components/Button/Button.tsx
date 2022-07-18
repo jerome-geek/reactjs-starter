@@ -2,7 +2,7 @@ import { FC, ButtonHTMLAttributes } from 'react';
 import styled, { css } from 'styled-components';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    buttonType?: 'primary' | 'secondary';
+    buttonType?: 'primary' | 'secondary' | 'tertiary';
     color?: string;
     fontSize?: string;
     backgroundColor?: string;
@@ -12,6 +12,8 @@ const ButtonBlock = styled.button<ButtonProps>`
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    outline: none;
+    border: none;
     cursor: pointer;
     line-height: 24px;
     font-size: ${(props) => props.fontSize || '16px'};
@@ -20,19 +22,13 @@ const ButtonBlock = styled.button<ButtonProps>`
     width: 100%;
     padding: 10px;
 
-    &:disabled {
-        cursor: not-allowed;
-        background-color: #dbdbdb;
-        color: #fff;
-    }
-
     ${(props) =>
         props.buttonType === 'primary' &&
         css`
             color: #fff;
             background-color: #222943;
-            border: 1px solid #222943;
         `}
+
     ${(props) =>
         props.buttonType === 'secondary' &&
         css`
@@ -40,6 +36,19 @@ const ButtonBlock = styled.button<ButtonProps>`
             background-color: #fff;
             border: 1px solid #dbdbdb;
         `}
+
+    ${(props) =>
+        props.buttonType === 'tertiary' &&
+        css`
+            color: #000000;
+            background-color: #f8f8fa;
+        `}
+
+    &:disabled {
+        cursor: not-allowed;
+        color: #fff;
+        background-color: #dbdbdb;
+    }
 `;
 
 const Button: FC<ButtonProps> = ({

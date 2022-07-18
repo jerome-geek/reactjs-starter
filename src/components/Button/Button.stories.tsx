@@ -30,6 +30,12 @@ SecondaryButton.args = {
     children: 'Secondary Button',
 };
 
+export const TertiaryButton = Template.bind({});
+TertiaryButton.args = {
+    buttonType: 'tertiary',
+    children: 'Tertiary Button',
+};
+
 export const DisabledButton = Template.bind({});
 DisabledButton.args = {
     disabled: true,
