@@ -99,12 +99,12 @@ const ManualDetail = () => {
                         })}
                     </div>
 
-                    <div
+                    {/* <div
                         style={{ textAlign: 'center' }}
                         dangerouslySetInnerHTML={{
                             __html: data?.data.baseInfo.content,
                         }}
-                    ></div>
+                    ></div> */}
                 </div>
             </div>
         </>

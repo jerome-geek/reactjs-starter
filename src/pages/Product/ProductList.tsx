@@ -7,7 +7,6 @@ import { head } from '@fxts/core';
 import { category } from 'api/display';
 import { product } from 'api/product';
 import Header from 'components/shared/Header';
-import { Item } from 'models/product';
 import { filter } from 'const/filter';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import SEOHelmet from 'components/shared/SEOHelmet';
@@ -167,7 +166,7 @@ const ProductList = () => {
                                         promotionText,
                                         salePrice,
                                         immediateDiscountAmt,
-                                    }: Item) => {
+                                    }: any) => {
                                         return (
                                             <ProductBox
                                                 key={productNo}
@@ -177,10 +176,10 @@ const ProductList = () => {
                                                     );
                                                 }}
                                             >
-                                                <img
+                                                {/* <img
                                                     src={head(listImageUrls)}
                                                     alt={productName}
-                                                />
+                                                /> */}
                                                 <p>{productName}</p>
                                                 <p>{promotionText}</p>
                                                 <p>
