@@ -3,22 +3,34 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { ErrorMessage } from '@hookform/error-message';
+import styled from 'styled-components';
 
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 import StyledInput from 'components/Input/StyledInput';
-import Button from 'components/Common/Button';
 import Header from 'components/shared/Header';
+import CheckBox from 'components/Input/CheckBox';
+import PrimaryButton from 'components/Button/PrimaryButton';
 import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
 import PATHS from 'const/paths';
+import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
+import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
+import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
+import LoginLogo from 'assets/logo/loginLogo.png';
 
 interface LoginFormData {
     memberId: string;
     password: string;
     keepLogin: boolean;
 }
+
+const LoginInputContainer = styled.div`
+    margin-bottom: 20px;
+    width: 100%;
+`;
 
 const Login = () => {
     const navigate = useNavigate();
@@ -28,8 +40,13 @@ const Login = () => {
         register,
         handleSubmit,
         control,
+        watch,
         formState: { errors },
-    } = useForm<LoginFormData>();
+    } = useForm<LoginFormData>({
+        defaultValues: {
+            keepLogin: false,
+        },
+    });
 
     const dispatch = useAppDispatch();
 
@@ -73,175 +90,187 @@ const Login = () => {
         }
     });
 
-    const onGuestLoginClick = (e: MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        navigate('/guest/login');
-    };
-
     return (
         <div style={{ margin: '0 auto' }}>
             <Header />
             <DevTool control={control} placement='top-right' />
-            <form
-                onSubmit={onSubmit}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                }}
-            >
-                <h1
+
+            <LayoutResponsive type='small' style={{ padding: '10rem 0' }}>
+                <img src={LoginLogo} alt='' style={{ marginBottom: '50px' }} />
+                <form
+                    onSubmit={onSubmit}
                     style={{
-                        fontWeight: 'bold',
-                        fontSize: '24px',
-                        padding: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexDirection: 'column',
                     }}
                 >
-                    로그인
-                </h1>
-                <StyledInput
-                    type='text'
-                    placeholder='E-mail'
-                    border='1px solid rgb(163, 166, 174)'
-                    borderRadius='5px'
-                    padding='5px'
-                    {...register('memberId', {
-                        required: {
-                            value: true,
-                            message: '이메일을 입력해주세요',
-                        },
-                        // FIXME: 테스트용으로 주석처리
-                        // pattern: {
-                        //     value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                        //     message: '이메일 형식에 맞지 않습니다',
-                        // },
-                    })}
-                />
-                <ErrorMessage
-                    errors={errors}
-                    name='memberId'
-                    render={({ message }) => <p>{message}</p>}
-                />
-                <StyledInput
-                    type='password'
-                    placeholder='PW'
-                    border='1px solid rgb(163, 166, 174)'
-                    borderRadius='5px'
-                    padding='5px'
-                    {...register('password', {
-                        required: {
-                            value: true,
-                            message: '비밀번호를 입력해주세요',
-                        },
-                    })}
-                />
-                <ErrorMessage
-                    errors={errors}
-                    name='password'
-                    render={({ message }) => <p>{message}</p>}
-                />
-                <label htmlFor=''>
-                    <input type='checkbox' {...register('keepLogin')} />
-                    로그인 상태 유지
-                </label>
-                <Button
-                    style={{
-                        backgroundColor: 'black',
-                        color: 'white',
-                        padding: '10px 20px',
-                    }}
-                >
-                    이메일로 로그인
-                </Button>
-                <div style={{ marginTop: '10px' }}>
-                    <Link to='/'>비밀번호 찾기</Link> |{' '}
-                    <Link to='/'>회원가입</Link>
-                </div>
+                    <LoginInputContainer>
+                        <StyledInput
+                            type='text'
+                            placeholder='아이디'
+                            border='1px solid #DBDBDB'
+                            style={{
+                                width: '100%',
+                                padding: '10px 20px',
+                            }}
+                            {...register('memberId', {
+                                required: {
+                                    value: true,
+                                    message: '이메일을 입력해주세요',
+                                },
+                            })}
+                        />
+                        <ErrorMessage
+                            errors={errors}
+                            name='memberId'
+                            render={({ message }) => <p>{message}</p>}
+                        />
+                    </LoginInputContainer>
 
-                <div style={{ display: 'flex', marginTop: '20px' }}>
-                    <div
-                        style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '1px solid rgb(198, 203, 216)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <span>네이버</span>
-                    </div>
-                    <div
-                        style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '1px solid rgb(198, 203, 216)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <span>카카오</span>
-                    </div>
-                    <div
-                        style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '1px solid rgb(198, 203, 216)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <span>페이스북</span>
-                    </div>
-                    <div
-                        style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '1px solid rgb(198, 203, 216)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <span>구글</span>
-                    </div>
-                    <div
-                        style={{
-                            width: '50px',
-                            height: '50px',
-                            border: '1px solid rgb(198, 203, 216)',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <span>애플</span>
-                    </div>
-                </div>
+                    <LoginInputContainer>
+                        <StyledInput
+                            type='password'
+                            placeholder='비밀번호'
+                            border='1px solid #DBDBDB'
+                            style={{
+                                width: '100%',
+                                padding: '10px 20px',
+                            }}
+                            {...register('password', {
+                                required: {
+                                    value: true,
+                                    message: '비밀번호를 입력해주세요',
+                                },
+                            })}
+                        />
+                        <ErrorMessage
+                            errors={errors}
+                            name='password'
+                            render={({ message }) => <p>{message}</p>}
+                        />
+                    </LoginInputContainer>
 
-                <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                    <p>혹시 비회원으로 주문하셨나요?</p>
-                    <Button
+                    <div
                         style={{
-                            border: '1px solid rgb(198, 203, 216)',
-                            padding: '5px 10px',
                             width: '100%',
-                            marginTop: '5px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '30px',
                         }}
-                        onClick={onGuestLoginClick}
                     >
-                        비회원 주문 조회
-                    </Button>
-                </div>
-            </form>
+                        <CheckBox
+                            checked={watch('keepLogin')}
+                            label='로그인 상태 유지하기'
+                            {...register('keepLogin')}
+                        />
+
+                        <ul
+                            style={{
+                                fontSize: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                color: '#8F8F8F',
+                            }}
+                        >
+                            <li
+                                style={{
+                                    paddingRight: '10px',
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => navigate('/member/find-id')}
+                            >
+                                아이디 찾기
+                            </li>
+                            <li
+                                style={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                    navigate('/member/find-password')
+                                }
+                            >
+                                비밀번호 찾기
+                            </li>
+                        </ul>
+                    </div>
+
+                    <PrimaryButton
+                        style={{ width: '100%', marginBottom: '50px' }}
+                    >
+                        로그인
+                    </PrimaryButton>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingBottom: '40px',
+                        }}
+                    >
+                        <div style={{ marginRight: '32px' }}>
+                            <p>SNS 로그인</p>
+                        </div>
+                        <div>
+                            <AppleIcon
+                                style={{ width: '34px', paddingRight: '5px' }}
+                            />
+                            <AppleIcon
+                                style={{ width: '34px', paddingRight: '5px' }}
+                            />
+                            <AppleIcon
+                                style={{ width: '34px', paddingRight: '5px' }}
+                            />
+                            <FacebookIcon
+                                style={{ width: '34px', paddingRight: '5px' }}
+                            />
+                            <GoogleIcon style={{ width: '34px' }} />
+                        </div>
+                    </div>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingBottom: '24px',
+                        }}
+                    >
+                        <span
+                            style={{
+                                color: '#C3C3C3',
+                                fontSize: '12px',
+                                marginRight: '10px',
+                            }}
+                        >
+                            회원이 아니신가요?
+                        </span>{' '}
+                        <Link
+                            to='/'
+                            style={{
+                                fontSize: '12px',
+                                color: '#191919',
+                                textDecoration: 'underline',
+                            }}
+                        >
+                            회원가입
+                        </Link>
+                    </div>
+
+                    <div>
+                        <Link
+                            to='/guest/login'
+                            style={{
+                                fontSize: '12px',
+                                color: '#191919',
+                                textDecoration: 'underline',
+                            }}
+                        >
+                            비회원 주문조회
+                        </Link>
+                    </div>
+                </form>
+            </LayoutResponsive>
         </div>
     );
 };
