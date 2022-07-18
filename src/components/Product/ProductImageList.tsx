@@ -62,7 +62,8 @@ const ProductImageList = ({
     }, [productNo]);
 
     useEffect(() => {
-        setRepresentImage(head(productImageData?.[currentOptionNo]!)!);
+        productImageData?.[currentOptionNo] &&
+            setRepresentImage(head(productImageData[currentOptionNo])!);
     }, [productImageData?.[currentOptionNo]]);
 
     return (
@@ -71,7 +72,7 @@ const ProductImageList = ({
                 <img src={representImage} alt={productImageAlt} />
             </ProductImage>
             <ProductSubImageList>
-                {productImageData &&
+                {productImageData?.[currentOptionNo] &&
                     productImageData[currentOptionNo].map((productImage) => {
                         return (
                             <ProductSubImage
