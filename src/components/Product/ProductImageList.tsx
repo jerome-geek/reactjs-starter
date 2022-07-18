@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
-import { head } from '@fxts/core';
+import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
@@ -9,7 +8,6 @@ import 'swiper/css/navigation';
 
 import { ReactComponent as PrevIcon } from 'assets/icons/prev_button.svg';
 import { ReactComponent as NextIcon } from 'assets/icons/next_button.svg';
-import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import './ProductImageBullet.css';
 
 const ProductImageBox = styled.div``;
