@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
-import { Category } from 'models/display';
+import { Brand, Category } from 'models/display';
 
 const category = {
     /**
@@ -53,7 +53,9 @@ const category = {
      * @param categoryNo string
      * @returns Promise<AxiosResponse>
      */
-    getCategory: (categoryNo: string): Promise<AxiosResponse> =>
+    getCategory: (
+        categoryNo: string,
+    ): Promise<AxiosResponse<Category & Brand[]>> =>
         request({
             method: 'GET',
             url: `/categories/${categoryNo}`,

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import PATHS from 'const/paths';
 import { useMember } from 'hooks';
+import categoryNo from 'const/category';
 
 const Header = () => {
     const { member } = useMember();
@@ -39,13 +40,22 @@ const Header = () => {
                     </h1>
                 </div>
                 <nav style={navContainerStyle}>
-                    <NavLink style={navBoxStyle} to='/'>
+                    <NavLink
+                        style={navBoxStyle}
+                        to={`/product/${categoryNo.rangeFinder}`}
+                    >
                         거리 측정기
                     </NavLink>
-                    <NavLink style={navBoxStyle} to='/'>
+                    <NavLink
+                        style={navBoxStyle}
+                        to={`/product/${categoryNo.launchMonitor}`}
+                    >
                         론치 모니터
                     </NavLink>
-                    <NavLink style={navBoxStyle} to='/'>
+                    <NavLink
+                        style={navBoxStyle}
+                        to={`/product/${categoryNo.accessory}`}
+                    >
                         액세서리
                     </NavLink>
                     <NavLink style={navBoxStyle} to='/'>

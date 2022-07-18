@@ -62,7 +62,7 @@ export interface ProductSearchParams {
         direction?: ORDER_DIRECTION;
         soldoutPlaceEnd?: boolean;
     };
-    categoryNos?: number;
+    categoryNos?: string;
     brandNos?: number;
     partnerNo?: number;
     clientKey?: string;
