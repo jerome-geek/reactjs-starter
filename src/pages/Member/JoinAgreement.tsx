@@ -34,7 +34,7 @@ const JoinAgreement = () => {
         if (checkAgree.length !== VCTerms.length) {
             alert('모든 약관에 동의해주세요');
         } else {
-            navigate('/member/joinStep', {
+            navigate('/member/join', {
                 state: {
                     joinTermsAgreements: checkAgree,
                     // certificated: boolean

@@ -9,6 +9,8 @@ import {
 } from 'models';
 import {
     GroupCodeParams,
+    OptionResponse,
+    ProductDetailResponse,
     ProductSearchParams,
     ProductsParams,
     RestockParams,
@@ -142,6 +144,32 @@ const product = {
                 shippingAreaType: params?.shippingAreaType,
             },
         }),
+    /**
+     *상품번호 리스트로 상품을 조회하는 API입니다.
+     *(hasOptionValues: 옵션값 포함여부, default: false)
+     *
+     * @param body
+     *
+     *  productNos: number[];
+     *  hasOptionValues?: boolean;
+     *
+     * @returns Promise<AxiosResponse>
+     */
+    getProductsByProductNoList: (body: {
+        productNos: number[];
+        hasOptionValues?: boolean;
+    }): Promise<AxiosResponse> =>
+        request({
+            method: 'POST',
+            url: '/products/search-by-nos',
+            data: {
+                productNos: body.productNos,
+                hasOptionValues: body.hasOptionValues,
+            },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
+        }),
 
     /**
      * 상품 상세 조회하기
@@ -156,7 +184,7 @@ const product = {
         params?: {
             channelType: CHANNEL_TYPE;
         },
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<ProductDetailResponse>> =>
         request({
             method: 'GET',
             url: `/products/${productNo}`,
@@ -246,7 +274,9 @@ const product = {
         }),
 
     // TODO productNo을 모름 404 error 발생 추후 테스트 필요
-    getProductOption: (productNo: string): Promise<AxiosResponse> =>
+    getProductOption: (
+        productNo: string,
+    ): Promise<AxiosResponse<OptionResponse>> =>
         request({
             method: 'GET',
             url: `/products/${productNo}/options`,

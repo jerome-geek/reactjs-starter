@@ -41,7 +41,7 @@ interface OptionInputs {
 
 interface Products {
     rentalInfos?: RentalInfos[];
-    recurringPaymentDelivery: RecurringPaymentDelivery;
+    recurringPaymentDelivery?: RecurringPaymentDelivery;
     channelType: string;
     orderCnt: number;
     optionInputs?: OptionInputs[];
@@ -119,17 +119,18 @@ interface Orderer {
 }
 
 export interface OptionInputsParams {
-    inputValue?: string;
-    inputLabel?: string;
+    inputValue: string;
+    inputLabel: string;
+    required: boolean;
 }
 
 export interface ShoppingCartBody {
     orderCnt: number;
     channelType: string;
-    optionInputs: OptionInputsParams[];
+    optionInputs?: OptionInputsParams[];
     optionNo: number;
     productNo: number;
-    cartNo: number;
+    cartNo?: number;
 }
 
 export interface TokenIssueBody {
@@ -232,4 +233,17 @@ export interface OAuthBegin {
     nextUrl: string;
     state?: string;
     code: string;
+}
+
+export interface OrderSheetResponse {
+    products: Products[];
+    productCoupons: any[];
+    cartNos: any[];
+    trackingKey: string;
+    channelType: string;
+}
+
+export interface RentalInfo {
+    rentalPeriod: number;
+    monthlyRentalAmount: number;
 }

@@ -158,7 +158,7 @@ const Join = () => {
                 );
 
                 dispatch(fetchProfile());
-                navigate('/signup/signUpCompleted');
+                navigate('/member/join-completed');
             }
         } catch (error) {
             alert('알 수 없는 에러 발생!');

@@ -2,6 +2,9 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { ShoppingCartBody } from 'models/order/index';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const cart = {
     //TODO getCart, getCartCount, getCartValidation를 제외한 나머지는 cartNo 혹은 orderNo가 필수로 들어가므로 나중에 test 해야 함
@@ -15,7 +18,7 @@ const cart = {
             url: '/cart',
             params: { divideInvalidProducts },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -32,25 +35,19 @@ const cart = {
             url: '/cart',
             data: [{ orderCnt, cartNo, optionInputs }],
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
-    registerCart: ({
-        orderCnt,
-        channelType,
-        optionInputs,
-        optionNo,
-        productNo,
-    }: Omit<ShoppingCartBody, 'cartNo'>): Promise<AxiosResponse> =>
+    registerCart: (
+        body: Omit<ShoppingCartBody, 'cartNo'>[],
+    ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/cart',
-            data: [
-                { orderCnt, channelType, optionInputs, optionNo, productNo },
-            ],
+            data: body,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -62,7 +59,7 @@ const cart = {
             url: '/cart',
             params: { cartNo },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -77,7 +74,7 @@ const cart = {
             url: '/cart/calculate',
             params: { cartNo, divideInvalidProducts },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -86,7 +83,7 @@ const cart = {
             method: 'GET',
             url: '/cart/count',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -101,7 +98,7 @@ const cart = {
             url: '/cart/subset',
             params: { cartNo, divideInvalidProducts },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -110,7 +107,7 @@ const cart = {
             method: 'GET',
             url: '/cart/validate',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };
