@@ -1,6 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { action } from '@storybook/addon-actions';
-import LayoutResponsive from './LayoutResponsive';
+import { useWindowSize } from 'usehooks-ts';
+
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 
 export default {
     component: LayoutResponsive,
@@ -10,16 +11,22 @@ const Template: ComponentStory<typeof LayoutResponsive> = ({
     type,
     children,
     ...args
-}) => (
-    <LayoutResponsive type={type} {...args}>
-        {children}
-    </LayoutResponsive>
-);
+}) => {
+    const { width } = useWindowSize();
+
+    return (
+        <LayoutResponsive type={type} {...args}>
+            <>
+                <p>{`${type} Layout width: ${width}px`}</p>
+                {children}
+            </>
+        </LayoutResponsive>
+    );
+};
 
 export const LargeLayout = Template.bind({});
 LargeLayout.args = {
     type: 'large',
-    children: 'Large Layout width: 1280px',
     style: {
         backgroundColor: '#F0F0F3',
         height: '200px',
@@ -32,7 +39,6 @@ LargeLayout.args = {
 export const MediumLayout = Template.bind({});
 MediumLayout.args = {
     type: 'medium',
-    children: 'Medium Layout width: 880px',
     style: {
         backgroundColor: '#F0F0F3',
         height: '200px',
@@ -47,7 +53,6 @@ SmallLayout.args = {
     type: 'small',
     children: 'Small Layout width: 440px',
     style: {
-        backgroundColor: '#F0F0F3',
         height: '200px',
         display: 'flex',
         justifyContent: 'center',
