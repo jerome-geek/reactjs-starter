@@ -1,7 +1,7 @@
 import Lottie from 'lottie-react';
 import { useNavigate } from 'react-router-dom';
 
-import Button from 'components/Common/Button';
+import Button from 'components/Button/Button';
 import paths from 'const/paths';
 import notFoundAnimation from 'assets/lottie/91191-404-notfound.json';
 
@@ -21,7 +21,7 @@ const NotFound = () => {
         >
             <Lottie animationData={notFoundAnimation} loop autoplay />
             <div style={{ marginTop: '2rem' }}>
-                <Button onClick={() => navigate(paths.MAIN)}>
+                <Button buttonType="secondary" onClick={() => navigate(paths.MAIN)}>
                     홈으로 가기
                 </Button>
             </div>

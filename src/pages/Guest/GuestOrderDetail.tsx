@@ -2,7 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Header from 'components/shared/Header';
-import Button from 'components/Common/Button';
+import Button from 'components/Button/Button';
 import PATHS from 'const/paths';
 
 const DetailList = styled.ul``;
@@ -150,6 +150,7 @@ const GuestOrderDetail = () => {
                                 padding: '10px',
                                 cursor: 'pointer',
                             }}
+                            buttonType='secondary'
                             onClick={onCancelOrderClick}
                         >
                             주문취소
@@ -163,6 +164,7 @@ const GuestOrderDetail = () => {
                                 padding: '10px',
                                 cursor: 'pointer',
                             }}
+                            buttonType='primary'
                             onClick={onFaqButtonClick}
                         >
                             FAQ 바로가기

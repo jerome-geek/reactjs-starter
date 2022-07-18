@@ -7,9 +7,9 @@ import styled from 'styled-components';
 import { head } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import PrimaryButton from 'components/Button/PrimaryButton';
 import Header from 'components/shared/Header';
 import ManualCard from 'components/Card/ManualCard';
+import Button from 'components/Button/Button';
 import { category } from 'api/display';
 import { product } from 'api/product';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
@@ -180,12 +180,14 @@ const Manager = () => {
                                                 )}
                                             >
                                                 <div>
-                                                    <PrimaryButton
+                                                    <Button
+                                                        buttonType='primary'
                                                         onClick={onMacDownload}
                                                     >
                                                         {manager('macDownload')}
-                                                    </PrimaryButton>
-                                                    <PrimaryButton
+                                                    </Button>
+                                                    <Button
+                                                        buttonType='primary'
                                                         onClick={
                                                             onWindowsDownload
                                                         }
@@ -193,7 +195,7 @@ const Manager = () => {
                                                         {manager(
                                                             'windowsDownload',
                                                         )}
-                                                    </PrimaryButton>
+                                                    </Button>
                                                 </div>
                                             </ManualCard>
                                         ),

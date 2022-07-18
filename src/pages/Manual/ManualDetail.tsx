@@ -3,10 +3,9 @@ import { useQuery } from 'react-query';
 import { useTranslation } from 'react-i18next';
 
 import { product } from 'api/product';
-import PrimaryButton from 'components/Button/PrimaryButton';
-import SecondaryButton from 'components/Button/SecondaryButton';
 import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
+import Button from 'components/Button/Button';
 
 const ManualDetail = () => {
     const { t: manual } = useTranslation('manual');
@@ -58,19 +57,22 @@ const ManualDetail = () => {
                                 justifyContent: 'space-evenly',
                             }}
                         >
-                            <PrimaryButton
+                            <Button
+                                buttonType='primary'
                                 fontSize='12px'
                                 style={{ width: '70px' }}
                             >
                                 영상보기
-                            </PrimaryButton>
-                            <PrimaryButton
+                            </Button>
+                            <Button
+                                buttonType='primary'
                                 fontSize='12px'
                                 style={{ width: '70px' }}
                             >
                                 상품구매
-                            </PrimaryButton>
-                            <SecondaryButton
+                            </Button>
+                            <Button
+                                buttonType='secondary'
                                 fontSize='12px'
                                 style={{
                                     width: '70px',
@@ -79,8 +81,9 @@ const ManualDetail = () => {
                                 }}
                             >
                                 인쇄하기
-                            </SecondaryButton>
-                            <SecondaryButton
+                            </Button>
+                            <Button
+                                buttonType='secondary'
                                 fontSize='12px'
                                 style={{
                                     width: '70px',
@@ -89,7 +92,7 @@ const ManualDetail = () => {
                                 }}
                             >
                                 다운로드
-                            </SecondaryButton>
+                            </Button>
                         </div>
                     </div>
 

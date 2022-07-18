@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { AxiosResponse } from 'axios';
 
 import { board } from 'api/manage';
-import Button from 'components/Common/Button';
+import Button from 'components/Button/Button';
 import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import { ORDER_DIRECTION } from 'models';

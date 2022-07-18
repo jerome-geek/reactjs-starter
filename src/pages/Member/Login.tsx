@@ -1,4 +1,3 @@
-import { MouseEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
@@ -11,7 +10,7 @@ import LayoutResponsive from 'components/shared/LayoutResponsive';
 import StyledInput from 'components/Input/StyledInput';
 import Header from 'components/shared/Header';
 import CheckBox from 'components/Input/CheckBox';
-import PrimaryButton from 'components/Button/PrimaryButton';
+import Button from 'components/Button/Button';
 import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
@@ -194,11 +193,13 @@ const Login = () => {
                         </ul>
                     </div>
 
-                    <PrimaryButton
-                        style={{ width: '100%', marginBottom: '50px' }}
+                    <Button
+                        buttonType='primary'
+                        type='submit'
+                        style={{ marginBottom: '50px' }}
                     >
                         로그인
-                    </PrimaryButton>
+                    </Button>
 
                     <div
                         style={{
