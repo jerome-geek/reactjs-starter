@@ -1,43 +1,39 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 import { head } from '@fxts/core';
 import styled from 'styled-components';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Navigation } from 'swiper';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
-const ProductImageBox = styled.div`
-    width: 50%;
-`;
+import { ReactComponent as PrevIcon } from 'assets/icons/prev_button.svg';
+import { ReactComponent as NextIcon } from 'assets/icons/next_button.svg';
+import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
+import './ProductImageBullet.css';
+
+const ProductImageBox = styled.div``;
 
 const ProductImage = styled.div`
-    > img {
-        display: block;
-        margin: 0 auto;
-    }
+    width: 661px;
+    height: 722px;
+    position: relative;
 `;
 
-const ProductSubImageList = styled.div`
-    display: flex;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    align-items: center;
-    &::-webkit-scrollbar {
-        display: block;
-        background-color: #ddd;
-        border-radius: 6px;
-    }
-    &::-webkit-scrollbar-thumb {
-        display: block;
-        background-color: #fff;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-    }
+const PrevButton = styled.div`
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 44.2px;
+    z-index: 1;
 `;
 
-const ProductSubImage = styled.div`
-    width: 20%;
-    flex: 0 0 auto;
-    > img {
-        width: 100%;
-        vertical-align: middle;
-    }
+const NextButton = styled.div`
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 44.2px;
+    z-index: 1;
 `;
 
 const ProductImageList = ({
@@ -55,35 +51,62 @@ const ProductImageList = ({
     currentOptionNo: number;
     productNo: string;
 }) => {
-    const [representImage, setRepresentImage] = useState('');
-
     useEffect(() => {
         setProductImageData({ 0: [] });
     }, [productNo]);
 
-    useEffect(() => {
-        productImageData?.[currentOptionNo] &&
-            setRepresentImage(head(productImageData[currentOptionNo])!);
-    }, [productImageData?.[currentOptionNo]]);
+    const navigationPrevRef = useRef(null);
+    const navigationNextRef = useRef(null);
 
     return (
         <ProductImageBox>
             <ProductImage>
-                <img src={representImage} alt={productImageAlt} />
+                <Swiper
+                    navigation={{
+                        prevEl: navigationPrevRef.current,
+                        nextEl: navigationNextRef.current,
+                    }}
+                    pagination={{ clickable: true }}
+                    modules={[Pagination, Navigation]}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        background: '#F8F8FA',
+                    }}
+                >
+                    {productImageData?.[currentOptionNo] &&
+                        productImageData[currentOptionNo].map(
+                            (productImage) => {
+                                return (
+                                    <SwiperSlide
+                                        key={productImage}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                            height: '100%',
+                                        }}
+                                    >
+                                        <img
+                                            src={productImage}
+                                            alt={productImageAlt}
+                                            style={{
+                                                display: 'block',
+                                            }}
+                                        />
+                                    </SwiperSlide>
+                                );
+                            },
+                        )}
+                </Swiper>
+                <PrevButton ref={navigationPrevRef}>
+                    <PrevIcon />
+                </PrevButton>
+                <NextButton ref={navigationNextRef}>
+                    <NextIcon />
+                </NextButton>
             </ProductImage>
-            <ProductSubImageList>
-                {productImageData?.[currentOptionNo] &&
-                    productImageData[currentOptionNo].map((productImage) => {
-                        return (
-                            <ProductSubImage
-                                onClick={() => setRepresentImage(productImage)}
-                                key={productImage}
-                            >
-                                <img src={productImage} alt={productImageAlt} />
-                            </ProductSubImage>
-                        );
-                    })}
-            </ProductSubImageList>
         </ProductImageBox>
     );
 };

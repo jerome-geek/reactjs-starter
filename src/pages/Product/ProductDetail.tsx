@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { shallowEqual } from 'react-redux';
 
 import { product } from 'api/product';
-import media from 'utils/styles/media';
 import { CHANNEL_TYPE } from 'models';
 import { cart, orderSheet } from 'api/order';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
@@ -20,27 +19,24 @@ import RelatedProduct from 'components/Product/RelatedProduct';
 import { ProductOption } from 'models/product';
 
 const ProductContainer = styled.div`
-    padding: 0 20px;
     margin: 50px auto;
-    width: 1200px;
-    ${media.large} {
-        width: 100%;
-    } ;
+    width: 1280px;
 `;
 
 const ProductContainerTop = styled.div`
     display: flex;
     width: 100%;
+    justify-content: space-between;
 `;
 
 const ProductInfoBox = styled.div`
-    width: 50%;
+    width: 510px;
 `;
 
 const ProductTitleBox = styled.div`
     display: flex;
     justify-content: space-between;
-    margin: 10px 0;
+    margin: 45px 0;
 `;
 
 const ProductTitle = styled.h2`
