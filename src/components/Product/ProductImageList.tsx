@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper';
@@ -8,13 +8,12 @@ import 'swiper/css/navigation';
 
 import { ReactComponent as PrevIcon } from 'assets/icons/prev_button.svg';
 import { ReactComponent as NextIcon } from 'assets/icons/next_button.svg';
-import './ProductImageBullet.css';
 
 const ProductImageBox = styled.div``;
 
-const ProductImage = styled.div`
-    width: 661px;
-    height: 722px;
+const ProductImage = styled.div<{ width?: string; height?: string }>`
+    width: ${(props) => props.width || '661px'};
+    height: ${(props) => props.width || '722px'};
     position: relative;
 `;
 
@@ -34,37 +33,56 @@ const NextButton = styled.div`
     z-index: 1;
 `;
 
-const ProductImageList = ({
-    productImageData,
-    setProductImageData,
-    productImageAlt,
-    currentOptionNo,
-    productNo,
-}: {
-    productImageData?: {
-        [id: number]: string[];
-    };
-    setProductImageData: Dispatch<SetStateAction<{ [id: number]: string[] }>>;
-    productImageAlt?: string;
-    currentOptionNo: number;
-    productNo: string;
-}) => {
-    useEffect(() => {
-        setProductImageData({ 0: [] });
-    }, [productNo]);
+const SwiperBulletWrapper = styled.div`
+    z-index: 2;
+    width: fit-content !important;
+    position: absolute;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%);
 
-    const navigationPrevRef = useRef(null);
-    const navigationNextRef = useRef(null);
+    .swiper-pagination-bullet {
+        width: 27px;
+        height: 3px;
+        background: #d4d4d4;
+        border-radius: 0;
+    }
+
+    .swiper-pagination-bullet-active {
+        width: 27px;
+        height: 3px;
+        background: #c00020;
+        border-radius: 0;
+    }
+`;
+
+const ProductImageList = ({
+    productImageList,
+    productImageAlt,
+    width,
+    height,
+}: {
+    productImageList?: string[];
+    productImageAlt?: string;
+    width?: string;
+    height?: string;
+}) => {
+    const prevElRef = useRef(null);
+    const nextElRef = useRef(null);
+    const paginationRef = useRef(null);
 
     return (
         <ProductImageBox>
-            <ProductImage>
+            <ProductImage width={width} height={height}>
                 <Swiper
                     navigation={{
-                        prevEl: navigationPrevRef.current,
-                        nextEl: navigationNextRef.current,
+                        prevEl: prevElRef.current,
+                        nextEl: nextElRef.current,
                     }}
-                    pagination={{ clickable: true }}
+                    pagination={{
+                        clickable: true,
+                        el: paginationRef.current,
+                    }}
                     modules={[Pagination, Navigation]}
                     style={{
                         width: '100%',
@@ -72,38 +90,37 @@ const ProductImageList = ({
                         background: '#F8F8FA',
                     }}
                 >
-                    {productImageData?.[currentOptionNo] &&
-                        productImageData[currentOptionNo].map(
-                            (productImage) => {
-                                return (
-                                    <SwiperSlide
-                                        key={productImage}
+                    {productImageList &&
+                        productImageList.map((productImage) => {
+                            return (
+                                <SwiperSlide
+                                    key={productImage}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                    }}
+                                >
+                                    <img
+                                        src={productImage}
+                                        alt={productImageAlt}
                                         style={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            width: '100%',
-                                            height: '100%',
+                                            display: 'block',
                                         }}
-                                    >
-                                        <img
-                                            src={productImage}
-                                            alt={productImageAlt}
-                                            style={{
-                                                display: 'block',
-                                            }}
-                                        />
-                                    </SwiperSlide>
-                                );
-                            },
-                        )}
+                                    />
+                                </SwiperSlide>
+                            );
+                        })}
                 </Swiper>
-                <PrevButton ref={navigationPrevRef}>
+                <PrevButton ref={prevElRef}>
                     <PrevIcon />
                 </PrevButton>
-                <NextButton ref={navigationNextRef}>
+                <NextButton ref={nextElRef}>
                     <NextIcon />
                 </NextButton>
+                <SwiperBulletWrapper ref={paginationRef}></SwiperBulletWrapper>
             </ProductImage>
         </ProductImageBox>
     );

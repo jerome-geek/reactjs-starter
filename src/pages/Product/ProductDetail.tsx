@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
@@ -202,9 +202,10 @@ const ProductContentBox = styled.div`
 const ProductDetail = () => {
     const { productNo } = useParams() as { productNo: string };
     const [productImageData, setProductImageData] = useState<{
-        [id: number]: string[];
-    }>({ 0: [] });
-    const [currentOptionNo, setCurrentOptionNo] = useState<number>(0);
+        [id: number | string]: string[];
+    }>({ represent: [] });
+    const [currentOptionNo, setCurrentOptionNo] =
+        useState<number | string>('represent');
     const [selectOptionProducts, setSelectOptionProducts] = useState(
         new Map<number, ProductOption>(),
     );
@@ -223,13 +224,17 @@ const ProductDetail = () => {
 
     const { t: productDetail } = useTranslation('productDetail');
 
+    useEffect(() => {
+        setProductImageData({ represent: [] });
+    }, [productNo]);
+
     const { data: productData } = useQuery(
         ['productDetail', { productNo }],
         async () => await product.getProductDetail(productNo),
         {
             onSuccess: (res) => {
                 setProductImageData((prev) => {
-                    prev[0] = res.data?.baseInfo?.imageUrls;
+                    prev.represent = res.data?.baseInfo?.imageUrls;
                     return prev;
                 });
             },
@@ -327,11 +332,8 @@ const ProductDetail = () => {
         <ProductContainer>
             <ProductContainerTop>
                 <ProductImageList
-                    productImageData={productImageData}
-                    setProductImageData={setProductImageData}
+                    productImageList={productImageData[currentOptionNo]}
                     productImageAlt={productData?.data.baseInfo.productName}
-                    currentOptionNo={currentOptionNo}
-                    productNo={productNo}
                 />
                 <ProductInfoBox>
                     <ProductTitleBox>
@@ -474,12 +476,12 @@ const ProductDetail = () => {
                         <a href='#productContent'>{productDetail('notice')}</a>
                     </ProductDescription>
                 </ProductDescriptionBox>
-                {/* <ProductContentBox
+                <ProductContentBox
                     id='productContent'
                     dangerouslySetInnerHTML={{
                         __html: productData?.data.baseInfo.content ?? '',
                     }}
-                ></ProductContentBox> */}
+                ></ProductContentBox>
                 <RelatedProduct productData={productData} />
             </ProductContainerBottom>
         </ProductContainer>
