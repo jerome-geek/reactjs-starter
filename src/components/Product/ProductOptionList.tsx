@@ -1,10 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import { FlatOption, ProductOption } from 'models/product';
 import { useQuery } from 'react-query';
 import { product } from 'api/product';
+import SelectBox from 'components/Common/SelectBox';
+import { SingleValue } from 'react-select';
 
 const ProductOptionBox = styled.div`
     margin: 26px 0;
@@ -109,22 +111,20 @@ const ProductOptionList = ({
         },
     );
 
-    const optionSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (e.target.value === 'false') {
+    const optionSelectHandler = (value: SingleValue<Partial<FlatOption>>) => {
+        if (selectOptionProducts.has(value?.optionNo!)) {
             return;
         }
-        const optionValue = JSON.parse(e.target.value);
-
-        setCurrentOptionNo(optionValue.optionNo);
+        setCurrentOptionNo(value?.optionNo!);
 
         setSelectOptionProducts((prev) => {
-            prev.set(optionValue.optionNo, {
-                label: optionValue.label,
-                price: optionValue.buyPrice,
+            prev.set(value?.optionNo!, {
+                label: value?.label,
+                price: value?.buyPrice,
                 count: 1,
-                optionNo: optionValue.optionNo,
+                optionNo: value?.optionNo!,
                 productNo,
-                amountPrice: optionValue.buyPrice,
+                amountPrice: value?.buyPrice,
             });
             return new Map(prev);
         });
@@ -154,21 +154,10 @@ const ProductOptionList = ({
     return (
         <ProductOptionBox>
             <p>{productDetail('chooseOption')}</p>
-            <select onChange={optionSelectHandler}>
-                <option value={'false'}>
-                    {productDetail('chooseOption')}.
-                </option>
-                {productOptions?.map((productOption) => {
-                    return (
-                        <option
-                            key={productOption.optionNo}
-                            value={JSON.stringify(productOption)}
-                        >
-                            {productOption.label}
-                        </option>
-                    );
-                })}
-            </select>
+            <SelectBox
+                options={productOptions}
+                onChange={optionSelectHandler}
+            />
             <div>
                 {Array.from(selectOptionProducts.values()).map(
                     ({ count, label, amountPrice, optionNo }) => {
