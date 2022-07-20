@@ -3,15 +3,17 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
     ${reset}
+
     * {
         box-sizing: border-box;
     }
     html {
+        -webkit-text-size-adjust: none;
+        font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
+        font-weight: normal;
+        font-display: fallback;
         font-size: 16px;
         letter-spacing: -0.64px;
-        -webkit-text-size-adjust: none;
-        font-family: Noto Sans KR,-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
-        font-display: fallback;
         -ms-overflow-style: none;
         scrollbar-width: none;
         padding: 0;
