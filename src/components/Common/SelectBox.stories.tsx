@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import SelectBox from 'components/Common/SelectBox';
+import SelectBox, { SelectBoxProps } from 'components/Common/SelectBox';
 import { FlatOption } from 'models/product';
-import { ActionMeta, SingleValue } from 'react-select';
+import { SingleValue } from 'react-select';
 
 export default {
     component: SelectBox,
@@ -16,15 +16,35 @@ const options = [
     { label: '3번', optionNo: 333, count: 1 },
 ];
 
-const handleChange = (
-    selectedOption: SingleValue<Partial<FlatOption>>,
-    actionMeta: ActionMeta<Partial<FlatOption>>,
-) => {
+const handleChange = (selectedOption: SingleValue<Partial<FlatOption>>) => {
     console.log(selectedOption);
 };
 
-const Template: ComponentStory<typeof SelectBox> = ({ styles }) => (
-    <SelectBox options={options} onChange={handleChange} styles={styles} />
+const Template: ComponentStory<typeof SelectBox<FlatOption>> = ({
+    styles,
+    onChange,
+    options,
+    placeHolder,
+}: SelectBoxProps<FlatOption>) => (
+    <SelectBox<FlatOption>
+        options={options}
+        onChange={onChange}
+        styles={styles}
+        placeHolder={placeHolder}
+    />
 );
 
 export const defaultSelectBox = Template.bind({});
+defaultSelectBox.args = {
+    onChange: handleChange,
+    options,
+    placeHolder: '',
+};
+
+export const customSelectBox = Template.bind({});
+customSelectBox.args = {
+    onChange: handleChange,
+    options,
+    placeHolder: '',
+    styles: {},
+};

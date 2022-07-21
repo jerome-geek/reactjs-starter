@@ -1,12 +1,12 @@
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { SingleValue } from 'react-select';
+import { useQuery } from 'react-query';
 
 import { FlatOption, ProductOption } from 'models/product';
-import { useQuery } from 'react-query';
 import { product } from 'api/product';
 import SelectBox from 'components/Common/SelectBox';
-import { SingleValue } from 'react-select';
 
 const ProductOptionBox = styled.div`
     margin: 26px 0;
@@ -111,20 +111,22 @@ const ProductOptionList = ({
         },
     );
 
-    const optionSelectHandler = (value: SingleValue<Partial<FlatOption>>) => {
-        if (selectOptionProducts.has(value?.optionNo!)) {
+    const optionSelectHandler = (
+        optionValue: SingleValue<Partial<FlatOption>>,
+    ) => {
+        if (selectOptionProducts.has(optionValue?.optionNo!)) {
             return;
         }
-        setCurrentOptionNo(value?.optionNo!);
+        setCurrentOptionNo(optionValue?.optionNo!);
 
         setSelectOptionProducts((prev) => {
-            prev.set(value?.optionNo!, {
-                label: value?.label,
-                price: value?.buyPrice,
+            prev.set(optionValue?.optionNo!, {
+                label: optionValue?.label,
+                price: optionValue?.buyPrice,
                 count: 1,
-                optionNo: value?.optionNo!,
+                optionNo: optionValue?.optionNo!,
                 productNo,
-                amountPrice: value?.buyPrice,
+                amountPrice: optionValue?.buyPrice,
             });
             return new Map(prev);
         });
@@ -154,9 +156,10 @@ const ProductOptionList = ({
     return (
         <ProductOptionBox>
             <p>{productDetail('chooseOption')}</p>
-            <SelectBox
+            <SelectBox<FlatOption>
                 options={productOptions}
                 onChange={optionSelectHandler}
+                placeHolder={'제품을 선택해주세요'}
             />
             <div>
                 {Array.from(selectOptionProducts.values()).map(

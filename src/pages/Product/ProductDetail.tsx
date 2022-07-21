@@ -233,8 +233,10 @@ const ProductDetail = () => {
         {
             onSuccess: (res) => {
                 setProductImageData((prev) => {
-                    prev[0] = res?.data?.baseInfo?.imageUrls;
-                    return prev;
+                    return {
+                        ...prev,
+                        represent: res.data?.baseInfo?.imageUrls,
+                    };
                 });
             },
             refetchOnWindowFocus: false,
