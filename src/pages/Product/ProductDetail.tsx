@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
@@ -13,7 +13,7 @@ import { cart, orderSheet } from 'api/order';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
-import ProductImageList from 'components/Product/ProductImageList';
+import ProductImageList from 'components/Common/ImageSlider';
 import ProductOptionList from 'components/Product/ProductOptionList';
 import RelatedProduct from 'components/Product/RelatedProduct';
 import { ProductOption } from 'models/product';
@@ -202,7 +202,7 @@ const ProductContentBox = styled.div`
 const ProductDetail = () => {
     const { productNo } = useParams() as { productNo: string };
     const [productImageData, setProductImageData] = useState<{
-        [id: number | string]: string[];
+        [id: string]: string[];
     }>({ represent: [] });
     const [currentOptionNo, setCurrentOptionNo] =
         useState<number | string>('represent');
@@ -224,18 +224,16 @@ const ProductDetail = () => {
 
     const { t: productDetail } = useTranslation('productDetail');
 
-    useEffect(() => {
-        setProductImageData({ represent: [] });
-    }, [productNo]);
-
     const { data: productData } = useQuery(
         ['productDetail', { productNo }],
         async () => await product.getProductDetail(productNo),
         {
             onSuccess: (res) => {
                 setProductImageData((prev) => {
-                    prev.represent = res.data?.baseInfo?.imageUrls;
-                    return prev;
+                    return {
+                        ...prev,
+                        represent: res.data?.baseInfo?.imageUrls,
+                    };
                 });
             },
             refetchOnWindowFocus: false,

@@ -9,6 +9,18 @@ import 'swiper/css/navigation';
 import { ReactComponent as PrevIcon } from 'assets/icons/prev_button.svg';
 import { ReactComponent as NextIcon } from 'assets/icons/next_button.svg';
 
+export interface BulletStyle {
+    bulletWidth?: string;
+    activeBulletWidth?: string;
+    bulletHeight?: string;
+    activeBulletHeight?: string;
+    bulletColor?: string;
+    activeBulletColor?: string;
+    bulletBorderRadius?: string;
+    activeBulletBorderRadius?: string;
+    bulletDistance?: string;
+}
+
 const ProductImageBox = styled.div``;
 
 const ProductImage = styled.div<{ width?: string; height?: string }>`
@@ -33,7 +45,7 @@ const NextButton = styled.div`
     z-index: 1;
 `;
 
-const SwiperBulletWrapper = styled.div`
+const SwiperBulletWrapper = styled.div<BulletStyle>`
     z-index: 2;
     width: fit-content !important;
     position: absolute;
@@ -42,17 +54,21 @@ const SwiperBulletWrapper = styled.div`
     transform: translateX(-50%);
 
     .swiper-pagination-bullet {
-        width: 27px;
-        height: 3px;
-        background: #d4d4d4;
-        border-radius: 0;
+        width: ${(props) => props.bulletWidth || '27px'};
+        height: ${(props) => props.bulletHeight || '3px'};
+        background: ${(props) => props.bulletColor || '#d4d4d4'};
+        border-radius: ${(props) => props.bulletBorderRadius || '0'};
+        margin-right: ${(props) => props.bulletDistance || '5px'};
+        &:last-child {
+            margin-right: 0;
+        }
     }
 
     .swiper-pagination-bullet-active {
-        width: 27px;
-        height: 3px;
-        background: #c00020;
-        border-radius: 0;
+        width: ${(props) => props.activeBulletWidth || '27px'};
+        height: ${(props) => props.activeBulletHeight || '3px'};
+        background: ${(props) => props.activeBulletColor || '#c00020'};
+        border-radius: ${(props) => props.activeBulletBorderRadius || '0'};
     }
 `;
 
@@ -61,11 +77,17 @@ const ProductImageList = ({
     productImageAlt,
     width,
     height,
+    bulletStyle,
+    slideImageWidth,
+    loop,
 }: {
     productImageList?: string[];
     productImageAlt?: string;
     width?: string;
     height?: string;
+    bulletStyle?: BulletStyle;
+    slideImageWidth?: string;
+    loop?: boolean;
 }) => {
     const prevElRef = useRef(null);
     const nextElRef = useRef(null);
@@ -89,6 +111,7 @@ const ProductImageList = ({
                         height: '100%',
                         background: '#F8F8FA',
                     }}
+                    loop={loop ? loop : false}
                 >
                     {productImageList &&
                         productImageList.map((productImage) => {
@@ -107,7 +130,9 @@ const ProductImageList = ({
                                         src={productImage}
                                         alt={productImageAlt}
                                         style={{
-                                            display: 'block',
+                                            width: slideImageWidth
+                                                ? slideImageWidth
+                                                : 'auto',
                                         }}
                                     />
                                 </SwiperSlide>
@@ -120,7 +145,20 @@ const ProductImageList = ({
                 <NextButton ref={nextElRef}>
                     <NextIcon />
                 </NextButton>
-                <SwiperBulletWrapper ref={paginationRef}></SwiperBulletWrapper>
+                <SwiperBulletWrapper
+                    ref={paginationRef}
+                    bulletWidth={bulletStyle?.bulletWidth}
+                    activeBulletWidth={bulletStyle?.activeBulletWidth}
+                    bulletHeight={bulletStyle?.bulletHeight}
+                    activeBulletHeight={bulletStyle?.activeBulletHeight}
+                    bulletColor={bulletStyle?.bulletColor}
+                    activeBulletColor={bulletStyle?.activeBulletColor}
+                    bulletBorderRadius={bulletStyle?.bulletBorderRadius}
+                    activeBulletBorderRadius={
+                        bulletStyle?.activeBulletBorderRadius
+                    }
+                    bulletDistance={bulletStyle?.bulletDistance}
+                ></SwiperBulletWrapper>
             </ProductImage>
         </ProductImageBox>
     );

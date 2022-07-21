@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import ProductImageList from 'components/Product/ProductImageList';
+import ProductImageList, { BulletStyle } from 'components/Common/ImageSlider';
 
 export default {
     component: ProductImageList,
@@ -10,10 +10,10 @@ export default {
 } as ComponentMeta<typeof ProductImageList>;
 
 const imageList = [
-    'https://picsum.photos/201/300',
-    'https://picsum.photos/202/300',
-    'https://picsum.photos/203/300',
-    'https://picsum.photos/204/300',
+    'https://picsum.photos/200/300',
+    'https://picsum.photos/300/300',
+    'https://picsum.photos/400/300',
+    'https://picsum.photos/500/300',
 ];
 
 const Template: ComponentStory<typeof ProductImageList> = ({
@@ -23,6 +23,11 @@ const Template: ComponentStory<typeof ProductImageList> = ({
 }: {
     productImageList?: string[];
     productImageAlt?: string;
+    width?: string;
+    height?: string;
+    bulletStyle?: BulletStyle;
+    slideImageWidth?: string;
+    loop?: boolean;
 }) => (
     <ProductImageList
         productImageList={productImageList}
@@ -36,4 +41,17 @@ finite.args = {
     productImageList: imageList,
     width: '300px',
     height: '400px',
+    slideImageWidth: '',
+    bulletStyle: {
+        bulletWidth: '',
+        activeBulletWidth: '',
+        bulletHeight: '',
+        activeBulletHeight: '',
+        bulletColor: '',
+        activeBulletColor: '',
+        bulletBorderRadius: '',
+        activeBulletBorderRadius: '',
+        bulletDistance: '',
+    },
+    loop: true,
 };
