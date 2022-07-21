@@ -7,16 +7,17 @@ import { tokenStorage } from 'utils/storage';
 const accessTokenInfo = tokenStorage.getAccessToken();
 
 const cart = {
-    //TODO getCart, getCartCount, getCartValidation를 제외한 나머지는 cartNo 혹은 orderNo가 필수로 들어가므로 나중에 test 해야 함
-    getCart: ({
-        divideInvalidProducts,
-    }: {
-        divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse> =>
+    getCart: (
+        params: {
+            divideInvalidProducts?: boolean;
+        } = { divideInvalidProducts: false },
+    ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/cart',
-            params: { divideInvalidProducts },
+            params: {
+                divideInvalidProducts: params.divideInvalidProducts,
+            },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
