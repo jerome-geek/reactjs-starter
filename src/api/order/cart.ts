@@ -11,8 +11,10 @@ const cart = {
         params: {
             divideInvalidProducts?: boolean;
         } = { divideInvalidProducts: false },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/cart',
             params: {
@@ -21,7 +23,8 @@ const cart = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     updateCart: ({
         cartNo,

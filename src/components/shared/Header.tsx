@@ -1,6 +1,9 @@
-import { Link, NavLink } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import MemberPopup from 'components/Member/MemberPopup';
+import SearchLayer from 'components/Search/SearchLayer';
 import { useCart, useMember } from 'hooks';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
@@ -37,7 +40,8 @@ const IconContainer = styled.div`
     justify-content: center;
     align-items: center;
 
-    & > a {
+    & > div {
+        cursor: pointer;
         position: relative;
 
         :not(:last-child) {
@@ -48,6 +52,15 @@ const IconContainer = styled.div`
     ${media.medium} {
         display: none;
     }
+`;
+
+const MemberName = styled.span`
+    letter-spacing: 0px;
+    color: #b6b6b6;
+    opacity: 1;
+    font-size: 16px;
+    line-height: 24px;
+    margin-right: 10px;
 `;
 
 const CartCount = styled.div`
@@ -64,45 +77,67 @@ const CartCount = styled.div`
 `;
 
 const Header = () => {
-    const { member } = useMember();
+    const [myPageToggle, setMyPageToggle] = useState(false);
+    const [searchToggle, setSearchToggle] = useState(false);
 
+    const navigate = useNavigate();
+
+    const { member, onLoginClick, onLogOutClick } = useMember();
     const { cartInfo } = useCart();
 
+    const onMypageClick = () => setMyPageToggle((prev) => !prev);
+    const onSearchClick = () => setSearchToggle((prev) => !prev);
+
     return (
-        <HeaderContainer>
-            <LogoContainer>
-                <Link to='/'>
-                    <HeaderLogo />
-                </Link>
-            </LogoContainer>
+        <>
+            <HeaderContainer>
+                <LogoContainer>
+                    <Link to='/'>
+                        <HeaderLogo />
+                    </Link>
+                </LogoContainer>
 
-            <NavContainer>
-                <NavLink to={`/product/${categoryNo.rangeFinder}`}>
-                    거리 측정기
-                </NavLink>
-                <NavLink to={`/product/${categoryNo.launchMonitor}`}>
-                    론치 모니터
-                </NavLink>
-                <NavLink to={`/product/${categoryNo.accessory}`}>
-                    액세서리
-                </NavLink>
-                <NavLink to={PATHS.FAQ}>고객 서비스</NavLink>
-                <NavLink to='/'>VSE</NavLink>
-            </NavContainer>
+                <NavContainer>
+                    <NavLink to={`/product/${categoryNo.rangeFinder}`}>
+                        거리 측정기
+                    </NavLink>
+                    <NavLink to={`/product/${categoryNo.launchMonitor}`}>
+                        론치 모니터
+                    </NavLink>
+                    <NavLink to={`/product/${categoryNo.accessory}`}>
+                        액세서리
+                    </NavLink>
+                    <NavLink to={PATHS.FAQ}>고객 서비스</NavLink>
+                    <NavLink to='/'>VSE</NavLink>
+                </NavContainer>
 
-            <IconContainer>
-                <Link to={member ? PATHS.MY_PAGE : PATHS.LOGIN}>
-                    <MyPageIcon />
-                </Link>
-                <Link to={PATHS.SEARCH}>
-                    <SearchIcon />
-                </Link>
-                <Link to={PATHS.CART}>
-                    <CartIcon />
-                    <CartCount>{cartInfo?.deliveryGroups.length}</CartCount>
-                </Link>
-            </IconContainer>
-        </HeaderContainer>
+                <IconContainer>
+                    {member?.memberName && (
+                        <MemberName>{member.memberName}</MemberName>
+                    )}
+                    <div onClick={onMypageClick}>
+                        <MyPageIcon />
+                        {myPageToggle && (
+                            <MemberPopup
+                                isLogin={!!member}
+                                onLoginClick={onLoginClick}
+                                onLogOutClick={onLogOutClick}
+                            />
+                        )}
+                    </div>
+                    <div onClick={onSearchClick}>
+                        <SearchIcon />
+                    </div>
+                    <div onClick={() => navigate(PATHS.CART)}>
+                        <CartIcon />
+                        <CartCount>
+                            {cartInfo?.deliveryGroups.length ?? 0}
+                        </CartCount>
+                    </div>
+                </IconContainer>
+            </HeaderContainer>
+            {searchToggle && <SearchLayer />}
+        </>
     );
 };
 
