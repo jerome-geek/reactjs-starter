@@ -14,8 +14,9 @@ const MemberPopupContainer = styled.div`
     width: 128px;
     height: auto;
     letter-spacing: -0.25px;
-    margin-top: 6.8px;
+    margin-top: 10px;
     position: absolute;
+    left: -60px;
     border: 1px solid #dbdbdb;
     background-color: #fff;
 
@@ -25,9 +26,9 @@ const MemberPopupContainer = styled.div`
         border-width: 0 6px 8px 6.5px;
         content: '';
         display: block;
-        left: 75px;
         position: absolute;
-        top: -7px;
+        top: -8px;
+        left: 60px;
         width: 0;
         z-index: 1;
     }
@@ -39,6 +40,7 @@ const MemberPopupList = styled.ul`
     align-items: center;
     flex-direction: column;
     text-align: center;
+    padding: 10px 0;
 `;
 
 const MemberPopupListItem = styled.li`
@@ -48,7 +50,8 @@ const MemberPopupListItem = styled.li`
     line-height: 14px;
     letter-spacing: 0;
     color: #191919;
-    padding: 10px 36px;
+    padding: 10px 30px;
+    width: 100%;
 
     :first-child {
         border-bottom: 1px solid #dbdbdb;

@@ -31,7 +31,7 @@ const NavContainer = styled.nav`
     }
 
     & > a {
-        padding: 0 45px;
+        padding: 0 1.5em;
     }
 `;
 
@@ -57,10 +57,10 @@ const IconContainer = styled.div`
 const MemberName = styled.span`
     letter-spacing: 0px;
     color: #b6b6b6;
-    opacity: 1;
     font-size: 16px;
     line-height: 24px;
     margin-right: 10px;
+    word-break: keep-all;
 `;
 
 const CartCount = styled.div`
@@ -113,7 +113,7 @@ const Header = () => {
 
                 <IconContainer>
                     {member?.memberName && (
-                        <MemberName>{member.memberName}</MemberName>
+                        <MemberName>{`${member.memberName}님`}</MemberName>
                     )}
                     <div onClick={onMypageClick}>
                         <MyPageIcon />
