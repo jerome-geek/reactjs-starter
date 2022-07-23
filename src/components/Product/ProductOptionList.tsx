@@ -79,13 +79,14 @@ const ProductOptionList = ({
     setSelectOptionProducts: Dispatch<
         SetStateAction<Map<number, ProductOption>>
     >;
-    setCurrentOptionNo: Dispatch<SetStateAction<number>>;
+    setCurrentOptionNo: Dispatch<SetStateAction<number | string>>;
     setProductImageData: Dispatch<SetStateAction<{ [id: number]: string[] }>>;
 }) => {
     const { t: productDetail } = useTranslation('productDetail');
 
     useEffect(() => {
         setSelectOptionProducts(new Map());
+        setCurrentOptionNo('represent');
     }, [productNo]);
 
     const { data: productOptions } = useQuery(
