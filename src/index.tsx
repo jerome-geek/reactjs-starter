@@ -12,6 +12,7 @@ import GlobalStyle from 'styles/global-styles';
 import reportWebVitals from './reportWebVitals';
 import store from 'state/store';
 import 'locales';
+import 'index.css';
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement,
