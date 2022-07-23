@@ -21,6 +21,8 @@ const HeaderContainer = styled.header`
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    position: relative;
+    z-index: 1;
 `;
 
 const LogoContainer = styled.div``;

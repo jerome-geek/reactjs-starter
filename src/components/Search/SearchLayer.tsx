@@ -12,7 +12,6 @@ const SearchContainer = styled.div`
     margin: 0 auto;
     position: absolute;
     width: 100%;
-    margin-top: 10px;
 `;
 
 const FavoriteKeywordTitle = styled.p`
