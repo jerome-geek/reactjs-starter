@@ -1,17 +1,20 @@
-import { forwardRef, Ref, InputHTMLAttributes } from 'react';
+import { forwardRef, Ref, InputHTMLAttributes, HTMLAttributes } from 'react';
 import styled from 'styled-components';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import StyledInput from 'components/Input/StyledInput';
+import Button from 'components/Common/Button';
+import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 
 export interface InputWithIconProps
-    extends InputHTMLAttributes<HTMLInputElement> {}
+    extends InputHTMLAttributes<HTMLInputElement> {
+    containerProps?: HTMLAttributes<HTMLDivElement>;
+}
 
 const InputWithIconContainer = styled.div`
     border: 1px solid ${(props) => props.theme.line2};
     display: flex;
     align-items: center;
+    position: relative;
 
     &:focus-within {
         border: 1px solid ${(props) => props.theme.secondary};
@@ -30,19 +33,24 @@ const Input = styled(StyledInput)`
     }
 `;
 
-const SearchIcon = styled(FontAwesomeIcon)`
-    color: ${(props) => props.theme.line2};
-    padding: 0 1rem;
+const StyledButton = styled(Button)`
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    cursor: pointer;
 `;
 
 const InputWithIcon = forwardRef(
-    ({ ...props }: InputWithIconProps, ref: Ref<HTMLInputElement>) => {
+    (
+        { containerProps, ...props }: InputWithIconProps,
+        ref: Ref<HTMLInputElement>,
+    ) => {
         return (
-            <InputWithIconContainer>
+            <InputWithIconContainer {...containerProps}>
                 <Input ref={ref} {...props} />
-                <button>
-                    <SearchIcon icon={faMagnifyingGlass} fontSize='16px' />
-                </button>
+                <StyledButton>
+                    <SearchIcon />
+                </StyledButton>
             </InputWithIconContainer>
         );
     },

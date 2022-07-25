@@ -24,7 +24,11 @@ const memberInitialState: {
 export const memberSlice = createSlice({
     name: 'member',
     initialState: memberInitialState,
-    reducers: {},
+    reducers: {
+        reset: () => {
+            return memberInitialState;
+        },
+    },
     extraReducers: (builder) => {
         builder.addCase(fetchProfile.pending, (state, action) => {
             state.loading = true;
@@ -39,5 +43,7 @@ export const memberSlice = createSlice({
         });
     },
 });
+
+export const { reset } = memberSlice.actions;
 
 export default memberSlice;
