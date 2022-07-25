@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios';
 import request, { defaultHeaders } from 'api/core';
 import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
 import {
+    CartList,
     DeliveryBody,
     PasswordParams,
     ReceiptBody,
@@ -12,31 +13,19 @@ import {
 
 const guestOrder = {
     // TODO parameter 모름 400, 404 error 발생 추후 테스트 필요
-    getCart: ({
-        orderCnt,
-        channelType,
-        optionInputs,
-        optionNo,
-        productNo,
-        cartNo,
-        divideInvalidProducts,
-    }: ShoppingCartBody & {
-        divideInvalidProducts?: Boolean;
-    }): Promise<AxiosResponse> =>
+    getCart: (
+        body: ShoppingCartBody[],
+        {
+            divideInvalidProducts,
+        }: {
+            divideInvalidProducts?: Boolean;
+        },
+    ): Promise<AxiosResponse<CartList>> =>
         request({
             method: 'POST',
             url: '/guest/cart',
             params: { divideInvalidProducts },
-            data: [
-                {
-                    orderCnt,
-                    channelType,
-                    optionInputs,
-                    optionNo,
-                    productNo,
-                    cartNo,
-                },
-            ],
+            data: body,
         }),
 
     getOrderDetail: (
