@@ -16,6 +16,7 @@ import NotFound from 'pages/NotFound';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
+import Cart from 'pages/Cart/Cart';
 import { useMall } from 'hooks';
 
 const App: FC = () => {
@@ -63,6 +64,7 @@ const App: FC = () => {
                             <Route path='/event/*' element={<EventRouter />} />
                             <Route path='/manager' element={<Manager />} />
                             <Route path='/*' element={<NotFound />} />
+                            <Route path='/cart' element={<Cart />} />
                         </Routes>
                         <Footer />
                     </BrowserRouter>

@@ -5,17 +5,20 @@ import {
     OrderSheetBody,
     GetCalculatedOrderSheet,
     CouponRequest,
+    OrderSheetResponse,
 } from 'models/order';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const orderSheet = {
-    // TODO 400 error, message: "구매불가한 옵션이 포함되어 있습니다."
     writeOrderSheet: ({
         productCoupons,
         trackingKey,
         cartNos,
         channelType,
         products,
-    }: OrderSheetBody): Promise<AxiosResponse> =>
+    }: OrderSheetBody): Promise<AxiosResponse<{ orderSheetNo: string }>> =>
         request({
             method: 'POST',
             url: '/order-sheets',
@@ -27,21 +30,20 @@ const orderSheet = {
                 products,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
-    // TODO 404 error, message: "잘못된 요청입니다.", 이하 함수들 전부 orderSheetNo를 필수로 요구하므로 나중에 테스트 必
     getOrderSheet: (
         orderSheetNo: string,
-        { includeMemberAddress }: { includeMemberAddress: boolean },
-    ): Promise<AxiosResponse> =>
+        { includeMemberAddress }: { includeMemberAddress?: boolean },
+    ): Promise<AxiosResponse<OrderSheetResponse>> =>
         request({
             method: 'GET',
             url: `/order-sheets/${orderSheetNo}`,
             params: { includeMemberAddress },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -64,7 +66,7 @@ const orderSheet = {
                 shippingAddress,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -77,7 +79,7 @@ const orderSheet = {
             url: `/order-sheets/${orderSheetNo}/coupons`,
             params: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -100,7 +102,7 @@ const orderSheet = {
                 productCoupons,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -123,7 +125,7 @@ const orderSheet = {
                 productCoupons,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -138,7 +140,7 @@ const orderSheet = {
                 channelType,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };

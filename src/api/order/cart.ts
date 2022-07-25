@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
+import qs from 'qs';
 
 import request, { defaultHeaders } from 'api/core';
-import { ShoppingCartBody } from 'models/order/index';
+import { CartList, CartPrice, ShoppingCartBody } from 'models/order/index';
 import { tokenStorage } from 'utils/storage';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
@@ -12,7 +13,7 @@ const cart = {
         divideInvalidProducts,
     }: {
         divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse> =>
+    }): Promise<AxiosResponse<CartList>> =>
         request({
             method: 'GET',
             url: '/cart',
@@ -53,11 +54,16 @@ const cart = {
 
     deleteCart: ({
         cartNo,
-    }: Pick<ShoppingCartBody, 'cartNo'>): Promise<AxiosResponse> =>
+    }: {
+        cartNo: number | number[];
+    }): Promise<AxiosResponse> =>
         request({
             method: 'DELETE',
             url: '/cart',
             params: { cartNo },
+            paramsSerializer: (params) => {
+                return qs.stringify(params, { arrayFormat: 'comma' });
+            },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
@@ -66,13 +72,19 @@ const cart = {
     getSelectedCartPrice: ({
         cartNo,
         divideInvalidProducts,
-    }: Pick<ShoppingCartBody, 'cartNo'> & {
+    }: {
+        cartNo: number[] | number | null;
         divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse> =>
+    }): Promise<AxiosResponse<CartPrice>> =>
         request({
             method: 'GET',
             url: '/cart/calculate',
             params: { cartNo, divideInvalidProducts },
+            paramsSerializer: (params) => {
+                return typeof params === 'object'
+                    ? qs.stringify(params, { arrayFormat: 'comma' })
+                    : '';
+            },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),

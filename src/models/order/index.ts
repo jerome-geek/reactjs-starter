@@ -21,11 +21,6 @@ interface PaymentProductCoupons {
     productNo: number;
 }
 
-interface RentalInfos {
-    rentalPeriod: number;
-    monthlyRentalAmount: number;
-}
-
 interface RecurringPaymentDelivery {
     data: number;
     cycleType: CYCLE_TYPE;
@@ -39,8 +34,8 @@ interface OptionInputs {
     required: boolean;
 }
 
-interface Products {
-    rentalInfos?: RentalInfos[];
+export interface Products {
+    rentalInfos?: RentalInfo[];
     recurringPaymentDelivery?: RecurringPaymentDelivery;
     channelType: string;
     orderCnt: number;
@@ -118,16 +113,10 @@ interface Orderer {
     orderName: string;
 }
 
-export interface OptionInputsParams {
-    inputValue: string;
-    inputLabel: string;
-    required: boolean;
-}
-
 export interface ShoppingCartBody {
     orderCnt: number;
     channelType: string;
-    optionInputs?: OptionInputsParams[];
+    optionInputs?: OptionInputs[];
     optionNo: number;
     productNo: number;
     cartNo?: number;
@@ -186,7 +175,7 @@ export interface PaymentReserve {
     extraData?: ExtraData | ExtraData2;
     orderMemo?: string;
     bankAccountToDeposit: BankAccountToDeposit;
-    rentalInfo: RentalInfos;
+    rentalInfo: RentalInfo;
     payType: PAY_TYPE;
     clientReturnUrl: string; //결제 완료 후 리턴 될 URL(NCPPay script에서 넣음)
     coupons: PaymentCoupons;
@@ -235,12 +224,406 @@ export interface OAuthBegin {
     code: string;
 }
 
+export interface RentalInfo {
+    rentalPeriod: number;
+    monthlyRentalAmount: number;
+}
+export interface CartList {
+    deliveryGroups: DeliveryGroup[];
+    invalidProducts: InvalidProduct[];
+    price: CartPrice;
+}
+
+export interface DeliveryGroup {
+    orderProducts: OrderProduct[];
+    deliveryAmt: number;
+    deliveryPayType: string;
+    deliveryCondition: DeliveryCondition;
+    partnerName: string;
+    partnerNo: number;
+    deliveryTemplateNo: number;
+    deliveryTemplateGroupNo: number;
+}
+
+export interface OrderProduct {
+    productNo: number;
+    imageUrl: string;
+    brandNo: number;
+    brandName: string;
+    productName: string;
+    liked: boolean;
+    optionUsed: boolean;
+    deliverable: boolean;
+    deliveryInternational: boolean;
+    refundable: boolean;
+    orderProductOptions: OrderProductOption[];
+    brandNameEn: string;
+    deliveryDate: DeliveryDate;
+    hsCode: string;
+    eanCode: string;
+    shippingAreaType: string;
+    selectType: any;
+    maxBuyCountInfo: MaxBuyCountInfo;
+    minBuyCount: number;
+    accumulationUsable: boolean;
+    couponUsable: boolean;
+    buyAmt: number;
+}
+
+export interface OrderProductOption {
+    optionManagementCd: string;
+    price: Price;
+    cartNo: number;
+    imageUrl: string;
+    optionName: string;
+    optionValue: string;
+    orderCnt: number;
+    stockCnt: number;
+    optionType: string;
+    accumulationAmtWhenBuyConfirm: number;
+    productNo: number;
+    optionNo: number;
+    optionInputs: OptionInputs[];
+    validInfo: ValidInfo;
+    reservation: boolean;
+    reservationDeliveryYmdt: string;
+    setOptions: SetOption[];
+    recurringDeliveryCycles: any;
+    soldOut: boolean;
+    optionTitle: string;
+}
+
+export interface Price {
+    salePrice: number;
+    addPrice: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    buyAmt: number;
+    standardAmt: number;
+}
+
+export interface OptionInput {
+    inputLabel: string;
+    inputValue: string;
+    required: any;
+}
+
+export interface ValidInfo {
+    errorCode: string;
+    message: string;
+    orderCntChangeable: boolean;
+    valid: boolean;
+    validYn: string;
+}
+
+export interface DeliveryDate {
+    daysAfterPurchase: number;
+    daysOfWeek: string[];
+    period: Period;
+}
+
+export interface Period {
+    startYmdt: string;
+    endYmdt: string;
+}
+
+export interface MaxBuyCountInfo {
+    maxBuyPersonCount: number;
+    maxBuyTimeCount: number;
+    maxBuyDays: number;
+    maxBuyPeriodCount: number;
+}
+
+export interface DeliveryCondition {
+    deliveryAmt: number;
+    remoteDeliveryAmt: number;
+    returnDeliveryAmt: number;
+    aboveDeliveryAmt: number;
+    baseDeliveryAmt: number;
+    deliveryConditionType: string;
+    groupDeliveryAmtType: string;
+    chargesRemoteDeliveryAmt: boolean;
+}
+
+export interface InvalidProduct {
+    productNo: number;
+    imageUrl: string;
+    brandNo: number;
+    brandName: string;
+    productName: string;
+    liked: boolean;
+    optionUsed: boolean;
+    deliverable: boolean;
+    deliveryInternational: boolean;
+    refundable: boolean;
+    orderProductOptions: OrderProductOption[];
+    brandNameEn: string;
+    deliveryDate: DeliveryDate2;
+    hsCode: string;
+    eanCode: string;
+    shippingAreaType: string;
+    selectType: any;
+    maxBuyCountInfo: MaxBuyCountInfo;
+    minBuyCount: number;
+    accumulationUsable: boolean;
+    couponUsable: boolean;
+    buyAmt: number;
+}
+
+export interface DeliveryDate2 {
+    daysAfterPurchase: number;
+    daysOfWeek: string[];
+    period: Period2;
+}
+
+export interface Period2 {
+    startYmdt: string;
+    endYmdt: string;
+}
+
+export interface CartPrice {
+    buyAmt: number;
+    accumulationAmtWhenBuyConfirm: number;
+    standardAmt: number;
+    discountAmt: number;
+    totalDeliveryAmt: number;
+    totalPrePaidDeliveryAmt: number;
+    totalPayOnDeliveryAmt: number;
+    totalAmt: number;
+}
+
 export interface OrderSheetResponse {
-    products: Products[];
-    productCoupons: any[];
-    cartNos: any[];
-    trackingKey: string;
-    channelType: string;
+    deliveryGroups: DeliveryGroup[];
+    orderSheetPromotionSummary: OrderSheetPromotionSummary;
+    orderSheetAddress: OrderSheetAddress;
+    ordererContact: OrdererContact;
+    appliedCoupons: AppliedCoupons;
+    lastPayType: string;
+    paymentInfo: PaymentInfo;
+    tradeBankAccountInfos: TradeBankAccountInfo[];
+    availablePayTypes: AvailablePayType[];
+    foreignPartners: ForeignPartner[];
+    sellerPrivacyUsagePartners: SellerPrivacyUsagePartner[];
+    applyCashReceiptForAccount: boolean;
+    agreementTypes: string[];
+    requireCustomsIdNumber: boolean;
+    freeGiftInfos: FreeGiftInfo[];
+    rentalInfos: RentalInfo[];
+    invalidProducts: any;
+}
+
+export interface DeliveryGroup {
+    orderProducts: OrderProduct[];
+    deliveryAmt: number;
+    deliveryPayType: string;
+    deliveryCondition: DeliveryCondition;
+    partnerName: string;
+    partnerNo: number;
+}
+
+export interface OrderProduct {
+    productNo: number;
+    imageUrl: string;
+    brandNo: number;
+    brandName: string;
+    productName: string;
+    liked: boolean;
+    optionUsed: boolean;
+    deliverable: boolean;
+    deliveryInternational: boolean;
+    refundable: boolean;
+    orderProductOptions: OrderProductOption[];
+    brandNameEn: string;
+    deliveryDate: DeliveryDate;
+    shippingAreaType: string;
+    accumulationUsable: boolean;
+    couponUsable: boolean;
+    categoryNos: number[];
+    buyAmt: number;
+    additionalProducts: any[];
+}
+
+export interface ErrorCode {
+    code: string;
+    simpleCode: string;
+}
+
+export interface Price {
+    salePrice: number;
+    addPrice: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    standardAmt: number;
+    buyAmt: number;
+}
+
+export interface SetOption {
+    mallProductNo: number;
+    productManagementCd: string;
+    productName: string;
+    mallOptionNo: number;
+    optionManagementCd: string;
+    optionName: string;
+    optionValue: string;
+    usesOption: boolean;
+    count: number;
+    optionPrice: number;
+    stockNo: number;
+    sku: string;
+    optionNameForDisplay: string;
+}
+
+export interface DeliveryDate {
+    daysAfterPurchase: number;
+    daysOfWeek: string[];
+    period: Period;
+}
+
+export interface Period {
+    startYmdt: string;
+    endYmdt: string;
+}
+
+export interface DeliveryCondition {
+    deliveryAmt: number;
+    remoteDeliveryAmt: number;
+    returnDeliveryAmt: number;
+    aboveDeliveryAmt: number;
+    baseDeliveryAmt: number;
+    deliveryConditionType: string;
+    groupDeliveryAmtType: string;
+    chargesRemoteDeliveryAmt: boolean;
+}
+
+export interface OrderSheetPromotionSummary {
+    usableCouponCnt: number;
+    myCouponCnt: number;
+    usableDeliveryCouponCnt: number;
+    myDeliveryCouponCnt: number;
+    myAccumulationAmt: number;
+}
+
+export interface OrderSheetAddress {
+    mainAddress: MainAddress;
+    recentAddresses: RecentAddress[];
+    memberAddress: MemberAddress;
+    recentDeliveryMemo: any[];
+}
+
+export interface MainAddress {
+    addressNo: number;
+    receiverZipCd: string;
+    receiverAddress: string;
+    receiverJibunAddress: string;
+    receiverDetailAddress: string;
+    receiverName: string;
+    addressName: string;
+    receiverContact1: string;
+    receiverContact2: string;
+    customsIdNumber: string;
+    countryCd: string;
+}
+
+export interface RecentAddress {
+    addressNo: number;
+    receiverZipCd: string;
+    receiverAddress: string;
+    receiverJibunAddress: string;
+    receiverDetailAddress: string;
+    receiverName: string;
+    addressName: string;
+    receiverContact1: string;
+    receiverContact2: string;
+    customsIdNumber: string;
+    countryCd: string;
+}
+
+export interface MemberAddress {
+    zipCd: string;
+    address: string;
+    detailAddress: string;
+    jibunAddress: string;
+    jibunDetailAddress: string;
+}
+
+export interface OrdererContact {
+    ordererName: string;
+    ordererContact1: string;
+    ordererContact2: string;
+    ordererEmail: string;
+}
+
+export interface AppliedCoupons {
+    cartCouponIssueNo: number;
+    promotionCode: string;
+    productCoupons: ProductCoupon[];
+}
+
+export interface ProductCoupon {
+    productNo: number;
+    couponIssueNo: number;
+}
+
+export interface PaymentInfo {
+    accumulationAmt: number;
+    accumulationAmtWhenBuyConfirm: number;
+    availableMaxAccumulationAmt: number;
+    cartAmt: number;
+    cartCouponAmt: number;
+    customsDuty: number;
+    deliveryAmt: number;
+    deliveryAmtOnDelivery: number;
+    deliveryCouponAmt: number;
+    isAvailableAccumulation: boolean;
+    minAccumulationLimit: number;
+    minPriceLimit: number;
+    paymentAmt: number;
+    productAmt: number;
+    productCouponAmt: number;
+    remoteDeliveryAmt: number;
+    remoteDeliveryAmtOnDelivery: number;
+    salesTaxAmt: number;
+    totalAdditionalDiscountAmt: number;
+    totalImmediateDiscountAmt: number;
+    totalStandardAmt: number;
+    usedAccumulationAmt: number;
+}
+
+export interface TradeBankAccountInfo {
+    bankAccount: string;
+    bankCode: string;
+    bankDepositorName: string;
+    bankName: string;
+}
+
+export interface AvailablePayType {
+    payType: string;
+    pgTypes: string[];
+}
+
+export interface ForeignPartner {
+    partnerName: string;
+    countryCd: string;
+    privacyManagerName: string;
+    privacyManagerPhoneNo: string;
+}
+
+export interface SellerPrivacyUsagePartner {
+    partnerName: string;
+}
+
+export interface FreeGiftInfo {
+    giveConditionName: string;
+    giveStartYmdt: string;
+    giveEndYmdt: string;
+    freeGifts: FreeGift[];
+}
+
+export interface FreeGift {
+    productName: string;
+    optionName: string;
+    optionValue: string;
+    mallProductMainImageUrl: string;
 }
 
 export interface RentalInfo {
