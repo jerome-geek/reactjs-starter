@@ -329,7 +329,7 @@ const Cart = () => {
         } else {
             guestCartMutate(guestCartList);
         }
-    }, [member]);
+    }, [member, checkList]);
 
     const { mutate: updateCartMutate } = useMutation(
         async (
