@@ -1,10 +1,12 @@
-import React, { Dispatch, SetStateAction, useEffect } from 'react';
+import { Dispatch, SetStateAction, useEffect } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { SingleValue } from 'react-select';
+import { useQuery } from 'react-query';
 
 import { FlatOption, ProductOption } from 'models/product';
-import { useQuery } from 'react-query';
 import { product } from 'api/product';
+import SelectBox from 'components/Common/SelectBox';
 
 const ProductOptionBox = styled.div`
     margin: 26px 0;
@@ -79,13 +81,14 @@ const ProductOptionList = ({
     setSelectOptionProducts: Dispatch<
         SetStateAction<Map<number, ProductOption>>
     >;
-    setCurrentOptionNo: Dispatch<SetStateAction<number>>;
+    setCurrentOptionNo: Dispatch<SetStateAction<number | string>>;
     setProductImageData: Dispatch<SetStateAction<{ [id: number]: string[] }>>;
 }) => {
     const { t: productDetail } = useTranslation('productDetail');
 
     useEffect(() => {
         setSelectOptionProducts(new Map());
+        setCurrentOptionNo('represent');
     }, [productNo]);
 
     const { data: productOptions } = useQuery(
@@ -109,22 +112,22 @@ const ProductOptionList = ({
         },
     );
 
-    const optionSelectHandler = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (e.target.value === 'false') {
+    const optionSelectHandler = (
+        optionValue: SingleValue<Partial<FlatOption>>,
+    ) => {
+        if (selectOptionProducts.has(optionValue?.optionNo!)) {
             return;
         }
-        const optionValue = JSON.parse(e.target.value);
-
-        setCurrentOptionNo(optionValue.optionNo);
+        setCurrentOptionNo(optionValue?.optionNo!);
 
         setSelectOptionProducts((prev) => {
-            prev.set(optionValue.optionNo, {
-                label: optionValue.label,
-                price: optionValue.buyPrice,
+            prev.set(optionValue?.optionNo!, {
+                label: optionValue?.label,
+                price: optionValue?.buyPrice,
                 count: 1,
-                optionNo: optionValue.optionNo,
+                optionNo: optionValue?.optionNo!,
                 productNo,
-                amountPrice: optionValue.buyPrice,
+                amountPrice: optionValue?.buyPrice,
             });
             return new Map(prev);
         });
@@ -154,21 +157,11 @@ const ProductOptionList = ({
     return (
         <ProductOptionBox>
             <p>{productDetail('chooseOption')}</p>
-            <select onChange={optionSelectHandler}>
-                <option value={'false'}>
-                    {productDetail('chooseOption')}.
-                </option>
-                {productOptions?.map((productOption) => {
-                    return (
-                        <option
-                            key={productOption.optionNo}
-                            value={JSON.stringify(productOption)}
-                        >
-                            {productOption.label}
-                        </option>
-                    );
-                })}
-            </select>
+            <SelectBox<FlatOption>
+                options={productOptions}
+                onChange={optionSelectHandler}
+                placeHolder={'제품을 선택해주세요'}
+            />
             <div>
                 {Array.from(selectOptionProducts.values()).map(
                     ({ count, label, amountPrice, optionNo }) => {

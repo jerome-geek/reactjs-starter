@@ -8,39 +8,35 @@ import { useTranslation } from 'react-i18next';
 import { shallowEqual } from 'react-redux';
 
 import { product } from 'api/product';
-import media from 'utils/styles/media';
 import { CHANNEL_TYPE } from 'models';
 import { cart, orderSheet } from 'api/order';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
-import ProductImageList from 'components/Product/ProductImageList';
+import ProductImageList from 'components/Common/ImageSlider';
 import ProductOptionList from 'components/Product/ProductOptionList';
 import RelatedProduct from 'components/Product/RelatedProduct';
 import { ProductOption } from 'models/product';
 
 const ProductContainer = styled.div`
-    padding: 0 20px;
     margin: 50px auto;
-    width: 1200px;
-    ${media.large} {
-        width: 100%;
-    } ;
+    width: 1280px;
 `;
 
 const ProductContainerTop = styled.div`
     display: flex;
     width: 100%;
+    justify-content: space-between;
 `;
 
 const ProductInfoBox = styled.div`
-    width: 50%;
+    width: 510px;
 `;
 
 const ProductTitleBox = styled.div`
     display: flex;
     justify-content: space-between;
-    margin: 10px 0;
+    margin: 45px 0;
 `;
 
 const ProductTitle = styled.h2`
@@ -206,9 +202,10 @@ const ProductContentBox = styled.div`
 const ProductDetail = () => {
     const { productNo } = useParams() as { productNo: string };
     const [productImageData, setProductImageData] = useState<{
-        [id: number]: string[];
-    }>({ 0: [] });
-    const [currentOptionNo, setCurrentOptionNo] = useState<number>(0);
+        [id: string]: string[];
+    }>({ represent: [] });
+    const [currentOptionNo, setCurrentOptionNo] =
+        useState<number | string>('represent');
     const [selectOptionProducts, setSelectOptionProducts] = useState(
         new Map<number, ProductOption>(),
     );
@@ -228,13 +225,15 @@ const ProductDetail = () => {
     const { t: productDetail } = useTranslation('productDetail');
 
     const { data: productData } = useQuery(
-        ['productDetail', { productNo }],
+        ['productDetailData', { productNo }],
         async () => await product.getProductDetail(productNo),
         {
             onSuccess: (res) => {
                 setProductImageData((prev) => {
-                    prev[0] = res.data?.baseInfo?.imageUrls;
-                    return prev;
+                    return {
+                        ...prev,
+                        represent: res.data?.baseInfo?.imageUrls,
+                    };
                 });
             },
             refetchOnWindowFocus: false,
@@ -331,11 +330,8 @@ const ProductDetail = () => {
         <ProductContainer>
             <ProductContainerTop>
                 <ProductImageList
-                    productImageData={productImageData}
-                    setProductImageData={setProductImageData}
+                    productImageList={productImageData[currentOptionNo]}
                     productImageAlt={productData?.data.baseInfo.productName}
-                    currentOptionNo={currentOptionNo}
-                    productNo={productNo}
                 />
                 <ProductInfoBox>
                     <ProductTitleBox>
@@ -478,12 +474,12 @@ const ProductDetail = () => {
                         <a href='#productContent'>{productDetail('notice')}</a>
                     </ProductDescription>
                 </ProductDescriptionBox>
-                {/* <ProductContentBox
+                <ProductContentBox
                     id='productContent'
                     dangerouslySetInnerHTML={{
                         __html: productData?.data.baseInfo.content ?? '',
                     }}
-                ></ProductContentBox> */}
+                ></ProductContentBox>
                 <RelatedProduct productData={productData} />
             </ProductContainerBottom>
         </ProductContainer>
