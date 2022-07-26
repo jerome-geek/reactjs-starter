@@ -225,7 +225,7 @@ const ProductDetail = () => {
     const { t: productDetail } = useTranslation('productDetail');
 
     const { data: productData } = useQuery(
-        ['productDetail', { productNo }],
+        ['productDetailData', { productNo }],
         async () => await product.getProductDetail(productNo),
         {
             onSuccess: (res) => {
