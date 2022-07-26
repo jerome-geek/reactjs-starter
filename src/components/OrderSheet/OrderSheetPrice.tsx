@@ -91,12 +91,11 @@ const OrderSheetPrice = ({
                 <CartOrderSubTitle>총 결제금액</CartOrderSubTitle>
                 <CartOrderPrice>
                     <span>
-                        {amountPrice
-                            ? currency(amountPrice, {
-                                  symbol: '',
-                                  precision: 0,
-                              }).format()
-                            : 0}
+                        {amountPrice &&
+                            currency(amountPrice, {
+                                symbol: '',
+                                precision: 0,
+                            }).format()}
                     </span>
                     &nbsp;&nbsp;원
                 </CartOrderPrice>
