@@ -276,7 +276,7 @@ const Cart = () => {
     );
 
     const { isFetching: isCartLoading, refetch: getCartFetch } = useQuery(
-        ['cart', { member: member?.memberName }],
+        ['cartList', { member: member?.memberName }],
         async () => await cart.getCart({ divideInvalidProducts: true }),
         {
             onSuccess: (res) => {
@@ -304,7 +304,7 @@ const Cart = () => {
 
     const { data: cartOrderPriceData, refetch: getCartOrderPriceData } =
         useQuery(
-            ['cart', { checkList, cartList }],
+            ['cartPrice', { checkList, cartList }],
             async () =>
                 await cart.getSelectedCartPrice({
                     divideInvalidProducts: true,
@@ -329,7 +329,7 @@ const Cart = () => {
         } else {
             guestCartMutate(guestCartList);
         }
-    }, [member]);
+    }, [member, checkList]);
 
     const { mutate: updateCartMutate } = useMutation(
         async (

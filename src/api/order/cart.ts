@@ -12,7 +12,7 @@ const cart = {
         params: {
             divideInvalidProducts?: boolean;
         } = { divideInvalidProducts: false },
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<CartList>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
