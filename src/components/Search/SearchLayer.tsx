@@ -48,18 +48,18 @@ const SearchLayer = () => {
         },
     );
 
-    const [query, setQuery] = useState('');
+    const [keywords, setKeywords] = useState('');
 
     const onQueryChange = ({
         target: { value },
-    }: React.ChangeEvent<HTMLInputElement>) => setQuery(value);
+    }: React.ChangeEvent<HTMLInputElement>) => setKeywords(value);
 
     const navigate = useNavigate();
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         navigate({
             pathname: '/search',
-            search: `?query=${query}`,
+            search: `?keywords=${keywords}`,
         });
     };
 
@@ -88,7 +88,7 @@ const SearchLayer = () => {
                             favoriteKeywords?.map((favoriteKeyword: string) => (
                                 <FavoriteKeyword
                                     key={favoriteKeyword}
-                                    to={`${PATHS.SEARCH}?query=${favoriteKeyword}`}
+                                    to={`${PATHS.SEARCH}?keywords=${favoriteKeyword}`}
                                 >
                                     {favoriteKeyword}
                                 </FavoriteKeyword>

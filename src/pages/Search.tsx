@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { map, pipe, toArray } from '@fxts/core';
+import { useQueries } from 'react-query';
+import { map, pipe, some, toArray } from '@fxts/core';
 import styled, { css } from 'styled-components';
 
 import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import { useQueryString } from 'hooks';
+import { board } from 'api/manage';
+import { product } from 'api/product';
+import { BoardListItem } from 'models/manage';
+import { ORDER_DIRECTION } from 'models';
+import BOARD from 'const/board';
 
 interface tab {
     key: string;
@@ -31,26 +37,35 @@ const SearchResultTitle = styled.p`
 const SearchFilter = styled.ul`
     display: flex;
 `;
+
 const SearchFilterItem = styled.li<{ isActive: boolean }>`
-    :not(:last-child) {
-        margin-right: 40px;
-    }
     color: ${(props) => (props.isActive ? '#191919' : '#8F8F8F')};
+    cursor: pointer;
     ${(props) =>
         props.isActive &&
         css`
             text-decoration: underline;
             font-weight: bold;
         `};
+    :not(:last-child) {
+        margin-right: 40px;
+    }
 `;
 
 const SearchResultContainer = styled.div``;
 
+const NoContentTitle = styled.p`
+    font-size: 16px;
+    line-height: 24px;
+    color: #a8a8a8;
+    padding: 40px 0;
+`;
+
 const Search = () => {
-    const { query } = useQueryString();
+    const { keywords } = useQueryString();
     const [productList, setProductList] = useState([]);
     const [manualList, setManualList] = useState([]);
-    const [noticeList, setNoticeList] = useState([]);
+    const [noticeList, setNoticeList] = useState<BoardListItem[]>([]);
     const [golfCourseList, setGolfCourseList] = useState([]);
 
     const [searchTab, setSearchTab] = useState<tab[]>([
@@ -60,31 +75,124 @@ const Search = () => {
         { key: 'golfCourse', name: '지원골프코스', isActive: false },
     ]);
 
+    const [orderTab, setOrderTab] = useState<tab[]>([
+        { key: ORDER_DIRECTION.DESC, name: '최신순', isActive: true },
+        { key: ORDER_DIRECTION.ASC, name: '오래된 순', isActive: false },
+    ]);
+
     const onSearchTabClick = (
         e: React.MouseEvent<HTMLLIElement>,
-        query: string,
+        keywords: string,
     ) => {
         setSearchTab((prev: tab[]) =>
             pipe(
                 prev,
-                map((a: tab) => ({ ...a, isActive: a.key === query })),
+                map((a: tab) => ({ ...a, isActive: a.key === keywords })),
                 toArray,
             ),
         );
     };
 
-    const getSearchListLength = (key: string) => {
-        if (key === 'product') {
-            return productList.length;
-        }
-        if (key === 'manual') {
-            return manualList.length;
-        }
-        if (key === 'notice') {
-            return noticeList.length;
-        }
-        if (key === 'golfCourse') {
-            return golfCourseList.length;
+    const onOrderTabClick = (
+        e: React.MouseEvent<HTMLLIElement>,
+        keywords: string,
+    ) => {
+        setOrderTab((prev: tab[]) =>
+            pipe(
+                prev,
+                map((a: tab) => ({ ...a, isActive: a.key === keywords })),
+                toArray,
+            ),
+        );
+    };
+
+    const results = useQueries([
+        {
+            queryKey: [
+                'noticeList',
+                {
+                    keyword: keywords,
+                    direction: ORDER_DIRECTION.DESC,
+                    pageNumber: 1,
+                    pageSize: 10,
+                },
+            ],
+            queryFn: async () =>
+                await board.getArticlesByBoardNo(BOARD.NOTICE, {
+                    direction: ORDER_DIRECTION.DESC,
+                    pageNumber: 1,
+                    pageSize: 10,
+                }),
+            onSuccess: (response: any) => {
+                setNoticeList(response.data.items);
+            },
+        },
+        {
+            queryKey: [
+                'manualList',
+                {
+                    keyword: keywords,
+                    direction: ORDER_DIRECTION.DESC,
+                    pageNumber: 1,
+                    pageSize: 10,
+                },
+            ],
+            queryFn: async () =>
+                await board.getArticlesByBoardNo(BOARD.MANUAL, {
+                    direction: ORDER_DIRECTION.DESC,
+                    pageNumber: 1,
+                    pageSize: 10,
+                }),
+            onSuccess: (response: any) => {
+                setManualList(response.data.items);
+            },
+        },
+        {
+            queryKey: [
+                'productList',
+                {
+                    filter: {
+                        keywords: keywords,
+                        direction: ORDER_DIRECTION.DESC,
+                    },
+                    hasTotalCount: true,
+                    pageNumber: 1,
+                    pageSize: 10,
+                },
+            ],
+            queryFn: async () =>
+                await product.searchProducts({
+                    filter: { keywords: keywords as string },
+                    order: { direction: ORDER_DIRECTION.DESC },
+                    hasTotalCount: true,
+                    pageNumber: 1,
+                    pageSize: 10,
+                }),
+            onSuccess: (response: any) => {
+                setProductList(response.data.items);
+            },
+        },
+    ]);
+
+    const isLoading = some((result) => result.isLoading, results);
+
+    const getSearchListLength = (key?: string) => {
+        switch (key) {
+            case 'product':
+                return productList.length;
+            case 'manual':
+                return manualList.length;
+            case 'notice':
+                return noticeList.length;
+            case 'golfCourse':
+                return golfCourseList.length;
+            default:
+                return (
+                    productList.length +
+                    manualList.length +
+                    noticeList.length +
+                    golfCourseList.length
+                );
         }
     };
 
@@ -94,13 +202,8 @@ const Search = () => {
             <LayoutResponsive type='large'>
                 <SearchResultSummary>
                     <SearchResultTitle>
-                        {`'${query}'에 대한 `}
-                        <span>
-                            {productList.length +
-                                manualList.length +
-                                noticeList.length +
-                                golfCourseList.length}
-                        </span>
+                        {`'${keywords}'에 대한 `}
+                        <span>{getSearchListLength()}</span>
                         개의 통합 검색결과입니다.
                     </SearchResultTitle>
                     <InputWithIcon
@@ -110,27 +213,78 @@ const Search = () => {
                                 borderLeft: 0,
                                 borderRight: 0,
                                 borderTop: 0,
+                                width: '60%',
+                                margin: '0 auto',
                             },
                         }}
                     />
                 </SearchResultSummary>
 
                 <SearchResultContainer>
-                    <SearchFilter>
-                        {searchTab?.map(({ key, name, isActive }) => {
-                            return (
-                                <SearchFilterItem
-                                    key={key}
-                                    onClick={(
-                                        e: React.MouseEvent<HTMLLIElement>,
-                                    ) => onSearchTabClick(e, key)}
-                                    isActive={isActive}
-                                >{`${name}(${getSearchListLength(
-                                    key,
-                                )})`}</SearchFilterItem>
-                            );
-                        })}
-                    </SearchFilter>
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        <>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                }}
+                            >
+                                <SearchFilter>
+                                    {searchTab?.map(
+                                        ({ key, name, isActive }) => {
+                                            return (
+                                                <SearchFilterItem
+                                                    key={key}
+                                                    onClick={(
+                                                        e: React.MouseEvent<HTMLLIElement>,
+                                                    ) =>
+                                                        onSearchTabClick(e, key)
+                                                    }
+                                                    isActive={isActive}
+                                                >{`${name}(${getSearchListLength(
+                                                    key,
+                                                )})`}</SearchFilterItem>
+                                            );
+                                        },
+                                    )}
+                                </SearchFilter>
+                                <SearchFilter>
+                                    {orderTab?.map(
+                                        ({ key, name, isActive }) => {
+                                            return (
+                                                <SearchFilterItem
+                                                    key={key}
+                                                    onClick={(
+                                                        e: React.MouseEvent<HTMLLIElement>,
+                                                    ) =>
+                                                        onOrderTabClick(e, key)
+                                                    }
+                                                    isActive={isActive}
+                                                >
+                                                    {name}
+                                                </SearchFilterItem>
+                                            );
+                                        },
+                                    )}
+                                </SearchFilter>
+                            </div>
+                            <div
+                                style={{
+                                    borderTop: '2px solid #222943',
+                                    borderBottom: '1px solid #222943',
+                                    padding: '40px 0',
+                                    marginTop: '40px',
+                                }}
+                            >
+                                {/* TODO: active된 tab에 따라 달라져야함!! */}
+                                <NoContentTitle>
+                                    검색된 상품이 없습니다.
+                                </NoContentTitle>
+                            </div>
+                        </>
+                    )}
                 </SearchResultContainer>
             </LayoutResponsive>
         </>
