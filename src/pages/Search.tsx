@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQueries } from 'react-query';
 import { map, pipe, some, toArray } from '@fxts/core';
 import styled, { css } from 'styled-components';
@@ -9,7 +10,7 @@ import InputWithIcon from 'components/Input/InputWithIcon';
 import { useQueryString } from 'hooks';
 import { board } from 'api/manage';
 import { product } from 'api/product';
-import { BoardListItem } from 'models/manage';
+import { ArticleParams, BoardListItem } from 'models/manage';
 import { ORDER_DIRECTION } from 'models';
 import BOARD from 'const/board';
 
@@ -19,7 +20,7 @@ interface tab {
     isActive: boolean;
 }
 
-const SearchResultSummary = styled.div`
+const SearchResultSummary = styled.form`
     width: 100%;
     background-color: #f8f8fa;
     padding: 60px 0;
@@ -63,9 +64,25 @@ const NoContentTitle = styled.p`
 
 const Search = () => {
     const { keywords } = useQueryString();
+
+    const [query, setQuery] = useState('');
     const [productList, setProductList] = useState([]);
-    const [manualList, setManualList] = useState([]);
+    const [manualList, setManualList] = useState<BoardListItem[]>([]);
+    const [manualListSearchCondition, setManualListSearchCondition] =
+        useState<ArticleParams>({
+            keyword: query as string,
+            direction: ORDER_DIRECTION.DESC,
+            pageNumber: 1,
+            pageSize: 10,
+        });
     const [noticeList, setNoticeList] = useState<BoardListItem[]>([]);
+    const [noticeSearchListCondition, setNoticeSearchListCondition] =
+        useState<ArticleParams>({
+            keyword: query as string,
+            direction: ORDER_DIRECTION.DESC,
+            pageNumber: 1,
+            pageSize: 10,
+        });
     const [golfCourseList, setGolfCourseList] = useState([]);
 
     const [searchTab, setSearchTab] = useState<tab[]>([
@@ -82,12 +99,12 @@ const Search = () => {
 
     const onSearchTabClick = (
         e: React.MouseEvent<HTMLLIElement>,
-        keywords: string,
+        key: string,
     ) => {
         setSearchTab((prev: tab[]) =>
             pipe(
                 prev,
-                map((a: tab) => ({ ...a, isActive: a.key === keywords })),
+                map((a: tab) => ({ ...a, isActive: a.key === key })),
                 toArray,
             ),
         );
@@ -95,15 +112,26 @@ const Search = () => {
 
     const onOrderTabClick = (
         e: React.MouseEvent<HTMLLIElement>,
-        keywords: string,
+        key: string,
     ) => {
         setOrderTab((prev: tab[]) =>
             pipe(
                 prev,
-                map((a: tab) => ({ ...a, isActive: a.key === keywords })),
+                map((a: tab) => ({ ...a, isActive: a.key === key })),
                 toArray,
             ),
         );
+
+        if (key === 'manual') {
+            setManualListSearchCondition((prev: any) => {
+                return { ...prev, direction: key };
+            });
+        }
+        if (key === 'notice') {
+            setNoticeSearchListCondition((prev: any) => {
+                return { ...prev, direction: key };
+            });
+        }
     };
 
     const results = useQueries([
@@ -111,41 +139,35 @@ const Search = () => {
             queryKey: [
                 'noticeList',
                 {
-                    keyword: keywords,
-                    direction: ORDER_DIRECTION.DESC,
-                    pageNumber: 1,
-                    pageSize: 10,
+                    ...noticeSearchListCondition,
                 },
             ],
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.NOTICE, {
-                    direction: ORDER_DIRECTION.DESC,
-                    pageNumber: 1,
-                    pageSize: 10,
+                    ...noticeSearchListCondition,
                 }),
             onSuccess: (response: any) => {
                 setNoticeList(response.data.items);
             },
+            staleTime: 1000 * 60 * 5,
+            cacheTime: 1000 * 60 * 5,
         },
         {
             queryKey: [
                 'manualList',
                 {
-                    keyword: keywords,
-                    direction: ORDER_DIRECTION.DESC,
-                    pageNumber: 1,
-                    pageSize: 10,
+                    ...manualListSearchCondition,
                 },
             ],
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.MANUAL, {
-                    direction: ORDER_DIRECTION.DESC,
-                    pageNumber: 1,
-                    pageSize: 10,
+                    ...manualListSearchCondition,
                 }),
             onSuccess: (response: any) => {
                 setManualList(response.data.items);
             },
+            staleTime: 1000 * 60 * 5,
+            cacheTime: 1000 * 60 * 5,
         },
         {
             queryKey: [
@@ -171,6 +193,8 @@ const Search = () => {
             onSuccess: (response: any) => {
                 setProductList(response.data.items);
             },
+            staleTime: 1000 * 60 * 5,
+            cacheTime: 1000 * 60 * 5,
         },
     ]);
 
@@ -196,11 +220,28 @@ const Search = () => {
         }
     };
 
+    const onInputChange = ({
+        target: { value },
+    }: React.ChangeEvent<HTMLInputElement>) => setQuery(value);
+
+    const navigate = useNavigate();
+    const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        navigate(
+            {
+                pathname: '/search',
+                search: `?keywords=${query}`,
+            },
+            { replace: true },
+        );
+    };
+
     return (
         <>
             <Header />
             <LayoutResponsive type='large'>
-                <SearchResultSummary>
+                <SearchResultSummary onSubmit={onSubmitHandler}>
                     <SearchResultTitle>
                         {`'${keywords}'에 대한 `}
                         <span>{getSearchListLength()}</span>
@@ -208,6 +249,7 @@ const Search = () => {
                     </SearchResultTitle>
                     <InputWithIcon
                         placeholder='검색어를 입력해주세요.'
+                        name='keywords'
                         containerProps={{
                             style: {
                                 borderLeft: 0,
@@ -217,6 +259,7 @@ const Search = () => {
                                 margin: '0 auto',
                             },
                         }}
+                        onChange={onInputChange}
                     />
                 </SearchResultSummary>
 

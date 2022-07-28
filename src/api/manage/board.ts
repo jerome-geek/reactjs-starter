@@ -10,12 +10,26 @@ import {
 } from 'models/manage';
 
 const board = {
+    /**
+     * 게시판 설정 조회하기
+     *
+     * - 전체 게시판의 설정정보를 조회하는 API 입니다.
+     * @returns Promise<AxiosResponse>
+     */
     getConfigs: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/boards/configurations',
         }),
 
+    /**
+     * 게시글 리스트 조회하기
+     * - 특정 게시판(게시판 번호 기준)의 게시글 리스트를 조회하는 API 입니다.
+     *
+     * @param boardNo string
+     * @param params ArticleParams
+     * @returns Promise<AxiosResponse><BoardList>>
+     */
     getArticlesByBoardNo: (
         boardNo: string,
         params: ArticleParams = {
@@ -46,7 +60,14 @@ const board = {
             },
         }),
 
-    // TODO 404 error (message: 존재하지 않는 게시판입니다.) boardNo를 모름
+    /**
+     * 게시글 작성하기
+     * - 게시글을 작성하는 API 입니다.
+     *
+     * @param boardNo string
+     * @param data PostArticleParams
+     * @returns Promise<AxiosResponse>
+     */
     writeArticle: (
         boardNo: string,
         data: PostArticleParams,
@@ -71,6 +92,13 @@ const board = {
             }),
         }),
 
+    /**
+     * 게시판 카테고리 목록 조회하기
+     * - 특정 게시판(게시판 번호 기준)의 카테고리를 조회하는 API 입니다.
+     *
+     * @param boardNo   string
+     * @returns Promise<AxiosResponse<BoardCategory[]>>
+     */
     getCategories: (boardNo: string): Promise<AxiosResponse<BoardCategory[]>> =>
         request({
             method: 'GET',
