@@ -4,6 +4,7 @@ import request, { defaultHeaders } from 'api/core';
 import {
     CHANNEL_TYPE,
     CRITERION,
+    ORDER_DIRECTION,
     PRODUCT_DIRECTION,
     PRODUCT_SALE_STATUS,
 } from 'models';
@@ -105,43 +106,57 @@ const product = {
      * @param params ProductSearchParams
      * @returns Promise<AxiosResponse>
      */
-    searchProducts: (params?: ProductSearchParams): Promise<AxiosResponse> =>
+    searchProducts: (
+        params: ProductSearchParams = {
+            filter: {
+                soldout: false,
+                totalReviewCount: false,
+                familyMalls: false,
+            },
+            order: { direction: ORDER_DIRECTION.DESC, soldoutPlaceEnd: false },
+            onlySaleProduct: false,
+            hasMaxCouponAmt: false,
+            hasTotalCount: false,
+            hasOptionValues: false,
+            includeSummaryInfo: true,
+        },
+    ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/products/search',
             params: {
-                'filter.discountedPrices': params?.filter?.discountedPrices,
-                'filter.keywords': params?.filter?.keywords,
-                'filter.keywordInResult': params?.filter?.keywordInResult,
+                'filter.discountedPrices': params.filter?.discountedPrices,
+                'filter.keywords': params.filter?.keywords,
+                'filter.keywordInResult': params.filter?.keywordInResult,
                 'filter.discountedComparison':
-                    params?.filter?.discountedComparison,
+                    params.filter?.discountedComparison,
                 'filter.deliveryConditionType':
-                    params?.filter?.deliveryConditionType,
-                'filter.saleStatus': params?.filter?.saleStatus,
-                'filter.soldout': params?.filter?.soldout,
-                'filter.totalReviewCount': params?.filter?.totalReviewCount,
-                'filter.familyMalls': params?.filter?.familyMalls,
+                    params.filter?.deliveryConditionType,
+                'filter.saleStatus': params.filter?.saleStatus,
+                'filter.soldout': params.filter?.soldout,
+                'filter.totalReviewCount': params.filter?.totalReviewCount,
+                'filter.familyMalls': params.filter?.familyMalls,
                 'filter.productManagementCd':
-                    params?.filter?.productManagementCd,
+                    params.filter?.productManagementCd,
                 'filter.excludeMallProductNo':
-                    params?.filter?.excludeMallProductNo,
+                    params.filter?.excludeMallProductNo,
                 'filter.includeMallProductNo':
-                    params?.filter?.includeMallProductNo,
-                'order.by': params?.order?.by,
-                'order.direction': params?.order?.direction,
-                'order.soldoutPlaceEnd': params?.order?.soldoutPlaceEnd,
-                categoryNos: params?.categoryNos,
-                brandNos: params?.brandNos,
-                partnerNo: params?.partnerNo,
-                clientKey: params?.clientKey,
-                pageNumber: params?.pageNumber,
-                pageSize: params?.pageSize,
-                onlySaleProduct: params?.onlySaleProduct,
-                hasMaxCouponAmt: params?.hasMaxCouponAmt,
-                hasTotalCount: params?.hasTotalCount,
-                hasOptionValues: params?.hasOptionValues,
-                includeSummaryInfo: params?.includeSummaryInfo,
-                shippingAreaType: params?.shippingAreaType,
+                    params.filter?.includeMallProductNo,
+                'order.by': params.order?.by,
+                'order.direction': params.order?.direction,
+                'order.soldoutPlaceEnd': params.order?.soldoutPlaceEnd,
+                categoryNos: params.categoryNos,
+                brandNos: params.brandNos,
+                partnerNo: params.partnerNo,
+                clientKey: params.clientKey,
+                pageNumber: params.pageNumber,
+                pageSize: params.pageSize,
+                onlySaleProduct: params.onlySaleProduct,
+                hasMaxCouponAmt: params.hasMaxCouponAmt,
+                hasTotalCount: params.hasTotalCount,
+                hasOptionValues: params.hasOptionValues,
+                includeSummaryInfo: params.includeSummaryInfo,
+                shippingAreaType: params.shippingAreaType,
             },
         }),
     /**

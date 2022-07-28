@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios';
+import dayjs from 'dayjs';
 
 import request, { defaultHeaders } from 'api/core';
 import {
@@ -17,23 +18,31 @@ const board = {
 
     getArticlesByBoardNo: (
         boardNo: string,
-        params?: ArticleParams,
+        params: ArticleParams = {
+            pageNumber: 1,
+            pageSize: 10,
+            hasTotalCount: true,
+            startYmd: dayjs().subtract(3, 'month').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+            withReplied: false,
+            isMine: false,
+        },
     ): Promise<AxiosResponse<BoardList>> =>
         request({
             method: 'GET',
             url: `/boards/${boardNo}/articles`,
             params: {
-                pageNumber: params?.pageNumber,
-                pageSize: params?.pageSize,
-                hasTotalCount: params?.hasTotalCount,
-                keyword: params?.keyword,
-                searchType: params?.searchType,
-                categoryNo: params?.categoryNo,
-                startYmd: params?.startYmd,
-                endYmd: params?.endYmd,
-                withReplied: params?.withReplied,
-                direction: params?.direction,
-                isMine: params?.isMine,
+                pageNumber: params.pageNumber,
+                pageSize: params.pageSize,
+                hasTotalCount: params.hasTotalCount,
+                keyword: params.keyword,
+                searchType: params.searchType,
+                categoryNo: params.categoryNo,
+                startYmd: params.startYmd,
+                endYmd: params.endYmd,
+                withReplied: params.withReplied,
+                direction: params.direction,
+                isMine: params.isMine,
             },
         }),
 
