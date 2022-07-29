@@ -17,6 +17,7 @@ import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
 import Cart from 'pages/Cart/Cart';
+import OrderRouter from 'router/OrderRouter';
 import { useMall } from 'hooks';
 
 const App: FC = () => {
@@ -59,6 +60,7 @@ const App: FC = () => {
                                 path='/golf-course/*'
                                 element={<GolfCourseRouter />}
                             />
+                            <Route path='/order/*' element={<OrderRouter />} />
                             <Route path='/guest/*' element={<GuestRouter />} />
                             <Route path='/etc/*' element={<EtcRouter />} />
                             <Route path='/event/*' element={<EventRouter />} />
