@@ -11,6 +11,7 @@ import { useQueryString } from 'hooks';
 import { board } from 'api/manage';
 import { product } from 'api/product';
 import { ArticleParams, BoardListItem } from 'models/manage';
+import { ProductSearchParams } from 'models/product';
 import { ORDER_DIRECTION } from 'models';
 import BOARD from 'const/board';
 
@@ -67,10 +68,22 @@ const Search = () => {
 
     const [query, setQuery] = useState('');
     const [productList, setProductList] = useState([]);
+    const [productListSearchCondition, setProductListSearchCondition] =
+        useState<ProductSearchParams>({
+            filter: {
+                keywords: keywords as string,
+            },
+            order: {
+                direction: ORDER_DIRECTION.DESC,
+            },
+            hasTotalCount: true,
+            pageNumber: 1,
+            pageSize: 10,
+        });
     const [manualList, setManualList] = useState<BoardListItem[]>([]);
     const [manualListSearchCondition, setManualListSearchCondition] =
         useState<ArticleParams>({
-            keyword: query as string,
+            keyword: keywords as string,
             direction: ORDER_DIRECTION.DESC,
             pageNumber: 1,
             pageSize: 10,
@@ -78,7 +91,7 @@ const Search = () => {
     const [noticeList, setNoticeList] = useState<BoardListItem[]>([]);
     const [noticeSearchListCondition, setNoticeSearchListCondition] =
         useState<ArticleParams>({
-            keyword: query as string,
+            keyword: keywords as string,
             direction: ORDER_DIRECTION.DESC,
             pageNumber: 1,
             pageSize: 10,
@@ -122,15 +135,23 @@ const Search = () => {
             ),
         );
 
+        if (key === 'product') {
+            setProductListSearchCondition((prev: any) => ({
+                ...prev,
+                order: { direction: key },
+            }));
+        }
         if (key === 'manual') {
-            setManualListSearchCondition((prev: any) => {
-                return { ...prev, direction: key };
-            });
+            setManualListSearchCondition((prev: any) => ({
+                ...prev,
+                direction: key,
+            }));
         }
         if (key === 'notice') {
-            setNoticeSearchListCondition((prev: any) => {
-                return { ...prev, direction: key };
-            });
+            setNoticeSearchListCondition((prev: any) => ({
+                ...prev,
+                direction: key,
+            }));
         }
     };
 
@@ -149,8 +170,6 @@ const Search = () => {
             onSuccess: (response: any) => {
                 setNoticeList(response.data.items);
             },
-            staleTime: 1000 * 60 * 5,
-            cacheTime: 1000 * 60 * 5,
         },
         {
             queryKey: [
@@ -166,35 +185,16 @@ const Search = () => {
             onSuccess: (response: any) => {
                 setManualList(response.data.items);
             },
-            staleTime: 1000 * 60 * 5,
-            cacheTime: 1000 * 60 * 5,
         },
         {
-            queryKey: [
-                'productList',
-                {
-                    filter: {
-                        keywords: keywords,
-                        direction: ORDER_DIRECTION.DESC,
-                    },
-                    hasTotalCount: true,
-                    pageNumber: 1,
-                    pageSize: 10,
-                },
-            ],
+            queryKey: ['productList', { ...productListSearchCondition }],
             queryFn: async () =>
                 await product.searchProducts({
-                    filter: { keywords: keywords as string },
-                    order: { direction: ORDER_DIRECTION.DESC },
-                    hasTotalCount: true,
-                    pageNumber: 1,
-                    pageSize: 10,
+                    ...productListSearchCondition,
                 }),
             onSuccess: (response: any) => {
                 setProductList(response.data.items);
             },
-            staleTime: 1000 * 60 * 5,
-            cacheTime: 1000 * 60 * 5,
         },
     ]);
 
@@ -227,6 +227,19 @@ const Search = () => {
     const navigate = useNavigate();
     const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        setProductListSearchCondition((prev: ProductSearchParams) => ({
+            ...prev,
+            filter: { keywords: query },
+        }));
+        setManualListSearchCondition((prev: ArticleParams) => ({
+            ...prev,
+            keyword: query,
+        }));
+        setNoticeSearchListCondition((prev: ArticleParams) => ({
+            ...prev,
+            keyword: query,
+        }));
 
         navigate(
             {
