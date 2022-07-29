@@ -1,8 +1,6 @@
 import styled from 'styled-components';
 import currency from 'currency.js';
 
-import { CartPrice } from 'models/order';
-
 const CartOrderBox = styled.div`
     background: #f8f8fa;
     width: 400px;

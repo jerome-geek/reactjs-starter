@@ -204,7 +204,7 @@ export interface PaymentReserve {
     savesLastPayType?: boolean;
     subPayAmt: number;
     cashReceipt: ReceiptBody;
-    shippingAddresses: ShippingAddresses & { savedAddressBook?: boolean };
+    shippingAddresses: ShippingAddresses & { savedAddressBook?: boolean }[];
 }
 
 export interface NaverPayOrderSheet {

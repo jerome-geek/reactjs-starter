@@ -1,35 +1,26 @@
-import { ChangeEvent, MouseEventHandler, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-query';
-import { head } from '@fxts/core';
-import { useTranslation } from 'react-i18next';
-import { shallowEqual } from 'react-redux';
+import currency from 'currency.js';
 
-import { CHANNEL_TYPE } from 'models';
-import { cart, guestOrder, orderSheet } from 'api/order';
-import {
-    OrderProductOption,
-    OrderSheetBody,
-    Products,
-    ShoppingCartBody,
-} from 'models/order';
-import { useAppDispatch, useTypedSelector } from 'state/reducers';
+import { OrderProductOption } from 'models/order';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
-import currency from 'currency.js';
 
 const CartListBox = styled.div`
     display: flex;
     justify-content: space-between;
     padding: 12px 0;
     height: 164px;
+    border-bottom: 1px solid #dbdbdb;
+    &:last-child {
+        border-bottom: none;
+    }
 `;
 
 const CartInformation = styled.div`
     width: 240px;
     display: flex;
+    align-items: center;
     justify-content: space-around;
 `;
 
@@ -67,7 +58,7 @@ const CartName = styled.div`
     }
 `;
 
-const CartCountBox = styled.div`
+const CartCountBox = styled.div<{ isModifiable: boolean }>`
     width: 150px;
     display: flex;
     justify-content: center;
@@ -76,7 +67,7 @@ const CartCountBox = styled.div`
         display: flex;
         justify-content: center;
         align-items: center;
-        border: 1px solid #dbdbdb;
+        border: ${(props) => (props.isModifiable ? '1px solid #dbdbdb' : '')};
         width: 78px;
         > div {
             width: 26px;
@@ -91,7 +82,11 @@ const CartCountMinus = styled.div`
     cursor: pointer;
 `;
 
-const CartCount = styled.div``;
+const CartCount = styled.div`
+    color: ${(props) => props.theme.text1};
+    font-weight: bold;
+    font: 16px;
+`;
 
 const CartCountPlus = styled.div`
     cursor: pointer;
@@ -151,37 +146,45 @@ const CartList = ({
     agreeButton,
     productCountHandler,
     deleteCartHandler,
+    isModifiable = true,
 }: {
     cartData: OrderProductOption & {
         deliveryAmt: number;
         productName: string;
     };
-    checkList: number[];
-    agreeButton: (checked: boolean, cartNo: number) => void;
-    productCountHandler: (number: number, cartNo: number) => () => void;
-    deleteCartHandler: (cartNo: number) => () => void;
+    checkList?: number[];
+    agreeButton?: (checked: boolean, cartNo: number) => void;
+    productCountHandler?: (number: number, cartNo: number) => () => void;
+    deleteCartHandler?: (cartNo: number) => () => void;
+    isModifiable?: boolean;
 }) => {
     return (
         <CartListBox>
             <CartInformation>
                 <CartImage>
-                    <CartSelect>
-                        <input
-                            type='checkbox'
-                            onChange={(e) =>
-                                agreeButton(e.target.checked, cartData.cartNo)
-                            }
-                            checked={checkList.includes(cartData.cartNo)}
-                            id={cartData.cartNo.toString()}
-                        />
-                        <label htmlFor={cartData.cartNo.toString()}>
-                            {checkList.includes(cartData.cartNo) ? (
-                                <Checked />
-                            ) : (
-                                <UnChecked />
-                            )}
-                        </label>
-                    </CartSelect>
+                    {isModifiable && (
+                        <CartSelect>
+                            <input
+                                type='checkbox'
+                                onChange={(e) =>
+                                    agreeButton &&
+                                    agreeButton(
+                                        e.target.checked,
+                                        cartData.cartNo,
+                                    )
+                                }
+                                checked={checkList?.includes(cartData.cartNo)}
+                                id={cartData.cartNo.toString()}
+                            />
+                            <label htmlFor={cartData.cartNo.toString()}>
+                                {checkList?.includes(cartData.cartNo) ? (
+                                    <Checked />
+                                ) : (
+                                    <UnChecked />
+                                )}
+                            </label>
+                        </CartSelect>
+                    )}
                     <img src={cartData.imageUrl} alt={cartData.optionName} />
                 </CartImage>
                 <CartName>
@@ -189,19 +192,29 @@ const CartList = ({
                     <p>{cartData.optionName}</p>
                 </CartName>
             </CartInformation>
-            <CartCountBox>
+            <CartCountBox isModifiable={isModifiable}>
                 <div>
-                    <CartCountMinus
-                        onClick={productCountHandler(-1, cartData.cartNo)}
-                    >
-                        -
-                    </CartCountMinus>
+                    {isModifiable && (
+                        <CartCountMinus
+                            onClick={
+                                productCountHandler &&
+                                productCountHandler(-1, cartData.cartNo)
+                            }
+                        >
+                            -
+                        </CartCountMinus>
+                    )}
                     <CartCount>{cartData.orderCnt}</CartCount>
-                    <CartCountPlus
-                        onClick={productCountHandler(+1, cartData.cartNo)}
-                    >
-                        +
-                    </CartCountPlus>
+                    {isModifiable && (
+                        <CartCountPlus
+                            onClick={
+                                productCountHandler &&
+                                productCountHandler(+1, cartData.cartNo)
+                            }
+                        >
+                            +
+                        </CartCountPlus>
+                    )}
                 </div>
             </CartCountBox>
             <CartPrice>
@@ -242,9 +255,15 @@ const CartList = ({
                 }).format()}
                 <span>&nbsp;원</span>
             </CartAmount>
-            <CartCloseButton onClick={deleteCartHandler(cartData.cartNo)}>
-                <CloseButtonIcon />
-            </CartCloseButton>
+            {isModifiable && (
+                <CartCloseButton
+                    onClick={
+                        deleteCartHandler && deleteCartHandler(cartData.cartNo)
+                    }
+                >
+                    <CloseButtonIcon />
+                </CartCloseButton>
+            )}
         </CartListBox>
     );
 };
