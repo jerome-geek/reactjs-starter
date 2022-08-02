@@ -351,7 +351,7 @@ const Cart = () => {
             await orderSheet.writeOrderSheet(orderSheetList),
         {
             onSuccess: (res) => {
-                navigate({ pathname: `/order/sheet${res.data.orderSheetNo}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
+                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
             },
             onError: () => {
                 alert('구매 실패 alert');

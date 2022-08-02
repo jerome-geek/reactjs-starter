@@ -68,7 +68,7 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='이름을 입력하세요.'
                         type={'text'}
-                        {...register('orderer.orderName')}
+                        {...register('orderer.ordererName')}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
@@ -78,7 +78,7 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='휴대폰 번호 &lsquo;-&lsquo;제외하고 입력해 주세요.'
                         type={'text'}
-                        {...register('orderer.orderContact1')}
+                        {...register('orderer.ordererContact1')}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
@@ -88,7 +88,7 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='이메일을 입력해주세요.'
                         type={'text'}
-                        {...register('orderer.orderEmail')}
+                        {...register('orderer.ordererEmail')}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
