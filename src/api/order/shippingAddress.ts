@@ -1,15 +1,20 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { AddressRequest } from 'models/order';
+import { AddressRequest, ShippingAddressResponse } from 'models/order';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const shippingAddress = {
-    getShippingAddressList: (): Promise<AxiosResponse> =>
+    getShippingAddressList: (): Promise<
+        AxiosResponse<ShippingAddressResponse>
+    > =>
         request({
             method: 'GET',
             url: '/profile/shipping-addresses',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -45,7 +50,7 @@ const shippingAddress = {
                 countryCd,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -54,7 +59,7 @@ const shippingAddress = {
             method: 'GET',
             url: '/profile/shipping-addresses/recent',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -64,7 +69,7 @@ const shippingAddress = {
             method: 'GET',
             url: `/profile/shipping-addresses/${addressNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -104,7 +109,7 @@ const shippingAddress = {
                 countryCd,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -113,7 +118,7 @@ const shippingAddress = {
             method: 'DELETE',
             url: `/profile/shipping-addresses/${addressNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -122,7 +127,7 @@ const shippingAddress = {
             method: 'PUT',
             url: `/profile/shipping-addresses/${addressNo}/default`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };

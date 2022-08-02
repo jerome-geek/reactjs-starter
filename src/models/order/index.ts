@@ -97,20 +97,20 @@ export interface CouponRequest {
 
 interface ShippingAddresses {
     payProductParams: Omit<Products, 'channelType'>[];
-    requestShippingDate: string;
+    requestShippingDate?: string;
     addressNo: number;
-    usesShippingInfoLaterInput: boolean;
+    usesShippingInfoLaterInput?: boolean;
     useDefaultAddress: boolean;
     shippingAddress: Omit<AddressRequest, 'addressType'>;
     addressName: string;
-    shippingInfoLaterInputContact: string;
+    shippingInfoLaterInputContact?: string;
 }
 
 interface Orderer {
-    orderEmail?: string;
-    orderContact1: string;
-    orderContact2?: string;
-    orderName: string;
+    ordererEmail?: string;
+    ordererContact1: string;
+    ordererContact2?: string;
+    ordererName: string;
 }
 
 export interface ShoppingCartBody {
@@ -136,15 +136,15 @@ export interface ReceiptBody {
 }
 
 export interface DeliveryBody {
-    receiverZipCd: string; //sdf
-    receiverAddress: string; //sdf
-    receiverJibunAddress: string; // 대한민국 주소의 경우는 필수 값//sdf
-    receiverDetailAddress: string; //sdf
-    receiverName: string; //sdf
-    receiverContact1: string; //sdf
-    receiverContact2?: string; //sdf
-    customIdNumber?: string; //sdf
-    countryCd?: COUNTRY_CD; // default mall의 국가코드//sdf
+    receiverZipCd: string;
+    receiverAddress: string;
+    receiverJibunAddress: string; // 대한민국 주소의 경우는 필수 값
+    receiverDetailAddress: string;
+    receiverName: string;
+    receiverContact1: string;
+    receiverContact2?: string;
+    customIdNumber?: string;
+    countryCd?: COUNTRY_CD; // default mall의 국가코드
     deliveryMemo?: string;
 }
 
@@ -174,12 +174,12 @@ export interface PaymentReserve {
     clientParams?: ClientParams; // 결제 완료 API 호출 후 다시 전달 받을 값(NCPPay script에서 넣음)
     extraData?: ExtraData | ExtraData2;
     orderMemo?: string;
-    bankAccountToDeposit: BankAccountToDeposit;
-    rentalInfo: RentalInfo;
+    bankAccountToDeposit?: BankAccountToDeposit;
+    rentalInfo?: RentalInfo;
     payType: PAY_TYPE;
     clientReturnUrl: string; //결제 완료 후 리턴 될 URL(NCPPay script에서 넣음)
-    coupons: PaymentCoupons;
-    useDefaultAddress: boolean;
+    coupons?: PaymentCoupons;
+    useDefaultAddress?: boolean;
     member: boolean;
     inAppYn?: string;
     applyCashReceipt?: boolean;
@@ -193,18 +193,16 @@ export interface PaymentReserve {
     deliveryMemo?: string;
     orderer: Orderer;
     paymentAmtForVerification: number;
-    shippingAddress: Pick<
-        ShippingAddresses,
-        | 'requestShippingDate'
-        | 'usesShippingInfoLaterInput'
-        | 'addressName'
-        | 'shippingInfoLaterInputContact'
-    > &
-        Omit<DeliveryBody, 'deliveryMemo'>;
+    shippingAddress: MainAddress &
+        Omit<DeliveryBody, 'deliveryMemo'> &
+        Pick<
+            ShippingAddresses,
+            'shippingInfoLaterInputContact' | 'usesShippingInfoLaterInput'
+        >;
     savesLastPayType?: boolean;
     subPayAmt: number;
-    cashReceipt: ReceiptBody;
-    shippingAddresses: ShippingAddresses & { savedAddressBook?: boolean }[];
+    cashReceipt?: ReceiptBody;
+    shippingAddresses?: ShippingAddresses & { savedAddressBook?: boolean }[];
 }
 
 export interface NaverPayOrderSheet {
@@ -505,7 +503,7 @@ export interface OrderSheetPromotionSummary {
 
 export interface OrderSheetAddress {
     mainAddress: MainAddress;
-    recentAddresses: RecentAddress[];
+    recentAddresses: MainAddress[];
     memberAddress: MemberAddress;
     recentDeliveryMemo: any[];
 }
@@ -517,24 +515,10 @@ export interface MainAddress {
     receiverJibunAddress: string;
     receiverDetailAddress: string;
     receiverName: string;
-    addressName: string;
+    addressName?: string;
     receiverContact1: string;
-    receiverContact2: string;
-    customsIdNumber: string;
-    countryCd: string;
-}
-
-export interface RecentAddress {
-    addressNo: number;
-    receiverZipCd: string;
-    receiverAddress: string;
-    receiverJibunAddress: string;
-    receiverDetailAddress: string;
-    receiverName: string;
-    addressName: string;
-    receiverContact1: string;
-    receiverContact2: string;
-    customsIdNumber: string;
+    receiverContact2?: string;
+    customsIdNumber?: string;
     countryCd: string;
 }
 
@@ -629,4 +613,11 @@ export interface FreeGift {
 export interface RentalInfo {
     rentalPeriod: number;
     monthlyRentalAmount: number;
+}
+
+export interface ShippingAddressResponse {
+    recentAddresses: MainAddress[];
+    recurringPaymentAddresses: MainAddress[];
+    bookedAddresses: MainAddress[];
+    defaultAddress: MainAddress;
 }

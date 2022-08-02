@@ -5,6 +5,15 @@ import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
 import { shallowEqual } from 'react-redux';
 
+import { useTypedSelector } from 'state/reducers';
+import { orderSheet, purchase } from 'api/order';
+import { OrderProductOption, PaymentReserve } from 'models/order';
+import {
+    CASH_RECEIPT_ISSUE_PURPOSE_TYPE,
+    COUNTRY_CD,
+    PAY_TYPE,
+    PG_TYPE,
+} from 'models';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
@@ -12,12 +21,9 @@ import ShippingAddress from 'components/OrderSheet/ShippingAddress';
 import DiscountApply from 'components/OrderSheet/DiscountApply';
 import CommonPayment from 'components/OrderSheet/CommonPayment';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
-import { orderSheet } from 'api/order';
-import { OrderProductOption, PaymentReserve } from 'models/order';
-import { CASH_RECEIPT_ISSUE_PURPOSE_TYPE, PAY_TYPE, PG_TYPE } from 'models';
+import ShippingListModal from 'components/Modal/ShippingListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
-import { useTypedSelector } from 'state/reducers';
 
 const SheetContainer = styled.div`
     display: flex;
@@ -257,12 +263,21 @@ const Sheet = () => {
     const [ordererInformation, setOrdererInformation] =
         useState<boolean>(false);
     const [agreePurchase, setAgreePurchase] = useState<boolean>(false);
+    const [isShippingListModal, setIsShippingListModal] =
+        useState<boolean>(false);
 
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
     const { member } = useTypedSelector(
         ({ member }) => ({
             member: member.data,
+        }),
+        shallowEqual,
+    );
+
+    const { mallInfo } = useTypedSelector(
+        ({ mall }) => ({
+            mallInfo: mall,
         }),
         shallowEqual,
     );
@@ -298,9 +313,9 @@ const Sheet = () => {
             remitter: '',
             deliveryMemo: '', // 택배사 요청 사항
             orderer: {
-                orderName: '', // 이름
-                orderContact1: '', // 전화번호
-                orderEmail: '', // 이메일
+                ordererName: '', // 이름
+                ordererContact1: '', // 전화번호
+                ordererEmail: '', // 이메일
             },
             paymentAmtForVerification: 0,
             shippingAddress: {
@@ -308,6 +323,7 @@ const Sheet = () => {
                 receiverContact1: '', // 휴대폰 번호
                 receiverAddress: '', // 주소검색
                 receiverDetailAddress: '', // 상세 주소
+                receiverZipCd: '',
             },
             savesLastPayType: false,
             subPayAmt: 0,
@@ -352,10 +368,52 @@ const Sheet = () => {
                 });
             },
             refetchOnWindowFocus: false,
-            enabled: !member?.memberName,
         },
     );
-    console.log(orderData);
+
+    const { mutate } = useMutation(
+        async () =>
+            await purchase.reservePayment({
+                // TODO 결제 로직(필수값) 정리하기
+                orderSheetNo,
+                shippingAddress: {
+                    addressNo: 0,
+                    receiverZipCd: '1231231', // TODO zipCode 입력 하기
+                    receiverAddress: getValues(
+                        'shippingAddress.receiverAddress',
+                    ),
+                    receiverJibunAddress: getValues(
+                        'shippingAddress.receiverAddress', // TODO 지번 주소 입력
+                    ),
+                    receiverDetailAddress: getValues(
+                        'shippingAddress.receiverDetailAddress',
+                    ),
+                    receiverName: getValues('shippingAddress.receiverName'),
+                    receiverContact1: getValues(
+                        'shippingAddress.receiverContact1',
+                    ),
+                    countryCd: COUNTRY_CD.KR,
+                },
+                useDefaultAddress: getValues('useDefaultAddress'),
+                saveAddressBook: false,
+                deliveryMemo: getValues('deliveryMemo'),
+                member: !!member?.memberName,
+                orderer: {
+                    ordererName: getValues('orderer.ordererName'),
+                    ordererEmail: getValues('orderer.ordererEmail'),
+                    ordererContact1: getValues('orderer.ordererContact1'),
+                },
+                updateMember: false,
+                subPayAmt: 0,
+                pgType: PG_TYPE.INICIS,
+                payType: getValues('payType'),
+                clientReturnUrl:
+                    'https://alpha-service.e-ncp.com:/pay/temp/confirm', // TODO returnUrl 작성 및 이동하기
+                paymentAmtForVerification:
+                    orderData?.data.paymentInfo.paymentAmt!,
+            }),
+    );
+
     const orderPriceData = orderData?.data.paymentInfo && [
         ['총 주문금액', orderData.data.paymentInfo.totalStandardAmt],
         ['총 배송비', orderData.data.paymentInfo.deliveryAmt],
@@ -373,113 +431,138 @@ const Sheet = () => {
     ];
 
     return (
-        <LayoutResponsive type='large' style={{ padding: '10rem 0' }}>
-            <SheetContainer>
-                <SheetOrderWrapper>
-                    <Progress>
-                        <div className='current-progress'>주문서</div>
-                        <div>&#8250;</div>
-                        <div>주문 완료</div>
-                    </Progress>
-                    <SheetTitle>
-                        <h3>주문 상품</h3>
-                    </SheetTitle>
-                    <OrderProductListBox>
-                        <CartCategoryBox>
-                            <CartInformation>상품 정보</CartInformation>
-                            <CartCountBox>수량</CartCountBox>
-                            <CartPrice>가격</CartPrice>
-                            <CartDelivery>배송비</CartDelivery>
-                            <CartAmount>총 상품 금액</CartAmount>
-                        </CartCategoryBox>
-                        {orderList.map((orderData) => {
-                            return (
-                                <CartList
-                                    cartData={orderData}
-                                    key={orderData.optionNo}
-                                    isModifiable={false}
+        <>
+            {isShippingListModal && (
+                <ShippingListModal
+                    onClickToggleModal={() =>
+                        setIsShippingListModal(!isShippingListModal)
+                    }
+                    width={'1080px'}
+                    register={register}
+                    setValue={setValue}
+                    setIsShippingListModal={setIsShippingListModal}
+                ></ShippingListModal>
+            )}
+            <LayoutResponsive type='large' style={{ padding: '10rem 0' }}>
+                <SheetContainer>
+                    <SheetOrderWrapper>
+                        <Progress>
+                            <div className='current-progress'>주문서</div>
+                            <div>&#8250;</div>
+                            <div>주문 완료</div>
+                        </Progress>
+                        <SheetTitle>
+                            <h3>주문 상품</h3>
+                        </SheetTitle>
+                        <OrderProductListBox>
+                            <CartCategoryBox>
+                                <CartInformation>상품 정보</CartInformation>
+                                <CartCountBox>수량</CartCountBox>
+                                <CartPrice>가격</CartPrice>
+                                <CartDelivery>배송비</CartDelivery>
+                                <CartAmount>총 상품 금액</CartAmount>
+                            </CartCategoryBox>
+                            {orderList.map((orderData) => {
+                                return (
+                                    <CartList
+                                        cartData={orderData}
+                                        key={orderData.optionNo}
+                                        isModifiable={false}
+                                    />
+                                );
+                            })}
+                        </OrderProductListBox>
+                        <SheetTitle>
+                            <h3>주문자 정보</h3>
+                        </SheetTitle>
+                        <OrdererInformation register={register} />
+                        <SheetTitle>
+                            <h3>배송지</h3>
+                            <div
+                                className='shipping-info'
+                                onClick={() => setIsShippingListModal(true)}
+                            >
+                                배송지 정보
+                            </div>
+                            <div className='order-info'>
+                                <input
+                                    type='checkbox'
+                                    id='orderInfo'
+                                    onChange={() =>
+                                        setOrdererInformation((prev) => !prev)
+                                    }
+                                    checked={ordererInformation}
                                 />
-                            );
-                        })}
-                    </OrderProductListBox>
-                    <SheetTitle>
-                        <h3>주문자 정보</h3>
-                    </SheetTitle>
-                    <OrdererInformation register={register} />
-                    <SheetTitle>
-                        <h3>배송지</h3>
-                        <div className='shipping-info'>배송지 정보</div>
-                        <div className='order-info'>
-                            <input
-                                type='checkbox'
-                                id='orderInfo'
-                                onChange={() =>
-                                    setOrdererInformation((prev) => !prev)
-                                }
-                                checked={ordererInformation}
-                            />
-                            <label htmlFor='orderInfo'>
-                                {ordererInformation ? (
-                                    <Checked />
-                                ) : (
-                                    <UnChecked />
-                                )}
-                                <p>주문자 정보와 동일</p>
-                            </label>
-                        </div>
-                    </SheetTitle>
-                    <ShippingAddress
-                        register={register}
-                        setValue={setValue}
-                        ordererInformation={
-                            ordererInformation
-                                ? {
-                                      receiverName:
-                                          getValues('orderer.orderName'),
-                                      receiverContact1: getValues(
-                                          'orderer.orderContact1',
-                                      ),
-                                  }
-                                : undefined
-                        }
-                    />
-                    <SheetTitle>
-                        <h3>할인 적용</h3>
-                    </SheetTitle>
-                    <DiscountApply />
-                    <SheetTitle>
-                        <h3>결제 방식</h3>
-                    </SheetTitle>
-                    <CommonPayment setValue={setValue} />
-                </SheetOrderWrapper>
-                <SheetOrderPriceWrapper>
-                    <OrderSheetPrice
-                        title='총 결제 금액'
-                        cartOrderPrice={orderPriceData}
-                        amountPrice={orderData?.data.paymentInfo.paymentAmt}
-                    />
-                    <AgreeButton>
-                        <div>
-                            <input
-                                type='checkbox'
-                                onChange={() =>
-                                    setAgreePurchase(() => !agreePurchase)
-                                }
-                                id='agreePurchase'
-                            />
-                            <label htmlFor='agreePurchase'>
-                                {agreePurchase ? <Checked /> : <UnChecked />}
-                            </label>
-                            <p>
-                                주문할 제품의 거래조건을 확인 하였으며,
-                                <br /> 구매에 동의하시겠습니까 ? (필수)
-                            </p>
-                        </div>
-                    </AgreeButton>
-                    <SheetButton width='100%'>결제하기</SheetButton>
-                </SheetOrderPriceWrapper>
-            </SheetContainer>
-        </LayoutResponsive>
+                                <label htmlFor='orderInfo'>
+                                    {ordererInformation ? (
+                                        <Checked />
+                                    ) : (
+                                        <UnChecked />
+                                    )}
+                                    <p>주문자 정보와 동일</p>
+                                </label>
+                            </div>
+                        </SheetTitle>
+                        <ShippingAddress
+                            register={register}
+                            setValue={setValue}
+                            ordererInformation={
+                                ordererInformation
+                                    ? {
+                                          receiverName: getValues(
+                                              'orderer.ordererName',
+                                          ),
+                                          receiverContact1: getValues(
+                                              'orderer.ordererContact1',
+                                          ),
+                                      }
+                                    : undefined
+                            }
+                        />
+                        <SheetTitle>
+                            <h3>할인 적용</h3>
+                        </SheetTitle>
+                        <DiscountApply />
+                        <SheetTitle>
+                            <h3>결제 방식</h3>
+                        </SheetTitle>
+                        <CommonPayment setValue={setValue} />
+                    </SheetOrderWrapper>
+                    <SheetOrderPriceWrapper>
+                        <OrderSheetPrice
+                            title='총 결제 금액'
+                            cartOrderPrice={orderPriceData}
+                            amountPrice={orderData?.data.paymentInfo.paymentAmt}
+                        />
+                        <AgreeButton>
+                            <div>
+                                <input
+                                    type='checkbox'
+                                    onChange={() =>
+                                        setAgreePurchase(() => !agreePurchase)
+                                    }
+                                    id='agreePurchase'
+                                />
+                                <label htmlFor='agreePurchase'>
+                                    {agreePurchase ? (
+                                        <Checked />
+                                    ) : (
+                                        <UnChecked />
+                                    )}
+                                </label>
+                                <p>
+                                    주문할 제품의 거래조건을 확인 하였으며,
+                                    <br /> 구매에 동의하시겠습니까 ? (필수)
+                                </p>
+                            </div>
+                        </AgreeButton>
+                        <SheetButton width='100%' onClick={() => mutate()}>
+                            결제하기
+                        </SheetButton>
+                    </SheetOrderPriceWrapper>
+                </SheetContainer>
+            </LayoutResponsive>
+        </>
     );
 };
 
