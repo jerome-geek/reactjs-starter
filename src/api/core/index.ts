@@ -34,6 +34,7 @@ request.interceptors.response.use(
     (error) => {
         switch (error.request.status) {
             case HTTP_RESPONSE.HTTP_UNAUTHORIZED:
+                localStorage.removeItem('persist:root');
                 tokenStorage.clear();
                 alert('로그인 상태가 만료되었습니다. 다시 로그인해주세요.');
                 return window.location.replace(PATHS.LOGIN);
