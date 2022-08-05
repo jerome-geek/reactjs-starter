@@ -6,6 +6,7 @@ import { ReactComponent as CloseButton } from 'assets/icons/close_black.svg';
 export interface ModalDefaultType {
     onClickToggleModal: () => void;
     width: string;
+    height?: string;
 }
 
 const ModalContainer = styled.div`
@@ -18,8 +19,9 @@ const ModalContainer = styled.div`
     z-index: 10001;
 `;
 
-const DialogBox = styled.dialog<{ width: string }>`
+const DialogBox = styled.dialog<{ width: string; height?: string }>`
     width: ${(props) => props.width};
+    height: ${(props) => (props.height ? props.height : 'auto')};
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -52,10 +54,11 @@ const Modal = ({
     onClickToggleModal,
     children,
     width,
+    height,
 }: PropsWithChildren<ModalDefaultType>) => {
     return (
         <ModalContainer>
-            <DialogBox width={width}>
+            <DialogBox width={width} height={height}>
                 <CloseButton
                     onClick={(e: React.MouseEvent) => {
                         e.preventDefault();

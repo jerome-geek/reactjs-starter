@@ -158,45 +158,52 @@ const ProductList = () => {
                             <Loader />
                         ) : (
                             <ProductContainer>
-                                {productItems?.map(
-                                    ({
-                                        productNo,
-                                        listImageUrls,
-                                        productName,
-                                        promotionText,
-                                        salePrice,
-                                        immediateDiscountAmt,
-                                    }: any) => {
-                                        return (
-                                            <ProductBox
-                                                key={productNo}
-                                                onClick={() => {
-                                                    navigate(
-                                                        `/product/detail/${productNo}`,
-                                                    );
-                                                }}
-                                            >
-                                                {/* <img
-                                                    src={head(listImageUrls)}
-                                                    alt={productName}
-                                                /> */}
-                                                <p>{productName}</p>
-                                                <p>{promotionText}</p>
-                                                <p>
-                                                    {currency(
-                                                        salePrice -
-                                                            immediateDiscountAmt,
-                                                        {
-                                                            symbol: '',
-                                                            precision: 0,
-                                                        },
-                                                    ).format()}
-                                                    <span>원</span>
-                                                </p>
-                                            </ProductBox>
-                                        );
-                                    },
-                                )}
+                                {productItems &&
+                                    productItems.map(
+                                        ({
+                                            productNo,
+                                            listImageUrls,
+                                            productName,
+                                            promotionText,
+                                            salePrice,
+                                            immediateDiscountAmt,
+                                        }: any) => {
+                                            return (
+                                                <ProductBox
+                                                    key={productNo}
+                                                    onClick={() => {
+                                                        navigate(
+                                                            `/product/detail/${productNo}`,
+                                                        );
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={
+                                                            head(
+                                                                listImageUrls,
+                                                            ) as
+                                                                | string
+                                                                | undefined
+                                                        }
+                                                        alt={productName}
+                                                    />
+                                                    <p>{productName}</p>
+                                                    <p>{promotionText}</p>
+                                                    <p>
+                                                        {currency(
+                                                            salePrice -
+                                                                immediateDiscountAmt,
+                                                            {
+                                                                symbol: '',
+                                                                precision: 0,
+                                                            },
+                                                        ).format()}
+                                                        <span>원</span>
+                                                    </p>
+                                                </ProductBox>
+                                            );
+                                        },
+                                    )}
                             </ProductContainer>
                         )}
                     </ProductListContainer>
