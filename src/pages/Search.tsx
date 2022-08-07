@@ -1,16 +1,23 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from 'react-query';
-import { map, pipe, some, toArray } from '@fxts/core';
+import { filter, head, map, pipe, some, toArray } from '@fxts/core';
 import styled, { css } from 'styled-components';
 
 import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import InputWithIcon from 'components/Input/InputWithIcon';
+import ProductSearchResult from 'components/Search/ProductSearchResult';
+import ManualSearchResult from 'components/Search/ManualSearchResult';
+import NoticeSearchResult from 'components/Search/NoticeSearchResult';
+import GolfCourseSearchResult from 'components/Search/GolfCourseSearchResult';
 import { useQueryString } from 'hooks';
 import { board } from 'api/manage';
 import { product } from 'api/product';
-import { ArticleParams, BoardListItem } from 'models/manage';
+import {
+    ArticleParams,
+    BoardListItem as BoardListItemModel,
+} from 'models/manage';
 import { ProductSearchParams } from 'models/product';
 import { ORDER_DIRECTION } from 'models';
 import BOARD from 'const/board';
@@ -56,13 +63,6 @@ const SearchFilterItem = styled.li<{ isActive: boolean }>`
 
 const SearchResultContainer = styled.div``;
 
-const NoContentTitle = styled.p`
-    font-size: 16px;
-    line-height: 24px;
-    color: #a8a8a8;
-    padding: 40px 0;
-`;
-
 const Search = () => {
     const { keywords } = useQueryString();
 
@@ -80,7 +80,7 @@ const Search = () => {
             pageNumber: 1,
             pageSize: 10,
         });
-    const [manualList, setManualList] = useState<BoardListItem[]>([]);
+    const [manualList, setManualList] = useState<BoardListItemModel[]>([]);
     const [manualListSearchCondition, setManualListSearchCondition] =
         useState<ArticleParams>({
             keyword: keywords as string,
@@ -88,7 +88,7 @@ const Search = () => {
             pageNumber: 1,
             pageSize: 10,
         });
-    const [noticeList, setNoticeList] = useState<BoardListItem[]>([]);
+    const [noticeList, setNoticeList] = useState<BoardListItemModel[]>([]);
     const [noticeSearchListCondition, setNoticeSearchListCondition] =
         useState<ArticleParams>({
             keyword: keywords as string,
@@ -109,6 +109,15 @@ const Search = () => {
         { key: ORDER_DIRECTION.DESC, name: '최신순', isActive: true },
         { key: ORDER_DIRECTION.ASC, name: '오래된 순', isActive: false },
     ]);
+
+    const activeTab = useMemo(() => {
+        return pipe(
+            searchTab,
+            filter((a: tab) => a.isActive),
+            toArray,
+            head,
+        );
+    }, [searchTab]);
 
     const onSearchTabClick = (
         e: React.MouseEvent<HTMLLIElement>,
@@ -166,6 +175,7 @@ const Search = () => {
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.NOTICE, {
                     ...noticeSearchListCondition,
+                    hasTotalCount: true,
                 }),
             onSuccess: (response: any) => {
                 setNoticeList(response.data.items);
@@ -326,18 +336,26 @@ const Search = () => {
                                     )}
                                 </SearchFilter>
                             </div>
+
                             <div
                                 style={{
                                     borderTop: '2px solid #222943',
                                     borderBottom: '1px solid #222943',
-                                    padding: '40px 0',
-                                    marginTop: '40px',
+                                    margin: '40px 0',
                                 }}
                             >
-                                {/* TODO: active된 tab에 따라 달라져야함!! */}
-                                <NoContentTitle>
-                                    검색된 상품이 없습니다.
-                                </NoContentTitle>
+                                {activeTab?.key === 'product' && (
+                                    <ProductSearchResult />
+                                )}
+                                {activeTab?.key === 'manual' && (
+                                    <ManualSearchResult />
+                                )}
+                                {activeTab?.key === 'notice' && (
+                                    <NoticeSearchResult />
+                                )}
+                                {activeTab?.key === 'golfCourse' && (
+                                    <GolfCourseSearchResult />
+                                )}
                             </div>
                         </>
                     )}
