@@ -11,6 +11,8 @@ import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { useTypedSelector } from 'state/reducers';
+import { shallowEqual } from 'react-redux';
 
 const OrdererInformationContainer = styled.div`
     border-top: 2px solid #222943;
@@ -106,6 +108,13 @@ const OrdererInformation = ({
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
 
+    const { member } = useTypedSelector(
+        ({ member }) => ({
+            member: member.data,
+        }),
+        shallowEqual,
+    );
+
     const deliveryMemo = [
         { label: '배송 전에 미리 연락바랍니다.' },
         { label: '집 앞에 놔주세요.' },
@@ -145,7 +154,12 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='이름을 입력하세요.'
                         type={'text'}
-                        {...register('shippingAddress.receiverName')}
+                        {...register('shippingAddress.receiverName', {
+                            required: {
+                                value: true,
+                                message: '이름을 입력해주세요.',
+                            },
+                        })}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
@@ -157,7 +171,15 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='휴대폰 번호 &lsquo;-&lsquo;제외하고 입력해 주세요.'
                         type={'text'}
-                        {...register('shippingAddress.receiverContact1')}
+                        {...register('shippingAddress.receiverContact1', {
+                            required: {
+                                value: true,
+                                message: '휴대폰 번호를 입력해주세요',
+                            },
+                            pattern:
+                                /^[0-9]+$/ ||
+                                '휴대폰 번호는 숫자를 입력해주세요',
+                        })}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
@@ -189,7 +211,12 @@ const OrdererInformation = ({
                     <SheetTextInput
                         placeholder='상세 주소 입력'
                         type={'text'}
-                        {...register('shippingAddress.receiverDetailAddress')}
+                        {...register('shippingAddress.receiverDetailAddress', {
+                            required: {
+                                value: true,
+                                message: '상세 주소를 입력해주세요',
+                            },
+                        })}
                     />
                     <input
                         type='checkbox'
@@ -199,10 +226,12 @@ const OrdererInformation = ({
                         }}
                         checked={defaultAddress}
                     />
-                    <label htmlFor='defaultAddress'>
-                        {defaultAddress ? <Checked /> : <UnChecked />}
-                        <p>기본 배송지로 설정</p>
-                    </label>
+                    {member && (
+                        <label htmlFor='defaultAddress'>
+                            {defaultAddress ? <Checked /> : <UnChecked />}
+                            <p>기본 배송지로 설정</p>
+                        </label>
+                    )}
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>

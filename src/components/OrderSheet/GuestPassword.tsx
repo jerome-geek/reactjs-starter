@@ -1,5 +1,6 @@
+import { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { useRef } from 'react';
 import styled from 'styled-components';
-import { UseFormRegister } from 'react-hook-form';
 
 import { PaymentReserve } from 'models/order';
 
@@ -57,56 +58,46 @@ const OrdererInformationContainer = styled.div`
 
 const OrdererInformation = ({
     register,
+    errors,
 }: {
     register: UseFormRegister<PaymentReserve>;
+    errors: FieldErrors<PaymentReserve>;
 }) => {
+    const checkTempPassword = useRef<HTMLInputElement>(null);
+
     return (
         <OrdererInformationContainer>
             <SheetInputWrapper>
-                <SheetInputTitleBox>이름</SheetInputTitleBox>
+                <SheetInputTitleBox>비밀번호</SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='이름을 입력하세요.'
-                        type={'text'}
-                        {...register('orderer.ordererName', {
+                        placeholder='비밀번호를 입력해주세요'
+                        type={'password'}
+                        {...register('tempPassword', {
                             required: {
                                 value: true,
-                                message: '이름을 입력해주세요',
+                                message: '비밀번호를 입력해주세요',
+                            },
+                            validate: {
+                                matchPassword: (tempPassword) => {
+                                    return (
+                                        checkTempPassword.current?.value ===
+                                            tempPassword ||
+                                        '비밀번호가 일치하지 않습니다.'
+                                    );
+                                },
                             },
                         })}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
-                <SheetInputTitleBox>전화번호</SheetInputTitleBox>
+                <SheetInputTitleBox>비밀번호 확인</SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='휴대폰 번호 &lsquo;-&lsquo;제외하고 입력해 주세요.'
-                        type={'text'}
-                        {...register('orderer.ordererContact1', {
-                            required: {
-                                value: true,
-                                message: '휴대폰 번호를 입력해주세요',
-                            },
-                            pattern:
-                                /^[0-9]+$/ ||
-                                '휴대폰 번호는 숫자를 입력해주세요',
-                        })}
-                    />
-                </SheetInputBox>
-            </SheetInputWrapper>
-            <SheetInputWrapper>
-                <SheetInputTitleBox>이메일</SheetInputTitleBox>
-                <SheetInputBox>
-                    <SheetTextInput
-                        placeholder='이메일을 입력해주세요.'
-                        type={'text'}
-                        {...register('orderer.ordererEmail', {
-                            required: {
-                                value: true,
-                                message: '이메일을 입력해주세요',
-                            },
-                        })}
+                        placeholder='비밀번호 확인'
+                        type={'password'}
+                        ref={checkTempPassword}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
