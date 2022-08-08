@@ -18,6 +18,7 @@ import DiscountApply from 'components/OrderSheet/DiscountApply';
 import CommonPayment from 'components/OrderSheet/CommonPayment';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import ShippingListModal from 'components/Modal/ShippingListModal';
+import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestPassword from 'components/OrderSheet/GuestPassword';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
@@ -277,11 +278,10 @@ const Sheet = () => {
             }
         >
     >([]);
-    const [ordererInformation, setOrdererInformation] =
-        useState<boolean>(false);
-    const [agreePurchase, setAgreePurchase] = useState<string[]>([]);
-    const [isShippingListModal, setIsShippingListModal] =
-        useState<boolean>(false);
+    const [ordererInformation, setOrdererInformation] = useState(false);
+    const [agreePurchase, setAgreePurchase] = useState(false);
+    const [isShippingListModal, setIsShippingListModal] = useState(false);
+    const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
 
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
@@ -441,6 +441,17 @@ const Sheet = () => {
                     setIsShippingListModal={setIsShippingListModal}
                 ></ShippingListModal>
             )}
+            {isSearchAddressModal && (
+                <SearchAddressModal
+                    onClickToggleModal={() =>
+                        setIsSearchAddressModal((prev) => !prev)
+                    }
+                    width={'720px'}
+                    height={'720px'}
+                    register={register}
+                    setValue={setValue}
+                ></SearchAddressModal>
+            )}
             <LayoutResponsive type='large' style={{ padding: '10rem 0' }}>
                 <SheetContainer>
                     <SheetOrderWrapper>
@@ -517,6 +528,7 @@ const Sheet = () => {
                         <ShippingAddress
                             register={register}
                             setValue={setValue}
+                            getValues={getValues}
                             ordererInformation={
                                 ordererInformation
                                     ? {
@@ -529,6 +541,7 @@ const Sheet = () => {
                                       }
                                     : undefined
                             }
+                            setIsSearchAddressModal={setIsSearchAddressModal}
                         />
                         {member && (
                             <>

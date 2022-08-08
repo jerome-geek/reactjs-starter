@@ -1,6 +1,10 @@
 import styled from 'styled-components';
-import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { useEffect, useState } from 'react';
+import {
+    UseFormGetValues,
+    UseFormRegister,
+    UseFormSetValue,
+} from 'react-hook-form';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { SingleValue, StylesConfig } from 'react-select';
 
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
@@ -88,14 +92,18 @@ const SheetButton = styled.div<{ width: string }>`
 const OrdererInformation = ({
     register,
     setValue,
+    getValues,
     ordererInformation,
+    setIsSearchAddressModal,
 }: {
     register: UseFormRegister<PaymentReserve>;
     setValue: UseFormSetValue<PaymentReserve>;
+    getValues: UseFormGetValues<PaymentReserve>;
     ordererInformation?: {
         receiverName: string;
         receiverContact1: string;
     };
+    setIsSearchAddressModal: Dispatch<SetStateAction<boolean>>;
 }) => {
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
@@ -184,14 +192,22 @@ const OrdererInformation = ({
                         inputWidth='75%'
                         placeholder='예) 테헤란로 108길 23'
                         type={'text'}
-                        {...register('shippingAddress.receiverAddress', {
-                            required: {
-                                value: true,
-                                message: '주소를 입력해주세요',
-                            },
-                        })}
+                        {...(getValues('shippingAddress.receiverAddress')
+                            ? { ...register('shippingAddress.receiverAddress') }
+                            : {
+                                  ...register(
+                                      'shippingAddress.receiverJibunAddress',
+                                  ),
+                              })}
                     />
-                    <SheetButton width='20.4%'>검색</SheetButton>
+                    <SheetButton
+                        width='20.4%'
+                        onClick={() => {
+                            setIsSearchAddressModal((prev) => !prev);
+                        }}
+                    >
+                        검색
+                    </SheetButton>
                     <SheetTextInput
                         placeholder='상세 주소 입력'
                         type={'text'}

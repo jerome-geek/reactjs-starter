@@ -1,14 +1,14 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
-import { AddressParams } from 'models/manage';
+import { AddressParams, AddressResponse } from 'models/manage';
 
 const address = {
     searchAddress: ({
         pageNumber,
         pageSize,
         keyword,
-    }: AddressParams): Promise<AxiosResponse> =>
+    }: AddressParams): Promise<AxiosResponse<AddressResponse>> =>
         request({
             method: 'GET',
             url: '/addresses/search',
