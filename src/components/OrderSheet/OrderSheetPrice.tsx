@@ -1,12 +1,10 @@
 import styled from 'styled-components';
-import currency from 'currency.js';
 
-import { CartPrice } from 'models/order';
+import currency from 'currency.js';
 
 const CartOrderBox = styled.div`
     background: #f8f8fa;
     width: 400px;
-    height: 348px;
 `;
 
 const CartOrderPriceTitle = styled.div`
@@ -25,7 +23,6 @@ const CartOrderPriceBox = styled.div`
     border-bottom: 1px solid #dbdbdb;
     padding: 32px 0 30px;
     width: 332px;
-    height: 173.25px;
     margin: 0 auto;
     color: #858585;
     font-size: 16px;
@@ -39,6 +36,7 @@ const CartOrderPriceBox = styled.div`
 `;
 
 const OrderPriceWrapper = styled.div`
+    margin-bottom: 20px;
     &:last-child {
         margin-bottom: 0;
     }

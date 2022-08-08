@@ -12,6 +12,7 @@ import GuestRouter from 'router/GuestRouter';
 import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
 import SearchRouter from 'router/SearchRouter';
+import OrderRouter from 'router/OrderRouter';
 import Cart from 'pages/Cart/Cart';
 import Manager from 'pages/Manager';
 import NotFound from 'pages/NotFound';
@@ -19,6 +20,7 @@ import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
+import { useMall } from 'hooks';
 
 const App: FC = () => {
     const [data, isLoading] = useMall();
@@ -60,6 +62,7 @@ const App: FC = () => {
                                 path='/golf-course/*'
                                 element={<GolfCourseRouter />}
                             />
+                            <Route path='/order/*' element={<OrderRouter />} />
                             <Route path='/guest/*' element={<GuestRouter />} />
                             <Route path='/etc/*' element={<EtcRouter />} />
                             <Route path='/event/*' element={<EventRouter />} />

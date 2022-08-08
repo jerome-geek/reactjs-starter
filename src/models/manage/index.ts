@@ -22,6 +22,28 @@ export interface AddressParams {
     keyword: string;
 }
 
+export interface GroupByState {
+    state: string;
+    count: number;
+}
+
+export interface Item {
+    address: string;
+    detailAddress: string;
+    roadAddress: string;
+    roadAddressExtra: string;
+    jibunAddress: string;
+    relatedJibun: string;
+    zipCode: string;
+    oldZipCode: string;
+}
+
+export interface AddressResponse {
+    totalCount: number;
+    groupByStates: GroupByState[];
+    items: Item[];
+}
+
 export interface ArticleParams {
     pageNumber?: number;
     pageSize?: number;
