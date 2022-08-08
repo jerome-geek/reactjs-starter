@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios';
+import dayjs from 'dayjs';
 
 import request, { defaultHeaders } from 'api/core';
 import {
@@ -9,35 +10,64 @@ import {
 } from 'models/manage';
 
 const board = {
+    /**
+     * 게시판 설정 조회하기
+     *
+     * - 전체 게시판의 설정정보를 조회하는 API 입니다.
+     * @returns Promise<AxiosResponse>
+     */
     getConfigs: (): Promise<AxiosResponse> =>
         request({
             method: 'GET',
             url: '/boards/configurations',
         }),
 
+    /**
+     * 게시글 리스트 조회하기
+     * - 특정 게시판(게시판 번호 기준)의 게시글 리스트를 조회하는 API 입니다.
+     *
+     * @param boardNo string
+     * @param params ArticleParams
+     * @returns Promise<AxiosResponse><BoardList>>
+     */
     getArticlesByBoardNo: (
         boardNo: string,
-        params?: ArticleParams,
+        params: ArticleParams = {
+            pageNumber: 1,
+            pageSize: 10,
+            hasTotalCount: true,
+            startYmd: dayjs().subtract(3, 'month').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+            withReplied: false,
+            isMine: false,
+        },
     ): Promise<AxiosResponse<BoardList>> =>
         request({
             method: 'GET',
             url: `/boards/${boardNo}/articles`,
             params: {
-                pageNumber: params?.pageNumber,
-                pageSize: params?.pageSize,
-                hasTotalCount: params?.hasTotalCount,
-                keyword: params?.keyword,
-                searchType: params?.searchType,
-                categoryNo: params?.categoryNo,
-                startYmd: params?.startYmd,
-                endYmd: params?.endYmd,
-                withReplied: params?.withReplied,
-                direction: params?.direction,
-                isMine: params?.isMine,
+                pageNumber: params.pageNumber,
+                pageSize: params.pageSize,
+                hasTotalCount: params.hasTotalCount,
+                keyword: params.keyword,
+                searchType: params.searchType,
+                categoryNo: params.categoryNo,
+                startYmd: params.startYmd,
+                endYmd: params.endYmd,
+                withReplied: params.withReplied,
+                direction: params.direction,
+                isMine: params.isMine,
             },
         }),
 
-    // TODO 404 error (message: 존재하지 않는 게시판입니다.) boardNo를 모름
+    /**
+     * 게시글 작성하기
+     * - 게시글을 작성하는 API 입니다.
+     *
+     * @param boardNo string
+     * @param data PostArticleParams
+     * @returns Promise<AxiosResponse>
+     */
     writeArticle: (
         boardNo: string,
         data: PostArticleParams,
@@ -62,6 +92,13 @@ const board = {
             }),
         }),
 
+    /**
+     * 게시판 카테고리 목록 조회하기
+     * - 특정 게시판(게시판 번호 기준)의 카테고리를 조회하는 API 입니다.
+     *
+     * @param boardNo   string
+     * @returns Promise<AxiosResponse<BoardCategory[]>>
+     */
     getCategories: (boardNo: string): Promise<AxiosResponse<BoardCategory[]>> =>
         request({
             method: 'GET',

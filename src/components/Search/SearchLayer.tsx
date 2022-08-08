@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import InputWithIcon from 'components/Input/InputWithIcon';
@@ -47,12 +48,27 @@ const SearchLayer = () => {
         },
     );
 
+    const [keywords, setKeywords] = useState('');
+
+    const onQueryChange = ({
+        target: { value },
+    }: React.ChangeEvent<HTMLInputElement>) => setKeywords(value);
+
+    const navigate = useNavigate();
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        navigate({
+            pathname: '/search',
+            search: `?keywords=${keywords}`,
+        });
+    };
+
     return (
         <SearchContainer>
             <div
                 style={{ width: '533px', margin: '0 auto', padding: '60px 0' }}
             >
-                <div>
+                <form onSubmit={onSubmit}>
                     <InputWithIcon
                         placeholder='검색어를 입력해주세요.'
                         containerProps={{
@@ -62,8 +78,9 @@ const SearchLayer = () => {
                                 borderTop: 0,
                             },
                         }}
+                        onChange={onQueryChange}
                     />
-                </div>
+                </form>
                 <div style={{ paddingTop: '20px' }}>
                     <FavoriteKeywordTitle>인기 검색어</FavoriteKeywordTitle>
                     <FavoriteKeywordContainer>
@@ -71,7 +88,7 @@ const SearchLayer = () => {
                             favoriteKeywords?.map((favoriteKeyword: string) => (
                                 <FavoriteKeyword
                                     key={favoriteKeyword}
-                                    to={`${PATHS.SEARCH}?query=${favoriteKeyword}`}
+                                    to={`${PATHS.SEARCH}?keywords=${favoriteKeyword}`}
                                 >
                                     {favoriteKeyword}
                                 </FavoriteKeyword>

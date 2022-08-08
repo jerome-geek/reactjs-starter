@@ -164,7 +164,7 @@ export interface ProductItem {
     contentsIfPausing: string;
     productType: string;
     productNameEn: string;
-    promotionText: null;
+    promotionText: Nullable<string>;
     saleStatusType: string;
     hsCode: string;
     stickerInfos: any[];

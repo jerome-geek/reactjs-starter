@@ -11,13 +11,15 @@ import GolfCourseRouter from 'router/GolfCourseRouter';
 import GuestRouter from 'router/GuestRouter';
 import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
+import SearchRouter from 'router/SearchRouter';
+import OrderRouter from 'router/OrderRouter';
+import Cart from 'pages/Cart/Cart';
 import Manager from 'pages/Manager';
 import NotFound from 'pages/NotFound';
+import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
-import Cart from 'pages/Cart/Cart';
-import OrderRouter from 'router/OrderRouter';
 import { useMall } from 'hooks';
 
 const App: FC = () => {
@@ -65,8 +67,9 @@ const App: FC = () => {
                             <Route path='/etc/*' element={<EtcRouter />} />
                             <Route path='/event/*' element={<EventRouter />} />
                             <Route path='/manager' element={<Manager />} />
-                            <Route path='/*' element={<NotFound />} />
                             <Route path='/cart' element={<Cart />} />
+                            <Route path='/search' element={<SearchRouter />} />
+                            <Route path='/*' element={<NotFound />} />
                         </Routes>
                         <Footer />
                     </BrowserRouter>
