@@ -20,7 +20,6 @@ import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
-import { useMall } from 'hooks';
 
 const App: FC = () => {
     const [data, isLoading] = useMall();

@@ -372,3 +372,49 @@ export interface Brand {
     name: string;
     productCnt: number;
 }
+
+export interface getBannersResponse {
+    bannerSectionNo: number;
+    label: string;
+    code: string;
+    platformDisplayPcYn: string;
+    platformDisplayMobileYn: string;
+    platformDisplayMobileWebYn: string;
+    memberGradeDisplayInfo: null;
+    memberGroupDisplayInfo: null;
+    accounts: BannerAccount[];
+}
+
+export interface BannerAccount {
+    accountNo: number;
+    accountName: string;
+    displayType: string;
+    height: number;
+    width: number;
+    platformDisplayPcYn: string;
+    platformDisplayMobileYn: string;
+    platformDisplayMobileWebYn: string;
+    memberGradeDisplayInfo: null;
+    memberGroupDisplayInfo: null;
+    banners: BannerInfo[];
+}
+
+export interface BannerInfo {
+    bannerNo: number;
+    name: string;
+    nameColor: string;
+    description: string;
+    descriptionColor: string;
+    imageUrl: string;
+    landingUrlType: string;
+    landingUrl: string;
+    leftSpaceColor: string;
+    rightSpaceColor: string;
+    browerTargetType: 'CURRENT' | 'NEW';
+    mouseOverImageUrl: string;
+    displayPeriodType: string;
+    displayStartYmdt: Date;
+    displayEndYmdt: Date;
+    displayOrder: number;
+    videoUrl: string;
+}
