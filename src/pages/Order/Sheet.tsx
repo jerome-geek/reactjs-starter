@@ -392,8 +392,7 @@ const Sheet = () => {
                 productCoupons: selectCoupon?.productCoupons,
             }),
         {
-            onSuccess: (res) => {
-                console.log(res);
+            onSuccess: () => {
                 orderRefetch();
             },
         },
@@ -762,7 +761,6 @@ const Sheet = () => {
                                     alert('약관에 동의해주세요.');
                                     return;
                                 }
-                                mutate: paymentMutate();
                             })}
                         >
                             결제하기
