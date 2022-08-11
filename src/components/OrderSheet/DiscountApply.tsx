@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 
 const DiscountApplyContainer = styled.div`
@@ -61,14 +62,23 @@ const SheetButton = styled.div<{ width: string }>`
     cursor: pointer;
 `;
 
-const DiscountApply = () => {
+const DiscountApply = ({
+    setIsCouponListModal,
+}: {
+    setIsCouponListModal: Dispatch<SetStateAction<boolean>>;
+}) => {
     return (
         <DiscountApplyContainer>
             <SheetInputWrapper>
                 <SheetInputTitleBox>할인 쿠폰</SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput inputWidth='75%' disabled={true} />
-                    <SheetButton width='20.4%'>적용</SheetButton>
+                    <SheetButton
+                        width='20.4%'
+                        onClick={() => setIsCouponListModal((prev) => !prev)}
+                    >
+                        적용
+                    </SheetButton>
                 </SheetInputBox>
             </SheetInputWrapper>
         </DiscountApplyContainer>

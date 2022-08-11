@@ -56,7 +56,7 @@ const OrdererInformationContainer = styled.div`
     flex-direction: column;
 `;
 
-const OrdererInformation = ({
+const GuestPassword = ({
     register,
     errors,
 }: {
@@ -105,4 +105,4 @@ const OrdererInformation = ({
     );
 };
 
-export default OrdererInformation;
+export default GuestPassword;

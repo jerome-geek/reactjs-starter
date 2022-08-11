@@ -8,8 +8,12 @@ import { shallowEqual } from 'react-redux';
 
 import { useTypedSelector } from 'state/reducers';
 import { orderSheet, purchase } from 'api/order';
-import { OrderProductOption, PaymentReserve } from 'models/order';
-import { COUNTRY_CD, PG_TYPE } from 'models';
+import {
+    CouponRequest,
+    OrderProductOption,
+    PaymentReserve,
+} from 'models/order';
+import { CHANNEL_TYPE, COUNTRY_CD, PG_TYPE } from 'models';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
@@ -20,6 +24,7 @@ import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import ShippingListModal from 'components/Modal/ShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestPassword from 'components/OrderSheet/GuestPassword';
+import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
 import { tokenStorage } from 'utils/storage';
@@ -279,9 +284,11 @@ const Sheet = () => {
         >
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
-    const [agreePurchase, setAgreePurchase] = useState(false);
+    const [agreePurchase, setAgreePurchase] = useState<string[]>([]);
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
+    const [isCouponListModal, setIsCouponListModal] = useState(false);
+    const [selectCoupon, setSelectCoupon] = useState<CouponRequest>();
 
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
@@ -307,7 +314,7 @@ const Sheet = () => {
         formState: { errors },
     } = useForm<PaymentReserve>();
 
-    const { data: orderData } = useQuery(
+    const { data: orderData, refetch: orderRefetch } = useQuery(
         ['orderData', { member: member?.memberName }],
         async () =>
             await orderSheet.getOrderSheet(orderSheetNo, {
@@ -322,7 +329,7 @@ const Sheet = () => {
                             productName: string;
                         }
                     > = [];
-                    res.data.deliveryGroups.forEach((deliveryGroup) => {
+                    res?.data.deliveryGroups.forEach((deliveryGroup) => {
                         deliveryGroup.orderProducts.forEach((orderProduct) => {
                             orderProduct.orderProductOptions.forEach(
                                 (productOption) => {
@@ -376,7 +383,23 @@ const Sheet = () => {
         paymentAmtForVerification: orderData?.data.paymentInfo.paymentAmt!,
     };
 
-    const { mutate } = useMutation(
+    const { mutate: couponApplyMutate } = useMutation(
+        async () =>
+            await orderSheet.applyCoupon(orderSheetNo, {
+                cartCouponIssueNo: selectCoupon?.cartCouponIssueNo,
+                channelType: CHANNEL_TYPE.NAVER_EP,
+                promotionCode: selectCoupon?.promotionCode,
+                productCoupons: selectCoupon?.productCoupons,
+            }),
+        {
+            onSuccess: (res) => {
+                console.log(res);
+                orderRefetch();
+            },
+        },
+    );
+
+    const { mutate: paymentMutate } = useMutation(
         async () =>
             await purchase.reservePayment({
                 ...paymentData,
@@ -451,6 +474,19 @@ const Sheet = () => {
                     register={register}
                     setValue={setValue}
                 ></SearchAddressModal>
+            )}
+            {isCouponListModal && (
+                <CouponListModal
+                    onClickToggleModal={() =>
+                        setIsCouponListModal((prev) => !prev)
+                    }
+                    width={'700px'}
+                    height={'696px'}
+                    setIsCouponListModal={setIsCouponListModal}
+                    setSelectCoupon={setSelectCoupon}
+                    orderSheetNo={orderSheetNo}
+                    couponApplyMutate={couponApplyMutate}
+                ></CouponListModal>
             )}
             <LayoutResponsive type='large' style={{ padding: '10rem 0' }}>
                 <SheetContainer>
@@ -548,7 +584,9 @@ const Sheet = () => {
                                 <SheetTitle>
                                     <h3>할인 적용</h3>
                                 </SheetTitle>
-                                <DiscountApply />
+                                <DiscountApply
+                                    setIsCouponListModal={setIsCouponListModal}
+                                />
                             </>
                         )}
                         <SheetTitle>
@@ -724,7 +762,7 @@ const Sheet = () => {
                                     alert('약관에 동의해주세요.');
                                     return;
                                 }
-                                mutate();
+                                mutate: paymentMutate();
                             })}
                         >
                             결제하기
