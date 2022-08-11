@@ -6,6 +6,8 @@ import {
     GetCalculatedOrderSheet,
     CouponRequest,
     OrderSheetResponse,
+    ApplyCouponResponse,
+    CouponApplyResponse,
 } from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
@@ -72,12 +74,12 @@ const orderSheet = {
 
     getCanApplyCoupon: (
         orderSheetNo: string,
-        { channelType }: { channelType: string },
-    ): Promise<AxiosResponse> =>
+        params?: { channelType: string },
+    ): Promise<AxiosResponse<ApplyCouponResponse>> =>
         request({
             method: 'GET',
             url: `/order-sheets/${orderSheetNo}/coupons`,
-            params: { channelType },
+            params: { channelType: params?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
@@ -91,7 +93,7 @@ const orderSheet = {
             promotionCode,
             productCoupons,
         }: CouponRequest,
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<CouponApplyResponse>> =>
         request({
             method: 'POST',
             url: `/order-sheets/${orderSheetNo}/coupons/apply`,

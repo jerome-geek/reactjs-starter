@@ -68,6 +68,9 @@ const coupon = {
             method: 'POST',
             url: `/coupons/${couponNo}/download`,
             data: { channelType },
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
         }),
 
     getExcludeTargetsByCouponNumber: (

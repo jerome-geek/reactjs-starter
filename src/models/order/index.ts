@@ -12,7 +12,7 @@ import {
 
 interface ProductCoupons {
     couponIssueNo: number;
-    mallProductNo: number;
+    productNo: number;
 }
 
 interface PaymentProductCoupons {
@@ -90,9 +90,16 @@ interface PaymentCoupons {
 
 export interface CouponRequest {
     productCoupons?: ProductCoupons[];
-    cartCouponIssueNo: number;
-    promotionCode: string;
+    cartCouponIssueNo?: number;
+    promotionCode?: string;
     channelType: string;
+}
+
+export interface CouponApplyResponse {
+    deliveryGroups: DeliveryGroup;
+    appliedCoupons: AppliedCoupons;
+    availablePayTypes: AvailablePayType;
+    paymentInfo: PaymentInfo;
 }
 
 interface ShippingAddresses {
@@ -620,4 +627,87 @@ export interface ShippingAddressResponse {
     recurringPaymentAddresses: MainAddress[];
     bookedAddresses: MainAddress[];
     defaultAddress: MainAddress;
+}
+
+export interface ApplyCouponResponse {
+    orderSheetNo: string;
+    products: Product[];
+    cartAmt: number;
+    cartCoupons: CartCoupon[];
+    deliveryAmt: number;
+    productCouponDiscountAmt: number;
+    cartCouponDiscountAmt: number;
+    deliveryCouponDiscountAmt: number;
+    deliveryCoupons: any[];
+}
+
+export interface Product {
+    productNo: number;
+    brandName: string;
+    productName: string;
+    mainOption: string;
+    optionInputs: any;
+    buyAmt: number;
+    productCouponDiscountAmt: number;
+    optionCnt: number;
+    totalOrderCnt: number;
+    productCoupons: ProductCoupon[];
+    invalidProductCoupons: any[];
+    productPlusCoupons: any[];
+}
+
+export interface ProductCoupon {
+    couponIssueNo: number;
+    couponNo: number;
+    discountRate: number;
+    freeDeliveryYn: string;
+    couponName: string;
+    reason: string;
+    couponType: string;
+    couponTargetType: string;
+    usablePlatformTypes: string;
+    useEndYmdt: string;
+    fixedAmountDiscount: boolean;
+    maxDiscountAmt: number;
+    freeDelivery: boolean;
+    otherCouponUsable: boolean;
+    cartCouponUsable: boolean;
+    productCouponUsable: boolean;
+    limitPayType: string;
+    displayCouponName: string;
+    skipsAccumulation: boolean;
+    minSalePrice: any;
+    maxSalePrice: any;
+    maximum: boolean;
+    selected: boolean;
+    used: boolean;
+    couponDiscountAmt: number;
+}
+
+export interface CartCoupon {
+    couponIssueNo: number;
+    couponNo: number;
+    discountRate: number;
+    freeDeliveryYn: string;
+    couponName: string;
+    reason: string;
+    couponType: string;
+    couponTargetType: string;
+    usablePlatformTypes: string;
+    useEndYmdt: string;
+    fixedAmountDiscount: boolean;
+    maxDiscountAmt: number;
+    freeDelivery: boolean;
+    otherCouponUsable: boolean;
+    cartCouponUsable: boolean;
+    productCouponUsable: boolean;
+    limitPayType: string;
+    displayCouponName: string;
+    skipsAccumulation: boolean;
+    minSalePrice: any;
+    maxSalePrice: any;
+    maximum: boolean;
+    selected: boolean;
+    used: boolean;
+    couponDiscountAmt: number;
 }
