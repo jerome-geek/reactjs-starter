@@ -1497,10 +1497,10 @@
   dependencies:
     prop-types "^15.8.1"
 
-"@fxts/core@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@fxts/core/-/core-0.8.0.tgz#f89a9beb7db1b5ca29ddc26f5343c87723a9b4e1"
-  integrity sha512-OisOCjqknlKb+g7tenOr/hFRL4gZgZa6KsVyDCn2u7vBBXqLwD+bPIXeZDdsc2yRTrtUGq6IWQseIqmAWN3sKw==
+"@fxts/core@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@fxts/core/-/core-0.9.0.tgz#333441607b31135794d739a1bc54b90d2c85837f"
+  integrity sha512-7s89fPUXcqe5YXGARUr+pa3D+xXExJRPoS/SWzO0zMm/UaRkZIubelNCJZ+sKxoH4vAZpvKd00r/Vs27NHYBAQ==
   dependencies:
     tslib "^2.4.0"
 
