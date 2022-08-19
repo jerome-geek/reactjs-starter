@@ -25,6 +25,7 @@ const queryClient = new QueryClient({
         queries: {
             retry: 0,
             useErrorBoundary: true,
+            refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
         },
         mutations: {
             useErrorBoundary: true,
