@@ -1,10 +1,11 @@
 import { FC, useMemo, useRef } from 'react';
 import styled from 'styled-components';
-import { sort, isBoolean } from '@fxts/core';
+import { isBoolean } from '@fxts/core';
 import { A11y, Navigation } from 'swiper';
 import { Swiper, SwiperProps, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperClass } from 'swiper/types';
 import { useWindowSize } from 'usehooks-ts';
+import dayjs from 'dayjs';
 
 import MainCategory from 'components/Main/MainCategory';
 import SlideButton from 'components/Button/SlideButton';
@@ -54,6 +55,12 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
         [],
     );
 
+    const isDisplay = (startDt: Date, endDt: Date) => {
+        const now = dayjs();
+
+        return dayjs(startDt).isBefore(now) && dayjs(endDt).isAfter(now);
+    };
+
     return (
         <MainCategoryBannersWrapper>
             {width > 768 ? (
@@ -66,16 +73,20 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
                             name,
                             landingUrl,
                             browerTargetType,
+                            displayStartYmdt,
+                            displayEndYmdt,
                         }) => {
                             return (
-                                <MainCategory
-                                    key={bannerNo}
-                                    imageUrl={imageUrl}
-                                    mouseOverImageUrl={mouseOverImageUrl}
-                                    title={name}
-                                    landingUrl={landingUrl}
-                                    target={getLinkTarget(browerTargetType)}
-                                />
+                                isDisplay(displayStartYmdt, displayEndYmdt) && (
+                                    <MainCategory
+                                        key={bannerNo}
+                                        imageUrl={imageUrl}
+                                        mouseOverImageUrl={mouseOverImageUrl}
+                                        title={name}
+                                        landingUrl={landingUrl}
+                                        target={getLinkTarget(browerTargetType)}
+                                    />
+                                )
                             );
                         },
                     )}
@@ -107,21 +118,28 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
                                 name,
                                 landingUrl,
                                 browerTargetType,
+                                displayStartYmdt,
+                                displayEndYmdt,
                             }) => {
                                 return (
-                                    <SwiperSlide key={bannerNo}>
-                                        <MainCategory
-                                            imageUrl={imageUrl}
-                                            mouseOverImageUrl={
-                                                mouseOverImageUrl
-                                            }
-                                            title={name}
-                                            landingUrl={landingUrl}
-                                            target={getLinkTarget(
-                                                browerTargetType,
-                                            )}
-                                        />
-                                    </SwiperSlide>
+                                    isDisplay(
+                                        displayStartYmdt,
+                                        displayEndYmdt,
+                                    ) && (
+                                        <SwiperSlide key={bannerNo}>
+                                            <MainCategory
+                                                imageUrl={imageUrl}
+                                                mouseOverImageUrl={
+                                                    mouseOverImageUrl
+                                                }
+                                                title={name}
+                                                landingUrl={landingUrl}
+                                                target={getLinkTarget(
+                                                    browerTargetType,
+                                                )}
+                                            />
+                                        </SwiperSlide>
+                                    )
                                 );
                             },
                         )}
