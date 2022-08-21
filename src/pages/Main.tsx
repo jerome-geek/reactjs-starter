@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { A11y, Navigation, Pagination } from 'swiper';
 import { SwiperProps } from 'swiper/react';
@@ -12,6 +12,7 @@ import MainCategoryBanners from 'components/Main/MainCategoryBanners';
 import ETCSection from 'components/Main/ETCSection';
 import { banner } from 'api/display';
 import BANNER from 'const/banner';
+import { BannerInfo } from 'models/display';
 
 const Main = () => {
     const { width } = useWindowSize();
@@ -51,6 +52,10 @@ const Main = () => {
         [],
     );
 
+    const sortBanners = useCallback((banners: BannerInfo[]) => {
+        return sort((a, b) => a.displayOrder > b.displayOrder, banners);
+    }, []);
+
     return (
         <>
             <Header />
@@ -80,26 +85,33 @@ const Main = () => {
                                 ? { height: '828px' }
                                 : { height: '410px' },
                     }}
-                    banners={mainBannerData.mainBanner.accounts[1]?.banners}
+                    banners={sortBanners(
+                        mainBannerData.mainBanner.accounts[1]?.banners,
+                    )}
                 />
             )}
 
             {/* 카테고리 아이콘 리스트 */}
             {mainBannerData?.mainCategoryBanner.accounts && (
                 <MainCategoryBanners
-                    banners={sort(
-                        (a, b) => a.displayOrder > b.displayOrder,
+                    banners={sortBanners(
                         mainBannerData?.mainCategoryBanner?.accounts[0].banners,
                     )}
                 />
             )}
+
+            {/* TODO: New Release */}
+
+            {/* TODO: 메인 배너 리스트 */}
 
             {/* ETC */}
             {mainBannerData?.mainBanner.accounts[4]?.banners && (
                 <ETCSection
                     iconWidth={mainBannerData?.mainBanner.accounts[4]?.width}
                     iconHeight={mainBannerData?.mainBanner.accounts[4]?.height}
-                    banners={mainBannerData?.mainBanner.accounts[4]?.banners}
+                    banners={sortBanners(
+                        mainBannerData?.mainBanner.accounts[4]?.banners,
+                    )}
                 />
             )}
         </>
