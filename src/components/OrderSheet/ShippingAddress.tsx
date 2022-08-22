@@ -192,13 +192,7 @@ const OrdererInformation = ({
                         inputWidth='75%'
                         placeholder='예) 테헤란로 108길 23'
                         type={'text'}
-                        {...(getValues('shippingAddress.receiverAddress')
-                            ? { ...register('shippingAddress.receiverAddress') }
-                            : {
-                                  ...register(
-                                      'shippingAddress.receiverJibunAddress',
-                                  ),
-                              })}
+                        {...register('shippingAddress.receiverAddress')}
                     />
                     <SheetButton
                         width='20.4%'

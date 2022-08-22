@@ -173,65 +173,74 @@ const ShippingListModal = ({
                     </CategoryBox>
                     {shippingData ? (
                         <>
-                            <ShippingListBox>
-                                <CheckBox
-                                    onClick={() =>
-                                        setSelectedAddress({
-                                            receiverName:
-                                                shippingData.defaultAddress
-                                                    .receiverName,
-                                            receiverContact1:
-                                                shippingData.defaultAddress
-                                                    .receiverContact1,
-                                            receiverAddress:
-                                                shippingData.defaultAddress
-                                                    .receiverAddress,
-                                            receiverDetailAddress:
-                                                shippingData.defaultAddress
-                                                    .receiverDetailAddress,
-                                            addressNo:
-                                                shippingData.defaultAddress
-                                                    .addressNo,
-                                            receiverZipCd:
-                                                shippingData.defaultAddress
-                                                    .receiverZipCd,
-                                        })
-                                    }
-                                >
-                                    {selectedAddress?.addressNo ===
-                                    shippingData.defaultAddress.addressNo ? (
-                                        <Checked />
-                                    ) : (
-                                        <UnChecked />
-                                    )}
-                                </CheckBox>
-                                <Receiver>
-                                    <DefaultAddress>기본</DefaultAddress>
-                                    {shippingData.defaultAddress.receiverName}
-                                </Receiver>
-                                <Address>
-                                    {
+                            {shippingData.defaultAddress && (
+                                <ShippingListBox>
+                                    <CheckBox
+                                        onClick={() =>
+                                            setSelectedAddress({
+                                                receiverName:
+                                                    shippingData.defaultAddress
+                                                        .receiverName,
+                                                receiverContact1:
+                                                    shippingData.defaultAddress
+                                                        .receiverContact1,
+                                                receiverAddress:
+                                                    shippingData.defaultAddress
+                                                        .receiverAddress,
+                                                receiverDetailAddress:
+                                                    shippingData.defaultAddress
+                                                        .receiverDetailAddress,
+                                                addressNo: shippingData
+                                                    .defaultAddress.addressNo
+                                                    ? shippingData
+                                                          .defaultAddress
+                                                          .addressNo
+                                                    : 0,
+                                                receiverZipCd:
+                                                    shippingData.defaultAddress
+                                                        .receiverZipCd,
+                                            })
+                                        }
+                                    >
+                                        {selectedAddress?.addressNo ===
                                         shippingData.defaultAddress
-                                            .receiverAddress
-                                    }{' '}
-                                    {
-                                        shippingData.defaultAddress
-                                            .receiverDetailAddress
-                                    }
-                                </Address>
-                                <Contact>
-                                    {
-                                        shippingData.defaultAddress
-                                            .receiverContact1
-                                    }
-                                </Contact>
-                                <Blank></Blank>
-                            </ShippingListBox>
+                                            .addressNo ? (
+                                            <Checked />
+                                        ) : (
+                                            <UnChecked />
+                                        )}
+                                    </CheckBox>
+                                    <Receiver>
+                                        <DefaultAddress>기본</DefaultAddress>
+                                        {
+                                            shippingData.defaultAddress
+                                                .receiverName
+                                        }
+                                    </Receiver>
+                                    <Address>
+                                        {
+                                            shippingData.defaultAddress
+                                                .receiverAddress
+                                        }{' '}
+                                        {
+                                            shippingData.defaultAddress
+                                                .receiverDetailAddress
+                                        }
+                                    </Address>
+                                    <Contact>
+                                        {
+                                            shippingData.defaultAddress
+                                                .receiverContact1
+                                        }
+                                    </Contact>
+                                    <Blank></Blank>
+                                </ShippingListBox>
+                            )}
                             {shippingData?.recentAddresses
                                 .filter(({ addressNo }) => {
                                     return (
                                         addressNo !==
-                                        shippingData.defaultAddress.addressNo
+                                        shippingData?.defaultAddress?.addressNo
                                     );
                                 })
                                 .map(

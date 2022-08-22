@@ -232,6 +232,10 @@ const SearchAddressModal = ({
                                                     'shippingAddress.receiverAddress',
                                                     roadAddress,
                                                 );
+                                                setValue(
+                                                    'shippingAddress.receiverJibunAddress',
+                                                    jibunAddress,
+                                                );
                                                 onClickToggleModal();
                                             }}
                                         >
@@ -245,6 +249,10 @@ const SearchAddressModal = ({
                                                 setValue(
                                                     'shippingAddress.receiverZipCd',
                                                     zipCode,
+                                                );
+                                                setValue(
+                                                    'shippingAddress.receiverAddress',
+                                                    roadAddress,
                                                 );
                                                 setValue(
                                                     'shippingAddress.receiverJibunAddress',

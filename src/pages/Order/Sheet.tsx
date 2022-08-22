@@ -7,13 +7,14 @@ import { useForm } from 'react-hook-form';
 import { shallowEqual } from 'react-redux';
 
 import { useTypedSelector } from 'state/reducers';
-import { orderSheet, purchase } from 'api/order';
+import { orderSheet } from 'api/order';
 import {
     CouponRequest,
     OrderProductOption,
     PaymentReserve,
 } from 'models/order';
-import { CHANNEL_TYPE, COUNTRY_CD, PG_TYPE } from 'models';
+import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
+import orderPayment from 'pages/Order/orderPayment';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
@@ -205,7 +206,7 @@ const SheetButton = styled.div<{ width: string }>`
     cursor: pointer;
 `;
 
-const SheetOrderPriceWrapper = styled.div`
+const SheetOrderPriceWrapper = styled.form`
     height: fit-content;
     position: sticky;
     top: 280px;
@@ -352,22 +353,26 @@ const Sheet = () => {
     const paymentData = {
         orderSheetNo,
         shippingAddress: {
-            addressNo: 0,
-            receiverZipCd: '1231231', // TODO zipCode 입력 하기
+            addressNo: getValues('shippingAddress.addressNo')
+                ? getValues('shippingAddress.addressNo')
+                : 0,
+            receiverZipCd: getValues('shippingAddress.receiverZipCd'), // TODO zipCode 입력 하기
             receiverAddress: getValues('shippingAddress.receiverAddress'),
-            receiverJibunAddress: getValues(
-                'shippingAddress.receiverAddress', // TODO 지번 주소 입력
-            ),
+            receiverJibunAddress: 'asf',
             receiverDetailAddress: getValues(
                 'shippingAddress.receiverDetailAddress',
             ),
             receiverName: getValues('shippingAddress.receiverName'),
             receiverContact1: getValues('shippingAddress.receiverContact1'),
-            customsIdNumber: '123',
-            countryCd: COUNTRY_CD.KR,
+            shippingInfoLaterInputContact: '',
+            requestShippingDate: null,
+            receiverContact2: null,
+            customsIdNumber: null,
+            addressName: null,
+            countryCd: null,
         },
+        orderTitle: 'asdf',
         useDefaultAddress: getValues('useDefaultAddress'),
-        saveAddressBook: false,
         deliveryMemo: getValues('deliveryMemo'),
         member: !!member?.memberName,
         orderer: {
@@ -375,12 +380,30 @@ const Sheet = () => {
             ordererEmail: getValues('orderer.ordererEmail'),
             ordererContact1: getValues('orderer.ordererContact1'),
         },
+        coupons: {
+            productCoupons: selectCoupon?.productCoupons
+                ? selectCoupon.productCoupons
+                : null,
+            cartCouponIssueNo: selectCoupon?.cartCouponIssueNo
+                ? selectCoupon.cartCouponIssueNo
+                : null,
+        },
+        tempPassword: getValues('tempPassword')
+            ? getValues('tempPassword')
+            : null,
         updateMember: false,
-        subPayAmt: 0,
-        pgType: PG_TYPE.INICIS,
-        payType: getValues('payType'),
-        clientReturnUrl: window.location.href, // TODO returnUrl 작성 및 이동하기
-        paymentAmtForVerification: orderData?.data.paymentInfo.paymentAmt!,
+        subPayAmt: getValues('subPayAmt') ? getValues('subPayAmt') : 0,
+        pgType: PG_TYPE.NONE,
+        payType: PAY_TYPE.ACCOUNT,
+        inAppYn: 'N',
+        accumulationAmt: 0,
+        availableMaxAccumulationAmt: 0,
+        paymentAmt: orderData?.data.paymentInfo.paymentAmt,
+        bankAccountToDeposit: {
+            bankAccount: mallInfo.bankAccountInfo.bankAccount,
+            bankCode: mallInfo.bankAccountInfo.bankName,
+            bankDepositorName: mallInfo.bankAccountInfo.bankDepositorName,
+        },
     };
 
     const { mutate: couponApplyMutate } = useMutation(
@@ -394,18 +417,6 @@ const Sheet = () => {
         {
             onSuccess: () => {
                 orderRefetch();
-            },
-        },
-    );
-
-    const { mutate: paymentMutate } = useMutation(
-        async () =>
-            await purchase.reservePayment({
-                ...paymentData,
-            }),
-        {
-            onSuccess: (res) => {
-                // TODO 결제
             },
         },
     );
@@ -434,7 +445,9 @@ const Sheet = () => {
 
     const agreeAllHandler = (checked: boolean) => {
         if (checked) {
-            setAgreePurchase([...orderTerms]);
+            accessTokenInfo?.accessToken
+                ? setAgreePurchase(['agreePurchase'])
+                : setAgreePurchase([...orderTerms]);
         } else {
             setAgreePurchase([]);
         }
@@ -608,7 +621,7 @@ const Sheet = () => {
                             </>
                         )}
                     </SheetOrderWrapper>
-                    <SheetOrderPriceWrapper>
+                    <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
                         <OrderSheetPrice
                             title='총 결제 금액'
                             cartOrderPrice={
@@ -755,12 +768,23 @@ const Sheet = () => {
                         <SheetButton
                             width='100%'
                             onClick={handleSubmit(() => {
-                                if (
+                                if (accessTokenInfo?.accessToken) {
+                                    if (
+                                        !agreePurchase.includes('agreePurchase')
+                                    ) {
+                                        alert('약관에 동의해주세요.');
+                                        return;
+                                    }
+                                } else if (
                                     agreePurchase.length !== orderTerms.length
                                 ) {
                                     alert('약관에 동의해주세요.');
                                     return;
                                 }
+                                orderPayment.setConfiguration();
+                                orderPayment.reservation(paymentData);
+                                // paymentMutate();
+                                // devEnvironmentPayment();
                             })}
                         >
                             결제하기
