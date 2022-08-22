@@ -1,32 +1,41 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { faBasketShopping } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslation } from 'react-i18next';
-import { shallowEqual } from 'react-redux';
+import currency from 'currency.js';
+import { NavHashLink } from 'react-router-hash-link';
 
-import { product } from 'api/product';
-import { CHANNEL_TYPE } from 'models';
-import { cart, orderSheet } from 'api/order';
-import { OrderSheetBody, ShoppingCartBody } from 'models/order';
-import { useAppDispatch, useTypedSelector } from 'state/reducers';
+import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
+import Header from 'components/shared/Header';
+import MainCategoryBanners from 'components/Main/MainCategoryBanners';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 import ProductImageList from 'components/Common/ImageSlider';
 import ProductOptionList from 'components/Product/ProductOptionList';
 import RelatedProduct from 'components/Product/RelatedProduct';
+import { product } from 'api/product';
+import { cart, orderSheet } from 'api/order';
+import { banner } from 'api/display';
+import BANNER from 'const/banner';
+import { CHANNEL_TYPE } from 'models';
 import { ProductOption } from 'models/product';
+import { OrderSheetBody, ShoppingCartBody } from 'models/order';
+import { sortBanners } from 'utils/banners';
+import { useMember } from 'hooks';
 
-const ProductContainer = styled.div`
-    margin: 50px auto;
-    width: 1280px;
+const ProductContainer = styled(LayoutResponsive)`
+    text-align: left;
+    padding-top: 0;
 `;
 
 const ProductContainerTop = styled.div`
     display: flex;
     width: 100%;
     justify-content: space-between;
+    margin-bottom: 230px;
 `;
 
 const ProductInfoBox = styled.div`
@@ -41,8 +50,12 @@ const ProductTitleBox = styled.div`
 
 const ProductTitle = styled.h2`
     font-size: 64px;
+    font-weight: bold;
+    line-height: 77px;
     color: #191919;
+    margin-bottom: 5px;
 `;
+
 const ProductText = styled.div`
     font-size: 16px;
     color: #858585;
@@ -149,45 +162,6 @@ const BuyNow = styled.div`
 
 const ProductContainerBottom = styled.div``;
 
-const ExternalLinkBox = styled.div`
-    display: flex;
-    justify-content: space-between;
-    width: 70%;
-    margin: 107px auto 148px;
-    > a {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        > span {
-            font-size: 24px;
-        }
-    }
-`;
-
-const ExternalIcon = styled.span`
-    width: 57px;
-    height: 57px;
-    background: #000;
-    border-radius: 7px;
-    margin-right: 10px;
-`;
-
-const ProductDescriptionBox = styled.div`
-    display: flex;
-    justify-content: center;
-    width: 60%;
-    text-align: center;
-    font-size: 24px;
-    margin: 0 auto 138px;
-`;
-
-const ProductDescription = styled.div<{ isActive?: boolean }>`
-    width: 33.33%;
-    border-bottom: 3px solid
-        ${(props) => (props.isActive ? '#191919' : '#dbdbdb')};
-    padding: 22px 0;
-`;
-
 const ProductContentBox = styled.div`
     > p {
         width: fit-content;
@@ -197,6 +171,28 @@ const ProductContentBox = styled.div`
         display: block;
         margin: 0 auto;
     }
+`;
+
+const ProductDetailTabList = styled.ul`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 100px;
+`;
+
+const ProductDetailTabListItem = styled.li<{ isActive: boolean }>`
+    border-bottom: 3px solid
+        ${(props) => (props.isActive ? '#191919' : '#dbdbdb')};
+    text-align: center;
+    font-size: 24px;
+    flex: 1 1 25%;
+`;
+
+const StyledNavHashLink = styled(NavHashLink)`
+    padding: 22px 0;
+    display: block;
+    width: 100%;
+    height: 100%;
 `;
 
 const ProductDetail = () => {
@@ -209,18 +205,13 @@ const ProductDetail = () => {
     const [selectOptionProducts, setSelectOptionProducts] = useState(
         new Map<number, ProductOption>(),
     );
-    const [selectedDesc, setSelectedDesc] = useState<number>(0);
+    const [selectedTab, setSelectedTab] = useState(0);
 
     const navigate = useNavigate();
 
     const dispatch = useAppDispatch();
 
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
+    const { member } = useMember();
 
     const { t: productDetail } = useTranslation('productDetail');
 
@@ -236,7 +227,6 @@ const ProductDetail = () => {
                     };
                 });
             },
-            refetchOnWindowFocus: false,
         },
     );
 
@@ -326,163 +316,214 @@ const ProductDetail = () => {
         });
     };
 
+    const { data: mainBannerData } = useQuery(
+        ['mainCategoryBanner', BANNER.mainCategoryBanner],
+        async () => await banner.getBanners([BANNER.mainCategoryBanner]),
+        {
+            select: ({ data }) => {
+                return data;
+            },
+        },
+    );
+
+    const productDetailTab = useMemo(
+        () => [
+            {
+                title: 'productSummary',
+                name: productDetail('productSummary'),
+            },
+            {
+                title: 'productSpecifications',
+                name: productDetail('productSpecifications'),
+            },
+            {
+                title: 'productComparison',
+                name: productDetail('productComparison'),
+            },
+            {
+                title: 'productPolicy',
+                name: productDetail('productPolicy'),
+            },
+        ],
+        [productDetail],
+    );
+
     return (
-        <ProductContainer>
-            <ProductContainerTop>
-                <ProductImageList
-                    productImageList={productImageData[currentOptionNo]}
-                    productImageAlt={productData?.data.baseInfo.productName}
+        <>
+            <Header />
+
+            {mainBannerData?.[0]?.accounts && (
+                <MainCategoryBanners
+                    banners={sortBanners(mainBannerData[0].accounts[0].banners)}
                 />
-                <ProductInfoBox>
-                    <ProductTitleBox>
-                        <div>
-                            <ProductTitle>
-                                {productData?.data.baseInfo.productName}
-                            </ProductTitle>
-                            <ProductText>
-                                {productData?.data.baseInfo.promotionText}
-                            </ProductText>
-                        </div>
-                        <ShareButton>공유하기 버튼</ShareButton>
-                    </ProductTitleBox>
-                    <ProductPriceBox>
-                        <ProductPrice>
+            )}
+
+            <ProductContainer type='large'>
+                <ProductContainerTop>
+                    <ProductImageList
+                        productImageList={productImageData[currentOptionNo]}
+                        productImageAlt={productData?.data.baseInfo.productName}
+                    />
+                    <ProductInfoBox>
+                        <ProductTitleBox>
+                            <div>
+                                <ProductTitle>
+                                    {productData?.data.baseInfo.productName}
+                                </ProductTitle>
+                                <ProductText>
+                                    {productData?.data.baseInfo.promotionText}
+                                </ProductText>
+                            </div>
+                            <ShareButton>공유하기 버튼</ShareButton>
+                        </ProductTitleBox>
+                        <ProductPriceBox>
+                            <ProductPrice>
+                                <p>
+                                    {productData &&
+                                        currency(
+                                            productData.data.price.salePrice -
+                                                productData.data.price
+                                                    .immediateDiscountAmt,
+                                            {
+                                                symbol: '',
+                                                precision: 0,
+                                            },
+                                        ).format()}{' '}
+                                    <span>원</span>
+                                    <span
+                                        className='basic_price'
+                                        style={{
+                                            textDecoration: 'line-through',
+                                        }}
+                                    >
+                                        {productData &&
+                                            `${currency(
+                                                productData.data.price
+                                                    .salePrice,
+                                                { symbol: '', precision: 0 },
+                                            ).format()}`}
+                                    </span>
+                                </p>
+                            </ProductPrice>
+                            <ProductAccumulationBox>
+                                <p>{productDetail('accumulateBenefits')}</p>
+                                <p>
+                                    {productDetail('accumulateBenefits')}{' '}
+                                    {
+                                        productData?.data.price
+                                            .accumulationAmtWhenBuyConfirm
+                                    }
+                                    원
+                                </p>
+                            </ProductAccumulationBox>
+                        </ProductPriceBox>
+                        <ProductOptionList
+                            setCurrentOptionNo={setCurrentOptionNo}
+                            setSelectOptionProducts={setSelectOptionProducts}
+                            productNo={productNo}
+                            selectOptionProducts={selectOptionProducts}
+                            setProductImageData={setProductImageData}
+                        />
+                        <ProductAmount>
                             <p>
-                                {productData &&
-                                    productData.data.price.salePrice -
-                                        productData.data.price
-                                            .immediateDiscountAmt}
-                                <span>원 </span>
-                                <span
-                                    className='basic_price'
-                                    style={{ textDecoration: 'line-through' }}
-                                >
-                                    {productData?.data.price.salePrice}
+                                {productDetail('amountPrice')}{' '}
+                                <span>
+                                    {productDetail('amount')}{' '}
+                                    {selectOptionProducts.size > 0 &&
+                                        Array.from(
+                                            selectOptionProducts.values(),
+                                        ).reduce((prev, cur) => {
+                                            return prev + cur.count!;
+                                        }, 0)}
+                                    {productDetail('count')}
                                 </span>
                             </p>
-                        </ProductPrice>
-                        <ProductAccumulationBox>
-                            <p>{productDetail('accumulateBenefits')}</p>
                             <p>
-                                {productDetail('accumulateBenefits')}{' '}
-                                {
-                                    productData?.data.price
-                                        .accumulationAmtWhenBuyConfirm
-                                }
-                                원
-                            </p>
-                        </ProductAccumulationBox>
-                    </ProductPriceBox>
-                    <ProductOptionList
-                        setCurrentOptionNo={setCurrentOptionNo}
-                        setSelectOptionProducts={setSelectOptionProducts}
-                        productNo={productNo}
-                        selectOptionProducts={selectOptionProducts}
-                        setProductImageData={setProductImageData}
-                    />
-                    <ProductAmount>
-                        <p>
-                            {productDetail('amountPrice')}{' '}
-                            <span>
-                                {productDetail('amount')}{' '}
                                 {selectOptionProducts.size > 0 &&
                                     Array.from(
                                         selectOptionProducts.values(),
                                     ).reduce((prev, cur) => {
-                                        return prev + cur.count!;
+                                        return prev + cur.amountPrice!;
                                     }, 0)}
-                                {productDetail('count')}
-                            </span>
-                        </p>
-                        <p>
-                            {selectOptionProducts.size > 0 &&
-                                Array.from(
-                                    selectOptionProducts.values(),
-                                ).reduce((prev, cur) => {
-                                    return prev + cur.amountPrice!;
-                                }, 0)}
-                            원
-                        </p>
-                    </ProductAmount>
-                    <DeliveryInfoBox>
-                        <p>{productDetail('shippingInformation')}</p>
-                        <DeliveryFee>
-                            {productDetail('shippingCost')}{' '}
-                            <span>
-                                {productData?.data.deliveryFee.deliveryAmt}
-                            </span>
-                        </DeliveryFee>
-                        <DeliveryDesc>
-                            {
-                                productData?.data.deliveryFee
-                                    .defaultDeliveryConditionLabel
-                            }
-                        </DeliveryDesc>
-                    </DeliveryInfoBox>
-                    <PurchaseBox>
-                        <CartButton onClick={addCartHandler}>
-                            {isCartLoading ? (
-                                <div>'등록중'</div>
-                            ) : (
-                                <div>
-                                    <FontAwesomeIcon icon={faBasketShopping} />
-                                </div>
-                            )}
-                        </CartButton>
-                        <BuyNow onClick={purchaseHandler}>
-                            <span>{productDetail('buyNow')}</span>
-                        </BuyNow>
-                    </PurchaseBox>
-                </ProductInfoBox>
-            </ProductContainerTop>
-            <ProductContainerBottom>
-                <ExternalLinkBox>
-                    <a href=''>
-                        <ExternalIcon></ExternalIcon>{' '}
-                        <span>{productDetail('goToManual')} &gt;</span>
-                    </a>
-                    <a href=''>
-                        <ExternalIcon></ExternalIcon>{' '}
-                        <span>{productDetail('voiceCaddieManager')} &gt;</span>
-                    </a>
-                    <a href=''>
-                        <ExternalIcon></ExternalIcon>
-                        <span>{productDetail('voiceCaddieManual')} &gt;</span>
-                    </a>
-                </ExternalLinkBox>
-                <ProductDescriptionBox>
-                    <ProductDescription
-                        isActive={selectedDesc === 0}
-                        onClick={() => setSelectedDesc(0)}
-                    >
-                        <a href='#productContent'>
-                            {productDetail('productDetail')}
-                        </a>
-                    </ProductDescription>
-                    <ProductDescription
-                        isActive={selectedDesc === 1}
-                        onClick={() => setSelectedDesc(1)}
-                    >
-                        <a href='#productContent'>
-                            {productDetail('productSpecifications')}
-                        </a>
-                    </ProductDescription>
-                    <ProductDescription
-                        isActive={selectedDesc === 2}
-                        onClick={() => setSelectedDesc(2)}
-                    >
-                        <a href='#productContent'>{productDetail('notice')}</a>
-                    </ProductDescription>
-                </ProductDescriptionBox>
-                <ProductContentBox
-                    id='productContent'
-                    dangerouslySetInnerHTML={{
-                        __html: productData?.data.baseInfo.content ?? '',
-                    }}
-                ></ProductContentBox>
-                <RelatedProduct productData={productData} />
-            </ProductContainerBottom>
-        </ProductContainer>
+                                원
+                            </p>
+                        </ProductAmount>
+                        <DeliveryInfoBox>
+                            <p>{productDetail('shippingInformation')}</p>
+                            <DeliveryFee>
+                                {productDetail('shippingCost')}{' '}
+                                <span>
+                                    {productData?.data.deliveryFee.deliveryAmt}
+                                </span>
+                            </DeliveryFee>
+                            <DeliveryDesc>
+                                {
+                                    productData?.data.deliveryFee
+                                        .defaultDeliveryConditionLabel
+                                }
+                            </DeliveryDesc>
+                        </DeliveryInfoBox>
+                        <PurchaseBox>
+                            <CartButton onClick={addCartHandler}>
+                                {isCartLoading ? (
+                                    <div>'등록중'</div>
+                                ) : (
+                                    <div>
+                                        <FontAwesomeIcon
+                                            icon={faBasketShopping}
+                                        />
+                                    </div>
+                                )}
+                            </CartButton>
+                            <BuyNow onClick={purchaseHandler}>
+                                <span>{productDetail('buyNow')}</span>
+                            </BuyNow>
+                        </PurchaseBox>
+                    </ProductInfoBox>
+                </ProductContainerTop>
+
+                <ProductContainerBottom>
+                    <ProductDetailTabList>
+                        {productDetailTab.map(({ title, name }, index) => (
+                            <ProductDetailTabListItem
+                                key={title}
+                                isActive={selectedTab === index}
+                                onClick={() => setSelectedTab(index)}
+                            >
+                                <StyledNavHashLink to={`#${title}`} smooth>
+                                    {name}
+                                </StyledNavHashLink>
+                            </ProductDetailTabListItem>
+                        ))}
+                    </ProductDetailTabList>
+                    <ProductContentBox
+                        id='productSummary'
+                        dangerouslySetInnerHTML={{
+                            __html: productData?.data.baseInfo.content ?? '',
+                        }}
+                    />
+                    <ProductContentBox
+                        id='productSpecifications'
+                        dangerouslySetInnerHTML={{
+                            __html: productData?.data.baseInfo.content ?? '',
+                        }}
+                    />{' '}
+                    <ProductContentBox
+                        id='productComparison'
+                        dangerouslySetInnerHTML={{
+                            __html: productData?.data.baseInfo.content ?? '',
+                        }}
+                    />{' '}
+                    <ProductContentBox
+                        id='productPolicy'
+                        dangerouslySetInnerHTML={{
+                            __html: productData?.data.baseInfo.content ?? '',
+                        }}
+                    />
+                    <RelatedProduct productData={productData} />
+                </ProductContainerBottom>
+            </ProductContainer>
+        </>
     );
 };
 
