@@ -629,7 +629,7 @@ const Complete = () => {
                             >
                                 주문 내역 보기
                             </OrderListButton>
-                            <ContinueShoppingButton to={'/'}>
+                            <ContinueShoppingButton to={PATHS.MAIN}>
                                 쇼핑 계속하기
                             </ContinueShoppingButton>
                         </ButtonWrapper>
