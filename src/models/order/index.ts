@@ -289,7 +289,7 @@ export interface OrderProductOption {
     productNo: number;
     optionNo: number;
     optionInputs: OptionInputs[];
-    validInfo: ValidInfo;
+    validInfo?: ValidInfo;
     reservation: boolean;
     reservationDeliveryYmdt: string;
     setOptions: SetOption[];
@@ -710,4 +710,469 @@ export interface CartCoupon {
     selected: boolean;
     used: boolean;
     couponDiscountAmt: number;
+}
+
+export interface OrderDetailResponse {
+    orderNo: string;
+    orderYmdt: string;
+    payType: string;
+    payInfo: PayInfo;
+    pgType: string;
+    pgMallKey: string;
+    pgOrderNo: string;
+    escrow: boolean;
+    orderMemo: string;
+    orderOptionsGroupByPartner: OrderOptionsGroupByPartner[];
+    guestToken: any;
+    refundInfos: RefundInfo[];
+    additionalPayInfos: AdditionalPayInfo[];
+    exchangePayInfos: ExchangePayInfo[];
+    member: boolean;
+    firstOrderAmount: FirstOrderAmount;
+    lastOrderAmount: LastOrderAmount;
+    shippingAddress: ShippingAddress;
+    orderer: Orderer;
+    billingAddress: any;
+    nextActions: NextAction2[];
+    receiptInfos: ReceiptInfo[];
+    claimReasonTypes: ClaimReasonType[];
+    refundType: string;
+    refundPayType: string;
+    refundTypeLabel: string;
+    memo: string;
+    deliveryMemo: string;
+    extraData: ExtraData;
+    insurance: Insurance;
+    availableBanks: AvailableBank[];
+    requireCustomsIdNumber: boolean;
+    defaultOrderStatusType: string;
+    payTypeLabel: string;
+    accumulationAmtWhenBuyConfirm: number;
+}
+
+export interface PayInfo {
+    payType: string;
+    cardInfo: any;
+    bankInfo: BankInfo;
+    naverPayInfo: any;
+    cashAuthNo: any;
+    cashNo: any;
+    tradeNo: any;
+    escrowYn: string;
+    payAmt: number;
+    sellerCouponAmt: number;
+    pgCouponAmt: number;
+    cardCouponAmt: number;
+    pointAmt: number;
+    taxType: any;
+    mobileInfo: any;
+}
+
+export interface BankInfo {
+    bank: string;
+    bankCode: string;
+    bankName: string;
+    account: string;
+    bankAmt: number;
+    depositAmt: number;
+    depositYmdt: string;
+    remitterName: string;
+    depositorName: string;
+    paymentExpirationYmdt: string;
+}
+
+export interface OrderOptionsGroupByPartner {
+    partnerNo: number;
+    partnerName: string;
+    orderOptionsGroupByDelivery: OrderOptionsGroupByDelivery[];
+}
+
+export interface OrderOptionsGroupByDelivery {
+    deliveryNo: number;
+    deliveryAmt: number;
+    remoteDeliveryAmt: number;
+    returnDeliveryAmt: number;
+    deliveryType: string;
+    deliveryCompanyType: string;
+    invoiceNo: string;
+    deliveryPayType: string;
+    deliveryMemo: any;
+    retrieveInvoiceUrl: string;
+    orderOptions: OrderOption[];
+    receiverName: string;
+    receiverContact1: string;
+    receiverContact2: string;
+    receiverAddress: string;
+    receiverZipCd: string;
+    receiverDetailAddress: string;
+    receiverJibunAddress: any;
+    requestShippingDate: any;
+    usesShippingInfoLaterInput: boolean;
+    shippingAreaType: string;
+    partnerNo: number;
+    partnerName: string;
+    shippingMethodType: any;
+    shippingMethodLabel: any;
+    frontDisplayText: any;
+    deliveryCompanyTypeLabel: string;
+}
+
+export interface OrderOption {
+    orderNo: string;
+    orderOptionNo: number;
+    productNo: number;
+    partnerName: string;
+    optionNo: number;
+    additionalProductNo: number;
+    imageUrl: string;
+    brandNo: number;
+    brandName: string;
+    brandNameEn: string;
+    productName: string;
+    productNameEn: string;
+    optionName: string;
+    optionValue: string;
+    optionUsed: boolean;
+    optionType: string;
+    orderCnt: number;
+    orderStatusType: string;
+    claimStatusType: any;
+    orderStatusDate: OrderStatusDate;
+    claimNo: any;
+    accumulationAmt: number;
+    refundable: boolean;
+    deliveryInternationalYn: boolean;
+    reservationDeliveryYmdt: any;
+    exchangeYn: string;
+    member: boolean;
+    deliverable: boolean;
+    inputs: any[];
+    nextActions: NextAction[];
+    optionManagementCd: string;
+    delivery: Delivery;
+    price: Price;
+    reservation: boolean;
+    isFreeGift: boolean;
+    setOptions: SetOption[];
+    isRecurringPayment: boolean;
+    holdDelivery: boolean;
+    optionTitle: string;
+    orderStatusTypeLabel: string;
+    claimStatusTypeLabel: any;
+}
+
+export interface OrderStatusDate {
+    registerYmdt: string;
+    buyConfirmYmdt: any;
+    reviewableYmdt: any;
+    payYmdt: any;
+}
+
+export interface NextAction {
+    nextActionType: string;
+    uri: string;
+    actionGroupType: string;
+}
+
+export interface Delivery {
+    invoiceNo: any;
+    deliveryCompanyType: any;
+    retrieveInvoiceUrl: any;
+    deliveryType: string;
+    usesShippingInfoLaterInput: boolean;
+    deliveryCompanyTypeLabel: any;
+}
+
+export interface Price {
+    standardPrice: number;
+    immediateDiscountedPrice: number;
+    buyPrice: number;
+    standardAmt: number;
+    immediateDiscountedAmt: number;
+    buyAmt: number;
+    salePrice: number;
+    addPrice: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    accumulationRate: number;
+}
+
+export interface SetOption {
+    mallProductNo: number;
+    productManagementCd: string;
+    productName: string;
+    mallOptionNo: number;
+    optionManagementCd: string;
+    optionName: string;
+    optionValue: string;
+    usesOption: boolean;
+    count: number;
+    optionPrice: number;
+    stockNo: number;
+    sku: string;
+    optionNameForDisplay: string;
+}
+
+export interface RefundInfo {
+    claimNo: number;
+    productAmtInfo: ProductAmtInfo;
+    deliveryAmtInfo: DeliveryAmtInfo;
+    subtractionAmtInfo: SubtractionAmtInfo;
+    returnWayType: string;
+    returnAddress: ReturnAddress;
+    returnInvoiceNo: any;
+    returnDeliveryCompanyTypeLabel: any;
+    exchangeAddress: ExchangeAddress;
+    claimImageUrls: any[];
+    exchangeOrderOption: any;
+    claimClassType: any;
+    refundBankAccount: RefundBankAccount;
+    refundPayAmt: number;
+    refundSubPayAmt: number;
+    refundType: string;
+    refundPayType: string;
+    refundTypeLabel: string;
+    refundMainPayAmt: number;
+}
+
+export interface ProductAmtInfo {
+    immediateDiscountedPrice: number;
+    discountAmt: number;
+    standardPrice: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    productCouponDiscountAmt: number;
+    exchangeImmediateDiscountedPrice: number;
+    returnImmediateDiscountedPrice: number;
+    exchangeDiscountAmt: number;
+    exchangeAdjustAmt: number;
+    totalAmt: number;
+}
+
+export interface DeliveryAmtInfo {
+    beforeDeliveryAmt: number;
+    afterDeliveryAmt: number;
+    refundDeliveryAmt: number;
+    payOnDelivery: boolean;
+    sellerFault: boolean;
+    returnDeliveryAmt: number;
+    returnAdjustAmt: number;
+    buyerReturn: boolean;
+    exchangeDeliveryAmt: number;
+    exchangeAdjustAmt: number;
+    totalAmt: number;
+}
+
+export interface SubtractionAmtInfo {
+    cartCouponAmt: number;
+    deliveryCouponAmt: number;
+    refundAdjustAmt: number;
+    refundAdjustReason: string;
+    totalAmt: number;
+}
+
+export interface ReturnAddress {
+    name: string;
+    contact1: string;
+    contact2: any;
+    zipCd: string;
+    address: string;
+    jibunAddress: string;
+    detailAddress: string;
+    note: string;
+    addressStr: string;
+    customsIdNumber: any;
+}
+
+export interface ExchangeAddress {
+    name: string;
+    contact1: string;
+    contact2: any;
+    zipCd: string;
+    address: string;
+    jibunAddress: string;
+    detailAddress: string;
+    note: string;
+    addressStr: string;
+    customsIdNumber: any;
+}
+
+export interface RefundBankAccount {
+    bank: string;
+    bankAccount: string;
+    bankDepositorName: string;
+    bankName: string;
+}
+
+export interface AdditionalPayInfo {
+    claimNo: number;
+    productAmtInfo: ProductAmtInfo2;
+    deliveryAmtInfo: DeliveryAmtInfo2;
+    subtractionAmtInfo: SubtractionAmtInfo2;
+    returnWayType: any;
+    returnAddress: ReturnAddress2;
+    returnInvoiceNo: any;
+    returnDeliveryCompanyTypeLabel: any;
+    exchangeAddress: ExchangeAddress2;
+    claimImageUrls: any[];
+    exchangeOrderOption: any;
+    claimClassType: any;
+    bankAccount: BankAccount;
+    remitter: string;
+    payType: string;
+    exchangePayAmt: number;
+}
+
+export interface ProductAmtInfo2 {
+    immediateDiscountedPrice: number;
+    discountAmt: number;
+    standardPrice: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    productCouponDiscountAmt: number;
+    exchangeImmediateDiscountedPrice: number;
+    returnImmediateDiscountedPrice: number;
+    exchangeDiscountAmt: number;
+    exchangeAdjustAmt: number;
+    totalAmt: number;
+}
+
+export interface DeliveryAmtInfo2 {
+    beforeDeliveryAmt: number;
+    afterDeliveryAmt: number;
+    refundDeliveryAmt: number;
+    payOnDelivery: boolean;
+    sellerFault: boolean;
+    returnDeliveryAmt: number;
+    returnAdjustAmt: number;
+    buyerReturn: boolean;
+    exchangeDeliveryAmt: number;
+    exchangeAdjustAmt: number;
+    totalAmt: number;
+}
+
+export interface SubtractionAmtInfo2 {
+    cartCouponAmt: number;
+    deliveryCouponAmt: number;
+    refundAdjustAmt: number;
+    refundAdjustReason: string;
+    totalAmt: number;
+}
+
+export interface ReturnAddress2 {
+    name: string;
+    contact1: string;
+    contact2: any;
+    zipCd: string;
+    address: string;
+    jibunAddress: string;
+    detailAddress: string;
+    note: string;
+    addressStr: string;
+    customsIdNumber: any;
+}
+
+export interface ExchangeAddress2 {
+    name: string;
+    contact1: string;
+    contact2: any;
+    zipCd: string;
+    address: string;
+    jibunAddress: string;
+    detailAddress: string;
+    note: string;
+    addressStr: string;
+    customsIdNumber: any;
+}
+
+export interface BankAccount {
+    bank: string;
+    bankAccount: string;
+    bankDepositorName: string;
+    bankName: string;
+}
+
+export interface ExchangePayInfo {
+    exchangePayAmt: number;
+    payType: string;
+    bankAccount: BankAccount2;
+    remitter: string;
+}
+
+export interface BankAccount2 {
+    bank: string;
+    bankAccount: string;
+    bankDepositorName: string;
+    bankName: string;
+}
+
+export interface FirstOrderAmount {
+    payAmt: number;
+    subPayAmt: number;
+    standardAmt: number;
+    deliveryAmt: number;
+    remoteDeliveryAmt: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    cartCouponDiscountAmt: number;
+    productCouponDiscountAmt: number;
+    deliveryCouponDiscountAmt: number;
+    totalProductAmt: number;
+    chargeAmt: number;
+}
+
+export interface LastOrderAmount {
+    payAmt: number;
+    subPayAmt: number;
+    standardAmt: number;
+    deliveryAmt: number;
+    remoteDeliveryAmt: number;
+    immediateDiscountAmt: number;
+    additionalDiscountAmt: number;
+    cartCouponDiscountAmt: number;
+    productCouponDiscountAmt: number;
+    deliveryCouponDiscountAmt: number;
+    totalProductAmt: number;
+    chargeAmt: number;
+}
+
+export interface ShippingAddress {
+    addressNo: number;
+    receiverZipCd: string;
+    receiverAddress: string;
+    receiverJibunAddress: string;
+    receiverDetailAddress: string;
+    receiverName: string;
+    addressName: any;
+    receiverContact1: string;
+    receiverContact2: any;
+    customsIdNumber: any;
+    countryCd: string;
+}
+
+export interface NextAction2 {
+    nextActionType: string;
+    uri: string;
+    actionGroupType: string;
+}
+
+export interface ReceiptInfo {
+    receiptType: string;
+    url: string;
+}
+
+export interface ClaimReasonType {
+    claimReasonType: string;
+    label: string;
+    responsibleObjectType: string;
+}
+export interface Insurance {
+    no: any;
+    type: any;
+    url: any;
+}
+
+export interface AvailableBank {
+    bank: string;
+    label: string;
 }
