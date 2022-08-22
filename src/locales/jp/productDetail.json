@@ -14,7 +14,8 @@
     "goToManual": "매뉴얼 바로가기",
     "voiceCaddieManager": "보이스캐디 매니저",
     "voiceCaddieManual": "보이스캐디 매뉴얼",
-    "productDetail": "제품 상세",
+    "productSummary": "제품 개요",
     "productSpecifications": "제품 스펙",
-    "notice": "유의사항"
+    "productComparison": "제품 비교",
+    "productPolicy": "배송 환불/규정"
 }
