@@ -8,6 +8,8 @@ import Header from 'components/shared/Header';
 import BandBanner from 'components/shared/BandBanner';
 import MainSlideBanner from 'components/Main/MainSlideBanner';
 import MainCategoryBanners from 'components/Main/MainCategoryBanners';
+import MainBanner from 'components/Main/MainBanner';
+import MainVideoBanner from 'components/Main/MainVideoBanner';
 import ETCSection from 'components/Main/ETCSection';
 import { banner } from 'api/display';
 import { sortBanners } from 'utils/banners';
@@ -55,20 +57,22 @@ const Main = () => {
         <>
             <Header />
 
-            {bandBannerVisible && mainBannerData && (
-                <BandBanner
-                    title={
-                        mainBannerData.mainBanner.accounts[0].banners[0].name
-                    }
-                    url={
-                        mainBannerData.mainBanner.accounts[0].banners[0]
-                            .videoUrl ??
-                        mainBannerData.mainBanner.accounts[0].banners[0]
-                            .landingUrl
-                    }
-                    onCloseClick={onBandBannerCloseClick}
-                />
-            )}
+            {bandBannerVisible &&
+                mainBannerData?.mainBanner.accounts[0].banners && (
+                    <BandBanner
+                        title={
+                            mainBannerData.mainBanner.accounts[0].banners[0]
+                                .name
+                        }
+                        url={
+                            mainBannerData.mainBanner.accounts[0].banners[0]
+                                .videoUrl ??
+                            mainBannerData.mainBanner.accounts[0].banners[0]
+                                .landingUrl
+                        }
+                        onCloseClick={onBandBannerCloseClick}
+                    />
+                )}
 
             {/* 메인 슬라이드 배너 */}
             {mainBannerData?.mainBanner.accounts[1].banners && (
@@ -97,7 +101,39 @@ const Main = () => {
 
             {/* TODO: New Release */}
 
-            {/* TODO: 메인 배너 리스트 */}
+            {/* 메인 배너 리스트 */}
+            {mainBannerData?.mainBanner.accounts[2]?.banners &&
+                sortBanners(
+                    mainBannerData?.mainBanner.accounts[2]?.banners,
+                ).map(
+                    ({
+                        bannerNo,
+                        name,
+                        imageUrl,
+                        description,
+                        browerTargetType,
+                    }) => (
+                        <MainBanner
+                            key={bannerNo}
+                            title={name}
+                            imgUrl={imageUrl}
+                            desc={description}
+                            url={browerTargetType}
+                        />
+                    ),
+                )}
+
+            {/* 유튜브 슬라이드 배너 */}
+            {mainBannerData?.mainBanner.accounts[3]?.banners && (
+                <MainVideoBanner
+                    settings={{
+                        ...settings,
+                        style: { width: '1280px', height: 'auto' },
+                    }}
+                    title={mainBannerData?.mainBanner.accounts[3]?.accountName}
+                    banners={mainBannerData?.mainBanner.accounts[3]?.banners}
+                />
+            )}
 
             {/* ETC */}
             {mainBannerData?.mainBanner.accounts[4]?.banners && (
