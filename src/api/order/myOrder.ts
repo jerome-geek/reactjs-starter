@@ -2,7 +2,10 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
-import { DeliveryBody, ReceiptBody } from 'models/order';
+import { DeliveryBody, OrderDetailResponse, ReceiptBody } from 'models/order';
+import { tokenStorage } from 'utils/storage';
+
+const accessTokenInfo = tokenStorage.getAccessToken();
 
 const myOrder = {
     // TODO 500 error
@@ -27,7 +30,7 @@ const myOrder = {
                 endYmd,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
     // TODO orderNo가 포함 된 함수들은 테스트 x
@@ -38,16 +41,31 @@ const myOrder = {
         }: {
             orderRequestTypes?: Exclude<
                 keyof typeof ORDER_REQUEST_TYPE,
-                'ALL' | 'CLAIM' | 'NORMAL'
+                | 'DEPOSIT_WAIT'
+                | 'PAY_DONE'
+                | 'PRODUCT_PREPARE'
+                | 'DELIVERY_PREPARE'
+                | 'DELIVERY_ING'
+                | 'DELIVERY_DONE'
+                | 'BUY_CONFIRM'
+                | 'CANCEL_DONE'
+                | 'RETURN_DONE'
+                | 'EXCHANGE_DONE'
+                | 'PAY_WAIT'
+                | 'PAY_CANCEL'
+                | 'PAY_FAIL'
+                | 'DELETE'
+                | 'EXCHANGE_WAIT'
+                | 'REFUND_DONE'
             >;
         },
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<OrderDetailResponse>> =>
         request({
             method: 'GET',
             url: `/profile/orders/${orderNo}`,
             params: { orderRequestTypes },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -60,7 +78,7 @@ const myOrder = {
             url: '/profile/order-options/summary/status',
             params: { startYmd, endYmd },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -69,7 +87,7 @@ const myOrder = {
             method: 'PUT',
             url: `/profile/order-options/${orderOptionNo}/confirm`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -78,7 +96,7 @@ const myOrder = {
             method: 'PUT',
             url: `/profile/order-options/${orderOptionNo}/delivery-done`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -97,7 +115,7 @@ const myOrder = {
             url: '/profile/orders/summary/amount',
             params: { orderStatusType, startYmd, endYmd },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -106,7 +124,7 @@ const myOrder = {
             method: 'GET',
             url: '/profile/orders/summary/status',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -119,7 +137,7 @@ const myOrder = {
             url: `/profile/orders/${orderNo}/cashReceipt`,
             data: { cashReceiptKey, cashReceiptIssuePurposeType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -135,7 +153,7 @@ const myOrder = {
             url: `/profile/orders/${orderNo}/claim`,
             params: { orderRequestType, claimType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 
@@ -170,7 +188,7 @@ const myOrder = {
                 deliveryMemo,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
         }),
 };

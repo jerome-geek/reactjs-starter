@@ -9,7 +9,7 @@ import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
 const CartListBox = styled.div`
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
+    padding: 11px 0;
     height: 164px;
     border-bottom: 1px solid #dbdbdb;
     &:last-child {
@@ -27,10 +27,12 @@ const CartInformation = styled.div`
 const CartImage = styled.div`
     background: #f8f8fa;
     width: 50%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     > img {
-        display: block;
-        width: 60%;
-        margin: 0 auto;
+        width: 63%;
     }
 `;
 
@@ -220,24 +222,15 @@ const CartList = ({
             <CartPrice>
                 <p>
                     <span>
-                        {currency(
-                            cartData.price.salePrice + cartData.price.addPrice,
-                            {
-                                symbol: '',
-                                precision: 0,
-                            },
-                        ).format()}
-                    </span>
-                    {currency(
-                        cartData.price.salePrice +
-                            cartData.price.addPrice -
-                            cartData.price.immediateDiscountAmt -
-                            cartData.price.additionalDiscountAmt,
-                        {
+                        {currency(cartData.price.standardAmt, {
                             symbol: '',
                             precision: 0,
-                        },
-                    ).format()}{' '}
+                        }).format()}
+                    </span>
+                    {currency(cartData.price.buyAmt, {
+                        symbol: '',
+                        precision: 0,
+                    }).format()}{' '}
                     원
                 </p>
             </CartPrice>
@@ -249,7 +242,7 @@ const CartList = ({
                 원
             </CartDelivery>
             <CartAmount>
-                {currency(cartData.price.buyAmt, {
+                {currency(cartData.price.buyAmt + cartData.deliveryAmt, {
                     symbol: '',
                     precision: 0,
                 }).format()}
