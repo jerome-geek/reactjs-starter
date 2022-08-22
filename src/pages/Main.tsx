@@ -1,9 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { A11y, Navigation, Pagination } from 'swiper';
 import { SwiperProps } from 'swiper/react';
 import { useWindowSize } from 'usehooks-ts';
-import { sort } from '@fxts/core';
 
 import Header from 'components/shared/Header';
 import BandBanner from 'components/shared/BandBanner';
@@ -11,8 +10,8 @@ import MainSlideBanner from 'components/Main/MainSlideBanner';
 import MainCategoryBanners from 'components/Main/MainCategoryBanners';
 import ETCSection from 'components/Main/ETCSection';
 import { banner } from 'api/display';
+import { sortBanners } from 'utils/banners';
 import BANNER from 'const/banner';
-import { BannerInfo } from 'models/display';
 
 const Main = () => {
     const { width } = useWindowSize();
@@ -51,10 +50,6 @@ const Main = () => {
         }),
         [],
     );
-
-    const sortBanners = useCallback((banners: BannerInfo[]) => {
-        return sort((a, b) => a.displayOrder > b.displayOrder, banners);
-    }, []);
 
     return (
         <>
