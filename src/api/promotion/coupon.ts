@@ -7,14 +7,23 @@ import { tokenStorage } from 'utils/storage';
 const accessTokenInfo = tokenStorage.getAccessToken();
 
 const coupon = {
+    /**
+     * 내 쿠폰 가져오기
+     * - 로그인한 사용자가 보유한 쿠폰중 사용가능한 쿠폰과 이미 사용한 쿠폰을 구분하여 조회합니다.
+     *
+     * @param param0
+     * @returns
+     */
     getUserCoupons: ({
         endYmd,
         pageNumber,
         pageSize,
         usable,
         startYmd,
-    }: CouponsParams): Promise<AxiosResponse> =>
-        request({
+    }: CouponsParams): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/coupons',
             params: {
@@ -27,7 +36,8 @@ const coupon = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getCouponsIssuable: (): Promise<AxiosResponse> =>
         request({

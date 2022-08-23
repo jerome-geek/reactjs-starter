@@ -137,7 +137,7 @@ export interface TokenIssueBody {
     orderRequestType: ORDER_REQUEST_TYPE;
 }
 
-export interface ReceiptBody {
+export interface CashReceiptBody {
     cashReceiptIssuePurposeType: CASH_RECEIPT_ISSUE_PURPOSE_TYPE;
     cashReceiptKey: string;
 }
@@ -208,7 +208,7 @@ export interface PaymentReserve {
         >;
     savesLastPayType?: boolean;
     subPayAmt: number;
-    cashReceipt?: ReceiptBody;
+    cashReceipt?: CashReceiptBody;
     shippingAddresses?: ShippingAddresses & { savedAddressBook?: boolean }[];
 }
 
@@ -1175,4 +1175,20 @@ export interface Insurance {
 export interface AvailableBank {
     bank: string;
     label: string;
+}
+
+export interface OrderSummary {
+    depositWaitCnt: number; // 입금대기
+    payDoneCnt: number; // 결제완료
+    productPrepareCnt: number; // 상품준비중
+    deliveryPrepareCnt: number; // 배송준비중
+    deliveryIngCnt: number; // 배송중
+    deliveryDoneCnt: number; // 배송완료
+    buyConfirmCnt: number; // 구매확정
+    cancelProcessingCnt: number; // 취소진행중
+    cancelDoneCnt: number; // 취소완료
+    exchangeProcessingCnt: number; // 교환진행중
+    exchangeDoneCnt: number; // 교환완료
+    returnProcessingCnt: number; // 반품진행중
+    returnDoneCnt: number; // 반품완료
 }

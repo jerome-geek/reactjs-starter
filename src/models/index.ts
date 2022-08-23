@@ -529,6 +529,11 @@ enum DOMESTIC {
     NULL = 'null',
 }
 
+enum ACCUMULATION_REASON {
+    ADD = 'ADD',
+    SUB = 'SUB',
+}
+
 export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
@@ -572,4 +577,5 @@ export {
     PAY_TYPE,
     PG_TYPE,
     DOMESTIC,
+    ACCUMULATION_REASON,
 };
