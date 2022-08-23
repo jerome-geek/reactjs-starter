@@ -1,65 +1,84 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { ORDER_DIRECTION } from 'models';
-
-export enum ACCUMULATION_REASON {
-    ADD = 'ADD',
-    SUB = 'SUB',
-}
+import { tokenStorage } from 'utils/storage';
+import { ACCUMULATION_REASON, ORDER_DIRECTION } from 'models';
 
 const accumulation = {
-    getAccumulationHistories: ({
-        pageNumber,
-        pageSize,
-        accumulationReason,
-        startYmd,
-        endYmd,
-        direction = ORDER_DIRECTION.DESC,
-    }: Omit<Paging, 'hasTotalCount'> & {
-        accumulationReason?: ACCUMULATION_REASON;
-        direction?: ORDER_DIRECTION;
-    } & SearchDate): Promise<AxiosResponse> =>
-        request({
+    /**
+     * 적립금 이력 조회하기
+     * - 적립금 이력을 전체 검색하는 API 입니다.
+     *
+     * @param body Omit<Paging, 'hasTotalCount'>
+     *      & { accumulationReason?: ACCUMULATION_REASON; direction?: ORDER_DIRECTION; }
+     *      & SearchDate
+     * @returns Promise<AxiosResponse>
+     */
+    getAccumulationHistories: (
+        body?: Omit<Paging, 'hasTotalCount'> & {
+            accumulationReason?: ACCUMULATION_REASON;
+            direction?: ORDER_DIRECTION;
+        } & SearchDate,
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/accumulations',
             params: {
-                pageNumber,
-                pageSize,
-                accumulationReason,
-                startYmd,
-                endYmd,
-                direction,
+                pageNumber: body?.pageNumber,
+                pageSize: body?.pageSize,
+                accumulationReason: body?.accumulationReason,
+                startYmd: body?.startYmd,
+                endYmd: body?.endYmd,
+                direction: body?.direction ?? ORDER_DIRECTION.DESC,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
-    getAccumulationSummary: ({
-        expireStartYmdt,
-        expireEndYmdt,
-    }: {
-        expireStartYmdt?: string;
-        expireEndYmdt?: string;
-    }): Promise<AxiosResponse> =>
-        request({
+    /**
+     * 적립금 요약 조회하기
+     * - 적립금 요약정보를 조회하는 API 입니다.
+     *
+     * @param param0
+     * @returns Promise<AxiosResponse>
+     */
+    getAccumulationSummary: (params?: SearchDate): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/accumulations/summary',
-            params: { expireStartYmdt, expireEndYmdt },
+            params: {
+                expireStartYmdt: params?.startYmd,
+                expireEndYmdt: params?.endYmd,
+            },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
-    getExpectAccumulation: (): Promise<AxiosResponse> =>
-        request({
+    /**
+     * 해당 회원의 예상 적립금 조회하기
+     * - 해당 회원의 예상 적립금(적립대기)을 조회하는 API 입니다.
+     *
+     * @returns Promise<AxiosResponse>
+     */
+    getExpectAccumulation: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/profile/accumulations/waiting',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default accumulation;

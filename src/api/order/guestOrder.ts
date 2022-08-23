@@ -6,7 +6,7 @@ import {
     CartList,
     DeliveryBody,
     PasswordParams,
-    ReceiptBody,
+    CashReceiptBody,
     ShoppingCartBody,
     TokenIssueBody,
 } from 'models/order';
@@ -78,7 +78,7 @@ const guestOrder = {
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     requestReceipt: (
         orderNo: String,
-        { cashReceiptIssuePurposeType, cashReceiptKey }: ReceiptBody,
+        { cashReceiptIssuePurposeType, cashReceiptKey }: CashReceiptBody,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
