@@ -12,9 +12,10 @@ const useMall = () => {
     }));
 
     const dispatch = useDispatch();
-    const { data: mallData, isLoading } = useQuery(
+    const { data, isLoading } = useQuery(
         'mallInfo',
         async () => await mall.getMall(),
+        // TODO: staleTime, cahceTime 설정
         {
             enabled: isEmptyObject(mallInfo),
             staleTime: 5000,
@@ -28,7 +29,7 @@ const useMall = () => {
         },
     );
 
-    return [mallData, isLoading];
+    return [mallInfo, isLoading];
 };
 
 export default useMall;

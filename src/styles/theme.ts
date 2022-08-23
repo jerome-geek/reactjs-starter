@@ -1,11 +1,11 @@
 import { DefaultTheme } from 'styled-components';
 
 export const lightTheme: DefaultTheme = {
+    primary: '#C00020',
+    secondary: '#222943',
     bg1: '#191919',
     bg2: '#F8F8FA',
     bg3: '#F0F0F3',
-    primary: '#FB1F1F',
-    secondary: '#222943',
     line1: '#191919',
     line2: '#DBDBDB',
     line3: '#EDEDED',
@@ -17,11 +17,11 @@ export const lightTheme: DefaultTheme = {
 };
 
 export const darkTheme: DefaultTheme = {
+    primary: '#C00020',
+    secondary: '#222943',
     bg1: '#191919',
     bg2: '#F8F8FA',
     bg3: '#F0F0F3',
-    primary: '#FB1F1F',
-    secondary: '#222943',
     line1: '#191919',
     line2: '#DBDBDB',
     line3: '#EDEDED',
