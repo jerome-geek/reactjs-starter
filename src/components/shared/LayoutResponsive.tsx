@@ -15,7 +15,7 @@ const Block = styled.div<LayoutResponsiveProps>`
     ${({ type }) =>
         type === 'medium' &&
         css`
-            width: 880px;
+            width: 840px;
             padding: 24px 0 88px 0;
         `};
     ${({ type }) =>
