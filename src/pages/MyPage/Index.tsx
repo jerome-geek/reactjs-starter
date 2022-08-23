@@ -164,7 +164,10 @@ const MyPageIndex = () => {
                     )}
 
                     {orderSummary && (
-                        <OrderSummarySection orderSummary={orderSummary} />
+                        <OrderSummarySection
+                            orderSummary={orderSummary}
+                            to={PATHS.MY_ORDER_LIST}
+                        />
                     )}
                 </MyPageSection>
 
