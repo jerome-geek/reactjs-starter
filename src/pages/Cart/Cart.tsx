@@ -3,25 +3,24 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { head } from '@fxts/core';
-import { useTranslation } from 'react-i18next';
 import { shallowEqual } from 'react-redux';
 
-import { CHANNEL_TYPE } from 'models';
+import CartList from 'components/Cart/CartList';
+import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
+import { useAppDispatch, useTypedSelector } from 'state/reducers';
+import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import Header from 'components/shared/Header';
+import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { cart, guestOrder, orderSheet } from 'api/order';
+import { CHANNEL_TYPE } from 'models';
 import {
     OrderProductOption,
     OrderSheetBody,
     Products,
     ShoppingCartBody,
 } from 'models/order';
-import CartList from 'components/Cart/CartList';
-import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
-import { useAppDispatch, useTypedSelector } from 'state/reducers';
-import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
-import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
-import currency from 'currency.js';
-import { deleteCart, updateCart } from 'state/slices/cartSlice';
+import { useCart, useMember } from 'hooks';
 
 const CartContainer = styled.div`
     width: 1280px;
@@ -228,14 +227,10 @@ const Cart = () => {
         };
     }>({});
 
-    const dispatch = useAppDispatch();
+    const { refetch: cartRefetch } = useCart();
+    const { member } = useMember();
 
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
+    const dispatch = useAppDispatch();
 
     const { cart: guestCartList } = useTypedSelector(
         ({ cart }) => ({
@@ -280,6 +275,7 @@ const Cart = () => {
         async () => await cart.getCart({ divideInvalidProducts: true }),
         {
             onSuccess: (res) => {
+                cartRefetch();
                 setCartList((prev) => {
                     res.data.deliveryGroups.forEach((deliveryGroup) => {
                         deliveryGroup.orderProducts.forEach((orderProduct) => {
@@ -298,7 +294,6 @@ const Cart = () => {
                 });
             },
             enabled: false,
-            refetchOnWindowFocus: false,
         },
     );
 
@@ -317,7 +312,6 @@ const Cart = () => {
                 }),
             {
                 select: (res) => res.data,
-                refetchOnWindowFocus: false,
                 enabled: false,
             },
         );
@@ -498,6 +492,7 @@ const Cart = () => {
 
     return (
         <>
+            <Header />
             <CartContainer>
                 <CartListWrapper>
                     <Title>장바구니</Title>
