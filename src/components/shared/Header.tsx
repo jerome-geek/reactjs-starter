@@ -85,7 +85,7 @@ const Header = () => {
     const navigate = useNavigate();
 
     const { member, onLoginClick, onLogOutClick } = useMember();
-    const { cartInfo } = useCart();
+    const { totalCount } = useCart();
 
     const onMypageClick = () => setMyPageToggle((prev) => !prev);
     const onSearchClick = () => setSearchToggle((prev) => !prev);
@@ -132,9 +132,7 @@ const Header = () => {
                     </div>
                     <div onClick={() => navigate(PATHS.CART)}>
                         <CartIcon />
-                        <CartCount>
-                            {cartInfo?.deliveryGroups.length ?? 0}
-                        </CartCount>
+                        <CartCount>{totalCount}</CartCount>
                     </div>
                 </IconContainer>
             </HeaderContainer>
