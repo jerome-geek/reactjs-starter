@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { OrderSummary } from 'models/order';
+import PATHS from 'const/paths';
 
 export interface OrderSummarySectionProps
     extends HTMLAttributes<HTMLDivElement> {
@@ -70,7 +71,7 @@ const OrderSummarySection = ({ orderSummary }: OrderSummarySectionProps) => {
     return (
         <OrderSummaryContainer>
             <OrderSummaryLeft>
-                <OrderSummaryTitle to='/'>
+                <OrderSummaryTitle to={PATHS.MY_ORDER_LIST}>
                     주문 / 배송조회 <FontAwesomeIcon icon={faAngleRight} />
                 </OrderSummaryTitle>
             </OrderSummaryLeft>

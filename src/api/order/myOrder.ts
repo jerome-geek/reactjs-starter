@@ -5,8 +5,6 @@ import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
 import { DeliveryBody, OrderSummary, CashReceiptBody } from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
 const myOrder = {
     /**
      * 주문 리스트 조회하기
