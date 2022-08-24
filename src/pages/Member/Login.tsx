@@ -15,9 +15,11 @@ import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
 import PATHS from 'const/paths';
-import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
-import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
-import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
+import { ReactComponent as NaverIcon } from 'assets/icons/naver.svg';
+import { ReactComponent as KakaoIcon } from 'assets/icons/kakao.svg';
+import { ReactComponent as FacebookIcon } from 'assets/icons/facebook.svg';
+import { ReactComponent as GoogleIcon } from 'assets/icons/google.svg';
+import { ReactComponent as AppleIcon } from 'assets/icons/apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
 
 interface LoginFormData {
@@ -29,6 +31,33 @@ interface LoginFormData {
 const LoginInputContainer = styled.div`
     margin-bottom: 20px;
     width: 100%;
+`;
+
+const LoginInput = styled(StyledInput)`
+    border: 1px solid #dbdbdb;
+    width: 100%;
+    padding: 10px 20px;
+`;
+
+const StyledLink = styled(Link)`
+    font-size: 12px;
+    color: #191919;
+    text-decoration: underline;
+`;
+
+const FlexContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const SocialLoginList = styled(FlexContainer)``;
+const SocialLoginListItem = styled.li`
+    & > svg {
+        width: 34px;
+        height: 34px;
+    }
+    margin-right: 5px;
 `;
 
 const Login = () => {
@@ -106,14 +135,9 @@ const Login = () => {
                     }}
                 >
                     <LoginInputContainer>
-                        <StyledInput
+                        <LoginInput
                             type='text'
                             placeholder='아이디'
-                            border='1px solid #DBDBDB'
-                            style={{
-                                width: '100%',
-                                padding: '10px 20px',
-                            }}
                             {...register('memberId', {
                                 required: {
                                     value: true,
@@ -129,14 +153,9 @@ const Login = () => {
                     </LoginInputContainer>
 
                     <LoginInputContainer>
-                        <StyledInput
+                        <LoginInput
                             type='password'
                             placeholder='비밀번호'
-                            border='1px solid #DBDBDB'
-                            style={{
-                                width: '100%',
-                                padding: '10px 20px',
-                            }}
                             {...register('password', {
                                 required: {
                                     value: true,
@@ -210,21 +229,23 @@ const Login = () => {
                         <div style={{ marginRight: '32px' }}>
                             <p>SNS 로그인</p>
                         </div>
-                        <div>
-                            <AppleIcon
-                                style={{ width: '34px', paddingRight: '5px' }}
-                            />
-                            <AppleIcon
-                                style={{ width: '34px', paddingRight: '5px' }}
-                            />
-                            <AppleIcon
-                                style={{ width: '34px', paddingRight: '5px' }}
-                            />
-                            <FacebookIcon
-                                style={{ width: '34px', paddingRight: '5px' }}
-                            />
-                            <GoogleIcon style={{ width: '34px' }} />
-                        </div>
+                        <SocialLoginList as='ul'>
+                            <SocialLoginListItem>
+                                <NaverIcon />
+                            </SocialLoginListItem>
+                            <SocialLoginListItem>
+                                <KakaoIcon />
+                            </SocialLoginListItem>
+                            <SocialLoginListItem>
+                                <FacebookIcon />
+                            </SocialLoginListItem>
+                            <SocialLoginListItem>
+                                <GoogleIcon />
+                            </SocialLoginListItem>
+                            <SocialLoginListItem>
+                                <AppleIcon />
+                            </SocialLoginListItem>
+                        </SocialLoginList>
                     </div>
 
                     <div
@@ -244,29 +265,15 @@ const Login = () => {
                         >
                             회원이 아니신가요?
                         </span>{' '}
-                        <Link
-                            to='/'
-                            style={{
-                                fontSize: '12px',
-                                color: '#191919',
-                                textDecoration: 'underline',
-                            }}
-                        >
+                        <StyledLink to='/member/join-agreement'>
                             회원가입
-                        </Link>
+                        </StyledLink>
                     </div>
 
                     <div>
-                        <Link
-                            to='/guest/login'
-                            style={{
-                                fontSize: '12px',
-                                color: '#191919',
-                                textDecoration: 'underline',
-                            }}
-                        >
+                        <StyledLink to='/guest/login'>
                             비회원 주문조회
-                        </Link>
+                        </StyledLink>
                     </div>
                 </form>
             </LayoutResponsive>
