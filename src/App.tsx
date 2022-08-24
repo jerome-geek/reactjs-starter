@@ -20,6 +20,7 @@ import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
 import PrivateRoute from 'hoc/PrivateRoute';
+import ScrollToTop from 'hoc/ScrollToTop';
 
 const App: FC = () => {
     const [data, isLoading] = useMall();
@@ -31,45 +32,59 @@ const App: FC = () => {
             ) : (
                 <>
                     <BrowserRouter>
-                        <Routes>
-                            <Route path='/' element={<Main />} />
-                            <Route
-                                path='/member/*'
-                                element={
-                                    <PrivateRoute option={false}>
-                                        <MemberRouter />
-                                    </PrivateRoute>
-                                }
-                            />
-                            <Route
-                                path='/my-page/*'
-                                element={
-                                    <PrivateRoute option={true}>
-                                        <MyPageRouter />
-                                    </PrivateRoute>
-                                }
-                            />
-                            <Route
-                                path='/product/*'
-                                element={<ProductRouter />}
-                            />
-                            <Route
-                                path='/manual/*'
-                                element={<ManualRouter />}
-                            />
-                            <Route
-                                path='/golf-course/*'
-                                element={<GolfCourseRouter />}
-                            />
-                            <Route path='/order/*' element={<OrderRouter />} />
-                            <Route path='/guest/*' element={<GuestRouter />} />
-                            <Route path='/etc/*' element={<EtcRouter />} />
-                            <Route path='/event/*' element={<EventRouter />} />
-                            <Route path='/manager' element={<Manager />} />
-                            <Route path='/cart' element={<Cart />} />
-                            <Route path='/search' element={<SearchRouter />} />
-                            <Route path='/*' element={<NotFound />} />
-                        </Routes>
+                        <ScrollToTop>
+                            <Routes>
+                                <Route path='/' element={<Main />} />
+                                <Route
+                                    path='/member/*'
+                                    element={
+                                        <PrivateRoute option={false}>
+                                            <MemberRouter />
+                                        </PrivateRoute>
+                                    }
+                                />
+                                <Route
+                                    path='/my-page/*'
+                                    element={
+                                        <PrivateRoute option={true}>
+                                            <MyPageRouter />
+                                        </PrivateRoute>
+                                    }
+                                />
+                                <Route
+                                    path='/product/*'
+                                    element={<ProductRouter />}
+                                />
+                                <Route
+                                    path='/manual/*'
+                                    element={<ManualRouter />}
+                                />
+                                <Route
+                                    path='/golf-course/*'
+                                    element={<GolfCourseRouter />}
+                                />
+                                <Route
+                                    path='/order/*'
+                                    element={<OrderRouter />}
+                                />
+                                <Route
+                                    path='/guest/*'
+                                    element={<GuestRouter />}
+                                />
+                                <Route path='/etc/*' element={<EtcRouter />} />
+                                <Route
+                                    path='/event/*'
+                                    element={<EventRouter />}
+                                />
+                                <Route path='/manager' element={<Manager />} />
+                                <Route path='/cart' element={<Cart />} />
+                                <Route
+                                    path='/search'
+                                    element={<SearchRouter />}
+                                />
+                                <Route path='/*' element={<NotFound />} />
+                            </Routes>
+                        </ScrollToTop>
                         <Footer />
                     </BrowserRouter>
                 </>
