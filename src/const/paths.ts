@@ -1,6 +1,10 @@
 const PATHS = {
     MAIN: '/',
     LOGIN: '/member/login',
+    JOIN_AGREEMENT: '/member/join-agreement',
+    JOIN: '/member/join',
+    FIND_ID: '/member/find-id',
+    FIND_PASSWORD: '/member/find-password',
     MY_PAGE: '/my-page/index',
     MY_INFO: '/my-page/info',
     MY_ORDER_LIST: '/my-page/order/list',
