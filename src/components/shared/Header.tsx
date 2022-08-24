@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -7,7 +7,7 @@ import SearchLayer from 'components/Search/SearchLayer';
 import { useCart, useMember } from 'hooks';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
-import categoryNo from 'const/category';
+import CATEGORY from 'const/category';
 import { ReactComponent as HeaderLogo } from 'assets/logo/headerLogo.svg';
 import { ReactComponent as MyPageIcon } from 'assets/icons/person.svg';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
@@ -73,6 +73,7 @@ const CartCount = styled.div`
     border-radius: 50%;
     width: 12px;
     height: 12px;
+    line-height: 12px;
     font-size: 10px;
     text-align: center;
     color: #fff;
@@ -90,27 +91,47 @@ const Header = () => {
     const onMypageClick = () => setMyPageToggle((prev) => !prev);
     const onSearchClick = () => setSearchToggle((prev) => !prev);
 
+    const headerNavList = useMemo(
+        () => [
+            {
+                name: '거리 측정기',
+                url: `${PATHS.PRODUCT_LIST}/${CATEGORY.RANGE_FINDER}`,
+            },
+            {
+                name: '론치 모니터',
+                url: `${PATHS.PRODUCT_LIST}/${CATEGORY.LAUNCH_MONITOR}`,
+            },
+            {
+                name: '액세서리',
+                url: `${PATHS.PRODUCT_LIST}/${CATEGORY.ACCESSORY}`,
+            },
+            {
+                name: '고객 서비스',
+                url: PATHS.FAQ,
+            },
+            {
+                name: 'VSE',
+                url: PATHS.MAIN,
+            },
+        ],
+        [],
+    );
+
     return (
         <>
             <HeaderContainer>
                 <LogoContainer>
-                    <Link to='/'>
+                    <Link to={PATHS.MAIN}>
                         <HeaderLogo />
                     </Link>
                 </LogoContainer>
 
                 <NavContainer>
-                    <NavLink to={`/product/${categoryNo.rangeFinder}`}>
-                        거리 측정기
-                    </NavLink>
-                    <NavLink to={`/product/${categoryNo.launchMonitor}`}>
-                        론치 모니터
-                    </NavLink>
-                    <NavLink to={`/product/${categoryNo.accessory}`}>
-                        액세서리
-                    </NavLink>
-                    <NavLink to={PATHS.FAQ}>고객 서비스</NavLink>
-                    <NavLink to='/'>VSE</NavLink>
+                    {headerNavList.map((nav) => (
+                        <NavLink key={nav.url} to={nav.url}>
+                            {nav.name}
+                        </NavLink>
+                    ))}
                 </NavContainer>
 
                 <IconContainer>
