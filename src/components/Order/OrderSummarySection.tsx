@@ -9,6 +9,7 @@ import { OrderSummary } from 'models/order';
 export interface OrderSummarySectionProps
     extends HTMLAttributes<HTMLDivElement> {
     orderSummary: OrderSummary;
+    to?: string;
 }
 
 const OrderSummaryContainer = styled.div`
@@ -32,6 +33,7 @@ const OrderSummaryRight = styled.div`
 
 const OrderSummaryTitle = styled(Link)`
     font-size: 20px;
+    text-align: left;
     color: #191919;
     font-weight: bold;
     display: block;
@@ -64,14 +66,18 @@ const OrderStatus = styled.p`
     }
 `;
 
-const OrderSummarySection = ({ orderSummary }: OrderSummarySectionProps) => {
+const OrderSummarySection = ({
+    orderSummary,
+    to,
+}: OrderSummarySectionProps) => {
     const isActive = (orderCount: number) => orderCount !== 0;
 
     return (
         <OrderSummaryContainer>
             <OrderSummaryLeft>
-                <OrderSummaryTitle to='/'>
-                    주문 / 배송조회 <FontAwesomeIcon icon={faAngleRight} />
+                <OrderSummaryTitle to={to ?? '#'}>
+                    주문 / 배송조회{' '}
+                    {to && <FontAwesomeIcon icon={faAngleRight} />}
                 </OrderSummaryTitle>
             </OrderSummaryLeft>
             <OrderSummaryRight>

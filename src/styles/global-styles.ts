@@ -38,6 +38,9 @@ const GlobalStyle = createGlobalStyle`
     ::-webkit-scrollbar {
         display: none;
     }
+    b {
+        font-weight: bold;
+    }
 
     @media only screen and (max-width: 768px) {
         html {

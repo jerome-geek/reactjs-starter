@@ -8,6 +8,7 @@ const PATHS = {
     MY_PRODUCTS: '/my-page/products',
     MY_COUPONS: '/my-page/coupons',
     MY_ACCUMULATION: '/my-page/accumulation',
+    PRODUCT_DETAIL: '/product/detail',
     CART: '/cart',
     SEARCH: '/search',
     EVENT_LIST: '/event/list',
