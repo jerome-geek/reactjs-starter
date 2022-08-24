@@ -49,6 +49,10 @@ const Main = () => {
             slidesPerView: 1,
             navigation: true,
             pagination: true,
+            style: {
+                transform: 'translate3d(0, 0, 0)',
+                zIndex: 0,
+            },
         }),
         [],
     );
@@ -81,8 +85,14 @@ const Main = () => {
                         ...settings,
                         style:
                             width > 428
-                                ? { height: '828px' }
-                                : { height: '410px' },
+                                ? {
+                                      ...settings.style,
+                                      height: '828px',
+                                  }
+                                : {
+                                      ...settings.style,
+                                      height: '410px',
+                                  },
                     }}
                     banners={sortBanners(
                         mainBannerData.mainBanner.accounts[1]?.banners,
