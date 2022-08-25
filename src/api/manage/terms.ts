@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 
 import request from 'api/core';
+import { SHOPBY_TERMS_TYPES } from 'models';
 
 const terms = {
     /**

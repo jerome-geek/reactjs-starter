@@ -1,4 +1,10 @@
-import { AUTH_TYPE, OPEN_ID_TERM, SEX, TERM } from 'models';
+import {
+    AUTH_TYPE,
+    OPEN_ID_TERM,
+    SEX,
+    SHOPBY_TERMS_TYPES,
+    VC_TERMS_TYPES,
+} from 'models';
 
 export interface ProfileBody {
     birthday?: string;
@@ -18,7 +24,7 @@ export interface ProfileBody {
     password?: string;
     telephoneNo?: string;
     directMailAgreed?: boolean;
-    joinTermsAgreements?: TERM[];
+    joinTermsAgreements?: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[]; // TODO: 회원가입 API 분리시 타입 재정의 필요
     additionalInfo?: string;
     nickname?: string;
     detailAddress?: string;
