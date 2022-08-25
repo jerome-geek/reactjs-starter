@@ -179,6 +179,7 @@ const Login = () => {
                         }}
                     >
                         <CheckBox
+                            shape='circle'
                             checked={watch('keepLogin')}
                             label='로그인 상태 유지하기'
                             {...register('keepLogin')}
