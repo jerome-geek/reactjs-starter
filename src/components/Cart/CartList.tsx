@@ -4,7 +4,7 @@ import currency from 'currency.js';
 import { OrderProductOption } from 'models/order';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 
 const CartListBox = styled.div`
     display: flex;

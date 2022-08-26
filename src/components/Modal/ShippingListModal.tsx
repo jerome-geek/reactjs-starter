@@ -8,8 +8,8 @@ import Modal, { ModalDefaultType } from 'components/Modal/Modal';
 import { shippingAddress } from 'api/order';
 import { PaymentReserve } from 'models/order';
 import { useTypedSelector } from 'state/reducers';
-import { ReactComponent as Checked } from 'assets/icons/checkBox_circle_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkBox_circle.svg';
+import { ReactComponent as Checked } from 'assets/icons/checkbox_circle_checked.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_circle_uhchecked.svg';
 
 const widthRatio = 2.17;
 

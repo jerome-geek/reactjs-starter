@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { AxiosError } from 'axios';
 import { v4 } from 'uuid';
 
-import { SEX, TERM } from 'models/profile';
 import { profile } from 'api/member/index';
 import { authentication, captcha } from 'api/auth';
 import { useDebounce } from 'hooks';
@@ -13,9 +12,10 @@ import Loader from 'components/shared/Loader';
 import { tokenStorage } from 'utils/storage';
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
+import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
 
 interface LocationState {
-    joinTermsAgreements: TERM[];
+    joinTermsAgreements: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[];
 }
 
 interface SignUp {

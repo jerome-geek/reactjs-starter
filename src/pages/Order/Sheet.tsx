@@ -27,7 +27,7 @@ import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestPassword from 'components/OrderSheet/GuestPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { tokenStorage } from 'utils/storage';
 
 const accessTokenInfo = tokenStorage.getAccessToken();

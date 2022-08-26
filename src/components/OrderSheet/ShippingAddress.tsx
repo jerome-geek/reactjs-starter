@@ -10,7 +10,7 @@ import { SingleValue, StylesConfig } from 'react-select';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { useTypedSelector } from 'state/reducers';
 import { shallowEqual } from 'react-redux';
 

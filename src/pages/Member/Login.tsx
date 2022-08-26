@@ -179,6 +179,7 @@ const Login = () => {
                         }}
                     >
                         <CheckBox
+                            shape='circle'
                             checked={watch('keepLogin')}
                             label='로그인 상태 유지하기'
                             {...register('keepLogin')}
@@ -197,15 +198,13 @@ const Login = () => {
                                     paddingRight: '10px',
                                     cursor: 'pointer',
                                 }}
-                                onClick={() => navigate('/member/find-id')}
+                                onClick={() => navigate(PATHS.FIND_ID)}
                             >
                                 아이디 찾기
                             </li>
                             <li
                                 style={{ cursor: 'pointer' }}
-                                onClick={() =>
-                                    navigate('/member/find-password')
-                                }
+                                onClick={() => navigate(PATHS.FIND_PASSWORD)}
                             >
                                 비밀번호 찾기
                             </li>
@@ -265,13 +264,13 @@ const Login = () => {
                         >
                             회원이 아니신가요?
                         </span>{' '}
-                        <StyledLink to='/member/join-agreement'>
+                        <StyledLink to={PATHS.JOIN_AGREEMENT}>
                             회원가입
                         </StyledLink>
                     </div>
 
                     <div>
-                        <StyledLink to='/guest/login'>
+                        <StyledLink to={PATHS.GUEST_LOGIN}>
                             비회원 주문조회
                         </StyledLink>
                     </div>

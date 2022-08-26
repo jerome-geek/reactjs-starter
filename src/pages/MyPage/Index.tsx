@@ -71,6 +71,7 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }),
         {
+            enabled: !!member,
             select: ({ data }) => {
                 return data;
             },
@@ -87,6 +88,7 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }),
         {
+            enabled: !!member,
             select: ({ data }) => {
                 return data;
             },
@@ -104,6 +106,7 @@ const MyPageIndex = () => {
                 usable: true,
             }),
         {
+            enabled: !!member,
             select: ({ data }) => {
                 return data;
             },
