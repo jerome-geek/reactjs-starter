@@ -1,77 +1,232 @@
-import React, { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { pipe, map, toArray, filter, every } from '@fxts/core';
+import { useWindowSize } from 'usehooks-ts';
 
-import { VCTerms } from 'const/VCTerms';
+import Header from 'components/shared/Header';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
+import Checkbox from 'components/Input/CheckBox';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import { SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
+import media from 'utils/styles/media';
+import PATHS from 'const/paths';
+import { ReactComponent as VCLogo } from 'assets/logo/vc.svg';
+import { ReactComponent as ArrowRightIcon } from 'assets/icons/arrow_right.svg';
+
+interface Agreement {
+    id: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES;
+    name: string;
+    isChecked: boolean;
+}
+
+const JoinAgreementTitle = styled.h1`
+    font-size: 36px;
+    line-height: 54px;
+    color: #191919;
+    letter-spacing: 0;
+    font-weight: medium;
+    margin-bottom: 14px;
+
+    ${media.small} {
+        text-align: left;
+        margin-bottom: 22px;
+    }
+`;
+
+const JoinAgreementDescription = styled.p`
+    font-size: 16px;
+    line-height: 24px;
+    color: #8f8f8f;
+    letter-spacing: 0;
+
+    ${media.small} {
+        text-align: left;
+        font-size: 20px;
+        color: #191919;
+        letter-spacing: -1px;
+        margin-bottom: 62px;
+    }
+`;
+
+const NextButton = styled(PrimaryButton)`
+    width: 100%;
+    font-size: 16px;
+    line-height: 24px;
+`;
+
+const JoinAgreementTermList = styled.ul`
+    padding-top: 34px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #dbdbdb;
+    margin-bottom: 24px;
+`;
+
+const JoinAgreementTermListItem = styled.li`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 24px;
+    margin-bottom: 10px;
+`;
+
+const JoinAgreementTermTitle = styled.p`
+    font-size: 16px;
+    line-height: 24px;
+    color: #191919;
+    letter-spacing: 0;
+    text-decoration: underline;
+    margin-left: 8px;
+`;
+
+const JoinAgreementDetail = styled.span`
+    font-size: 10px;
+    color: #8c8c8c;
+    letter-spacing: 0;
+    text-decoration: underline;
+`;
+
+const AllAgreeTitle = styled(JoinAgreementTermTitle)`
+    text-decoration: none;
+`;
 
 const JoinAgreement = () => {
-    const [checkAgree, setCheckAgree] = useState<string[]>([]);
+    const [agreements, setAgreements] = useState<Agreement[]>([
+        {
+            id: SHOPBY_TERMS_TYPES.USE,
+            name: '서비스 이용약관',
+            isChecked: false,
+        },
+        {
+            id: SHOPBY_TERMS_TYPES.PI_PROCESS,
+            name: '개인정보 처리방침',
+            isChecked: false,
+        },
+        {
+            id: VC_TERMS_TYPES.LOCATION_INFO,
+            name: '위치정보사업 이용약관',
+            isChecked: false,
+        },
+        {
+            id: VC_TERMS_TYPES.LOCATION_SERVICE,
+            name: '위치기반 서비스 이용약관',
+            isChecked: false,
+        },
+        {
+            id: VC_TERMS_TYPES.VSE,
+            name: 'VSE 서비스 이용약관',
+            isChecked: false,
+        },
+    ]);
 
     const navigate = useNavigate();
 
-    const agreeAllButton = (checked: boolean) => {
-        if (checked) {
-            const checkList: string[] = [];
+    const agreeAllButton = (checked: boolean) =>
+        setAgreements((prev) =>
+            pipe(
+                prev,
+                map((a) => ({ ...a, isChecked: checked })),
+                toArray,
+            ),
+        );
 
-            VCTerms.forEach(({ id }) => {
-                checkList.push(id);
-            });
+    const agreeButton = (id: string) =>
+        setAgreements((prev) =>
+            pipe(
+                prev,
+                map((a) =>
+                    a.id === id ? { ...a, isChecked: !a.isChecked } : a,
+                ),
+                toArray,
+            ),
+        );
 
-            setCheckAgree(checkList);
-        } else {
-            setCheckAgree([]);
-        }
-    };
-
-    const agreeButton = (checked: boolean, id: string) => {
-        if (checked) {
-            setCheckAgree((prev) => [...prev, id]);
-        } else {
-            setCheckAgree(checkAgree.filter((check) => check !== id));
-        }
-    };
-
-    const checkIsAllAgree = () => {
-        if (checkAgree.length !== VCTerms.length) {
-            alert('모든 약관에 동의해주세요');
-        } else {
-            navigate('/member/join', {
+    const checkIsAllChecked = () => {
+        if (isAllChecked) {
+            // 약관 key값만 넘길 수 있도록!
+            navigate(PATHS.JOIN, {
                 state: {
-                    joinTermsAgreements: checkAgree,
-                    // certificated: boolean
+                    joinTermsAgreements: pipe(
+                        agreements,
+                        filter((a) => a.isChecked),
+                        map((b) => b.id),
+                        toArray,
+                    ),
                 },
             });
+        } else {
+            alert('모든 약관에 동의해주세요');
         }
+    };
+
+    const isAllChecked = useMemo(
+        () => every((a) => a.isChecked, agreements),
+        [agreements],
+    );
+
+    const { width } = useWindowSize();
+
+    // TODO: 약관 자세히보기 클릭시 약관 모달 띄우기
+    const onDetailClick = () => {
+        console.log('onDetailClick');
     };
 
     return (
         <>
-            <header>
-                <button onClick={() => navigate(-1)}>{'<'}</button>
-                <h2>회원 가입</h2>
-            </header>
-            <p>
-                서비스 이용을 위해
-                <br /> 약관에 동의해주세요
-            </p>
-            <input
-                type='checkbox'
-                id='agreeAll'
-                onChange={(e) => agreeAllButton(e.target.checked)}
-                checked={checkAgree.length === VCTerms.length}
-            />
-            <label htmlFor='agreeAll'>전체 동의</label>
-            {VCTerms.map(({ id, name }) => (
-                <React.Fragment key={id}>
-                    <input
-                        type='checkbox'
-                        id={id}
-                        onChange={(e) => agreeButton(e.target.checked, id)}
-                        checked={checkAgree.includes(id)}
-                    />
-                    <label htmlFor={id}>{name}</label>
-                </React.Fragment>
-            ))}
-            <button onClick={checkIsAllAgree}>다음</button>
+            <Header />
+
+            <LayoutResponsive type='small' style={{ marginTop: '150px' }}>
+                <JoinAgreementTitle>
+                    {width > 768 ? '회원가입' : <VCLogo />}
+                </JoinAgreementTitle>
+
+                <JoinAgreementDescription
+                    dangerouslySetInnerHTML={{
+                        __html:
+                            width > 768
+                                ? '서비스 이용을 위해 약관에 동의해 주세요.'
+                                : '서비스 이용을 위해 <br/>약관에 <b>동의</b>해 주세요.',
+                    }}
+                />
+
+                <JoinAgreementTermList>
+                    {agreements.map(({ id, name, isChecked }) => (
+                        <JoinAgreementTermListItem key={id}>
+                            <Checkbox
+                                shape='square'
+                                id={id}
+                                onChange={() => agreeButton(id)}
+                                checked={isChecked}
+                            >
+                                <JoinAgreementTermTitle>
+                                    {name}
+                                </JoinAgreementTermTitle>
+                            </Checkbox>
+
+                            {width > 768 ? (
+                                <JoinAgreementDetail onClick={onDetailClick}>
+                                    자세히보기
+                                </JoinAgreementDetail>
+                            ) : (
+                                <ArrowRightIcon onClick={onDetailClick} />
+                            )}
+                        </JoinAgreementTermListItem>
+                    ))}
+                </JoinAgreementTermList>
+
+                <div style={{ paddingBottom: '28px' }}>
+                    <Checkbox
+                        shape='square'
+                        id='agreeAll'
+                        onChange={(e) => agreeAllButton(e.target.checked)}
+                        checked={isAllChecked}
+                    >
+                        <AllAgreeTitle>전체 동의</AllAgreeTitle>
+                    </Checkbox>
+                </div>
+
+                <NextButton onClick={checkIsAllChecked}>다음</NextButton>
+            </LayoutResponsive>
         </>
     );
 };
