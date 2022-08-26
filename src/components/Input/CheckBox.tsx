@@ -1,5 +1,6 @@
 import { forwardRef, InputHTMLAttributes, Ref } from 'react';
 import styled from 'styled-components';
+
 import { ReactComponent as CircleChecked } from 'assets/icons/checkbox_circle_checked.svg';
 import { ReactComponent as CircleUnChecked } from 'assets/icons/checkbox_circle_uhchecked.svg';
 import { ReactComponent as SquareUnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
@@ -37,13 +38,6 @@ const HiddenCheckbox = styled.input.attrs<CheckboxProps>((props) => ({
     width: 1px;
 `;
 
-const StyledP = styled.p<{ checked: boolean }>`
-    margin-left: 0.25rem;
-    font-size: 12px;
-    letter-spacing: 0;
-    color: ${(props) => (props.checked ? '#222943' : '#8F8F8F')};
-`;
-
 const Checkbox = forwardRef(
     (
         {
@@ -51,6 +45,7 @@ const Checkbox = forwardRef(
             label,
             id,
             checked = false,
+            children,
             ...props
         }: CheckboxProps,
         ref: Ref<HTMLInputElement>,
@@ -58,18 +53,12 @@ const Checkbox = forwardRef(
         return (
             <CheckboxContainer>
                 <CheckBoxLabel htmlFor={props.name}>
-                    <HiddenCheckbox
-                        id={props.name}
-                        type='checkbox'
-                        ref={ref}
-                        {...props}
-                    />
+                    <HiddenCheckbox id={props.name} ref={ref} {...props} />
                     {shape === 'circle' && checked && <CircleChecked />}
                     {shape === 'circle' && !checked && <CircleUnChecked />}
-
                     {shape === 'square' && checked && <SquareChecked />}
                     {shape === 'square' && !checked && <SquareUnChecked />}
-                    <StyledP checked={checked}>{label}</StyledP>
+                    {children}
                 </CheckBoxLabel>
             </CheckboxContainer>
         );
