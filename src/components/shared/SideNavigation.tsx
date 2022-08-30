@@ -15,7 +15,8 @@ interface SideNavigationProps {
 const DimmedContainer = styled.div<{ sideNavigationToggle: boolean }>`
     position: fixed; /* Sit on top of the page content */
     width: 100vw; /* Full width (cover the whole page) */
-    height: 100vh; /* Full height (cover the whole page) */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
     top: 0;
     left: 0;
     right: 0;
@@ -33,7 +34,7 @@ const DimmedContainer = styled.div<{ sideNavigationToggle: boolean }>`
 
 const SideNavigationcontainer = styled.div`
     background-color: #f8f8fa;
-    width: 70%;
+    width: 75%;
     height: 100%;
     padding: 24px;
     position: relative;
@@ -47,7 +48,7 @@ const CloseButton = styled(CloseButtonIcon)`
 `;
 
 const StyledForm = styled.form`
-    margin-top: 60px;
+    margin-top: 36px;
 `;
 
 const StyledInputWithIcon = styled(InputWithIcon).attrs({
@@ -55,10 +56,11 @@ const StyledInputWithIcon = styled(InputWithIcon).attrs({
         style: {
             border: 0,
             backgroundColor: '#fff',
+            padding: '5px',
         },
     },
 })`
-    padding: 18px 20px;
+    padding: 0.8rem;
 `;
 
 const NavigationList = styled.ul`
@@ -69,9 +71,8 @@ const NavigationList = styled.ul`
 const NavigationListItem = styled.li<{ isChildren?: boolean }>`
     font-size: 20px;
     letter-spacing: 0.2px;
-    font-weight: bold;
-    padding: 12px 0;
-
+    font-weight: ${(props) => (props.isChildren ? 'normal' : 'bold')};
+    padding: ${(props) => (props.isChildren ? '6px 0' : '12px 0')};
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -139,40 +140,16 @@ const SideNavigation: FC<SideNavigationProps> = ({
                     </NavigationListItem>
                     {true && (
                         <NavigationList style={{ marginTop: '24px' }}>
-                            <NavigationListItem
-                                isChildren
-                                style={{
-                                    fontWeight: 'normal',
-                                    padding: '6px 0',
-                                }}
-                            >
+                            <NavigationListItem isChildren>
                                 <StyledLink to='/'>시계형</StyledLink>
                             </NavigationListItem>
-                            <NavigationListItem
-                                isChildren
-                                style={{
-                                    fontWeight: 'normal',
-                                    padding: '6px 0',
-                                }}
-                            >
+                            <NavigationListItem isChildren>
                                 <StyledLink to='/'>레이저형</StyledLink>
                             </NavigationListItem>
-                            <NavigationListItem
-                                isChildren
-                                style={{
-                                    fontWeight: 'normal',
-                                    padding: '6px 0',
-                                }}
-                            >
+                            <NavigationListItem isChildren>
                                 <StyledLink to='/'>음성형</StyledLink>
                             </NavigationListItem>
-                            <NavigationListItem
-                                isChildren
-                                style={{
-                                    fontWeight: 'normal',
-                                    padding: '6px 0',
-                                }}
-                            >
+                            <NavigationListItem isChildren>
                                 <StyledLink to='/'>야디지북</StyledLink>
                             </NavigationListItem>
                         </NavigationList>

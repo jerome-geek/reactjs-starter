@@ -53,7 +53,7 @@ const InputWithIcon = forwardRef(
         return (
             <InputWithIconContainer {...containerProps}>
                 {iconPosition === 'left' && (
-                    <StyledButton style={{ marginLeft: '20px' }}>
+                    <StyledButton>
                         <SearchIcon />
                     </StyledButton>
                 )}
