@@ -18,9 +18,4 @@ const fadeOut = keyframes`
     }
 `;
 
-const transitions = {
-    fadeIn,
-    fadeOut,
-};
-
-export default transitions;
+export { fadeIn, fadeOut };
