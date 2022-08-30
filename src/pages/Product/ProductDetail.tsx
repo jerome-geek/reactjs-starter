@@ -155,6 +155,7 @@ const BuyNow = styled.div`
     color: #fff;
     font-weight: bold;
     font-size: 24px;
+    cursor: pointer;
     > span {
         vertical-align: middle;
     }
@@ -244,7 +245,10 @@ const ProductDetail = () => {
     );
 
     const addCartHandler = () => {
-        if (selectOptionProducts.size <= 0) return;
+        if (selectOptionProducts.size <= 0) {
+            alert('옵션을 선택해주세요.');
+            return;
+        }
 
         const cartList: ShoppingCartBody[] = [];
         if (!member) {
@@ -294,6 +298,7 @@ const ProductDetail = () => {
 
     const purchaseHandler = () => {
         if (selectOptionProducts.size <= 0) {
+            alert('옵션을 선택해주세요.');
             return;
         }
 

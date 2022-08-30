@@ -9,7 +9,7 @@ import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import Header from 'components/shared/Header';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { cart, guestOrder, orderSheet } from 'api/order';
@@ -226,6 +226,13 @@ const Cart = () => {
             productName: string;
         };
     }>({});
+    const [cartOrderPrice, setCartOrderPrice] = useState<(string | number)[][]>(
+        [
+            ['총 주문금액', 0],
+            ['총 할인금액', 0],
+            ['총 배송비', 0],
+        ],
+    );
 
     const { refetch: cartRefetch } = useCart();
     const { member } = useMember();
@@ -239,36 +246,54 @@ const Cart = () => {
         shallowEqual,
     );
 
-    const {
-        data: guestCartOrderPriceData,
-        mutate: guestCartMutate,
-        isLoading: isGuestCartLoading,
-    } = useMutation(
-        async (cartList: ShoppingCartBody[]) =>
-            await guestOrder.getCart(cartList, {
-                divideInvalidProducts: true,
-            }),
-        {
-            onSuccess: (res) => {
-                setCartList((prev) => {
-                    res.data.deliveryGroups.forEach((deliveryGroup) => {
-                        deliveryGroup.orderProducts.forEach((orderProduct) => {
-                            orderProduct.orderProductOptions.forEach(
-                                (productOption) => {
-                                    prev[productOption.cartNo] = {
-                                        ...productOption,
-                                        deliveryAmt: deliveryGroup.deliveryAmt,
-                                        productName: orderProduct.productName,
-                                    };
+    const { mutate: guestCartMutate, isLoading: isGuestCartLoading } =
+        useMutation(
+            async (cartList: ShoppingCartBody[]) =>
+                await guestOrder.getCart(cartList, {
+                    divideInvalidProducts: true,
+                }),
+            {
+                onSuccess: (res) => {
+                    setCartList((prev) => {
+                        res.data.deliveryGroups.forEach((deliveryGroup) => {
+                            deliveryGroup.orderProducts.forEach(
+                                (orderProduct) => {
+                                    orderProduct.orderProductOptions.forEach(
+                                        (productOption) => {
+                                            prev[productOption.cartNo] = {
+                                                ...productOption,
+                                                deliveryAmt:
+                                                    deliveryGroup.deliveryAmt,
+                                                productName:
+                                                    orderProduct.productName,
+                                            };
+                                        },
+                                    );
                                 },
                             );
                         });
+                        return { ...prev };
                     });
-                    return { ...prev };
-                });
+                },
             },
-        },
-    );
+        );
+
+    const { data: guestCartPriceData, mutate: guestCartPriceMutate } =
+        useMutation(
+            async (cartList: ShoppingCartBody[]) =>
+                await guestOrder.getCart(cartList, {
+                    divideInvalidProducts: true,
+                }),
+            {
+                onSuccess: (res) => {
+                    setCartOrderPrice([
+                        ['총 주문금액', res?.data.price?.standardAmt],
+                        ['총 할인금액', res?.data.price?.discountAmt],
+                        ['총 배송비', res?.data.price?.totalDeliveryAmt],
+                    ]);
+                },
+            },
+        );
 
     const { isFetching: isCartLoading, refetch: getCartFetch } = useQuery(
         ['cartList', { member: member?.memberName }],
@@ -293,13 +318,13 @@ const Cart = () => {
                     return { ...prev };
                 });
             },
-            enabled: false,
+            enabled: !!member,
         },
     );
 
     const { data: cartOrderPriceData, refetch: getCartOrderPriceData } =
         useQuery(
-            ['cartPrice', { checkList, cartList }],
+            ['cartPrice', { member: member?.memberName, checkList, cartList }],
             async () =>
                 await cart.getSelectedCartPrice({
                     divideInvalidProducts: true,
@@ -312,18 +337,15 @@ const Cart = () => {
                 }),
             {
                 select: (res) => res.data,
-                enabled: false,
+                onSuccess: (res) =>
+                    setCartOrderPrice([
+                        ['총 주문금액', res?.standardAmt],
+                        ['총 할인금액', res?.discountAmt],
+                        ['총 배송비', res?.totalDeliveryAmt],
+                    ]),
+                enabled: !!member && checkList.length > 0,
             },
         );
-
-    useEffect(() => {
-        if (member) {
-            getCartFetch();
-            getCartOrderPriceData();
-        } else {
-            guestCartMutate(guestCartList);
-        }
-    }, [member, checkList]);
 
     const { mutate: updateCartMutate } = useMutation(
         async (
@@ -336,7 +358,6 @@ const Cart = () => {
             onSuccess: () => {
                 getCartFetch();
             },
-            onError: () => {},
         },
     );
 
@@ -345,10 +366,10 @@ const Cart = () => {
             await orderSheet.writeOrderSheet(orderSheetList),
         {
             onSuccess: (res) => {
-                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
+                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` });
             },
             onError: () => {
-                alert('구매 실패 alert');
+                alert('구매 실패!');
             },
         },
     );
@@ -401,8 +422,16 @@ const Cart = () => {
     };
 
     useEffect(() => {
-        guestCartMutate(guestCartList);
+        if (!member) guestCartMutate(guestCartList);
     }, [guestCartList]);
+
+    useEffect(() => {
+        guestCartPriceMutate(
+            guestCartList.filter(({ optionNo }) => {
+                return checkList.includes(optionNo);
+            }),
+        );
+    }, [checkList, cartList]);
 
     const { mutate: deleteCartMutate } = useMutation(
         async (deleteCartNos: { cartNo: number | number[] }) =>
@@ -474,21 +503,6 @@ const Cart = () => {
             setCheckList((prev) => prev.filter((check) => check !== optionNo));
         }
     };
-
-    const cartOrderPrice = member
-        ? [
-              ['총 주문금액', cartOrderPriceData?.standardAmt],
-              ['총 할인금액', cartOrderPriceData?.discountAmt],
-              ['총 배송비', cartOrderPriceData?.totalDeliveryAmt],
-          ]
-        : [
-              ['총 주문금액', guestCartOrderPriceData?.data.price?.standardAmt],
-              ['총 할인금액', guestCartOrderPriceData?.data.price?.discountAmt],
-              [
-                  '총 배송비',
-                  guestCartOrderPriceData?.data.price?.totalDeliveryAmt,
-              ],
-          ];
 
     return (
         <>
@@ -571,8 +585,7 @@ const Cart = () => {
                             amountPrice={
                                 member
                                     ? cartOrderPriceData?.totalAmt
-                                    : guestCartOrderPriceData?.data.price
-                                          .totalAmt
+                                    : guestCartPriceData?.data.price.totalAmt
                             }
                         />
                         <CartOrderPurchaseButton onClick={purchaseHandler}>

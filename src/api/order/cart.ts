@@ -34,34 +34,39 @@ const cart = {
     }: Pick<
         ShoppingCartBody,
         'cartNo' | 'orderCnt' | 'optionInputs'
-    >): Promise<AxiosResponse> =>
-        request({
+    >): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/cart',
             data: [{ orderCnt, cartNo, optionInputs }],
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     registerCart: (
         body: Omit<ShoppingCartBody, 'cartNo'>[],
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/cart',
             data: body,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     deleteCart: ({
         cartNo,
     }: {
         cartNo: number | number[];
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'DELETE',
             url: '/cart',
             params: { cartNo },
@@ -71,7 +76,8 @@ const cart = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getSelectedCartPrice: ({
         cartNo,
@@ -79,8 +85,9 @@ const cart = {
     }: {
         cartNo: number[] | number | null;
         divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse<CartPrice>> =>
-        request({
+    }): Promise<AxiosResponse<CartPrice>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/cart/calculate',
             params: { cartNo, divideInvalidProducts },
@@ -92,40 +99,47 @@ const cart = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
-    getCartCount: (): Promise<AxiosResponse> =>
-        request({
+    getCartCount: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/cart/count',
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getSelectedCartGroupPrice: ({
         cartNo,
         divideInvalidProducts,
     }: Pick<ShoppingCartBody, 'cartNo'> & {
         divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/cart/subset',
             params: { cartNo, divideInvalidProducts },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
-    checkCartValidation: (): Promise<AxiosResponse> =>
-        request({
+    checkCartValidation: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/cart/validate',
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default cart;
