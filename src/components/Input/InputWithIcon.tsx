@@ -7,6 +7,7 @@ import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 
 export interface InputWithIconProps
     extends InputHTMLAttributes<HTMLInputElement> {
+    iconPosition?: 'left' | 'right';
     containerProps?: HTMLAttributes<HTMLDivElement>;
 }
 
@@ -33,7 +34,7 @@ const Input = styled(StyledInput)`
     }
 `;
 
-const StyledButton = styled(Button)`
+const StyledButton = styled(Button).attrs({ type: 'submit' })`
     display: flex;
     justify-content: center;
     align-content: center;
@@ -42,15 +43,26 @@ const StyledButton = styled(Button)`
 
 const InputWithIcon = forwardRef(
     (
-        { containerProps, ...props }: InputWithIconProps,
+        {
+            iconPosition = 'right',
+            containerProps,
+            ...props
+        }: InputWithIconProps,
         ref: Ref<HTMLInputElement>,
     ) => {
         return (
             <InputWithIconContainer {...containerProps}>
+                {iconPosition === 'left' && (
+                    <StyledButton style={{ marginLeft: '20px' }}>
+                        <SearchIcon />
+                    </StyledButton>
+                )}
                 <Input ref={ref} {...props} />
-                <StyledButton>
-                    <SearchIcon />
-                </StyledButton>
+                {iconPosition === 'right' && (
+                    <StyledButton>
+                        <SearchIcon />
+                    </StyledButton>
+                )}
             </InputWithIconContainer>
         );
     },
