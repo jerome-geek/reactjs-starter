@@ -9,7 +9,7 @@ import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import Header from 'components/shared/Header';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { cart, guestOrder, orderSheet } from 'api/order';

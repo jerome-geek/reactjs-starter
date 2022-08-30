@@ -2,7 +2,12 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
-import { DeliveryBody, OrderSummary, CashReceiptBody } from 'models/order';
+import {
+    DeliveryBody,
+    OrderSummary,
+    CashReceiptBody,
+    OrderDetailResponse,
+} from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
 const myOrder = {
@@ -47,12 +52,12 @@ const myOrder = {
     getOrderDetail: (
         orderNo: string,
         params?: {
-            orderRequestTypes: Exclude<
+            orderRequestTypes: Extract<
                 keyof typeof ORDER_REQUEST_TYPE,
                 'ALL' | 'CLAIM' | 'NORMAL'
             >;
         },
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<OrderDetailResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({

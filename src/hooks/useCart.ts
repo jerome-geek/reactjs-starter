@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { useQuery } from 'react-query';
-import { flatMap, pipe, pluck, sum } from '@fxts/core';
+import { flatMap, pipe, pluck, size, toArray } from '@fxts/core';
 
 import { useTypedSelector } from 'state/reducers';
 import { cart } from 'api/order';
@@ -30,8 +30,7 @@ const useCart = () => {
                         pluck('orderProducts'),
                         flatMap((a) => a),
                         flatMap((b) => b.orderProductOptions),
-                        pluck('orderCnt'),
-                        sum,
+                        size,
                     ),
                 );
             },
