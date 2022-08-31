@@ -63,17 +63,17 @@ const OrderSheetPrice = ({
     amountPrice,
 }: {
     title: string;
-    cartOrderPrice?: Array<Array<string | number | undefined>>;
+    cartOrderPrice?: { name: string; price: number }[];
     amountPrice?: number;
 }) => {
     return (
         <CartOrderBox>
             <CartOrderPriceTitle>{title}</CartOrderPriceTitle>
             <CartOrderPriceBox>
-                {cartOrderPrice?.map(([subTitle, price]: any) => {
+                {cartOrderPrice?.map(({ name, price }) => {
                     return (
-                        <OrderPriceWrapper key={subTitle}>
-                            <CartOrderSubTitle>{subTitle}</CartOrderSubTitle>
+                        <OrderPriceWrapper key={name}>
+                            <CartOrderSubTitle>{name}</CartOrderSubTitle>
                             <CartOrderPrice>
                                 {currency(price, {
                                     symbol: '',

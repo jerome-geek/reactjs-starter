@@ -285,6 +285,8 @@ const Sheet = () => {
         >
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
+    const [orderPriceData, setOrderPriceData] =
+        useState<{ name: string; price: number }[]>();
     const [agreePurchase, setAgreePurchase] = useState<string[]>([]);
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
@@ -345,6 +347,29 @@ const Sheet = () => {
                     });
                     return [...newOrderList];
                 });
+                setOrderPriceData([
+                    {
+                        name: '총 주문금액',
+                        price: res?.data.paymentInfo.totalStandardAmt,
+                    },
+                    {
+                        name: '총 배송비',
+                        price: res?.data.paymentInfo.deliveryAmt,
+                    },
+                    {
+                        name: '총 할인금액',
+                        price:
+                            res?.data.paymentInfo.totalImmediateDiscountAmt +
+                            res?.data.paymentInfo.totalAdditionalDiscountAmt,
+                    },
+                    {
+                        name: '쿠폰 할인',
+                        price:
+                            res?.data.paymentInfo.cartCouponAmt +
+                            +res?.data.paymentInfo.productCouponAmt +
+                            res?.data.paymentInfo.deliveryCouponAmt,
+                    },
+                ]);
             },
             refetchOnWindowFocus: false,
         },
@@ -356,7 +381,7 @@ const Sheet = () => {
             addressNo: getValues('shippingAddress.addressNo')
                 ? getValues('shippingAddress.addressNo')
                 : 0,
-            receiverZipCd: getValues('shippingAddress.receiverZipCd'), // TODO zipCode 입력 하기
+            receiverZipCd: getValues('shippingAddress.receiverZipCd'),
             receiverAddress: getValues('shippingAddress.receiverAddress'),
             receiverJibunAddress: 'asf',
             receiverDetailAddress: getValues(
@@ -420,22 +445,6 @@ const Sheet = () => {
             },
         },
     );
-
-    const orderPriceData = orderData?.data.paymentInfo && [
-        ['총 주문금액', orderData.data.paymentInfo.totalStandardAmt],
-        ['총 배송비', orderData.data.paymentInfo.deliveryAmt],
-        [
-            '총 할인금액',
-            orderData.data.paymentInfo.totalImmediateDiscountAmt +
-                orderData.data.paymentInfo.totalAdditionalDiscountAmt,
-        ],
-        [
-            '쿠폰 할인',
-            orderData.data.paymentInfo.cartCouponAmt +
-                +orderData.data.paymentInfo.productCouponAmt +
-                orderData.data.paymentInfo.deliveryCouponAmt,
-        ],
-    ];
 
     const orderTerms = [
         'agreeOrderService',

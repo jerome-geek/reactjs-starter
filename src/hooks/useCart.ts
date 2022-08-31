@@ -15,7 +15,7 @@ const useCart = () => {
         shallowEqual,
     );
 
-    const { cart: guestCartList } = useTypedSelector(
+    const { cart: guestCartInfo } = useTypedSelector(
         ({ cart }) => ({
             cart: cart.data,
         }),
@@ -47,7 +47,7 @@ const useCart = () => {
 
     return {
         cartInfo,
-        totalCount: member ? totalCount : guestCartList.length,
+        totalCount: member ? totalCount : guestCartInfo.length,
         refetch,
     };
 };
