@@ -6,6 +6,7 @@ const GlobalStyle = createGlobalStyle`
 
     * {
         box-sizing: border-box;
+        -ms-overflow-style: none;
     }
     html {
         -webkit-text-size-adjust: none;
@@ -35,8 +36,10 @@ const GlobalStyle = createGlobalStyle`
         outline: none;
         border: none;
     }
-    ::-webkit-scrollbar {
+    ::-webkit-scrollbar,
+    ::-moz-scrollbar {
         display: none;
+        height: 0;
     }
     b {
         font-weight: bold;

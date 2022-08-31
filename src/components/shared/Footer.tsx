@@ -1,43 +1,99 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { shallowEqual } from 'react-redux';
 import styled from 'styled-components';
+import { gt } from '@fxts/core';
+import { useWindowSize } from 'usehooks-ts';
 
-import { useTypedSelector } from 'state/reducers';
+import FlexContainer from 'components/shared/FlexContainer';
 import SocialMedia from 'components/Footer/SocialMedia';
 import DropDown from 'components/shared/DropDown';
+import { useMall } from 'hooks';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
+import BREAKPOINTS from 'const/breakpoints';
 import { ReactComponent as YoutubeIcon } from 'assets/icons/youtube.svg';
 import { ReactComponent as FacebookIcon } from 'assets/icons/facebook.svg';
 import { ReactComponent as InstagramIcon } from 'assets/icons/instagram.svg';
 import { ReactComponent as BlogIcon } from 'assets/icons/blog.svg';
 import { ReactComponent as PinIcon } from 'assets/icons/pin.svg';
 
-const FooterWrapper = styled.footer``;
+const FooterContainer = styled.footer`
+    width: 100%;
+    padding: 0 auto;
+`;
 
 const FooterTop = styled.div`
     background-color: #212121;
-    padding: 50px 0;
+    padding: 60px auto;
+
+    ${media.small} {
+        padding: 30px 24px;
+    }
+
+    @media (min-width: 840px) {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+`;
+
+const FooterTopContentsContainer = styled.div`
+    color: #fff;
+`;
+
+const FooterTopMenuList = styled.ul`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+    width: 840px;
+    margin-left: auto;
+    margin-right: auto;
+
+    ${media.small} {
+        margin-bottom: 30px;
+        white-space: nowrap;
+        width: 100%;
+        overflow-x: scroll;
+    }
+`;
+
+const FooterTopMenuListItem = styled.li`
+    margin-right: 40px;
 `;
 
 const FooterBottom = styled.div`
     background-color: #191919;
     color: #fff;
     padding: 60px 50px 18px 50px;
+
+    ${media.small} {
+        padding: 20px 24px;
+    }
 `;
 
-const FlexContainer = styled.div`
-    display: flex;
+const SocialMediaContainer = styled(FlexContainer)`
+    flex-direction: row-reverse;
+
+    ${media.small} {
+        flex-direction: column;
+    }
+`;
+
+const SocialMediaTitle = styled.span`
+    font-size: 12px;
+    line-height: 14px;
+    color: #858585;
+    text-align: center;
+    margin-right: 20px;
+
+    ${media.small} {
+        margin: 0;
+    }
+`;
+
+const LocationContainer = styled(FlexContainer)`
     justify-content: space-between;
-    align-items: center;
-`;
 
-const SocialMediaWrapper = styled(FlexContainer)`
-    flex-direction: column;
-`;
-
-const LocationWrapper = styled(FlexContainer)`
     ${media.small} {
         flex-direction: column;
     }
@@ -53,6 +109,10 @@ const Location = styled.p`
     }
     & > span:last-child {
         color: #858585;
+    }
+
+    ${media.small} {
+        margin-bottom: 0.83rem;
     }
 `;
 const MenuLink = styled(Link)`
@@ -96,12 +156,8 @@ const FooterContents = styled.p`
 `;
 
 const Footer = () => {
-    const { mallInfo } = useTypedSelector(
-        ({ mall: mallInfo }) => ({
-            mallInfo,
-        }),
-        shallowEqual,
-    );
+    const [mallInfo, isLoading] = useMall();
+    const { width } = useWindowSize();
 
     const SocialMediaList = useMemo(
         () => [
@@ -134,92 +190,115 @@ const Footer = () => {
     );
 
     return (
-        <FooterWrapper>
+        <FooterContainer>
             <FooterTop>
-                <div
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '50px',
-                        width: '840px',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
-                        color: '#fff',
-                    }}
-                >
-                    <DropDown
-                        title='서비스 이용약관'
-                        menuList={[
-                            { title: '위치정보 이용약관', url: '/' },
-                            { title: 'VSE 서비스 이용약관', url: '/' },
-                        ]}
-                    />
-                    <MenuLink to='/'>개인정보 처리방침</MenuLink>
-                    <DropDown
-                        title='ABOUT US'
-                        menuList={[
-                            { title: 'Brand Philosophy', url: '/' },
-                            { title: '대리점 안내', url: '/' },
-                        ]}
-                    />
-                    <MenuLink to='/'>전자공고</MenuLink>
-                    <MenuLink to={PATHS.NOTICE}>공지사항</MenuLink>
-                </div>
-                <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-                    <DropDown
-                        title='FAMILY SITE'
-                        menuList={[
-                            { title: 'Brand Philosophy', url: '/' },
-                            { title: '대리점 안내', url: '/' },
-                        ]}
-                        style={{
-                            border: '1px solid #DBDBDB',
-                            width: '232px',
-                            marginLeft: 'auto',
-                            marginRight: 'auto',
-                            padding: '8px',
-                            color: '#fff',
-                        }}
-                    />
-                </div>
-                <SocialMediaWrapper>
-                    <SocialMedia socialMedia={SocialMediaList} />
+                <FooterTopContentsContainer>
+                    <FooterTopMenuList>
+                        <FooterTopMenuListItem>
+                            <DropDown
+                                title='서비스 이용약관'
+                                menuList={[
+                                    { title: '위치정보 이용약관', url: '/' },
+                                    { title: 'VSE 서비스 이용약관', url: '/' },
+                                ]}
+                            />
+                        </FooterTopMenuListItem>
+                        <FooterTopMenuListItem>
+                            <MenuLink to='/'>개인정보 처리방침</MenuLink>
+                        </FooterTopMenuListItem>
+                        <FooterTopMenuListItem>
+                            {' '}
+                            <DropDown
+                                title='ABOUT US'
+                                menuList={[
+                                    { title: 'Brand Philosophy', url: '/' },
+                                    { title: '대리점 안내', url: '/' },
+                                ]}
+                            />
+                        </FooterTopMenuListItem>
+                        <FooterTopMenuListItem>
+                            <MenuLink to='/'>전자공고</MenuLink>
+                        </FooterTopMenuListItem>
+                        <FooterTopMenuListItem>
+                            <MenuLink to={PATHS.NOTICE}>공지사항</MenuLink>
+                        </FooterTopMenuListItem>
+                    </FooterTopMenuList>
+                    <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                        <DropDown
+                            title='FAMILY SITE'
+                            menuList={[
+                                { title: 'Brand Philosophy', url: '/' },
+                                { title: '대리점 안내', url: '/' },
+                            ]}
+                            style={{
+                                border: '1px solid #DBDBDB',
+                                width: '232px',
+                                marginLeft: 'auto',
+                                marginRight: 'auto',
+                                padding: '8px',
+                                color: '#fff',
+                            }}
+                        />
+                    </div>
+                    <SocialMediaContainer>
+                        <SocialMedia socialMedia={SocialMediaList} />
 
-                    <span
-                        style={{
-                            fontSize: '12px',
-                            lineHeight: '14px',
-                            color: '#858585',
-                            textAlign: 'center',
-                        }}
-                    >
-                        Follow us
-                    </span>
-                </SocialMediaWrapper>
+                        <SocialMediaTitle>Follow us</SocialMediaTitle>
+                    </SocialMediaContainer>
+                </FooterTopContentsContainer>
             </FooterTop>
             <FooterBottom>
-                <div style={{ width: '840px', margin: '0 auto' }}>
+                <div>
                     <div style={{ marginBottom: '20px' }}>
                         <FooterContents>
-                            상호 보이스캐디(주) 대표 김 준 오 | Tel 02-538-3100
-                            FAX 02-538-3104,5
+                            {`상호 ${mallInfo.serviceBasicInfo.companyName} 대표 ${mallInfo.serviceBasicInfo.representativeName} | Tel ${mallInfo.serviceBasicInfo.representPhoneNo} FAX ${mallInfo.serviceBasicInfo.faxNo}`}
                         </FooterContents>
-                        <FooterContents>
-                            {`통신판매업신고 ${mallInfo.serviceBasicInfo.onlineMarketingBusinessDeclarationNo} | 사업자등록번호 ${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
-                            <StyledAnchor
-                                href={`https://bizno.net/?query=${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                            >
-                                사업자 정보확인
-                            </StyledAnchor>
-                        </FooterContents>
-                        <FooterContents>
-                            VSE 고객센터 1344-4667&nbsp;
-                            <StyledLink to='/'>고객센터 바로가기</StyledLink> |
-                            보이스캐디 고객센터 1577-2862 (내선2번)
-                        </FooterContents>
+                        {gt(width, BREAKPOINTS.SMALL) ? (
+                            <>
+                                <FooterContents>
+                                    {`통신판매업신고 ${mallInfo.serviceBasicInfo.onlineMarketingBusinessDeclarationNo} | 사업자등록번호 ${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                    <StyledAnchor
+                                        href={`https://bizno.net/?query=${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                    >
+                                        사업자 정보확인
+                                    </StyledAnchor>
+                                </FooterContents>
+                                <FooterContents>
+                                    VSE 고객센터 1344-4667&nbsp;
+                                    <StyledLink to='/'>
+                                        고객센터 바로가기
+                                    </StyledLink>
+                                    &nbsp;|&nbsp;
+                                    {`보이스캐디 고객센터 ${mallInfo.mall.serviceCenter.phoneNo} (내선2번)`}
+                                </FooterContents>
+                            </>
+                        ) : (
+                            <>
+                                <FooterContents>
+                                    {`통신판매업신고 ${mallInfo.serviceBasicInfo.onlineMarketingBusinessDeclarationNo}`}
+                                    <br />
+                                    {`사업자등록번호 ${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                    &nbsp;
+                                    <StyledAnchor
+                                        href={`https://bizno.net/?query=${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                        target='_blank'
+                                        rel='noopener noreferrer'
+                                    >
+                                        사업자 정보확인
+                                    </StyledAnchor>
+                                </FooterContents>
+                                <FooterContents>
+                                    VSE 고객센터 1344-4667&nbsp;
+                                    <StyledLink to='/'>
+                                        고객센터 바로가기
+                                    </StyledLink>
+                                    <br />
+                                    보이스캐디 고객센터 1577-2862 (내선2번)
+                                </FooterContents>
+                            </>
+                        )}
                     </div>
                     <div style={{ marginBottom: '60px' }}>
                         <FooterContents>
@@ -233,7 +312,7 @@ const Footer = () => {
                         <StyledLink to={PATHS.FAQ}>FAQ 바로가기</StyledLink>
                     </div>
                 </div>
-                <LocationWrapper>
+                <LocationContainer>
                     <Location>
                         <StyledPinIcon />
                         {/* TODO: countryCode가 KR이 아닐경우 처리 필요 */}
@@ -248,9 +327,9 @@ const Footer = () => {
                     <CopyRight>
                         COPYRIGHT © 2022. voicecaddie. ALL RIGHTS RESERVED.
                     </CopyRight>
-                </LocationWrapper>
+                </LocationContainer>
             </FooterBottom>
-        </FooterWrapper>
+        </FooterContainer>
     );
 };
 
