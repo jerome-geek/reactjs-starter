@@ -6,6 +6,7 @@ import ViewMoreButton from 'components/Button/ViewMoreButton';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import { breakWord } from 'utils/html';
 import media from 'utils/styles/media';
+import BREAKPOINTS from 'const/breakpoints';
 
 interface MainBannerProps extends HTMLAttributes<HTMLDivElement> {
     imgUrl?: string;
@@ -14,12 +15,12 @@ interface MainBannerProps extends HTMLAttributes<HTMLDivElement> {
     url: string;
 }
 
-const MainBannerWrapper = styled(LayoutResponsive)`
+const MainBannerContainer = styled(LayoutResponsive)`
     margin-bottom: 156px;
     text-align: center;
     padding: 0;
 
-    ${media.small} {
+    ${media.xlarge} {
         width: auto;
         margin-left: 24px;
         margin-right: 24px;
@@ -28,28 +29,37 @@ const MainBannerWrapper = styled(LayoutResponsive)`
     }
 `;
 
-const MainBannerImageWrapper = styled.div`
+const MainBannerImageContainer = styled.div`
     margin-bottom: 36px;
+
+    & > img {
+        width: 100%;
+        height: auto;
+    }
 
     ${media.small} {
         margin-bottom: 24px;
     }
 `;
 
-const MainBannerContentsWrapper = styled.div`
+const MainBannerContentsContainer = styled.div`
     ${media.small} {
-        padding-left: 30px;
+        padding: 0 2.5rem;
+    }
+
+    ${media.xsmall} {
+        padding: 0;
     }
 `;
 
 const MainBannerTitle = styled.h3`
-    font-size: 54px;
+    font-size: 3.375rem;
     line-height: 80px;
     font-weight: bold;
     margin-bottom: 10px;
 
     ${media.small} {
-        font-size: 30px;
+        font-size: 2.5rem;
         line-height: 38px;
     }
 `;
@@ -76,24 +86,33 @@ const MainBanner: FC<MainBannerProps> = ({ imgUrl, title, desc, url }) => {
     const { width } = useWindowSize();
 
     return (
-        <MainBannerWrapper type='large'>
-            <MainBannerImageWrapper>
-                <img src={imgUrl} width='100%' alt={title} />
-            </MainBannerImageWrapper>
-            <MainBannerContentsWrapper>
+        <MainBannerContainer type='large'>
+            <MainBannerImageContainer>
+                <img src={imgUrl} alt={title} />
+            </MainBannerImageContainer>
+
+            <MainBannerContentsContainer>
                 <MainBannerTitle
                     dangerouslySetInnerHTML={{
-                        __html: breakWord(title, width > 768 ? '' : '/'),
+                        __html: breakWord(
+                            title,
+                            '/',
+                            width > BREAKPOINTS.SMALL ? ' ' : '<br />',
+                        ),
                     }}
                 />
                 <MainBannerDesc
                     dangerouslySetInnerHTML={{
-                        __html: breakWord(desc, width > 768 ? '' : '/'),
+                        __html: breakWord(
+                            desc,
+                            '/',
+                            width > BREAKPOINTS.SMALL ? ' ' : '<br />',
+                        ),
                     }}
                 />
                 <StyledVieMoreButton to={url}>자세히 보기</StyledVieMoreButton>
-            </MainBannerContentsWrapper>
-        </MainBannerWrapper>
+            </MainBannerContentsContainer>
+        </MainBannerContainer>
     );
 };
 
