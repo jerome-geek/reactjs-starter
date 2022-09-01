@@ -29,6 +29,7 @@ import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { tokenStorage } from 'utils/storage';
+import { OrderPrice } from 'pages/Cart/Cart';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
 
@@ -285,6 +286,7 @@ const Sheet = () => {
         >
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
+    const [orderPriceData, setOrderPriceData] = useState<OrderPrice>({});
     const [agreePurchase, setAgreePurchase] = useState<string[]>([]);
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
@@ -345,6 +347,31 @@ const Sheet = () => {
                     });
                     return [...newOrderList];
                 });
+                setOrderPriceData((prev) => {
+                    prev.totalOrderPrice = {
+                        name: '총 주문금액',
+                        price: res?.data.paymentInfo.totalStandardAmt,
+                    };
+                    prev.totalDeliveryPrice = {
+                        name: '총 배송비',
+                        price: res?.data.paymentInfo.deliveryAmt,
+                    };
+                    prev.totalDiscountPrice = {
+                        name: '총 할인금액',
+                        price:
+                            res?.data.paymentInfo.totalImmediateDiscountAmt +
+                            res?.data.paymentInfo.totalAdditionalDiscountAmt,
+                    };
+                    if (member)
+                        prev.couponDiscount = {
+                            name: '쿠폰 할인',
+                            price:
+                                res?.data.paymentInfo.cartCouponAmt +
+                                +res?.data.paymentInfo.productCouponAmt +
+                                res?.data.paymentInfo.deliveryCouponAmt,
+                        };
+                    return { ...prev };
+                });
             },
             refetchOnWindowFocus: false,
         },
@@ -356,7 +383,7 @@ const Sheet = () => {
             addressNo: getValues('shippingAddress.addressNo')
                 ? getValues('shippingAddress.addressNo')
                 : 0,
-            receiverZipCd: getValues('shippingAddress.receiverZipCd'), // TODO zipCode 입력 하기
+            receiverZipCd: getValues('shippingAddress.receiverZipCd'),
             receiverAddress: getValues('shippingAddress.receiverAddress'),
             receiverJibunAddress: 'asf',
             receiverDetailAddress: getValues(
@@ -420,22 +447,6 @@ const Sheet = () => {
             },
         },
     );
-
-    const orderPriceData = orderData?.data.paymentInfo && [
-        ['총 주문금액', orderData.data.paymentInfo.totalStandardAmt],
-        ['총 배송비', orderData.data.paymentInfo.deliveryAmt],
-        [
-            '총 할인금액',
-            orderData.data.paymentInfo.totalImmediateDiscountAmt +
-                orderData.data.paymentInfo.totalAdditionalDiscountAmt,
-        ],
-        [
-            '쿠폰 할인',
-            orderData.data.paymentInfo.cartCouponAmt +
-                +orderData.data.paymentInfo.productCouponAmt +
-                orderData.data.paymentInfo.deliveryCouponAmt,
-        ],
-    ];
 
     const orderTerms = [
         'agreeOrderService',
@@ -624,11 +635,7 @@ const Sheet = () => {
                     <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
                         <OrderSheetPrice
                             title='총 결제 금액'
-                            cartOrderPrice={
-                                member
-                                    ? orderPriceData
-                                    : orderPriceData?.slice(0, 3)
-                            }
+                            cartOrderPrice={orderPriceData}
                             amountPrice={orderData?.data.paymentInfo.paymentAmt}
                         />
                         <AgreeButton>

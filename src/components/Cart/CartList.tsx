@@ -31,6 +31,7 @@ const CartImage = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
     > img {
         width: 63%;
     }
@@ -41,6 +42,9 @@ const CartSelect = styled.div`
         display: none;
     }
     > label {
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 `;
 

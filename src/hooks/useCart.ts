@@ -15,6 +15,13 @@ const useCart = () => {
         shallowEqual,
     );
 
+    const { cart: guestCartInfo } = useTypedSelector(
+        ({ cart }) => ({
+            cart: cart.data,
+        }),
+        shallowEqual,
+    );
+
     const { data: cartInfo, refetch } = useQuery(
         ['cart', member?.memberId],
         async () => await cart.getCart(),
@@ -37,7 +44,11 @@ const useCart = () => {
         },
     );
 
-    return { cartInfo, totalCount, refetch };
+    return {
+        cartInfo,
+        totalCount: member ? totalCount : guestCartInfo.length,
+        refetch,
+    };
 };
 
 export default useCart;
