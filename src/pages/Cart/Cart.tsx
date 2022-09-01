@@ -16,6 +16,7 @@ import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { cart, guestOrder, orderSheet } from 'api/order';
 import { CHANNEL_TYPE } from 'models';
 import {
+    DeliveryGroup,
     OrderProductOption,
     OrderSheetBody,
     Products,
@@ -202,21 +203,21 @@ const CartOrderPurchaseButton = styled.div`
     cursor: pointer;
 `;
 
+interface CartListType {
+    [id: number]: OrderProductOption & {
+        deliveryAmt: number;
+        productName: string;
+    };
+}
+
+export interface OrderPrice {
+    [id: string]: { name: string; price: number };
+}
+
 const Cart = () => {
     const [checkList, setCheckList] = useState<number[]>([]);
-    const [cartList, setCartList] = useState<{
-        [id: number]: OrderProductOption & {
-            deliveryAmt: number;
-            productName: string;
-        };
-    }>({});
-    const [cartOrderPrice, setCartOrderPrice] = useState<
-        { name: string; price: number }[]
-    >([
-        { name: '총 주문금액', price: 0 },
-        { name: '총 할인금액', price: 0 },
-        { name: '총 배송비', price: 0 },
-    ]);
+    const [cartList, setCartList] = useState<CartListType>({});
+    const [cartOrderPrice, setCartOrderPrice] = useState<OrderPrice>({});
 
     const { refetch: cartRefetch } = useCart();
     const { member } = useMember();
@@ -230,6 +231,24 @@ const Cart = () => {
         shallowEqual,
     );
 
+    const setCartHandler = (deliveryGroups: DeliveryGroup[]): CartListType => {
+        const cartList: CartListType = {};
+
+        deliveryGroups.forEach((deliveryGroup) => {
+            deliveryGroup.orderProducts.forEach((orderProduct) => {
+                orderProduct.orderProductOptions.forEach((productOption) => {
+                    cartList[productOption.cartNo] = {
+                        ...productOption,
+                        deliveryAmt: deliveryGroup.deliveryAmt,
+                        productName: orderProduct.productName,
+                    };
+                });
+            });
+        });
+
+        return cartList;
+    };
+
     const { mutate: guestCartMutate, isLoading: isGuestCartLoading } =
         useMutation(
             async (cartList: ShoppingCartBody[]) =>
@@ -239,30 +258,10 @@ const Cart = () => {
             {
                 onSuccess: (res) => {
                     setCartList((prev) => {
-                        const cartList: {
-                            [id: string]: OrderProductOption & {
-                                deliveryAmt: number;
-                                productName: string;
-                            };
-                        } = {};
-                        res.data.deliveryGroups.forEach((deliveryGroup) => {
-                            deliveryGroup.orderProducts.forEach(
-                                (orderProduct) => {
-                                    orderProduct.orderProductOptions.forEach(
-                                        (productOption) => {
-                                            cartList[productOption.cartNo] = {
-                                                ...productOption,
-                                                deliveryAmt:
-                                                    deliveryGroup.deliveryAmt,
-                                                productName:
-                                                    orderProduct.productName,
-                                            };
-                                        },
-                                    );
-                                },
-                            );
-                        });
-                        return { ...prev, ...cartList };
+                        return {
+                            ...prev,
+                            ...setCartHandler(res.data.deliveryGroups),
+                        };
                     });
                 },
             },
@@ -276,20 +275,22 @@ const Cart = () => {
                 }),
             {
                 onSuccess: (res) => {
-                    setCartOrderPrice([
-                        {
+                    setCartOrderPrice((prev) => {
+                        prev.totalOrderPrice = {
                             name: '총 주문금액',
                             price: res?.data.price?.standardAmt,
-                        },
-                        {
+                        };
+                        prev.totalDiscountPrice = {
                             name: '총 할인금액',
-                            price: res?.data.price?.discountAmt,
-                        },
-                        {
+                            price: res.data.price.discountAmt,
+                        };
+                        prev.totalDeliveryPrice = {
                             name: '총 배송비',
                             price: res?.data.price?.totalDeliveryAmt,
-                        },
-                    ]);
+                        };
+
+                        return { ...prev };
+                    });
                 },
             },
         );
@@ -301,26 +302,10 @@ const Cart = () => {
             onSuccess: (res) => {
                 cartRefetch();
                 setCartList((prev) => {
-                    const cartList: {
-                        [id: string]: OrderProductOption & {
-                            deliveryAmt: number;
-                            productName: string;
-                        };
-                    } = {};
-                    res.data.deliveryGroups.forEach((deliveryGroup) => {
-                        deliveryGroup.orderProducts.forEach((orderProduct) => {
-                            orderProduct.orderProductOptions.forEach(
-                                (productOption) => {
-                                    cartList[productOption.cartNo] = {
-                                        ...productOption,
-                                        deliveryAmt: deliveryGroup.deliveryAmt,
-                                        productName: orderProduct.productName,
-                                    };
-                                },
-                            );
-                        });
-                    });
-                    return { ...prev, ...cartList };
+                    return {
+                        ...prev,
+                        ...setCartHandler(res.data.deliveryGroups),
+                    };
                 });
             },
             enabled: !!member,
@@ -332,21 +317,27 @@ const Cart = () => {
         async () =>
             await cart.getSelectedCartPrice({
                 divideInvalidProducts: true,
-                cartNo:
-                    checkList.length > 1
-                        ? checkList
-                        : checkList.length > 0
-                        ? head(checkList)!
-                        : null,
+                cartNo: checkList,
             }),
         {
             select: (res) => res.data,
             onSuccess: (res) =>
-                setCartOrderPrice([
-                    { name: '총 주문금액', price: res?.standardAmt },
-                    { name: '총 할인금액', price: res?.discountAmt },
-                    { name: '총 배송비', price: res?.totalDeliveryAmt },
-                ]),
+                setCartOrderPrice((prev) => {
+                    prev.totalOrderPrice = {
+                        name: '총 주문금액',
+                        price: res?.standardAmt,
+                    };
+                    prev.totalDiscountPrice = {
+                        name: '총 할인금액',
+                        price: res.discountAmt,
+                    };
+                    prev.totalDeliveryPrice = {
+                        name: '총 배송비',
+                        price: res?.totalDeliveryAmt,
+                    };
+
+                    return { ...prev };
+                }),
             enabled: !!member && checkList.length > 0,
         },
     );

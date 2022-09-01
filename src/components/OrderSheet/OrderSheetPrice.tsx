@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 import currency from 'currency.js';
+import { OrderPrice } from 'pages/Cart/Cart';
 
 const CartOrderBox = styled.div`
     background: #f8f8fa;
@@ -63,27 +64,28 @@ const OrderSheetPrice = ({
     amountPrice,
 }: {
     title: string;
-    cartOrderPrice?: { name: string; price: number }[];
+    cartOrderPrice?: OrderPrice;
     amountPrice?: number;
 }) => {
     return (
         <CartOrderBox>
             <CartOrderPriceTitle>{title}</CartOrderPriceTitle>
             <CartOrderPriceBox>
-                {cartOrderPrice?.map(({ name, price }) => {
-                    return (
-                        <OrderPriceWrapper key={name}>
-                            <CartOrderSubTitle>{name}</CartOrderSubTitle>
-                            <CartOrderPrice>
-                                {currency(price, {
-                                    symbol: '',
-                                    precision: 0,
-                                }).format()}{' '}
-                                원
-                            </CartOrderPrice>
-                        </OrderPriceWrapper>
-                    );
-                })}
+                {cartOrderPrice &&
+                    Object.values(cartOrderPrice).map(({ name, price }) => {
+                        return (
+                            <OrderPriceWrapper key={name}>
+                                <CartOrderSubTitle>{name}</CartOrderSubTitle>
+                                <CartOrderPrice>
+                                    {currency(price, {
+                                        symbol: '',
+                                        precision: 0,
+                                    }).format()}{' '}
+                                    원
+                                </CartOrderPrice>
+                            </OrderPriceWrapper>
+                        );
+                    })}
             </CartOrderPriceBox>
             <CartOrderPaymentAmount>
                 <CartOrderSubTitle>총 결제금액</CartOrderSubTitle>
