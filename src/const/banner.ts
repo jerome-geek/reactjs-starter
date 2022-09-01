@@ -1,5 +1,6 @@
 const BANNER = Object.freeze({
-    mainBandBanner: process.env.NODE_ENV === 'development' ? '000' : '',
+    mainBannerWeb: process.env.NODE_ENV === 'development' ? '000' : '',
+    mainBannerMobile: process.env.NODE_ENV === 'development' ? '005' : '',
     mainCategoryBanner: process.env.NODE_ENV === 'development' ? '004' : '',
 });
 
