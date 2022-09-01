@@ -7,6 +7,8 @@ import {
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
+import media from 'utils/styles/media';
+
 interface SocialMediaProps extends HTMLAttributes<HTMLUListElement> {
     socialMedia: {
         name: string;
@@ -20,7 +22,10 @@ const SocialMediaList = styled.ul`
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 12px;
+
+    ${media.small} {
+        margin-bottom: 12px;
+    }
 `;
 
 const SocialMediaListItem = styled.li`
