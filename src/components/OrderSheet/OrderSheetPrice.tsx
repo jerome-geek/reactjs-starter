@@ -56,7 +56,9 @@ const CartOrderPaymentAmount = styled.div`
 
 const CartOrderSubTitle = styled.div``;
 
-const CartOrderPrice = styled.div``;
+const CartOrderPrice = styled.div`
+    letter-spacing: 0px;
+`;
 
 const OrderSheetPrice = ({
     title,

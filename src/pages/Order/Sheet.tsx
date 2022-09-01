@@ -33,7 +33,7 @@ import { OrderPrice } from 'pages/Cart/Cart';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
 
-const SheetContainer = styled.div`
+const SheetContainer = styled(LayoutResponsive)`
     display: flex;
     justify-content: space-between;
 `;
@@ -314,8 +314,9 @@ const Sheet = () => {
         handleSubmit,
         getValues,
         setValue,
+        watch,
         formState: { errors },
-    } = useForm<PaymentReserve>();
+    } = useForm<PaymentReserve>({ defaultValues: { subPayAmt: 0 } });
 
     const { data: orderData, refetch: orderRefetch } = useQuery(
         ['orderData', { member: member?.memberName }],
@@ -358,18 +359,21 @@ const Sheet = () => {
                     };
                     prev.totalDiscountPrice = {
                         name: '총 할인금액',
-                        price:
+                        price: `- ${
                             res?.data.paymentInfo.totalImmediateDiscountAmt +
-                            res?.data.paymentInfo.totalAdditionalDiscountAmt,
+                            res?.data.paymentInfo.totalAdditionalDiscountAmt
+                        }`,
                     };
-                    if (member)
+                    if (member) {
                         prev.couponDiscount = {
                             name: '쿠폰 할인',
-                            price:
+                            price: `- ${
                                 res?.data.paymentInfo.cartCouponAmt +
-                                +res?.data.paymentInfo.productCouponAmt +
-                                res?.data.paymentInfo.deliveryCouponAmt,
+                                res?.data.paymentInfo.productCouponAmt +
+                                res?.data.paymentInfo.deliveryCouponAmt
+                            }`,
                         };
+                    }
                     return { ...prev };
                 });
             },
@@ -511,294 +515,295 @@ const Sheet = () => {
                     couponApplyMutate={couponApplyMutate}
                 ></CouponListModal>
             )}
-            <LayoutResponsive type='large' style={{ padding: '10rem 0' }}>
-                <SheetContainer>
-                    <SheetOrderWrapper>
-                        <Progress>
-                            <div className='current-progress'>주문서</div>
-                            <div>&#8250;</div>
-                            <div>주문 완료</div>
-                        </Progress>
-                        {!member && (
-                            <GuestLoginBox>
-                                <p>
-                                    지금 보이스캐디의 회원이 되어 즉시 사용
-                                    가능한 3,000원 할인 쿠폰 혜택을 만나보세요.
-                                </p>
-                                <Link to={'/member/join-agreement'}>
-                                    회원 가입 바로가기
-                                </Link>
-                            </GuestLoginBox>
-                        )}
-                        <SheetTitle marginTop='30px'>
-                            <h3>주문 상품</h3>
-                        </SheetTitle>
-                        <OrderProductListBox>
-                            <CartCategoryBox>
-                                <CartInformation>상품 정보</CartInformation>
-                                <CartCountBox>수량</CartCountBox>
-                                <CartPrice>가격</CartPrice>
-                                <CartDelivery>배송비</CartDelivery>
-                                <CartAmount>총 상품 금액</CartAmount>
-                            </CartCategoryBox>
-                            {orderList.map((orderData) => {
-                                return (
-                                    <CartList
-                                        cartData={orderData}
-                                        key={orderData.optionNo}
-                                        isModifiable={false}
-                                    />
-                                );
-                            })}
-                        </OrderProductListBox>
-                        <SheetTitle>
-                            <h3>주문자 정보</h3>
-                        </SheetTitle>
-                        <OrdererInformation register={register} />
-                        <SheetTitle>
-                            <h3>배송지</h3>
-                            {member && (
-                                <div
-                                    className='shipping-info'
-                                    onClick={() => setIsShippingListModal(true)}
-                                >
-                                    배송지 정보
-                                </div>
-                            )}
-                            <div className='order-info'>
-                                <input
-                                    type='checkbox'
-                                    id='orderInfo'
-                                    onChange={() =>
-                                        setOrdererInformation((prev) => !prev)
-                                    }
-                                    checked={ordererInformation}
+            <SheetContainer type='large' style={{ padding: '10rem 0' }}>
+                <SheetOrderWrapper>
+                    <Progress>
+                        <div className='current-progress'>주문서</div>
+                        <div>&#8250;</div>
+                        <div>주문 완료</div>
+                    </Progress>
+                    {!member && (
+                        <GuestLoginBox>
+                            <p>
+                                지금 보이스캐디의 회원이 되어 즉시 사용 가능한
+                                3,000원 할인 쿠폰 혜택을 만나보세요.
+                            </p>
+                            <Link to={'/member/join-agreement'}>
+                                회원 가입 바로가기
+                            </Link>
+                        </GuestLoginBox>
+                    )}
+                    <SheetTitle marginTop='30px'>
+                        <h3>주문 상품</h3>
+                    </SheetTitle>
+                    <OrderProductListBox>
+                        <CartCategoryBox>
+                            <CartInformation>상품 정보</CartInformation>
+                            <CartCountBox>수량</CartCountBox>
+                            <CartPrice>가격</CartPrice>
+                            <CartDelivery>배송비</CartDelivery>
+                            <CartAmount>총 상품 금액</CartAmount>
+                        </CartCategoryBox>
+                        {orderList.map((orderData) => {
+                            return (
+                                <CartList
+                                    cartData={orderData}
+                                    key={orderData.optionNo}
+                                    isModifiable={false}
                                 />
-                                <label htmlFor='orderInfo'>
-                                    {ordererInformation ? (
-                                        <Checked />
-                                    ) : (
-                                        <UnChecked />
-                                    )}
-                                    <p>주문자 정보와 동일</p>
-                                </label>
-                            </div>
-                        </SheetTitle>
-                        <ShippingAddress
-                            register={register}
-                            setValue={setValue}
-                            getValues={getValues}
-                            ordererInformation={
-                                ordererInformation
-                                    ? {
-                                          receiverName: getValues(
-                                              'orderer.ordererName',
-                                          ),
-                                          receiverContact1: getValues(
-                                              'orderer.ordererContact1',
-                                          ),
-                                      }
-                                    : undefined
-                            }
-                            setIsSearchAddressModal={setIsSearchAddressModal}
-                        />
+                            );
+                        })}
+                    </OrderProductListBox>
+                    <SheetTitle>
+                        <h3>주문자 정보</h3>
+                    </SheetTitle>
+                    <OrdererInformation register={register} />
+                    <SheetTitle>
+                        <h3>배송지</h3>
                         {member && (
-                            <>
-                                <SheetTitle>
-                                    <h3>할인 적용</h3>
-                                </SheetTitle>
-                                <DiscountApply
-                                    setIsCouponListModal={setIsCouponListModal}
-                                />
-                            </>
+                            <div
+                                className='shipping-info'
+                                onClick={() => setIsShippingListModal(true)}
+                            >
+                                배송지 정보
+                            </div>
                         )}
-                        <SheetTitle>
-                            <h3>결제 방식</h3>
-                        </SheetTitle>
-                        <CommonPayment setValue={setValue} />
+                        <div className='order-info'>
+                            <input
+                                type='checkbox'
+                                id='orderInfo'
+                                onChange={() =>
+                                    setOrdererInformation((prev) => !prev)
+                                }
+                                checked={ordererInformation}
+                            />
+                            <label htmlFor='orderInfo'>
+                                {ordererInformation ? (
+                                    <Checked />
+                                ) : (
+                                    <UnChecked />
+                                )}
+                                <p>주문자 정보와 동일</p>
+                            </label>
+                        </div>
+                    </SheetTitle>
+                    <ShippingAddress
+                        register={register}
+                        setValue={setValue}
+                        getValues={getValues}
+                        ordererInformation={
+                            ordererInformation
+                                ? {
+                                      receiverName: getValues(
+                                          'orderer.ordererName',
+                                      ),
+                                      receiverContact1: getValues(
+                                          'orderer.ordererContact1',
+                                      ),
+                                  }
+                                : undefined
+                        }
+                        setIsSearchAddressModal={setIsSearchAddressModal}
+                    />
+                    {member && (
+                        <>
+                            <SheetTitle>
+                                <h3>할인 적용</h3>
+                            </SheetTitle>
+                            <DiscountApply
+                                setIsCouponListModal={setIsCouponListModal}
+                                paymentInfo={orderData?.data.paymentInfo}
+                                setValue={setValue}
+                                setOrderPriceData={setOrderPriceData}
+                                getValues={getValues}
+                            />
+                        </>
+                    )}
+                    <SheetTitle>
+                        <h3>결제 방식</h3>
+                    </SheetTitle>
+                    <CommonPayment setValue={setValue} />
+                    {!member && (
+                        <>
+                            <SheetTitle>
+                                <h3>비회원 주문 비밀번호</h3>
+                                <div className='order-info'>
+                                    비회원 배송 조회 시 사용할 비밀번호를
+                                    입력해주세요.
+                                </div>
+                            </SheetTitle>
+                            <GuestPassword
+                                errors={errors}
+                                register={register}
+                            />
+                        </>
+                    )}
+                </SheetOrderWrapper>
+                <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
+                    <OrderSheetPrice
+                        title='총 결제 금액'
+                        cartOrderPrice={orderPriceData}
+                        amountPrice={
+                            orderData &&
+                            orderData.data.paymentInfo.paymentAmt -
+                                getValues('subPayAmt')
+                        }
+                    />
+                    <AgreeButton>
                         {!member && (
                             <>
-                                <SheetTitle>
-                                    <h3>비회원 주문 비밀번호</h3>
-                                    <div className='order-info'>
-                                        비회원 배송 조회 시 사용할 비밀번호를
-                                        입력해주세요.
+                                <div className='guest_agree_box'>
+                                    <div className='induce'>
+                                        비회원으로 상품을 구매하시면
+                                        보이스캐디의
+                                        <br />
+                                        쿠폰 및 적립급 혜택을 받을실 수
+                                        없습니다.
                                     </div>
-                                </SheetTitle>
-                                <GuestPassword
-                                    errors={errors}
-                                    register={register}
-                                />
+                                </div>
+                                <div className='guest_agree_box'>
+                                    <div className='agree_Button_box'>
+                                        <div>
+                                            <input
+                                                type='checkbox'
+                                                onChange={(e) =>
+                                                    agreeAllHandler(
+                                                        e.target.checked,
+                                                    )
+                                                }
+                                                id='agreeOrderAll'
+                                                checked={
+                                                    agreePurchase.length ===
+                                                    orderTerms.length
+                                                }
+                                            />
+                                            <label htmlFor='agreeOrderAll'>
+                                                {agreePurchase.length ===
+                                                orderTerms.length ? (
+                                                    <Checked />
+                                                ) : (
+                                                    <UnChecked />
+                                                )}
+                                            </label>
+                                            <p>전체 동의</p>
+                                        </div>
+                                        <div>
+                                            <input
+                                                type='checkbox'
+                                                onChange={(e) =>
+                                                    agreeHandler(
+                                                        e.target.checked,
+                                                        e.target.id,
+                                                    )
+                                                }
+                                                checked={agreePurchase.includes(
+                                                    'agreeOrderService',
+                                                )}
+                                                id='agreeOrderService'
+                                            />
+                                            <label htmlFor='agreeOrderService'>
+                                                {agreePurchase.includes(
+                                                    'agreeOrderService',
+                                                ) ? (
+                                                    <Checked />
+                                                ) : (
+                                                    <UnChecked />
+                                                )}
+                                            </label>
+                                            <p>
+                                                서비스 이용약관 동의
+                                                <span>&nbsp;(필수)</span>
+                                                <Link to={'/'}>
+                                                    자세히보기
+                                                </Link>{' '}
+                                                {/* TODO 약관 페이지 이동*/}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <input
+                                                type='checkbox'
+                                                onChange={(e) =>
+                                                    agreeHandler(
+                                                        e.target.checked,
+                                                        e.target.id,
+                                                    )
+                                                }
+                                                id='agreeOrderInformation'
+                                                checked={agreePurchase.includes(
+                                                    'agreeOrderInformation',
+                                                )}
+                                            />
+                                            <label htmlFor='agreeOrderInformation'>
+                                                {agreePurchase.includes(
+                                                    'agreeOrderInformation',
+                                                ) ? (
+                                                    <Checked />
+                                                ) : (
+                                                    <UnChecked />
+                                                )}
+                                            </label>
+                                            <p>
+                                                개인정보 처리방침
+                                                <span>&nbsp;(필수)</span>
+                                                <Link to={'/'}>
+                                                    자세히보기
+                                                </Link>{' '}
+                                                {/* TODO 약관 페이지 이동*/}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </>
                         )}
-                    </SheetOrderWrapper>
-                    <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
-                        <OrderSheetPrice
-                            title='총 결제 금액'
-                            cartOrderPrice={orderPriceData}
-                            amountPrice={orderData?.data.paymentInfo.paymentAmt}
-                        />
-                        <AgreeButton>
-                            {!member && (
-                                <>
-                                    <div className='guest_agree_box'>
-                                        <div className='induce'>
-                                            비회원으로 상품을 구매하시면
-                                            보이스캐디의
-                                            <br />
-                                            쿠폰 및 적립급 혜택을 받을실 수
-                                            없습니다.
-                                        </div>
-                                    </div>
-                                    <div className='guest_agree_box'>
-                                        <div className='agree_Button_box'>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeAllHandler(
-                                                            e.target.checked,
-                                                        )
-                                                    }
-                                                    id='agreeOrderAll'
-                                                    checked={
-                                                        agreePurchase.length ===
-                                                        orderTerms.length
-                                                    }
-                                                />
-                                                <label htmlFor='agreeOrderAll'>
-                                                    {agreePurchase.length ===
-                                                    orderTerms.length ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>전체 동의</p>
-                                            </div>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeHandler(
-                                                            e.target.checked,
-                                                            e.target.id,
-                                                        )
-                                                    }
-                                                    checked={agreePurchase.includes(
-                                                        'agreeOrderService',
-                                                    )}
-                                                    id='agreeOrderService'
-                                                />
-                                                <label htmlFor='agreeOrderService'>
-                                                    {agreePurchase.includes(
-                                                        'agreeOrderService',
-                                                    ) ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    서비스 이용약관 동의
-                                                    <span>&nbsp;(필수)</span>
-                                                    <Link to={'/'}>
-                                                        자세히보기
-                                                    </Link>{' '}
-                                                    {/* TODO 약관 페이지 이동*/}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeHandler(
-                                                            e.target.checked,
-                                                            e.target.id,
-                                                        )
-                                                    }
-                                                    id='agreeOrderInformation'
-                                                    checked={agreePurchase.includes(
-                                                        'agreeOrderInformation',
-                                                    )}
-                                                />
-                                                <label htmlFor='agreeOrderInformation'>
-                                                    {agreePurchase.includes(
-                                                        'agreeOrderInformation',
-                                                    ) ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    개인정보 처리방침
-                                                    <span>&nbsp;(필수)</span>
-                                                    <Link to={'/'}>
-                                                        자세히보기
-                                                    </Link>{' '}
-                                                    {/* TODO 약관 페이지 이동*/}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                            <div>
-                                <input
-                                    type='checkbox'
-                                    onChange={(e) =>
-                                        agreeHandler(
-                                            e.target.checked,
-                                            e.target.id,
-                                        )
-                                    }
-                                    id='agreePurchase'
-                                    checked={agreePurchase.includes(
-                                        'agreePurchase',
-                                    )}
-                                />
-                                <label htmlFor='agreePurchase'>
-                                    {agreePurchase.includes('agreePurchase') ? (
-                                        <Checked />
-                                    ) : (
-                                        <UnChecked />
-                                    )}
-                                </label>
-                                <p>
-                                    주문할 제품의 거래조건을 확인 하였으며,
-                                    <br /> 구매에 동의하시겠습니까 ?
-                                    <span>&nbsp;(필수)</span>
-                                </p>
-                            </div>
-                        </AgreeButton>
-                        <SheetButton
-                            width='100%'
-                            onClick={handleSubmit(() => {
-                                if (accessTokenInfo?.accessToken) {
-                                    if (
-                                        !agreePurchase.includes('agreePurchase')
-                                    ) {
-                                        alert('약관에 동의해주세요.');
-                                        return;
-                                    }
-                                } else if (
-                                    agreePurchase.length !== orderTerms.length
-                                ) {
+                        <div>
+                            <input
+                                type='checkbox'
+                                onChange={(e) =>
+                                    agreeHandler(e.target.checked, e.target.id)
+                                }
+                                id='agreePurchase'
+                                checked={agreePurchase.includes(
+                                    'agreePurchase',
+                                )}
+                            />
+                            <label htmlFor='agreePurchase'>
+                                {agreePurchase.includes('agreePurchase') ? (
+                                    <Checked />
+                                ) : (
+                                    <UnChecked />
+                                )}
+                            </label>
+                            <p>
+                                주문할 제품의 거래조건을 확인 하였으며,
+                                <br /> 구매에 동의하시겠습니까 ?
+                                <span>&nbsp;(필수)</span>
+                            </p>
+                        </div>
+                    </AgreeButton>
+                    <SheetButton
+                        width='100%'
+                        onClick={handleSubmit(() => {
+                            if (accessTokenInfo?.accessToken) {
+                                if (!agreePurchase.includes('agreePurchase')) {
                                     alert('약관에 동의해주세요.');
                                     return;
                                 }
-                                orderPayment.setConfiguration();
-                                orderPayment.reservation(paymentData);
-                                // paymentMutate();
-                                // devEnvironmentPayment();
-                            })}
-                        >
-                            결제하기
-                        </SheetButton>
-                    </SheetOrderPriceWrapper>
-                </SheetContainer>
-            </LayoutResponsive>
+                            } else if (
+                                agreePurchase.length !== orderTerms.length
+                            ) {
+                                alert('약관에 동의해주세요.');
+                                return;
+                            }
+                            orderPayment.setConfiguration();
+                            orderPayment.reservation(paymentData);
+                            // paymentMutate();
+                            // devEnvironmentPayment();
+                        })}
+                    >
+                        결제하기
+                    </SheetButton>
+                </SheetOrderPriceWrapper>
+            </SheetContainer>
         </>
     );
 };
