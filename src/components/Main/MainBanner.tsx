@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 
 import ViewMoreButton from 'components/Button/ViewMoreButton';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
 import { breakWord } from 'utils/html';
 import media from 'utils/styles/media';
 import BREAKPOINTS from 'const/breakpoints';
@@ -15,18 +14,10 @@ interface MainBannerProps extends HTMLAttributes<HTMLDivElement> {
     url: string;
 }
 
-const MainBannerContainer = styled(LayoutResponsive)`
+const MainBannerContainer = styled.div`
     margin-bottom: 156px;
     text-align: center;
     padding: 0;
-
-    ${media.xlarge} {
-        width: auto;
-        margin-left: 24px;
-        margin-right: 24px;
-        margin-bottom: 88px;
-        text-align: left;
-    }
 `;
 
 const MainBannerImageContainer = styled.div`
@@ -43,6 +34,12 @@ const MainBannerImageContainer = styled.div`
 `;
 
 const MainBannerContentsContainer = styled.div`
+    text-align: center;
+
+    ${media.medium} {
+        text-align: left;
+    }
+
     ${media.small} {
         padding: 0 2.5rem;
     }
@@ -77,7 +74,7 @@ const MainBannerDesc = styled.p`
 `;
 
 const StyledVieMoreButton = styled(ViewMoreButton)`
-    ${media.small} {
+    ${media.medium} {
         margin: 0;
     }
 `;
@@ -86,7 +83,7 @@ const MainBanner: FC<MainBannerProps> = ({ imgUrl, title, desc, url }) => {
     const { width } = useWindowSize();
 
     return (
-        <MainBannerContainer type='large'>
+        <MainBannerContainer>
             <MainBannerImageContainer>
                 <img src={imgUrl} alt={title} />
             </MainBannerImageContainer>
@@ -97,7 +94,7 @@ const MainBanner: FC<MainBannerProps> = ({ imgUrl, title, desc, url }) => {
                         __html: breakWord(
                             title,
                             '/',
-                            width > BREAKPOINTS.SMALL ? ' ' : '<br />',
+                            width > BREAKPOINTS.MEDIUM ? ' ' : '<br />',
                         ),
                     }}
                 />
@@ -106,7 +103,7 @@ const MainBanner: FC<MainBannerProps> = ({ imgUrl, title, desc, url }) => {
                         __html: breakWord(
                             desc,
                             '/',
-                            width > BREAKPOINTS.SMALL ? ' ' : '<br />',
+                            width > BREAKPOINTS.MEDIUM ? ' ' : '<br />',
                         ),
                     }}
                 />
