@@ -48,6 +48,7 @@ const FooterTopMenuList = styled.ul`
     width: 840px;
     margin-left: auto;
     margin-right: auto;
+    line-height: 20px;
 
     ${media.small} {
         margin-bottom: 30px;
