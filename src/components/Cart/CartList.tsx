@@ -16,6 +16,7 @@ const CartListBox = styled.div`
     justify-content: space-between;
     height: 164px;
     border-bottom: 1px solid #dbdbdb;
+    padding: 12px 0;
     &:last-child {
         border-bottom: none;
     }
@@ -98,7 +99,7 @@ const CartCountBox = styled.div<{ isModifiable: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30px;
+    height: 100%;
     > div {
         display: flex;
         justify-content: center;
@@ -106,7 +107,7 @@ const CartCountBox = styled.div<{ isModifiable: boolean }>`
         border: ${(props) => (props.isModifiable ? '1px solid #dbdbdb' : '')};
         width: 52%;
         min-width: 52px;
-        height: 100%;
+        height: 30px;
         > div {
             width: 33.33%;
             display: flex;
