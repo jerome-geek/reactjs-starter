@@ -118,10 +118,8 @@ const CartCountBox = styled.div<{ isModifiable: boolean }>`
     ${media.medium} {
         justify-content: flex-start;
         margin-bottom: 8px;
-        height: 20px;
         > div {
-            > div {
-            }
+            height: 20px;
         }
     }
 `;
