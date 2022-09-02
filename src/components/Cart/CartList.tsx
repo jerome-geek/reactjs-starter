@@ -1,13 +1,13 @@
 import styled from 'styled-components';
-import currency from 'currency.js';
 import { useWindowSize } from 'usehooks-ts';
+import currency from 'currency.js';
 
-import { OrderProductOption } from 'models/order';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { ReactComponent as Plus } from 'assets/icons/plus_button.svg';
 import { ReactComponent as Minus } from 'assets/icons/minus_button.svg';
+import { OrderProductOption } from 'models/order';
 import { isDesktop } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 
