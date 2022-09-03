@@ -19,7 +19,7 @@ const request: AxiosInstance = axios.create({
 });
 
 // 요청 타임아웃 설정
-request.defaults.timeout = 2500;
+request.defaults.timeout = 5000;
 
 // 요청 인터셉터 추가
 request.interceptors.request.use((config) => {
@@ -43,11 +43,14 @@ request.interceptors.response.use(
                 return window.location.replace(PATHS.ERROR);
 
             case HTTP_RESPONSE.HTTP_BAD_REQUEST:
-                alert(error.response.data.message);
+                alert(error?.response?.data.message || '잘못된 요청입니다.');
                 return window.location.replace(PATHS.LOGIN);
 
             default:
-                alert(error.response.data.message);
+                alert(
+                    error?.response?.data.message ||
+                        '알 수 없는 오류가 발생했습니다.',
+                );
                 return error;
         }
     },

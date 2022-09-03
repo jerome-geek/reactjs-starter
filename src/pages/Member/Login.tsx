@@ -15,11 +15,11 @@ import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
 import { useQueryString } from 'hooks';
 import PATHS from 'const/paths';
-import { ReactComponent as NaverIcon } from 'assets/icons/naver.svg';
-import { ReactComponent as KakaoIcon } from 'assets/icons/kakao.svg';
-import { ReactComponent as FacebookIcon } from 'assets/icons/facebook.svg';
-import { ReactComponent as GoogleIcon } from 'assets/icons/google.svg';
-import { ReactComponent as AppleIcon } from 'assets/icons/apple.svg';
+import { ReactComponent as NaverIcon } from 'assets/icons/sns_naver.svg';
+import { ReactComponent as KakaoIcon } from 'assets/icons/sns_kakao.svg';
+import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
+import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
+import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
 
 interface LoginFormData {
