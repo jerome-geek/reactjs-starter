@@ -6,7 +6,7 @@ import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
-import Checkbox from 'components/Input/CheckBox';
+import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import { SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
 import media from 'utils/styles/media';
