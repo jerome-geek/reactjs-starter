@@ -1,21 +1,21 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import CheckBox, { CheckboxProps } from 'components/Input/CheckBox';
+import Checkbox, { CheckboxProps } from 'components/Input/CheckBox';
 
 export default {
-    component: CheckBox,
+    component: Checkbox,
     parameters: {
         componentSubtitle: '채크박스 컴포넌트',
     },
-} as ComponentMeta<typeof CheckBox>;
+} as ComponentMeta<typeof Checkbox>;
 
-const Template: ComponentStory<typeof CheckBox> = ({
+const Template: ComponentStory<typeof Checkbox> = ({
     label,
     id,
     checked,
     ...props
 }: CheckboxProps) => (
-    <CheckBox id={id} label={label} checked={checked} {...props} />
+    <Checkbox id={id} label={label} checked={checked} {...props} />
 );
 
 export const UncheckedCheckbox = Template.bind({});

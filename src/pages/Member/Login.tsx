@@ -9,7 +9,7 @@ import { useAppDispatch } from 'state/reducers';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import StyledInput from 'components/Input/StyledInput';
 import Header from 'components/shared/Header';
-import CheckBox from 'components/Input/CheckBox';
+import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';

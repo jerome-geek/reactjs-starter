@@ -16,7 +16,7 @@ const CheckboxContainer = styled.div`
     align-items: center;
 `;
 
-const CheckBoxLabel = styled.label`
+const CheckboxLabel = styled.label`
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -44,6 +44,7 @@ const Checkbox = forwardRef(
             shape = 'square',
             label,
             id,
+            name,
             checked = false,
             children,
             ...props
@@ -52,14 +53,14 @@ const Checkbox = forwardRef(
     ) => {
         return (
             <CheckboxContainer>
-                <CheckBoxLabel htmlFor={props.name}>
-                    <HiddenCheckbox id={props.name} ref={ref} {...props} />
+                <CheckboxLabel htmlFor={name}>
+                    <HiddenCheckbox id={name} ref={ref} {...props} />
                     {shape === 'circle' && checked && <CircleChecked />}
                     {shape === 'circle' && !checked && <CircleUnChecked />}
                     {shape === 'square' && checked && <SquareChecked />}
                     {shape === 'square' && !checked && <SquareUnChecked />}
                     {children}
-                </CheckBoxLabel>
+                </CheckboxLabel>
             </CheckboxContainer>
         );
     },
