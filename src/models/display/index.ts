@@ -418,3 +418,16 @@ export interface BannerInfo {
     displayOrder: number;
     videoUrl: string;
 }
+
+export interface getProductSectionResponse {
+    sectionNo: number;
+    label: string;
+    promotionText: string;
+    sectionExplain: string;
+    products: Product[];
+    productTotalCount: number;
+    imageUrl: string;
+    leftSpaceColor: string;
+    rightSpaceColor: string;
+    displayableStock: boolean;
+}
