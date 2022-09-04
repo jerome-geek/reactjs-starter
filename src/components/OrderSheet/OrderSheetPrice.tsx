@@ -5,7 +5,7 @@ import { OrderPrice } from 'pages/Cart/Cart';
 
 const CartOrderBox = styled.div`
     background: #f8f8fa;
-    width: 400px;
+    width: 100%;
 `;
 
 const CartOrderPriceTitle = styled.div`
@@ -23,7 +23,7 @@ const CartOrderPriceBox = styled.div`
     border-top: 1px solid #dbdbdb;
     border-bottom: 1px solid #dbdbdb;
     padding: 32px 0 30px;
-    width: 332px;
+    width: 83%;
     margin: 0 auto;
     color: #858585;
     font-size: 16px;

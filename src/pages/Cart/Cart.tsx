@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { head } from '@fxts/core';
 import { shallowEqual } from 'react-redux';
+import { useWindowSize } from 'usehooks-ts';
 
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import Header from 'components/shared/Header';
+import GoBackButton from 'components/Button/GoBackButton';
 import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
-import Header from 'components/shared/Header';
+import { useCart, useMember } from 'hooks';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { cart, guestOrder, orderSheet } from 'api/order';
 import { CHANNEL_TYPE } from 'models';
@@ -22,26 +24,62 @@ import {
     Products,
     ShoppingCartBody,
 } from 'models/order';
-import { useCart, useMember } from 'hooks';
+import { isDesktop } from 'utils/styles/responsive';
+import media from 'utils/styles/media';
 
-const CartContainer = styled(LayoutResponsive)`
+const CartContainer = styled.div`
+    width: 1280px;
     margin: 118px auto;
     display: flex;
     justify-content: space-between;
+    ${media.custom(1280)} {
+        width: 100%;
+        padding: 0 24px;
+    }
+    ${media.medium} {
+        margin-top: 25px;
+        flex-direction: column;
+    }
 `;
 
 const CartListWrapper = styled.div`
-    width: 836.5px;
+    width: 65%;
+    ${media.medium} {
+        width: 100%;
+    }
+`;
+
+const TitleBox = styled.div`
+    position: relative;
+    > div {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
 `;
 
 const Title = styled.h2`
     margin-bottom: 60px;
+    width: 100%;
     color: #191919;
     font-size: 24px;
     font-weight: bold;
+    ${media.medium} {
+        text-align: center;
+        font-size: 16px;
+    }
 `;
 
-const SelectWrapper = styled.div``;
+const SelectWrapper = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    ${media.medium} {
+        margin-bottom: 30px;
+        padding-left: 9px;
+    }
+`;
 
 const SelectAll = styled.div`
     display: flex;
@@ -56,9 +94,22 @@ const SelectAll = styled.div`
     > div {
         display: flex;
         color: #191919;
+        align-items: center;
         font-size: 16px;
         margin-left: 9.5px;
         line-height: 24px;
+        > p {
+            margin-left: 10px;
+        }
+    }
+    ${media.medium} {
+        margin: 0;
+        > div {
+            margin-left: 0;
+            > p {
+                color: #999999;
+            }
+        }
     }
 `;
 
@@ -78,11 +129,22 @@ const DeleteSelection = styled.div`
     line-height: 44px;
     text-align: center;
     cursor: pointer;
+    ${media.medium} {
+        width: auto;
+        height: auto;
+        margin-top: 0;
+        border: none;
+        color: #999999;
+        font-size: 16px;
+    }
 `;
 
 const CartListContainer = styled.div`
     border-top: 2px solid #222943;
     border-bottom: 2px solid #222943;
+    ${media.medium} {
+        margin-bottom: 24px;
+    }
 `;
 
 const CartCategoryBox = styled.div`
@@ -103,6 +165,9 @@ const NoProductMessage = styled.div`
     text-align: center;
     color: #ababab;
     font-size: 16px;
+    ${media.medium} {
+        padding: 72px 0;
+    }
 `;
 
 const CartInformation = styled.div`
@@ -180,17 +245,27 @@ const CartCloseButton = styled.div`
 `;
 
 const CartPriceContainer = styled.div`
-    width: 400px;
     position: relative;
+    width: 31%;
+    ${media.medium} {
+        position: unset;
+    }
+    ${media.medium} {
+        width: 100%;
+    }
 `;
 
 const CartPriceWrapper = styled.div`
     position: sticky;
     top: 175px;
+    ${media.medium} {
+        top: auto;
+        bottom: 0;
+    }
 `;
 
 const CartOrderPurchaseButton = styled.div`
-    width: 400px;
+    width: 100%;
     height: 44px;
     background: #222943;
     text-align: center;
@@ -201,6 +276,23 @@ const CartOrderPurchaseButton = styled.div`
     top: 100%;
     left: 0;
     cursor: pointer;
+    ${media.medium} {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+    }
+`;
+
+const ContinueShoppingButton = styled(CartOrderPurchaseButton)`
+    > a {
+        display: inline-block;
+        width: 100%;
+    }
+    ${media.medium} {
+        position: unset;
+        height: 54px;
+        line-height: 54px;
+    }
 `;
 
 interface CartListType {
@@ -221,6 +313,7 @@ const Cart = () => {
 
     const { refetch: cartRefetch } = useCart();
     const { member } = useMember();
+    const { width } = useWindowSize();
 
     const dispatch = useAppDispatch();
 
@@ -499,52 +592,84 @@ const Cart = () => {
         }
     };
 
+    const isCartListForResponsive = (
+        device: 'desktop' | 'mobile' | 'mustShowDesktop',
+    ) => {
+        switch (device) {
+            case 'desktop':
+                return isDesktop(width) && Object.keys(cartList).length >= 1;
+
+            case 'mobile':
+                return !isDesktop(width) && Object.keys(cartList).length >= 1;
+
+            case 'mustShowDesktop':
+                return isDesktop(width) || Object.keys(cartList).length >= 1;
+
+            default:
+                return false;
+        }
+    };
+
     return (
         <>
             <Header />
-            <CartContainer type='large'>
+            <CartContainer>
                 <CartListWrapper>
-                    <Title>장바구니</Title>
-                    <SelectWrapper>
-                        <SelectAll>
-                            <input
-                                type='checkbox'
-                                onChange={(e) =>
-                                    agreeAllButton(e.target.checked)
-                                }
-                                checked={
-                                    checkList.length ===
-                                    Object.keys(cartList).length
-                                }
-                                id='agreeAll'
-                            />
-                            <label htmlFor='agreeAll'>
-                                {checkList.length ===
-                                Object.keys(cartList).length ? (
-                                    <Checked />
-                                ) : (
-                                    <UnChecked />
-                                )}
-                            </label>
-                            <div>
-                                {' '}
-                                <p>전체 선택 </p>
-                                <CheckCount>
-                                    (<span>{checkList.length}</span>/
-                                    {Object.keys(cartList).length})
-                                </CheckCount>
-                            </div>
-                        </SelectAll>
-                    </SelectWrapper>
+                    <TitleBox>
+                        <GoBackButton />
+                        <Title>장바구니</Title>
+                    </TitleBox>
+                    {isCartListForResponsive('mustShowDesktop') && (
+                        <SelectWrapper>
+                            <SelectAll>
+                                <input
+                                    type='checkbox'
+                                    onChange={(e) =>
+                                        agreeAllButton(e.target.checked)
+                                    }
+                                    checked={
+                                        checkList.length ===
+                                        Object.keys(cartList).length
+                                    }
+                                    id='agreeAll'
+                                />
+                                <label htmlFor='agreeAll'>
+                                    {checkList.length ===
+                                    Object.keys(cartList).length ? (
+                                        <Checked />
+                                    ) : (
+                                        <UnChecked />
+                                    )}
+                                </label>
+                                <div>
+                                    {' '}
+                                    <p>전체 선택</p>
+                                    <CheckCount>
+                                        &nbsp;(<span>{checkList.length}</span>/
+                                        {Object.keys(cartList).length})
+                                    </CheckCount>
+                                </div>
+                            </SelectAll>
+                            {!isDesktop(width) && (
+                                <DeleteSelection
+                                    onClick={deleteCheckCartHandler}
+                                >
+                                    선택 상품 삭제
+                                </DeleteSelection>
+                            )}
+                        </SelectWrapper>
+                    )}
                     <CartListContainer>
-                        <CartCategoryBox>
-                            <CartInformation>상품 정보</CartInformation>
-                            <CartCountBox>수량</CartCountBox>
-                            <CartPrice>가격</CartPrice>
-                            <CartDelivery>배송비</CartDelivery>
-                            <CartAmount>총 상품 금액</CartAmount>
-                            <CartCloseButton></CartCloseButton>
-                        </CartCategoryBox>
+                        {isDesktop(width) && (
+                            <CartCategoryBox>
+                                <CartInformation>상품 정보</CartInformation>
+                                <CartCountBox>수량</CartCountBox>
+                                <CartPrice>가격</CartPrice>
+                                <CartDelivery>배송비</CartDelivery>
+                                <CartAmount>총 상품 금액</CartAmount>
+                                <CartCloseButton></CartCloseButton>
+                            </CartCategoryBox>
+                        )}
                         {Object.keys(cartList).length < 1 ? (
                             <NoProductMessage>
                                 장바구니에 담긴 상품이 없습니다.
@@ -568,27 +693,50 @@ const Cart = () => {
                             })
                         )}
                     </CartListContainer>
-                    <DeleteSelection onClick={deleteCheckCartHandler}>
-                        선택 상품 삭제
-                    </DeleteSelection>
+                    {isDesktop(width) && (
+                        <DeleteSelection onClick={deleteCheckCartHandler}>
+                            선택 상품 삭제
+                        </DeleteSelection>
+                    )}
                 </CartListWrapper>
-                <CartPriceContainer>
-                    <CartPriceWrapper>
-                        <OrderSheetPrice
-                            title={'주문서'}
-                            cartOrderPrice={cartOrderPrice}
-                            amountPrice={
-                                member
-                                    ? cartOrderPriceData?.totalAmt
-                                    : guestCartPriceData?.data.price.totalAmt
-                            }
-                        />
-                        <CartOrderPurchaseButton onClick={purchaseHandler}>
-                            {checkList.length} 개 상품 바로구매
-                        </CartOrderPurchaseButton>
-                    </CartPriceWrapper>
-                </CartPriceContainer>
+                {isDesktop(width) && (
+                    <CartPriceContainer>
+                        <CartPriceWrapper>
+                            <OrderSheetPrice
+                                title={'주문서'}
+                                cartOrderPrice={cartOrderPrice}
+                                amountPrice={
+                                    member
+                                        ? cartOrderPriceData?.totalAmt
+                                        : guestCartPriceData?.data.price
+                                              .totalAmt
+                                }
+                            />
+                            {isCartListForResponsive('desktop') ? (
+                                <CartOrderPurchaseButton
+                                    onClick={purchaseHandler}
+                                >
+                                    {checkList.length} 개 상품 바로구매
+                                </CartOrderPurchaseButton>
+                            ) : (
+                                <ContinueShoppingButton>
+                                    <Link to={'/'}>쇼핑 계속하기</Link>
+                                </ContinueShoppingButton>
+                            )}
+                        </CartPriceWrapper>
+                    </CartPriceContainer>
+                )}
+                {!isCartListForResponsive('mustShowDesktop') && (
+                    <ContinueShoppingButton>
+                        <Link to={'/'}>쇼핑 계속하기</Link>
+                    </ContinueShoppingButton>
+                )}
             </CartContainer>
+            {isCartListForResponsive('mobile') && (
+                <CartOrderPurchaseButton onClick={purchaseHandler}>
+                    {checkList.length} 개 상품 바로구매
+                </CartOrderPurchaseButton>
+            )}
         </>
     );
 };
