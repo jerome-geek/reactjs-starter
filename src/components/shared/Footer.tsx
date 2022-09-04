@@ -24,15 +24,11 @@ const FooterContainer = styled.footer`
 
 const FooterTop = styled.div`
     background-color: #212121;
-    padding: 60px auto;
+    padding-top: 60px;
+    padding-bottom: 60px;
 
     ${media.small} {
         padding: 30px 24px;
-    }
-
-    @media (min-width: 840px) {
-        padding-top: 60px;
-        padding-bottom: 60px;
     }
 `;
 
@@ -50,6 +46,12 @@ const FooterTopMenuList = styled.ul`
     margin-right: auto;
     line-height: 20px;
 
+    ${media.medium} {
+        width: 100%;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
     ${media.small} {
         margin-bottom: 30px;
         white-space: nowrap;
@@ -59,7 +61,9 @@ const FooterTopMenuList = styled.ul`
 `;
 
 const FooterTopMenuListItem = styled.li`
-    margin-right: 40px;
+    &:not(:last-child) {
+        margin-right: 40px;
+    }
 `;
 
 const FooterBottom = styled.div`
