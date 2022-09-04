@@ -1,5 +1,5 @@
 import { FC, useMemo, useRef } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { isBoolean } from '@fxts/core';
 import { A11y, Navigation } from 'swiper';
 import { Swiper, SwiperProps, SwiperSlide } from 'swiper/react';
@@ -12,10 +12,25 @@ import SlideButton from 'components/Button/SlideButton';
 import { BannerInfo } from 'models/display';
 import media from 'utils/styles/media';
 import { getLinkTarget } from 'utils/html';
+import BREAKPOINTS from 'const/breakpoints';
 
 interface MainCategoryBannersProps {
     banners: BannerInfo[];
 }
+
+const StyledSlideButton = styled(SlideButton)`
+    ${(props) =>
+        props.slideButtonType === 'prev' &&
+        css`
+            left: -24px;
+        `}
+
+    ${(props) =>
+        props.slideButtonType === 'next' &&
+        css`
+            right: -24px;
+        `}
+`;
 
 const MainCategoryBannersWrapper = styled.div`
     margin-left: auto;
@@ -51,6 +66,10 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
             slidesPerView: 4,
             navigation: true,
             pagination: true,
+            style:
+                width > BREAKPOINTS.SMALL
+                    ? { width: '360px' }
+                    : { width: '100%' },
         }),
         [],
     );
@@ -95,7 +114,6 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
                 <>
                     <Swiper
                         {...settings}
-                        style={{ width: '360px' }}
                         onBeforeInit={(Swiper: SwiperClass) => {
                             if (!isBoolean(Swiper.params.navigation)) {
                                 const navigation = Swiper.params.navigation;
@@ -144,16 +162,8 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
                             },
                         )}
                     </Swiper>
-                    <SlideButton
-                        slideButtonType='prev'
-                        ref={prevElRef}
-                        style={{ left: '-14px' }}
-                    />
-                    <SlideButton
-                        slideButtonType='next'
-                        ref={nextElRef}
-                        style={{ right: '-14px' }}
-                    />
+                    <StyledSlideButton slideButtonType='prev' ref={prevElRef} />
+                    <StyledSlideButton slideButtonType='next' ref={nextElRef} />
                 </>
             )}
         </MainCategoryBannersWrapper>

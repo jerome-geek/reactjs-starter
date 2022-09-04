@@ -199,7 +199,7 @@ const Header = () => {
                 </NavContainer>
 
                 <IconContainer>
-                    {member?.memberName && (
+                    {isDesktop(width) && member?.memberName && (
                         <MemberName>{`${member.memberName}님`}</MemberName>
                     )}
                     <div onClick={onMypageClick}>

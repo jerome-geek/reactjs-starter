@@ -1,9 +1,7 @@
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { sort } from '@fxts/core';
 
-import LayoutResponsive from 'components/shared/LayoutResponsive';
 import media from 'utils/styles/media';
 import { getLinkTarget } from 'utils/html';
 import { BannerInfo } from 'models/display';
@@ -14,16 +12,28 @@ interface ETCSectionProps {
     banners: BannerInfo[];
 }
 
-const ETCSectionWrapper = styled(LayoutResponsive)`
+const ETCSectionContainer = styled.div`
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 150px 0;
     flex-wrap: wrap;
+    width: 100%;
+    max-width: 840px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 
     ${media.medium} {
         width: 380px;
-        padding: 90px 0;
+    }
+
+    ${media.small} {
+        width: calc(100% - 2rem);
+    }
+
+    ${media.xsmall} {
+        width: calc(100% - 2rem);
+        padding: 0;
     }
 `;
 
@@ -69,8 +79,8 @@ const ETCSection: FC<ETCSectionProps> = ({
     banners,
 }) => {
     return (
-        <ETCSectionWrapper type='medium'>
-            {sort((a, b) => a.displayOrder > b.displayOrder, banners).map(
+        <ETCSectionContainer>
+            {banners.map(
                 ({
                     bannerNo,
                     landingUrl,
@@ -96,7 +106,7 @@ const ETCSection: FC<ETCSectionProps> = ({
                     </IconWrapper>
                 ),
             )}
-        </ETCSectionWrapper>
+        </ETCSectionContainer>
     );
 };
 

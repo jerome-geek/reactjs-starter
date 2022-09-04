@@ -2,7 +2,11 @@ import currency from 'currency.js';
 
 const KRW = (
     value: currency.Any,
-    options: currency.Options = { symbol: '', precision: 0 },
+    options: currency.Options = {
+        symbol: '원',
+        precision: 0,
+        pattern: `#!`,
+    },
 ) => currency(value, { ...options });
 
 const USD = (value: currency.Any) => currency(value);
