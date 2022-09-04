@@ -16,7 +16,6 @@ const ETCSectionContainer = styled.div`
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 150px 0;
     flex-wrap: wrap;
     width: 100%;
     max-width: 840px;
@@ -26,11 +25,15 @@ const ETCSectionContainer = styled.div`
 
     ${media.medium} {
         width: 380px;
-        padding: 90px 0;
     }
 
     ${media.small} {
         width: calc(100% - 2rem);
+    }
+
+    ${media.xsmall} {
+        width: calc(100% - 2rem);
+        padding: 0;
     }
 `;
 

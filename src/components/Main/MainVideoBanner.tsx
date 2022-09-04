@@ -1,6 +1,6 @@
 import { FC, useRef } from 'react';
 import ReactPlayer from 'react-player';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Swiper, SwiperProps, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperClass } from 'swiper/types';
 import { isBoolean } from '@fxts/core';
@@ -14,14 +14,15 @@ interface MainVideoBannerProps {
     banners: BannerInfo[];
 }
 
-const MainVideoBannerWrapper = styled.div`
+const MainVideoBannerContainer = styled.div`
     background-color: #000000;
     padding-top: 70px;
     padding-bottom: 153px;
     position: relative;
+    margin-bottom: 10rem;
 `;
 
-const PaginationWrapper = styled.div`
+const PaginationContainer = styled.div`
     padding: 0 50px;
     display: flex;
     justify-content: center;
@@ -88,6 +89,20 @@ const MainVideoBannerDesc = styled.p`
     margin-bottom: 57px;
 `;
 
+const StyledSlideButton = styled(SlideButton)`
+    ${(props) =>
+        props.slideButtonType === 'prev' &&
+        css`
+            left: 8.75rem;
+        `}
+
+    ${(props) =>
+        props.slideButtonType === 'next' &&
+        css`
+            right: 8.75rem;
+        `}
+`;
+
 const MainVideoBanner: FC<MainVideoBannerProps> = ({
     title,
     settings,
@@ -98,7 +113,7 @@ const MainVideoBanner: FC<MainVideoBannerProps> = ({
     const paginationRef = useRef(null);
 
     return (
-        <MainVideoBannerWrapper>
+        <MainVideoBannerContainer>
             <MainVideoBannerTitle>{title}</MainVideoBannerTitle>
             <MainVideoBannerDesc>
                 세계 유일, 골프만을 위한 Voice Caddie만의 자체 기술
@@ -134,9 +149,9 @@ const MainVideoBanner: FC<MainVideoBannerProps> = ({
                         bulletClass: 'main-swiper-pagination-bullets',
                         renderBullet(index, className) {
                             return `<div class="${className}">
-                        <p>${banners[index].name}</p>
-                        <div></div>
-                        </div>`;
+                                        <p>${banners[index].name}</p>
+                                        <div></div>
+                                    </div>`;
                         },
                     }}
                 >
@@ -184,22 +199,14 @@ const MainVideoBanner: FC<MainVideoBannerProps> = ({
                         },
                     )}
                 </Swiper>
-                <SlideButton
-                    slideButtonType='prev'
-                    ref={prevElRef}
-                    style={{ left: '240px' }}
-                />
-                <SlideButton
-                    slideButtonType='next'
-                    ref={nextElRef}
-                    style={{ right: '240px' }}
-                />
+                <StyledSlideButton slideButtonType='prev' ref={prevElRef} />
+                <StyledSlideButton slideButtonType='next' ref={nextElRef} />
             </div>
-            <PaginationWrapper
+            <PaginationContainer
                 className='swiper-pagination'
                 ref={paginationRef}
             />
-        </MainVideoBannerWrapper>
+        </MainVideoBannerContainer>
     );
 };
 
