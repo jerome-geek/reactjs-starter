@@ -169,7 +169,6 @@ const CouponListModal = ({
             refetchOnWindowFocus: false,
         },
     );
-    console.log(couponData);
 
     return (
         <Modal onClickToggleModal={onClickToggleModal} width={width}>

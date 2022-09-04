@@ -1,18 +1,18 @@
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { SingleValue, StylesConfig } from 'react-select';
+import { shallowEqual } from 'react-redux';
 import {
     UseFormGetValues,
     UseFormRegister,
     UseFormSetValue,
 } from 'react-hook-form';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { SingleValue, StylesConfig } from 'react-select';
 
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { useTypedSelector } from 'state/reducers';
-import { shallowEqual } from 'react-redux';
 
 const OrdererInformationContainer = styled.div`
     border-top: 2px solid #222943;
@@ -192,6 +192,7 @@ const OrdererInformation = ({
                         inputWidth='75%'
                         placeholder='예) 테헤란로 108길 23'
                         type={'text'}
+                        disabled={true}
                         {...register('shippingAddress.receiverAddress')}
                     />
                     <SheetButton

@@ -303,7 +303,7 @@ interface CartListType {
 }
 
 export interface OrderPrice {
-    [id: string]: { name: string; price: number };
+    [id: string]: { name: string; price: string | number };
 }
 
 const Cart = () => {
