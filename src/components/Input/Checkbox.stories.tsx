@@ -1,6 +1,6 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import Checkbox, { CheckboxProps } from 'components/Input/CheckBox';
+import Checkbox, { CheckboxProps } from 'components/Input/Checkbox';
 
 export default {
     component: Checkbox,
