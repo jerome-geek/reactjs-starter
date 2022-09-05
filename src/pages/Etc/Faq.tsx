@@ -1,104 +1,196 @@
 import { useState } from 'react';
-import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { shallowEqual } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { useWindowSize } from 'usehooks-ts';
+import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import media from 'utils/styles/media';
-import { board } from 'api/manage';
-import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
+import Header from 'components/shared/Header';
 import SectionDropdown from 'components/SectionDropdown';
 import Loader from 'components/shared/Loader';
-import { useTypedSelector } from 'state/reducers';
+import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
+import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
+import media from 'utils/styles/media';
 import paths from 'const/paths';
+import { board } from 'api/manage';
+import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
 
 const FaqContainer = styled.div`
-    max-width: 1440px;
+    max-width: 1060px;
+    width: 100%;
     padding: 20px;
-    margin: 0 auto;
+    margin: 116px auto 153px;
+    ${media.custom(576)} {
+        margin: 0 auto 88px;
+        overflow: hidden;
+    }
 `;
 
 const FaqTitle = styled.h2`
-    margin: 20px 0;
+    margin: 0 0 38px;
+    color: ${(props) => props.theme.text1};
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: -1.2px;
+    ${media.custom(576)} {
+        font-size: 2rem;
+    }
 `;
 
 const FaqBox = styled.div`
-    max-width: 768px;
-    margin: 0 auto;
-    ${media.small} {
-        width: 100%;
+    width: 100%;
+    background: ${(props) => props.theme.bg2};
+    padding: 20px 0;
+    ${media.custom(576)} {
+        width: 100vw;
+        margin-left: -20px;
+        padding: 15px 24px;
     }
 `;
 
 const FaqSearchBox = styled.form`
-    border: 1px solid #888;
+    margin: 0 auto;
+    width: 408px;
+    height: 44px;
+    background: #fff;
+    border: ${(props) => `1px solid ${props.theme.line2}`};
     display: flex;
     justify-content: space-between;
     align-items: center;
+    ${media.custom(576)} {
+        width: 100%;
+        height: 54px;
+    }
 `;
 
 const FaqSearchInput = styled.input.attrs({ type: 'text' })`
-    width: 90%;
-    padding: 10px 10px;
+    width: 100%;
+    padding: 8px 20px;
+    &::placeholder {
+        font-size: 1rem;
+        letter-spacing: -0.64;
+        color: ${(props) => props.theme.text3};
+    }
+    ${media.custom(576)} {
+        width: 80%;
+        &::placeholder {
+            font-size: 1.6rem;
+        }
+    }
 `;
 
 const FaqSearchButton = styled.button`
-    width: 10%;
+    width: auto;
     text-align: center;
+    padding: 0 10px;
+    ${media.custom(576)} {
+        padding: 0 20px;
+    }
 `;
 
-const FaqCategoryContainer = styled.div`
-    margin-top: 20px;
+const FaqCategoryContainer = styled.ul`
     display: flex;
-    flex-wrap: wrap;
-    border-left: 1px solid #aaa;
+    justify-content: center;
+    margin: 2rem 0;
+    ${media.custom(576)} {
+        margin-left: -24px;
+        margin: 16px 0 16px -24px;
+        padding-left: 20px;
+        width: 100vw;
+        justify-content: flex-start;
+        overflow-x: scroll;
+    }
 `;
 
-const FaqCategoryBox = styled.div<{ isActive?: boolean }>`
-    width: calc(100% / 3);
-    border: 1px solid #aaa;
-    margin-top: -0.5px;
-    margin-bottom: -0.5px;
-    border-left: none;
+const FaqCategoryBox = styled.li<{ isActive?: boolean }>`
+    margin-left: 30px;
     text-align: center;
-    padding: 18px 0;
-    color: #aaa;
     cursor: pointer;
-    background: ${(props) => (props.isActive ? '#000' : '#fff')};
-    color: ${(props) => (props.isActive ? '#fff' : '#000')};
+    letter-spacing: 0;
+    color: ${(props) =>
+        props.isActive ? props.theme.text1 : props.theme.text2};
+    text-decoration: ${(props) => (props.isActive ? 'underline' : 'none')};
     :hover {
-        color: #fff;
-        background: #000;
+        color: ${(props) => props.theme.text1};
+    }
+    ${media.small} {
+        margin-left: 20px;
+    }
+    ${media.custom(576)} {
+        margin-left: 8px;
+        font-size: 1.6rem;
+        letter-spacing: -0.64px;
+        padding: 15px 12px;
+        border: ${(props) => `1px solid ${props.theme.line3}`};
+        white-space: nowrap;
+        color: ${(props) => (props.isActive ? '#fff' : '#8f8f8f')};
+        background: ${(props) =>
+            props.isActive ? props.theme.secondary : '#fff'};
+        text-decoration: none;
+        :hover {
+            color: ${(props) => (props.isActive ? '#fff' : '#8f8f8f')};
+        }
     }
 `;
 
 const FaqDetailContainer = styled.div`
-    margin-top: 15px;
+    border-top: ${(props) => `2px solid ${props.theme.secondary}`};
+    border-bottom: ${(props) => `1px solid ${props.theme.secondary}`};
+    > div {
+        padding: 20px 0;
+        text-align: center;
+        font-size: 1.25rem;
+        color: ${(props) => props.theme.text1};
+        font-weight: bold;
+        letter-spacing: -0.8px;
+        background: ${(props) => props.theme.bg2};
+    }
+    ${media.custom(576)} {
+        > div {
+            font-size: 2rem;
+        }
+    }
 `;
 
-const FaqDetailBox = styled.div`
-    margin-bottom: 10px;
+const FaqDetailBox = styled.li`
+    display: flex;
+    padding: 32px 20px;
+    border-top: ${(props) => `1px solid ${props.theme.line2}`};
+    letter-spacing: -0.8px;
+    ${media.custom(576)} {
+        padding: 16.5px 10px;
+        letter-spacing: -0.64px;
+    }
 `;
 
 const FaqDetailLabel = styled.p`
-    color: #888;
+    color: #999;
+    letter-spacing: -0.48px;
+    width: 162px;
+    font-size: 0.75rem;
+    line-height: 30px;
+    ${media.custom(576)} {
+        width: auto;
+        white-space: nowrap;
+        padding-right: 33px;
+    }
 `;
 
 const InquiryButton = styled.div`
-    width: 150px;
+    width: auto;
+    font-size: 1rem;
+    margin: 50px auto 0;
+    letter-spacing: -0.64px;
+    color: ${(props) => props.theme.text1};
     text-align: center;
-    padding: 10px 10px;
-    border-radius: 5px;
-    border: 2px solid #000;
-    font-weight: bold;
-    font-size: 15px;
-    margin: 10px auto;
-    cursor: pointer;
-    :hover {
-        background: #000;
-        color: #fff;
+    > a {
+        font-weight: bold;
+        text-decoration: underline;
+    }
+    ${media.custom(576)} {
+        font-size: 1.6rem;
     }
 `;
 
@@ -115,13 +207,8 @@ const Faq = () => {
     const count = 5;
     const [listItemCount, setListItemCount] = useState(count);
     const [keyword, setKeyword] = useState('');
-    const navigate = useNavigate();
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
+
+    const { width } = useWindowSize();
 
     useQuery<AxiosResponse<BoardCategory[]>, AxiosError>(
         ['faqCategoryList'],
@@ -210,119 +297,131 @@ const Faq = () => {
         setListItemCount(count);
     };
 
-    const goInquiryPage = () => {
-        if (!member) {
-            alert('로그인 후 이용해주세요');
-            navigate(paths.LOGIN);
-        }
-        // TODO inquiry 페이지로 넘어감
-    };
-
     return (
-        <FaqContainer>
-            <SEOHelmet
-                data={{
-                    title: '자주 묻는 질문',
-                    meta: {
+        <>
+            <Header></Header>
+            <FaqContainer>
+                <SEOHelmet
+                    data={{
                         title: '자주 묻는 질문',
-                        description: 'FAQ',
-                    },
-                    og: {
-                        title: '자주 묻는 질문',
-                        description: 'FAQ',
-                    },
-                }}
-            />
-            <FaqTitle>자주 묻는 질문</FaqTitle>
-            <FaqBox>
-                <FaqSearchBox
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        refetch();
+                        meta: {
+                            title: '자주 묻는 질문',
+                            description: 'FAQ',
+                        },
+                        og: {
+                            title: '자주 묻는 질문',
+                            description: 'FAQ',
+                        },
                     }}
-                >
-                    <FaqSearchInput
-                        placeholder='궁금한 점을 검색해보세요!'
-                        value={keyword}
-                        onChange={(e) => setKeyword(e.target.value)}
-                    />
-                    <FaqSearchButton>검색</FaqSearchButton>
-                </FaqSearchBox>
-            </FaqBox>
-            <FaqCategoryContainer>
-                {faqCategoryList.map(({ categoryNo, label }) => {
-                    return (
-                        faqList.get(categoryNo) && (
-                            <FaqCategoryBox
-                                isActive={categoryNo === currentCategoryNo}
-                                key={categoryNo}
-                                onClick={handleCategoryClick(categoryNo)}
-                            >
-                                {label}({faqList.get(categoryNo)?.size})
-                            </FaqCategoryBox>
-                        )
-                    );
-                })}
-            </FaqCategoryContainer>
-            {isFetching ? (
-                <Loader />
-            ) : (
-                <FaqDetailContainer>
-                    {faqList.get(currentCategoryNo)?.size ? (
-                        <>
-                            <p>
-                                {
-                                    faqCategoryList?.filter(
-                                        (item) =>
-                                            item.categoryNo ===
-                                            currentCategoryNo,
-                                    )[0]?.label
-                                }
-                                ({faqList.get(currentCategoryNo)?.size})
-                            </p>
-                            <div>
-                                {Array.from(faqList.get(currentCategoryNo)!)
-                                    .slice(0, listItemCount)
-                                    .map(([key, data]) => {
-                                        return (
-                                            <FaqDetailBox
-                                                onClick={getNoticeDetailHandler(
-                                                    data.articleNo,
-                                                )}
-                                                key={key}
-                                            >
-                                                <FaqDetailLabel>
-                                                    {data.categoryLabel}
-                                                </FaqDetailLabel>
-                                                <SectionDropdown
-                                                    title={data.title}
-                                                >
-                                                    <p
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: data.content!,
-                                                        }}
-                                                    ></p>
-                                                </SectionDropdown>
-                                            </FaqDetailBox>
-                                        );
-                                    })}
-                            </div>
-                        </>
-                    ) : (
-                        <p>검색결과가 없습니다.</p>
-                    )}
-                </FaqDetailContainer>
-            )}
-            {faqList.has(currentCategoryNo) &&
-                faqList.get(currentCategoryNo)!.size > listItemCount && (
-                    <div
-                        onClick={() => setListItemCount((prev) => prev + count)}
+                />
+                <FaqTitle>자주 묻는 질문</FaqTitle>
+                <FaqBox>
+                    <FaqSearchBox
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            refetch();
+                        }}
                     >
-                        더보기
-                    </div>
+                        <FaqSearchInput
+                            placeholder='궁금한 점을 검색해보세요 :)'
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
+                        />
+                        <FaqSearchButton>
+                            {isMobile(width) ? (
+                                <MobileSearchIcon />
+                            ) : (
+                                <SearchIcon />
+                            )}
+                        </FaqSearchButton>
+                    </FaqSearchBox>
+                </FaqBox>
+                <FaqCategoryContainer>
+                    {faqCategoryList.map(({ categoryNo, label }) => {
+                        return (
+                            faqList.get(categoryNo) && (
+                                <FaqCategoryBox
+                                    isActive={categoryNo === currentCategoryNo}
+                                    key={categoryNo}
+                                    onClick={handleCategoryClick(categoryNo)}
+                                >
+                                    {isDesktop(width) && '# '}
+                                    {label}({faqList.get(categoryNo)?.size})
+                                </FaqCategoryBox>
+                            )
+                        );
+                    })}
+                </FaqCategoryContainer>
+                {isFetching ? (
+                    <Loader />
+                ) : (
+                    <FaqDetailContainer>
+                        {faqList.get(currentCategoryNo) ? (
+                            <>
+                                <div>
+                                    {
+                                        faqCategoryList?.filter(
+                                            (item) =>
+                                                item.categoryNo ===
+                                                currentCategoryNo,
+                                        )[0]?.label
+                                    }
+                                    ({faqList.get(currentCategoryNo)?.size})
+                                </div>
+                                <ul>
+                                    {Array.from(faqList.get(currentCategoryNo)!)
+                                        .slice(0, listItemCount)
+                                        .map(([key, data]) => {
+                                            return (
+                                                <FaqDetailBox
+                                                    onClick={getNoticeDetailHandler(
+                                                        data.articleNo,
+                                                    )}
+                                                    key={key}
+                                                >
+                                                    <FaqDetailLabel>
+                                                        {data.categoryLabel}
+                                                    </FaqDetailLabel>
+                                                    <SectionDropdown
+                                                        title={data.title}
+                                                        titleSize={
+                                                            isMobile(width)
+                                                                ? '1.6rem'
+                                                                : '1.25rem'
+                                                        }
+                                                    >
+                                                        <p
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: data.content!,
+                                                            }}
+                                                        ></p>
+                                                    </SectionDropdown>
+                                                </FaqDetailBox>
+                                            );
+                                        })}
+                                </ul>
+                            </>
+                        ) : (
+                            <p>검색결과가 없습니다.</p>
+                        )}
+                    </FaqDetailContainer>
                 )}
-            <InquiryButton onClick={goInquiryPage}>1:1 문의하기</InquiryButton>
-        </FaqContainer>
+                {faqList.has(currentCategoryNo) &&
+                    faqList.get(currentCategoryNo)!.size > listItemCount && (
+                        <div
+                            onClick={() =>
+                                setListItemCount((prev) => prev + count)
+                            }
+                        >
+                            더보기
+                        </div>
+                    )}
+                <InquiryButton>
+                    원하는 질문이 없나요?&nbsp;&nbsp;&nbsp;
+                    <Link to={paths.MAIN}>1:1 문의하기</Link>
+                </InquiryButton>
+            </FaqContainer>
+        </>
     );
 };
 
