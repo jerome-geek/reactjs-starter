@@ -2,7 +2,6 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { getProductSectionResponse, ProductSection } from 'models/display';
-import { BY, SALE_STATUS } from 'models';
 
 const productSection = {
     getProductSections: (): Promise<AxiosResponse> =>
@@ -19,29 +18,21 @@ const productSection = {
      */
     getProductSection: (
         sectionNo: string,
-        {
-            by,
-            soldout,
-            saleStatus,
-            pageNumber,
-            pageSize,
-            hasTotalCount,
-            hasOptionValues,
-        }: Partial<ProductSection> & Paging,
-    ): Promise<AxiosResponse<getProductSectionResponse[]>> =>
+        params: Partial<ProductSection> & Paging,
+    ): Promise<AxiosResponse<getProductSectionResponse>> =>
         request({
             method: 'GET',
             url: `display/sections/${sectionNo}`,
             params: {
-                by,
-                soldout,
-                saleStatus,
-                pageNumber,
-                pageSize,
-                hasTotalCount,
-                hasOptionValues,
+                by: params.by,
+                soldout: params.soldout,
+                saleStatus: params.saleStatus,
+                pageNumber: params.pageNumber,
+                pageSize: params.pageSize,
+                hasTotalCount: params.hasTotalCount,
+                hasOptionValues: params.hasOptionValues,
             },
-            headers: Object.assign({}, defaultHeaders()),
+            headers: Object.assign({}, defaultHeaders(), { version: '1.1' }),
         }),
     getDisplaySection: (
         sectionId: string,

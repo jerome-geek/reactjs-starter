@@ -54,14 +54,6 @@ const Main = () => {
                         filter((a) => a.code === code),
                         head,
                     );
-                console.log({
-                    mainBandBanner: filteredBannerData(BANNER.MAIN_BAND_BANNER),
-                    mainBanner: filteredBannerData(getMainBannerCode),
-                    mainCategoryBanner: filteredBannerData(
-                        BANNER.MAIN_CATEGORY_BANNER,
-                    ),
-                    mainETCBanner: filteredBannerData(BANNER.MAIN_ETC_BANNER),
-                });
 
                 return {
                     mainBandBanner: filteredBannerData(BANNER.MAIN_BAND_BANNER),
@@ -109,7 +101,7 @@ const Main = () => {
             ),
         {
             select: ({ data }) => {
-                return head(data);
+                return data;
             },
         },
     );

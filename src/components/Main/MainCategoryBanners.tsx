@@ -71,7 +71,7 @@ const MainCategoryBanners: FC<MainCategoryBannersProps> = ({ banners }) => {
                     ? { width: '360px' }
                     : { width: '100%' },
         }),
-        [],
+        [width],
     );
 
     const isDisplay = (startDt: Date, endDt: Date) => {

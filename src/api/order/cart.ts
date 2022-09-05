@@ -5,8 +5,6 @@ import request, { defaultHeaders } from 'api/core';
 import { CartList, CartPrice, ShoppingCartBody } from 'models/order/index';
 import { tokenStorage } from 'utils/storage';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
 const cart = {
     getCart: (
         params: {
