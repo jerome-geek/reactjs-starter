@@ -45,7 +45,7 @@ const store = configureStore({
                 ],
             },
         }).concat(logger),
-    devTools: process.env.NODE_ENV !== 'production',
+    devTools: process.env.REACT_APP_MODE !== 'production',
 });
 
 export default store;
