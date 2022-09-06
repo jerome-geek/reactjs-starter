@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React, { KeyboardEvent, useState } from 'react';
 import { useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
+import { filter, head, pipe, slice, toArray } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
@@ -11,11 +12,12 @@ import SectionDropdown from 'components/SectionDropdown';
 import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
+import BOARD from 'const/board';
+import paths from 'const/paths';
+import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
-import paths from 'const/paths';
 import { board } from 'api/manage';
-import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
 
 const FaqContainer = styled.div`
     max-width: 1060px;
@@ -39,7 +41,7 @@ const FaqTitle = styled.h2`
     }
 `;
 
-const FaqBox = styled.div`
+const FaqSearchContainer = styled.div`
     width: 100%;
     background: ${(props) => props.theme.bg2};
     padding: 20px 0;
@@ -59,6 +61,7 @@ const FaqSearchBox = styled.form`
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     ${media.custom(576)} {
         width: 100%;
         height: 54px;
@@ -159,9 +162,19 @@ const FaqDetailBox = styled.li`
     padding: 32px 20px;
     border-top: ${(props) => `1px solid ${props.theme.line2}`};
     letter-spacing: -0.8px;
+    > div {
+        p {
+            font-size: 1.25rem;
+        }
+    }
     ${media.custom(576)} {
         padding: 16.5px 10px;
         letter-spacing: -0.64px;
+        > div {
+            p {
+                font-size: 1.6rem;
+            }
+        }
     }
 `;
 
@@ -212,7 +225,7 @@ const Faq = () => {
 
     useQuery<AxiosResponse<BoardCategory[]>, AxiosError>(
         ['faqCategoryList'],
-        async () => await board.getCategories('9216'),
+        async () => await board.getCategories(BOARD.FAQ),
         {
             onSuccess: (res) => {
                 setFaqCategoryList([...res.data]);
@@ -225,7 +238,6 @@ const Faq = () => {
                 }
                 alert('알수 없는 에러가 발생했습니다.');
             },
-            refetchOnWindowFocus: false,
         },
     );
 
@@ -235,7 +247,7 @@ const Faq = () => {
     >(
         ['faqList'],
         async () =>
-            await board.getArticlesByBoardNo('9216', {
+            await board.getArticlesByBoardNo(BOARD.FAQ, {
                 keyword,
             }),
         {
@@ -275,7 +287,7 @@ const Faq = () => {
         if (!faqList?.get(currentCategoryNo)?.get(articleNo)?.content) {
             try {
                 const noticeDetail = await board.getArticleDetail(
-                    '9216',
+                    BOARD.FAQ,
                     articleNo.toString(),
                 );
                 setFaqList((prev) => {
@@ -299,29 +311,29 @@ const Faq = () => {
 
     return (
         <>
+            <SEOHelmet
+                data={{
+                    title: '자주 묻는 질문',
+                    meta: {
+                        title: '자주 묻는 질문',
+                        description: 'FAQ',
+                    },
+                    og: {
+                        title: '자주 묻는 질문',
+                        description: 'FAQ',
+                    },
+                }}
+            />
             <Header></Header>
             <FaqContainer>
-                <SEOHelmet
-                    data={{
-                        title: '자주 묻는 질문',
-                        meta: {
-                            title: '자주 묻는 질문',
-                            description: 'FAQ',
-                        },
-                        og: {
-                            title: '자주 묻는 질문',
-                            description: 'FAQ',
-                        },
-                    }}
-                />
                 <FaqTitle>자주 묻는 질문</FaqTitle>
-                <FaqBox>
+                <FaqSearchContainer>
                     <FaqSearchBox
-                        onSubmit={(e) => {
+                        onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                             e.preventDefault();
                             refetch();
                         }}
-                        onKeyUp={(e) => {
+                        onKeyUp={(e: KeyboardEvent<HTMLFormElement>) => {
                             e.preventDefault();
                             if (e.key === 'Enter') {
                                 refetch();
@@ -341,7 +353,7 @@ const Faq = () => {
                             )}
                         </FaqSearchButton>
                     </FaqSearchBox>
-                </FaqBox>
+                </FaqSearchContainer>
                 <FaqCategoryContainer>
                     {faqCategoryList.map(({ categoryNo, label }) => {
                         return (
@@ -366,45 +378,47 @@ const Faq = () => {
                             <>
                                 <div>
                                     {
-                                        faqCategoryList?.filter(
-                                            (item) =>
-                                                item.categoryNo ===
-                                                currentCategoryNo,
-                                        )[0]?.label
+                                        pipe(
+                                            faqCategoryList,
+                                            filter(
+                                                (categoryItem) =>
+                                                    categoryItem.categoryNo ===
+                                                    currentCategoryNo,
+                                            ),
+                                            toArray,
+                                            head,
+                                        )?.label
                                     }
                                     ({faqList.get(currentCategoryNo)?.size})
                                 </div>
                                 <ul>
-                                    {Array.from(faqList.get(currentCategoryNo)!)
-                                        .slice(0, listItemCount)
-                                        .map(([key, data]) => {
-                                            return (
-                                                <FaqDetailBox
-                                                    onClick={getNoticeDetailHandler(
-                                                        data.articleNo,
-                                                    )}
-                                                    key={key}
+                                    {pipe(
+                                        faqList.get(currentCategoryNo)!,
+                                        slice(0, listItemCount),
+                                        toArray,
+                                    ).map(([key, data]) => {
+                                        return (
+                                            <FaqDetailBox
+                                                onClick={getNoticeDetailHandler(
+                                                    data.articleNo,
+                                                )}
+                                                key={key}
+                                            >
+                                                <FaqDetailLabel>
+                                                    {data.categoryLabel}
+                                                </FaqDetailLabel>
+                                                <SectionDropdown
+                                                    title={data.title}
                                                 >
-                                                    <FaqDetailLabel>
-                                                        {data.categoryLabel}
-                                                    </FaqDetailLabel>
-                                                    <SectionDropdown
-                                                        title={data.title}
-                                                        titleSize={
-                                                            isMobile(width)
-                                                                ? '1.6rem'
-                                                                : '1.25rem'
-                                                        }
-                                                    >
-                                                        <p
-                                                            dangerouslySetInnerHTML={{
-                                                                __html: data.content!,
-                                                            }}
-                                                        ></p>
-                                                    </SectionDropdown>
-                                                </FaqDetailBox>
-                                            );
-                                        })}
+                                                    <p
+                                                        dangerouslySetInnerHTML={{
+                                                            __html: data.content!,
+                                                        }}
+                                                    ></p>
+                                                </SectionDropdown>
+                                            </FaqDetailBox>
+                                        );
+                                    })}
                                 </ul>
                             </>
                         ) : (

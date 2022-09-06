@@ -15,8 +15,7 @@ const DropdownTitleContainer = styled.div`
     cursor: pointer;
 `;
 
-const Title = styled.p<{ titleSize: string }>`
-    font-size: ${(props) => (props.titleSize ? props.titleSize : '1.25rem')};
+const Title = styled.p`
     font-weight: 500;
     color: ${(props) => props.theme.text1};
 `;
@@ -51,11 +50,9 @@ const DropdownContents = styled.div`
 
 const SectionDropdown = ({
     title,
-    titleSize,
     children,
 }: {
     title: string;
-    titleSize: string;
     children: React.ReactNode;
 }) => {
     const [isVisible, setIsVisible] = useState(false);
@@ -67,7 +64,7 @@ const SectionDropdown = ({
     return (
         <DropdownContainer>
             <DropdownTitleContainer onClick={handleDropdown}>
-                <Title titleSize={titleSize}>{title}</Title>
+                <Title>{title}</Title>
                 <ToggleArrow $isVisible={isVisible} />
             </DropdownTitleContainer>
             <DropdownContentsContainer $isVisible={isVisible}>
