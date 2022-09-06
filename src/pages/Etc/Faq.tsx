@@ -321,6 +321,12 @@ const Faq = () => {
                             e.preventDefault();
                             refetch();
                         }}
+                        onKeyUp={(e) => {
+                            e.preventDefault();
+                            if (e.key === 'Enter') {
+                                refetch();
+                            }
+                        }}
                     >
                         <FaqSearchInput
                             placeholder='궁금한 점을 검색해보세요 :)'
