@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import StyledInput from 'components/Input/StyledInput';
 import Header from 'components/shared/Header';
 import Checkbox from 'components/Input/Checkbox';
@@ -21,12 +21,29 @@ import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
 import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
 import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
+import media from 'utils/styles/media';
+import { useWindowSize } from 'usehooks-ts';
+import BREAKPOINTS from 'const/breakpoints';
+import FlexContainer from 'components/shared/FlexContainer';
 
 interface LoginFormData {
     memberId: string;
     password: string;
     keepLogin: boolean;
 }
+
+const Contiainer = styled.div`
+    ${media.medium} {
+        width: calc(100% - 4rem);
+        padding: 44px 0 160px 0;
+    }
+
+    width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 10rem 0;
+`;
 
 const LoginInputContainer = styled.div`
     margin-bottom: 20px;
@@ -45,36 +62,59 @@ const StyledLink = styled(Link)`
     text-decoration: underline;
 `;
 
-const FlexContainer = styled.div`
+const StyledForm = styled(FlexContainer)``;
+
+const SocialLoginList = styled.ul`
     display: flex;
     justify-content: center;
     align-items: center;
 `;
 
-const SocialLoginList = styled(FlexContainer)``;
 const SocialLoginListItem = styled.li`
+    margin-right: 5px;
+
     & > svg {
         width: 34px;
         height: 34px;
+
+        ${media.medium} {
+            width: 48px;
+            height: 48px;
+        }
     }
-    margin-right: 5px;
+`;
+
+const KeepLoginTitle = styled.p<{ checked: boolean }>`
+    font-size: 12px;
+    line-height: 18px;
+    letter-spacing: 0;
+    color: ${(props) => (props.checked ? '#222943' : '#8f8f8f')};
+    margin-left: 4px;
+`;
+
+const LoginButton = styled(PrimaryButton)`
+    width: 100%;
+    margin-bottom: 50px;
 `;
 
 const Login = () => {
     const navigate = useNavigate();
     const { returnUrl } = useQueryString();
+    const { width } = useWindowSize();
 
     const {
         register,
         handleSubmit,
         control,
         watch,
+        setValue,
         formState: { errors },
     } = useForm<LoginFormData>({
         defaultValues: {
             keepLogin: false,
         },
     });
+    const onKeepLoginClick = () => setValue('keepLogin', !watch('keepLogin'));
 
     const dispatch = useAppDispatch();
 
@@ -123,17 +163,9 @@ const Login = () => {
             <Header />
             <DevTool control={control} placement='top-right' />
 
-            <LayoutResponsive type='small' style={{ padding: '10rem 0' }}>
+            <Contiainer>
                 <img src={LoginLogo} alt='' style={{ marginBottom: '50px' }} />
-                <form
-                    onSubmit={onSubmit}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'column',
-                    }}
-                >
+                <StyledForm as='form' onSubmit={onSubmit}>
                     <LoginInputContainer>
                         <LoginInput
                             type='text'
@@ -148,7 +180,11 @@ const Login = () => {
                         <ErrorMessage
                             errors={errors}
                             name='memberId'
-                            render={({ message }) => <p>{message}</p>}
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
                         />
                     </LoginInputContainer>
 
@@ -166,7 +202,11 @@ const Login = () => {
                         <ErrorMessage
                             errors={errors}
                             name='password'
-                            render={({ message }) => <p>{message}</p>}
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
                         />
                     </LoginInputContainer>
 
@@ -180,10 +220,15 @@ const Login = () => {
                     >
                         <Checkbox
                             shape='circle'
+                            id='keepLogin'
                             checked={watch('keepLogin')}
-                            label='로그인 상태 유지하기'
+                            onClick={onKeepLoginClick}
                             {...register('keepLogin')}
-                        />
+                        >
+                            <KeepLoginTitle checked={watch('keepLogin')}>
+                                로그인 상태 유지하기
+                            </KeepLoginTitle>
+                        </Checkbox>
 
                         <ul
                             style={{
@@ -211,11 +256,7 @@ const Login = () => {
                         </ul>
                     </div>
 
-                    <PrimaryButton
-                        style={{ width: '100%', marginBottom: '50px' }}
-                    >
-                        로그인
-                    </PrimaryButton>
+                    <LoginButton>로그인</LoginButton>
 
                     <div
                         style={{
@@ -225,10 +266,10 @@ const Login = () => {
                             paddingBottom: '40px',
                         }}
                     >
-                        <div style={{ marginRight: '32px' }}>
-                            <p>SNS 로그인</p>
-                        </div>
-                        <SocialLoginList as='ul'>
+                        {width > BREAKPOINTS.MEDIUM && (
+                            <p style={{ marginRight: '32px' }}>SNS 로그인</p>
+                        )}
+                        <SocialLoginList>
                             <SocialLoginListItem>
                                 <NaverIcon />
                             </SocialLoginListItem>
@@ -269,13 +310,14 @@ const Login = () => {
                         </StyledLink>
                     </div>
 
-                    <div>
-                        <StyledLink to={PATHS.GUEST_LOGIN}>
-                            비회원 주문조회
-                        </StyledLink>
-                    </div>
-                </form>
-            </LayoutResponsive>
+                    <StyledLink
+                        to={PATHS.GUEST_LOGIN}
+                        style={{ display: 'block' }}
+                    >
+                        비회원 주문조회
+                    </StyledLink>
+                </StyledForm>
+            </Contiainer>
         </div>
     );
 };
