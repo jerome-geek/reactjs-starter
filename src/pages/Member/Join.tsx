@@ -1,27 +1,26 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { AxiosError } from 'axios';
 import { every, pipe, map, toArray, some } from '@fxts/core';
 import styled from 'styled-components';
+import { DevTool } from '@hookform/devtools';
+import { ErrorMessage } from '@hookform/error-message';
 
-import { profile } from 'api/member/index';
-import { authentication } from 'api/auth';
-import { useDebounce } from 'hooks';
-import { tokenStorage } from 'utils/storage';
-import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
-import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
+import { fetchProfile } from 'state/slices/memberSlice';
 import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
-import { ErrorMessage } from '@hookform/error-message';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
-import media from 'utils/styles/media';
 import Checkbox from 'components/Input/Checkbox';
-import { DevTool } from '@hookform/devtools';
-import RadioBox from 'components/Input/RadioBox';
+import Radiobox from 'components/Input/Radiobox';
+import { profile } from 'api/member/index';
+import { authentication } from 'api/auth';
+import { useDebounce } from 'hooks';
+import { tokenStorage } from 'utils/storage';
+import media from 'utils/styles/media';
+import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
 
 interface LocationState {
     joinTermsAgreements: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[];
@@ -366,7 +365,7 @@ const Join = () => {
                                     alignItems: 'center',
                                 }}
                             >
-                                <RadioBox
+                                <Radiobox
                                     id='male'
                                     value={SEX.MALE}
                                     checked={SEX.MALE === watch('sex')}
@@ -376,16 +375,16 @@ const Join = () => {
                                     }}
                                 >
                                     <p>남성</p>
-                                </RadioBox>
+                                </Radiobox>
 
-                                <RadioBox
+                                <Radiobox
                                     id='female'
                                     value={SEX.FEMALE}
                                     checked={SEX.FEMALE === watch('sex')}
                                     {...register('sex', { required: true })}
                                 >
                                     <p>여성</p>
-                                </RadioBox>
+                                </Radiobox>
                             </div>
                         </JoinInputContainer>
                         <ErrorMessage
