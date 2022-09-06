@@ -1,18 +1,27 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { AxiosError } from 'axios';
-import { v4 } from 'uuid';
+import { every, pipe, map, toArray, some } from '@fxts/core';
+import styled from 'styled-components';
 
 import { profile } from 'api/member/index';
-import { authentication, captcha } from 'api/auth';
+import { authentication } from 'api/auth';
 import { useDebounce } from 'hooks';
-import { VCMarketingTerms } from 'const/VCTerms';
-import Loader from 'components/shared/Loader';
 import { tokenStorage } from 'utils/storage';
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
 import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
+import Header from 'components/shared/Header';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
+import StyledInput from 'components/Input/StyledInput';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import { ErrorMessage } from '@hookform/error-message';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
+import media from 'utils/styles/media';
+import Checkbox from 'components/Input/Checkbox';
+import { DevTool } from '@hookform/devtools';
+import RadioBox from 'components/Input/RadioBox';
 
 interface LocationState {
     joinTermsAgreements: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[];
@@ -34,18 +43,134 @@ interface Id {
     [id: string]: boolean | string;
 }
 
+const JoinInputContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 20px;
+
+    & > label {
+        font-size: 12px;
+        line-height: 18px;
+        color: #191919;
+        letter-spacing: 0;
+        margin-bottom: 8px;
+
+        ${media.small} {
+            font-size: 16px;
+            line-height: 24px;
+            letter-spacing: -0.64px;
+        }
+    }
+`;
+
+const JoinInput = styled(StyledInput)`
+    padding: 10px 20px;
+    border: 1px solid #dbdbdb;
+    letter-spacing: -0.64px;
+    color: #a8a8a8;
+    font-size: 16px;
+    line-height: 24px;
+    width: 100%;
+`;
+
+const CheckBoxContainer = styled.div`
+    border-bottom: 1px solid #dbdbdb;
+    padding: 20px 0;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    & > span {
+        font-size: 10px;
+        color: #858585;
+        letter-spacing: -0.4px;
+    }
+`;
+
+const CheckboxTitle = styled.p`
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.64px;
+    color: #191919;
+    margin-left: 16px;
+
+    ${media.small} {
+        font-size: 14px;
+        line-height: 20px;
+        letter-spacing: -0.56px;
+        margin-left: 8px;
+    }
+`;
+
+const MarketingList = styled.ul`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
+const MarketingListItem = styled.li`
+    margin-right: 14px;
+`;
+
+const SignUpButton = styled(PrimaryButton)`
+    width: 100%;
+    letter-spacing: 0;
+    font-size: 16px;
+    line-height: 24px;
+`;
+
 const Join = () => {
-    const [checkAgree, setCheckAgree] = useState<string[]>([]);
-    const [captchaImage, setCaptchaImage] = useState('');
+    const [marketingAgreement, setMarketingAgreement] = useState([
+        {
+            // SMS 알림 수신 동의 여부 (nullable)
+            id: 'smsAgreed',
+            name: 'SMS',
+            isChecked: false,
+            optional: true,
+        },
+        {
+            // 이메일 알림 수신 동의 여부 (nullable)
+            id: 'directMailAgreed',
+            name: '이메일',
+            isChecked: false,
+            optional: true,
+        },
+    ]);
+
+    const isAllMarketingAgreementChecked = useMemo(
+        () => every((a) => a.isChecked, marketingAgreement),
+        [marketingAgreement],
+    );
+
+    const agreeMarketingAgreement = (id: string) =>
+        setMarketingAgreement((prev) =>
+            pipe(
+                prev,
+                map((a) =>
+                    a.id === id ? { ...a, isChecked: !a.isChecked } : a,
+                ),
+                toArray,
+            ),
+        );
+
+    const agreeAllMarketingAgreement = (checked: boolean) =>
+        setMarketingAgreement((prev) =>
+            pipe(
+                prev,
+                map((a) => ({ ...a, isChecked: checked })),
+                toArray,
+            ),
+        );
+
     const [isLoading, setIsLoading] = useState(false);
-    const [captchaKey, setCaptchaKey] = useState('');
 
     const location = useLocation();
-    const state = location.state as LocationState;
-    const { joinTermsAgreements } = state;
+    const { joinTermsAgreements } = location.state as LocationState;
 
     const navigate = useNavigate();
-    const captchaCode = useRef<HTMLInputElement>(null);
 
     const {
         register,
@@ -57,6 +182,7 @@ const Join = () => {
         clearErrors,
         setFocus,
         formState: { errors },
+        control,
     } = useForm<SignUp & Id>();
 
     const watchYear = watch('year');
@@ -81,65 +207,6 @@ const Join = () => {
                 }
             });
     }, 1000);
-
-    const agreeAllButton = (checked: boolean) => {
-        if (checked) {
-            const checkList: string[] = [];
-            VCMarketingTerms.forEach(({ id }) => {
-                checkList.push(id);
-                setValue(id, true);
-            });
-            setCheckAgree(checkList);
-        } else {
-            setCheckAgree([]);
-            VCMarketingTerms.forEach(({ id }) => {
-                setValue(id, false);
-            });
-        }
-    };
-
-    const agreeButton = (checked: boolean, id: string) => {
-        if (checked) {
-            setCheckAgree((prev) => [...prev, id]);
-            setValue(id, true);
-        } else {
-            setCheckAgree(checkAgree.filter((check) => check !== id));
-            setValue(id, false);
-        }
-    };
-
-    const getCaptchaImage = async () => {
-        if (captchaKey.length > 0) {
-            try {
-                const captchaImage = await captcha.generateCaptchaImage({
-                    key: captchaKey,
-                });
-                setCaptchaImage(captchaImage.data.url);
-            } catch (error) {
-                if (error instanceof AxiosError) {
-                    alert(error.response?.data.message);
-                    return;
-                }
-                if (error instanceof Error) {
-                    alert(error.message);
-                    return;
-                }
-                alert('알수 없는 에러가 발생했습니다.');
-                return;
-            }
-        }
-    };
-
-    useEffect(() => {
-        if (captchaKey !== '') {
-            return;
-        }
-        setCaptchaKey(v4());
-    }, []);
-
-    useEffect(() => {
-        getCaptchaImage();
-    }, [captchaKey]);
 
     const handleLogin = async (memberId: string, password: string) => {
         try {
@@ -166,59 +233,37 @@ const Join = () => {
         }
     };
 
-    const checkCaptchaCode = () => {
-        if (!captchaCode.current?.value) {
-            alert('자동등록 방지 코드를 입력해주세요');
-            throw new Error('자동등록 방지 코드를 입력해주세요');
-        }
-        return captcha.checkCaptchaImage({
-            key: captchaKey,
-            code: captchaCode.current?.value,
-        });
-    };
+    const checkedMarketingAgreement = (id: string) =>
+        pipe(
+            marketingAgreement,
+            some((b) => b.isChecked && b.id === id),
+        );
 
     const signUp = async (inputData: SignUp) => {
-        const {
-            email,
-            memberName,
-            password,
-            year,
-            month,
-            day,
-            smsAgreed,
-            directMailAgreed,
-            sex,
-        } = inputData;
+        const { email, memberName, password, year, month, day, sex } =
+            inputData;
+
         try {
-            setIsLoading(true);
-            await checkCaptchaCode();
             const successSignUpResponse = await profile.createProfile({
                 email,
                 memberId: email,
                 memberName,
                 password,
                 birthday: year + '' + month + '' + day,
-                smsAgreed,
-                directMailAgreed,
+                smsAgreed: checkedMarketingAgreement('smsmAgreed'),
+                directMailAgreed: checkedMarketingAgreement('smsAgreed'),
                 joinTermsAgreements,
                 sex,
             });
+            console.log(
+                '🚀 ~ file: Join.tsx ~ line 259 ~ signUp ~ successSignUpResponse',
+                successSignUpResponse,
+            );
+            return;
             if (successSignUpResponse) {
                 handleLogin(email, password);
             }
-        } catch (error) {
-            setIsLoading(false);
-            if (error instanceof AxiosError) {
-                alert(error.response?.data.message);
-                return;
-            } else if (error instanceof Error) {
-                alert(error.message);
-                return;
-            } else {
-                alert('알수 없는 에러가 발생했습니다.');
-                return;
-            }
-        }
+        } catch (error: any) {}
     };
 
     useEffect(() => {
@@ -230,206 +275,264 @@ const Join = () => {
         }
     }, [watchYear, watchMonth, setFocus]);
 
-    const goBackButton = () => {
-        navigate('/signup/term');
-    };
-
-    return isLoading ? (
-        <Loader />
-    ) : (
+    return (
         <>
-            <header>
-                <button onClick={goBackButton}>{'<'}</button>
-                <h2>회원 가입</h2>
-            </header>
-            <form onSubmit={handleSubmit(signUp)}>
-                <div>
-                    <label>이메일</label>
-                    <input
-                        type='email'
-                        style={{ border: '1px solid #000' }}
-                        {...register('email', {
-                            required: {
-                                value: true,
-                                message: '이메일을 입력해주세요',
-                            },
-                            pattern: {
-                                value: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
-                                message: '올바른 이메일 형식을 입력해주세요',
-                            },
-                            onChange: checkExistEmail,
-                        })}
-                    />
-                    {errors.email && errors.email.message}
-                </div>
-                <div>
-                    <div>
-                        <label>이름</label>
-                        <input
-                            type='text'
-                            style={{ border: '1px solid #000' }}
-                            {...register('memberName', {
+            <Header />
+
+            <LayoutResponsive type='small' style={{ marginTop: '150px' }}>
+                <form onSubmit={handleSubmit(signUp)}>
+                    <JoinInputContainer>
+                        <label htmlFor='email'>이메일</label>
+                        <JoinInput
+                            type='email'
+                            placeholder='이메일 주소를 입력해주세요. (수신 가능 E-mail)'
+                            {...register('email', {
                                 required: {
                                     value: true,
-                                    message: '이름을 입력해주세요',
+                                    message: '이메일을 입력해주세요',
+                                },
+                                // pattern: {
+                                //     value: /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/,
+                                //     message:
+                                //         '올바른 이메일 형식을 입력해주세요',
+                                // },
+                                // onChange: checkExistEmail,
+                            })}
+                        />
+                        <ErrorMessage
+                            errors={errors}
+                            name='email'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                    </JoinInputContainer>
+
+                    <JoinInputContainer>
+                        <label htmlFor='phone'>전화번호</label>
+                        <JoinInput
+                            type='phone'
+                            placeholder="휴대폰 번호 '-' 제외하고 입력해 주세요."
+                            {...register('phone', {
+                                required: {
+                                    value: true,
+                                    message: '전화번호를 입력해주세요',
                                 },
                             })}
                         />
-                        {errors.memberName && errors.memberName.message}
-                    </div>
-                    <div>
-                        <p>성별</p>
-                        <div>
-                            <label htmlFor='male'>남성</label>
-                            <input
-                                id='male'
-                                value={SEX.MALE}
-                                type='radio'
-                                {...register('sex')}
-                                defaultChecked={true}
+                        <ErrorMessage
+                            errors={errors}
+                            name='phone'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                    </JoinInputContainer>
+
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <JoinInputContainer>
+                            <label htmlFor='memberName'>이름</label>
+                            <JoinInput
+                                type='text'
+                                placeholder='이름을 입력해주세요.'
+                                {...register('memberName', {
+                                    required: {
+                                        value: true,
+                                        message: '이름을 입력해주세요',
+                                    },
+                                })}
                             />
-                            <label htmlFor='female'>여성</label>
-                            <input
-                                id='female'
-                                value={SEX.FEMALE}
-                                type='radio'
-                                {...register('sex')}
+                        </JoinInputContainer>
+                        <JoinInputContainer>
+                            <p
+                                style={{
+                                    fontSize: '12px',
+                                    lineHeight: '18px',
+                                    color: '#191919',
+                                    letterSpacing: 0,
+                                    marginBottom: '8px',
+                                }}
+                            >
+                                성별
+                            </p>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <RadioBox
+                                    id='male'
+                                    value={SEX.MALE}
+                                    checked={SEX.MALE === watch('sex')}
+                                    {...register('sex', { required: true })}
+                                    onClick={(e) => {
+                                        console.log(e);
+                                    }}
+                                >
+                                    <p>남성</p>
+                                </RadioBox>
+
+                                <RadioBox
+                                    id='female'
+                                    value={SEX.FEMALE}
+                                    checked={SEX.FEMALE === watch('sex')}
+                                    {...register('sex', { required: true })}
+                                >
+                                    <p>여성</p>
+                                </RadioBox>
+                            </div>
+                        </JoinInputContainer>
+                        <ErrorMessage
+                            errors={errors}
+                            name='memberName'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                    </div>
+
+                    <JoinInputContainer>
+                        <label htmlFor='password'>비밀번호</label>
+                        <div style={{ marginBottom: '8px', width: '100%' }}>
+                            <JoinInput
+                                type='password'
+                                id='password'
+                                placeholder='비밀번호를 입력해주세요. (영문 + 숫자 + 특수문자 8~16자리)'
+                                {...register('password', {
+                                    required: {
+                                        value: true,
+                                        message: '비밀번호를 입력해주세요',
+                                    },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
+                                        message:
+                                            '비밀번호 형식에 맞게 입력해주세요',
+                                    },
+                                })}
                             />
                         </div>
-                    </div>
+                        <div>
+                            <JoinInput
+                                type='password'
+                                placeholder='비밀번호를 입력해주세요. (영문 + 숫자 + 특수문자 8~16자리)'
+                                {...register('checkPassword', {
+                                    validate: {
+                                        positive: (val) =>
+                                            val === getValues('password') ||
+                                            '비밀번호가 일치하지 않습니다.',
+                                    },
+                                })}
+                            />
+                        </div>
+
+                        <ErrorMessage
+                            errors={errors}
+                            name='password'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                        <ErrorMessage
+                            errors={errors}
+                            name='checkPassword'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                    </JoinInputContainer>
+
                     <div>
-                        <label htmlFor='password'>
-                            비밀번호
-                            <span>(영어, 숫자, 특수문자 포함 8자리 이상)</span>
-                        </label>
                         <input
-                            type='password'
-                            id='password'
-                            placeholder='비밀번호 입력'
+                            type='number'
+                            placeholder='2000'
                             style={{ border: '1px solid #000' }}
-                            {...register('password', {
+                            {...register('year', {
                                 required: {
                                     value: true,
-                                    message: '비밀번호를 입력해주세요',
+                                    message: '생년월일을 입력해주세요',
                                 },
-                                pattern: {
-                                    value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-                                    message:
-                                        '비밀번호 형식에 맞게 입력해주세요',
-                                },
+                                maxLength: 4,
                             })}
                         />
-                        {errors.password && errors.password.message}
+                        <span>/</span>
                         <input
-                            type='password'
-                            placeholder='비밀번호 재입력'
+                            type='number'
+                            placeholder='08'
                             style={{ border: '1px solid #000' }}
-                            {...register('checkPassword', {
-                                validate: {
-                                    positive: (val) =>
-                                        val === getValues('password') ||
-                                        '비밀번호가 일치하지 않습니다.',
+                            {...register('month', {
+                                required: {
+                                    value: true,
+                                    message: '생년월일을 입력해주세요',
                                 },
+                                maxLength: 2,
                             })}
                         />
-                        {errors.checkPassword && errors.checkPassword.message}
-                    </div>
-                    <div>휴대폰 번호</div>
-                </div>
-                <button type='button' /*onClick={certificatePhone}*/>
-                    휴대폰 인증하기
-                </button>
-                <div>
-                    <input
-                        type='number'
-                        placeholder='2000'
-                        style={{ border: '1px solid #000' }}
-                        {...register('year', {
-                            required: {
-                                value: true,
-                                message: '생년월일을 입력해주세요',
-                            },
-                            maxLength: 4,
-                        })}
-                    />
-                    <span>/</span>
-                    <input
-                        type='number'
-                        placeholder='08'
-                        style={{ border: '1px solid #000' }}
-                        {...register('month', {
-                            required: {
-                                value: true,
-                                message: '생년월일을 입력해주세요',
-                            },
-                            maxLength: 2,
-                        })}
-                    />
-                    <span>/</span>
-                    <input
-                        type='number'
-                        placeholder='15'
-                        style={{ border: '1px solid #000' }}
-                        {...register('day', {
-                            required: {
-                                value: true,
-                                message: '생년월일을 입력해주세요',
-                            },
-                            maxLength: 2,
-                        })}
-                    />
-                </div>
-                <div>
-                    <input
-                        type='checkbox'
-                        id='agreeAllMarketing'
-                        onChange={(e) => agreeAllButton(e.target.checked)}
-                        checked={checkAgree.length === VCMarketingTerms.length}
-                    />
-                    <label htmlFor='agreeAllMarketing'>
-                        마케팅 수신 전체 동의
-                    </label>
-                    {VCMarketingTerms.map(({ id, name, option }) => (
-                        <React.Fragment key={id}>
-                            <input
-                                type='checkbox'
-                                id={id}
-                                {...register(id)}
-                                onChange={(e) =>
-                                    agreeButton(e.target.checked, id)
-                                }
-                                checked={checkAgree.includes(id)}
-                            />
-                            <label htmlFor={id}>
-                                {name}
-                                {option && <span>(선택)</span>}
-                            </label>
-                        </React.Fragment>
-                    ))}
-                </div>
-                <div>
-                    <p>자동 등록 방지</p>
-                    <div>
-                        {captchaImage ? (
-                            <img
-                                src={captchaImage}
-                                alt='자동 등록 방지 이미지'
-                            />
-                        ) : (
-                            '...loading'
-                        )}
-                    </div>
-                    <div>
+                        <span>/</span>
                         <input
-                            type='text'
+                            type='number'
+                            placeholder='15'
                             style={{ border: '1px solid #000' }}
-                            ref={captchaCode}
+                            {...register('day', {
+                                required: {
+                                    value: true,
+                                    message: '생년월일을 입력해주세요',
+                                },
+                                maxLength: 2,
+                            })}
                         />
                     </div>
-                    <div onClick={getCaptchaImage}>새로고침 버튼</div>
-                </div>
-                <button type='submit'>회원가입</button>
-            </form>
+
+                    <CheckBoxContainer>
+                        <Checkbox
+                            shape='square'
+                            checked={isAllMarketingAgreementChecked}
+                            id='agreeAllMarketing'
+                            onChange={(e) =>
+                                agreeAllMarketingAgreement(e.target.checked)
+                            }
+                        >
+                            <CheckboxTitle>마케팅 수신 전체 동의</CheckboxTitle>
+                        </Checkbox>
+
+                        <MarketingList>
+                            {marketingAgreement.map(
+                                ({ id, name, isChecked }) => (
+                                    <MarketingListItem key={id}>
+                                        <Checkbox
+                                            shape='circle'
+                                            onChange={() =>
+                                                agreeMarketingAgreement(id)
+                                            }
+                                            checked={isChecked}
+                                        >
+                                            <CheckboxTitle>
+                                                {name}&nbsp;
+                                                <span>(선택)</span>
+                                            </CheckboxTitle>
+                                        </Checkbox>
+                                    </MarketingListItem>
+                                ),
+                            )}
+                        </MarketingList>
+                    </CheckBoxContainer>
+
+                    <SignUpButton type='submit'>회원가입</SignUpButton>
+                </form>
+            </LayoutResponsive>
+
+            <DevTool control={control} placement='top-right' />
         </>
     );
 };
