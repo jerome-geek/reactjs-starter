@@ -3,16 +3,20 @@ import { useForm } from 'react-hook-form';
 import { DevTool } from '@hookform/devtools';
 import { ErrorMessage } from '@hookform/error-message';
 import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
 
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
-import StyledErrorMessage from 'components/Common/StyledErrorMessage';
+import FlexContainer from 'components/shared/FlexContainer';
 import StyledInput from 'components/Input/StyledInput';
 import Header from 'components/shared/Header';
 import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { authentication } from 'api/auth';
 import { tokenStorage } from 'utils/storage';
+import { isMobile } from 'utils/styles/responsive';
+import media from 'utils/styles/media';
 import { useQueryString } from 'hooks';
 import PATHS from 'const/paths';
 import { ReactComponent as NaverIcon } from 'assets/icons/sns_naver.svg';
@@ -21,10 +25,6 @@ import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
 import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
 import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
-import media from 'utils/styles/media';
-import { useWindowSize } from 'usehooks-ts';
-import BREAKPOINTS from 'const/breakpoints';
-import FlexContainer from 'components/shared/FlexContainer';
 
 interface LoginFormData {
     memberId: string;
@@ -33,16 +33,16 @@ interface LoginFormData {
 }
 
 const Contiainer = styled.div`
-    ${media.medium} {
-        width: calc(100% - 4rem);
-        padding: 44px 0 160px 0;
-    }
-
     width: 440px;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
     padding: 10rem 0;
+
+    ${media.medium} {
+        width: calc(100% - 4rem);
+        padding: 44px 0 160px 0;
+    }
 `;
 
 const LoginInputContainer = styled.div`
@@ -95,6 +95,11 @@ const KeepLoginTitle = styled.p<{ checked: boolean }>`
 const LoginButton = styled(PrimaryButton)`
     width: 100%;
     margin-bottom: 50px;
+    padding: 10px;
+
+    ${media.medium} {
+        padding: 1.25rem 0;
+    }
 `;
 
 const Login = () => {
@@ -114,6 +119,7 @@ const Login = () => {
             keepLogin: false,
         },
     });
+
     const onKeepLoginClick = () => setValue('keepLogin', !watch('keepLogin'));
 
     const dispatch = useAppDispatch();
@@ -159,12 +165,16 @@ const Login = () => {
     });
 
     return (
-        <div style={{ margin: '0 auto' }}>
+        <>
             <Header />
             <DevTool control={control} placement='top-right' />
 
             <Contiainer>
-                <img src={LoginLogo} alt='' style={{ marginBottom: '50px' }} />
+                <img
+                    src={LoginLogo}
+                    alt='Voice Caddie'
+                    style={{ marginBottom: '50px' }}
+                />
                 <StyledForm as='form' onSubmit={onSubmit}>
                     <LoginInputContainer>
                         <LoginInput
@@ -266,7 +276,7 @@ const Login = () => {
                             paddingBottom: '40px',
                         }}
                     >
-                        {width > BREAKPOINTS.MEDIUM && (
+                        {!isMobile(width) && (
                             <p style={{ marginRight: '32px' }}>SNS 로그인</p>
                         )}
                         <SocialLoginList>
@@ -318,7 +328,7 @@ const Login = () => {
                     </StyledLink>
                 </StyledForm>
             </Contiainer>
-        </div>
+        </>
     );
 };
 
