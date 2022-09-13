@@ -339,6 +339,8 @@ const Complete = () => {
         },
     );
 
+    console.log(orderCompleteData);
+
     const payTypeText = () => {
         let payType = '';
         switch (orderCompleteData?.data.payType) {
@@ -384,7 +386,7 @@ const Complete = () => {
                                 <span>
                                     {dayjs(
                                         orderCompleteData.data.payInfo.bankInfo
-                                            .paymentExpirationYmdt,
+                                            ?.paymentExpirationYmdt,
                                     ).format('YY.MM.DD')}{' '}
                                     까지 계좌로 입금
                                 </span>

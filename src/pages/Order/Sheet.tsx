@@ -4,18 +4,12 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
+import { useWindowSize } from 'usehooks-ts';
 import { shallowEqual } from 'react-redux';
 
 import { useTypedSelector } from 'state/reducers';
-import { orderSheet } from 'api/order';
-import {
-    CouponRequest,
-    OrderProductOption,
-    PaymentReserve,
-} from 'models/order';
-import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
 import orderPayment from 'pages/Order/orderPayment';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import { OrderPrice } from 'pages/Cart/Cart';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
 import ShippingAddress from 'components/OrderSheet/ShippingAddress';
@@ -28,30 +22,79 @@ import GuestPassword from 'components/OrderSheet/GuestPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
+import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
+import {
+    CouponRequest,
+    OrderProductOption,
+    PaymentReserve,
+} from 'models/order';
+import { orderSheet } from 'api/order';
 import { tokenStorage } from 'utils/storage';
-import { OrderPrice } from 'pages/Cart/Cart';
+import media from 'utils/styles/media';
+import { isMobile } from 'utils/styles/responsive';
+import currency from 'currency.js';
+import Header from 'components/shared/Header';
+import GoBackButton from 'components/Button/GoBackButton';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
 
-const SheetContainer = styled(LayoutResponsive)`
+const SheetContainer = styled.div`
+    width: 1280px;
+    margin: 118px auto;
     display: flex;
     justify-content: space-between;
+    ${media.custom(1280)} {
+        padding: 0 24px;
+        width: 100%;
+    }
+    ${media.medium} {
+        margin-top: 25px;
+        margin-bottom: 10px;
+        flex-direction: column;
+    }
 `;
 
 const SheetOrderWrapper = styled.div`
     width: 838px;
+    ${media.custom(1280)} {
+        width: 65.4%;
+    }
+    ${media.medium} {
+        width: 100%;
+    }
 `;
 
 const Progress = styled.div`
     display: flex;
-    color: #ababab;
+    color: ${(props) => props.theme.text3};
     font-weight: bold;
     font-size: 24px;
+    margin-bottom: 60px;
     .current-progress {
         color: ${(props) => props.theme.text1};
+        margin-right: 18px;
     }
     > div {
         margin-right: 18px;
+    }
+    ${media.medium} {
+        text-align: center;
+    }
+`;
+
+const MobileTitle = styled.div`
+    position: relative;
+    > h2 {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: ${(props) => props.theme.text1};
+    }
+    > div {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
 `;
 
@@ -74,19 +117,19 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
     position: relative;
     display: flex;
     align-items: center;
-    margin-top: ${(props) => (props.marginTop ? props.marginTop : '60px')};
-    padding: 0 0 20px 0;
+    margin: ${(props) =>
+        props.marginTop
+            ? `${props.marginTop} 0 20px 28px`
+            : '60px 0 20px 28px'};
     > h3 {
         text-align: left;
         color: ${(props) => props.theme.text1};
-        font-size: 24px;
+        font-size: 1.5rem;
         font-weight: bold;
-    }
-    > div {
     }
     .shipping-info {
         color: #000;
-        font-size: 12px;
+        font-size: 0.75rem;
         border: ${(props) => `1px solid ${props.theme.line2}`};
         padding: 5px 11px;
         margin-left: 20px;
@@ -95,7 +138,7 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
     .order-info {
         position: absolute;
         right: 0;
-        top: 12px;
+        bottom: 0;
         color: #8f8f8f;
         > input {
             display: none;
@@ -109,11 +152,41 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
             }
         }
     }
+    ${media.medium} {
+        margin: ${(props) =>
+            props.marginTop ? `${props.marginTop} 0 20px` : '44px 0 20px'};
+        h3 {
+            font-size: 1.25rem;
+            letter-spacing: -0.72px;
+        }
+        .shipping-info {
+            font-size: 0.75rem;
+            letter-spacing: -0.4px;
+        }
+        .order-info {
+            font-size: 1rem;
+            letter-spacing: -0.56px;
+        }
+    }
+    ${media.small} {
+        h3 {
+            font-size: 1.8rem;
+            letter-spacing: -0.72px;
+        }
+        .shipping-info {
+            font-size: 1rem;
+            letter-spacing: -0.4px;
+        }
+        .order-info {
+            font-size: 1.4rem;
+            letter-spacing: -0.56px;
+        }
+    }
 `;
 
 const OrderProductListBox = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
+    border-top: ${(props) => `2px solid ${props.theme.secondary}`};
+    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
 `;
 
 const CartCategoryBox = styled.div`
@@ -202,16 +275,35 @@ const SheetButton = styled.div<{ width: string }>`
     line-height: 44px;
     text-align: center;
     color: #fff;
-    background: #222943;
+    background: ${(props) => props.theme.secondary};
     margin-bottom: 10px;
+    font-weight: bold;
     cursor: pointer;
+    ${media.medium} {
+        width: 100vw;
+        height: 70px;
+        line-height: 70px;
+        margin-bottom: 0;
+        font-size: 1.5rem;
+        letter-spacing: -0.72px;
+    }
+    ${media.small} {
+        font-size: 1.8rem;
+    }
 `;
 
 const SheetOrderPriceWrapper = styled.form`
     height: fit-content;
     position: sticky;
-    top: 280px;
+    top: 228px;
     width: 400px;
+    ${media.custom(1280)} {
+        width: 31.25%;
+    }
+    ${media.medium} {
+        width: 100%;
+        margin-top: 44px;
+    }
 `;
 
 const AgreeButton = styled.div`
@@ -295,6 +387,8 @@ const Sheet = () => {
 
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
+    const { width } = useWindowSize();
+
     const { member } = useTypedSelector(
         ({ member }) => ({
             member: member.data,
@@ -314,9 +408,10 @@ const Sheet = () => {
         handleSubmit,
         getValues,
         setValue,
-        watch,
         formState: { errors },
-    } = useForm<PaymentReserve>({ defaultValues: { subPayAmt: 0 } });
+    } = useForm<PaymentReserve>({
+        defaultValues: { subPayAmt: 0, payType: PAY_TYPE.CREDIT_CARD },
+    });
 
     const { data: orderData, refetch: orderRefetch } = useQuery(
         ['orderData', { member: member?.memberName }],
@@ -377,19 +472,21 @@ const Sheet = () => {
                     return { ...prev };
                 });
             },
-            refetchOnWindowFocus: false,
         },
     );
 
     const paymentData = {
         orderSheetNo,
+        extraData: { test: 'extraData 확인' },
         shippingAddress: {
             addressNo: getValues('shippingAddress.addressNo')
                 ? getValues('shippingAddress.addressNo')
                 : 0,
             receiverZipCd: getValues('shippingAddress.receiverZipCd'),
             receiverAddress: getValues('shippingAddress.receiverAddress'),
-            receiverJibunAddress: 'asf',
+            receiverJibunAddress: getValues(
+                'shippingAddress.receiverJibunAddress',
+            ),
             receiverDetailAddress: getValues(
                 'shippingAddress.receiverDetailAddress',
             ),
@@ -402,7 +499,8 @@ const Sheet = () => {
             addressName: null,
             countryCd: null,
         },
-        orderTitle: 'asdf',
+        orderTitle:
+            orderData?.data.deliveryGroups[0]?.orderProducts[0]?.productName,
         useDefaultAddress: getValues('useDefaultAddress'),
         deliveryMemo: getValues('deliveryMemo'),
         member: !!member?.memberName,
@@ -424,8 +522,8 @@ const Sheet = () => {
             : null,
         updateMember: false,
         subPayAmt: getValues('subPayAmt') ? getValues('subPayAmt') : 0,
-        pgType: PG_TYPE.NONE,
-        payType: PAY_TYPE.ACCOUNT,
+        pgType: PG_TYPE.INICIS,
+        payType: getValues('payType'),
         inAppYn: 'N',
         accumulationAmt: 0,
         availableMaxAccumulationAmt: 0,
@@ -480,6 +578,7 @@ const Sheet = () => {
 
     return (
         <>
+            {!isMobile(width) && <Header />}
             {isShippingListModal && (
                 <ShippingListModal
                     onClickToggleModal={() =>
@@ -515,13 +614,20 @@ const Sheet = () => {
                     couponApplyMutate={couponApplyMutate}
                 ></CouponListModal>
             )}
-            <SheetContainer type='large' style={{ padding: '10rem 0' }}>
+            <SheetContainer>
                 <SheetOrderWrapper>
-                    <Progress>
-                        <div className='current-progress'>주문서</div>
-                        <div>&#8250;</div>
-                        <div>주문 완료</div>
-                    </Progress>
+                    {isMobile(width) ? (
+                        <MobileTitle>
+                            <GoBackButton />
+                            <h2>주문서</h2>
+                        </MobileTitle>
+                    ) : (
+                        <Progress>
+                            <h2 className='current-progress'>주문서</h2>
+                            <div>&#8250;</div>
+                            <div>주문 완료</div>
+                        </Progress>
+                    )}
                     {!member && (
                         <GuestLoginBox>
                             <p>
@@ -537,13 +643,15 @@ const Sheet = () => {
                         <h3>주문 상품</h3>
                     </SheetTitle>
                     <OrderProductListBox>
-                        <CartCategoryBox>
-                            <CartInformation>상품 정보</CartInformation>
-                            <CartCountBox>수량</CartCountBox>
-                            <CartPrice>가격</CartPrice>
-                            <CartDelivery>배송비</CartDelivery>
-                            <CartAmount>총 상품 금액</CartAmount>
-                        </CartCategoryBox>
+                        {!isMobile(width) && (
+                            <CartCategoryBox>
+                                <CartInformation>상품 정보</CartInformation>
+                                <CartCountBox>수량</CartCountBox>
+                                <CartPrice>가격</CartPrice>
+                                <CartDelivery>배송비</CartDelivery>
+                                <CartAmount>총 상품 금액</CartAmount>
+                            </CartCategoryBox>
+                        )}
                         {orderList.map((orderData) => {
                             return (
                                 <CartList
@@ -780,30 +888,59 @@ const Sheet = () => {
                             </p>
                         </div>
                     </AgreeButton>
-                    <SheetButton
-                        width='100%'
-                        onClick={handleSubmit(() => {
-                            if (accessTokenInfo?.accessToken) {
-                                if (!agreePurchase.includes('agreePurchase')) {
+                    {!isMobile && (
+                        <SheetButton
+                            width='100%'
+                            onClick={handleSubmit(() => {
+                                if (accessTokenInfo?.accessToken) {
+                                    if (
+                                        !agreePurchase.includes('agreePurchase')
+                                    ) {
+                                        alert('약관에 동의해주세요.');
+                                        return;
+                                    }
+                                } else if (
+                                    agreePurchase.length !== orderTerms.length
+                                ) {
                                     alert('약관에 동의해주세요.');
                                     return;
                                 }
-                            } else if (
-                                agreePurchase.length !== orderTerms.length
-                            ) {
+                                orderPayment.setConfiguration();
+                                orderPayment.reservation(paymentData);
+                            })}
+                        >
+                            결제하기
+                        </SheetButton>
+                    )}
+                </SheetOrderPriceWrapper>
+            </SheetContainer>
+            {isMobile(width) && (
+                <SheetButton
+                    width='100%'
+                    onClick={handleSubmit(() => {
+                        if (accessTokenInfo?.accessToken) {
+                            if (!agreePurchase.includes('agreePurchase')) {
                                 alert('약관에 동의해주세요.');
                                 return;
                             }
-                            orderPayment.setConfiguration();
-                            orderPayment.reservation(paymentData);
-                            // paymentMutate();
-                            // devEnvironmentPayment();
-                        })}
-                    >
-                        결제하기
-                    </SheetButton>
-                </SheetOrderPriceWrapper>
-            </SheetContainer>
+                        } else if (agreePurchase.length !== orderTerms.length) {
+                            alert('약관에 동의해주세요.');
+                            return;
+                        }
+                        orderPayment.setConfiguration();
+                        orderPayment.reservation(paymentData);
+                    })}
+                >
+                    {currency(
+                        paymentData.paymentAmt ? paymentData.paymentAmt : 0,
+                        {
+                            symbol: '',
+                            precision: 0,
+                        },
+                    ).format()}{' '}
+                    원 결제하기
+                </SheetButton>
+            )}
         </>
     );
 };

@@ -7,74 +7,58 @@ import {
     UseFormRegister,
     UseFormSetValue,
 } from 'react-hook-form';
+import { useWindowSize } from 'usehooks-ts';
 
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { useTypedSelector } from 'state/reducers';
+import { sheetInputStyle } from 'styles/componentStyle';
+import media from 'utils/styles/media';
+import { isMobile } from 'utils/styles/responsive';
 
 const OrdererInformationContainer = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.informationContainer}
 `;
 
 const SheetInputWrapper = styled.div`
-    display: flex;
-    border-bottom: 1px solid #dbdbdb;
-    text-align: left;
-    min-height: 104px;
-    &:last-child {
-        border-bottom: none;
-    }
+    ${sheetInputStyle.sheetInputWrapper}
 `;
 
 const SheetInputTitleBox = styled.div`
-    width: 200px;
-    padding: 44px 0 40px 41px;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.sheetInputTitleBox}
 `;
 
 const SheetInputBox = styled.div`
-    width: 440px;
-    padding-top: 30px;
-    padding-bottom: 20px;
+    ${sheetInputStyle.sheetInputBox};
+`;
+
+const CheckBox = styled.label`
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
     align-items: center;
-    color: ${(props) => props.theme.text1};
-    > #defaultAddress {
-        display: none;
-    }
-    > label {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
+    ${media.medium} {
+        margin-top: 12px;
         > p {
-            color: #8f8f8f;
-            margin-left: 10px;
+            margin-left: 7px;
+            color: ${(props) => props.theme.text2};
         }
     }
 `;
 
 const SheetTextInput = styled.input<{ inputWidth?: string }>`
-    letter-spacing: -0.64px;
-    font-weight: 400;
-    height: 44px;
-    width: ${(props) => (props.inputWidth ? props.inputWidth : '100%')};
-    padding: 0 20px;
-    min-height: 44px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    &::placeholder {
-        color: #a8a8a8;
+    ${sheetInputStyle.sheetTextInput}
+    width: ${(props: { inputWidth?: string }) =>
+        props.inputWidth ? props.inputWidth : '100%'};
+    &:first-child {
+        margin-bottom: 12px;
     }
-    &:focus {
-        border: 1px solid red;
+    ${media.medium} {
+        min-height: 54px;
+        &:first-child {
+            width: ${(props: { inputWidth?: string }) =>
+                props.inputWidth ? props.inputWidth : '100%'};
+        }
     }
 `;
 
@@ -87,12 +71,16 @@ const SheetButton = styled.div<{ width: string }>`
     background: #222943;
     margin-bottom: 10px;
     cursor: pointer;
+    ${media.medium} {
+        width: 27.1%;
+        min-height: 54px;
+        line-height: 54px;
+    }
 `;
 
 const OrdererInformation = ({
     register,
     setValue,
-    getValues,
     ordererInformation,
     setIsSearchAddressModal,
 }: {
@@ -107,6 +95,8 @@ const OrdererInformation = ({
 }) => {
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
+
+    const { width } = useWindowSize();
 
     const { member } = useTypedSelector(
         ({ member }) => ({
@@ -189,7 +179,7 @@ const OrdererInformation = ({
                 </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        inputWidth='75%'
+                        inputWidth='71%'
                         placeholder='예) 테헤란로 108길 23'
                         type={'text'}
                         disabled={true}
@@ -214,7 +204,7 @@ const OrdererInformation = ({
                         })}
                     />
                     <input
-                        type='checkbox'
+                        type='hidden'
                         id='defaultAddress'
                         onChange={() => {
                             setDefaultAddress((prev) => !prev);
@@ -222,10 +212,10 @@ const OrdererInformation = ({
                         checked={defaultAddress}
                     />
                     {member && (
-                        <label htmlFor='defaultAddress'>
+                        <CheckBox htmlFor='defaultAddress'>
                             {defaultAddress ? <Checked /> : <UnChecked />}
                             <p>기본 배송지로 설정</p>
-                        </label>
+                        </CheckBox>
                     )}
                 </SheetInputBox>
             </SheetInputWrapper>
@@ -255,7 +245,9 @@ const OrdererInformation = ({
                                 >),
                                 container: (provided: any) => ({
                                     ...provided,
-                                    marginBottom: '10px',
+                                    marginBottom: `${
+                                        isMobile(width) ? '0' : '10px'
+                                    }`,
                                     boxSizing: 'border-box',
                                     width: '100%',
                                 }),

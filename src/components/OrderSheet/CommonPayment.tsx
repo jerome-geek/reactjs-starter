@@ -4,6 +4,9 @@ import styled from 'styled-components';
 
 import { PAY_TYPE } from 'models';
 import { PaymentReserve } from 'models/order';
+import { isMobile } from 'utils/styles/responsive';
+import media from 'utils/styles/media';
+import { useWindowSize } from 'usehooks-ts';
 
 const CommonPaymentContainer = styled.div`
     border-top: 2px solid #222943;
@@ -47,22 +50,8 @@ const SheetInputBox = styled.div`
             margin-left: 10px;
         }
     }
-`;
-
-const SheetTextInput = styled.input<{ inputWidth?: string }>`
-    letter-spacing: -0.64px;
-    font-weight: 400;
-    height: 44px;
-    width: ${(props) => (props.inputWidth ? props.inputWidth : '100%')};
-    padding: 0 20px;
-    min-height: 44px;
-    margin-bottom: 10px;
-    background: #f8f8fa;
-    &::placeholder {
-        color: #a8a8a8;
-    }
-    &:focus {
-        border: 1px solid red;
+    ${media.medium} {
+        width: 100%;
     }
 `;
 
@@ -71,10 +60,21 @@ const SheetButton = styled.div<{ width: string; isClicked: boolean }>`
     height: 44px;
     line-height: 44px;
     text-align: center;
-    color: ${(props) => (props.isClicked ? '#fff' : '#a8a8a8')};
-    background: ${(props) => (props.isClicked ? '#222943' : '#f8f8fA')};
+    color: ${(props) => (props.isClicked ? '#fff' : props.theme.text3)};
+    background: ${(props) =>
+        props.isClicked ? props.theme.secondary : props.theme.bg2};
     margin-bottom: 10px;
     cursor: pointer;
+    ${media.medium} {
+        width: 48.9%;
+        height: 54px;
+        text-align: center;
+        line-height: 54px;
+        font-size: 1rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
 `;
 
 const CommonPayment = ({
@@ -86,6 +86,8 @@ const CommonPayment = ({
         PAY_TYPE.CREDIT_CARD,
     );
 
+    const { width } = useWindowSize();
+
     const changePaymentMethodHandler = (payType: PAY_TYPE) => () => {
         setPaymentMethod(payType);
         setValue('payType', payType);
@@ -94,7 +96,9 @@ const CommonPayment = ({
     return (
         <CommonPaymentContainer>
             <SheetInputWrapper>
-                <SheetInputTitleBox>일반 결제</SheetInputTitleBox>
+                {!isMobile(width) && (
+                    <SheetInputTitleBox>일반 결제</SheetInputTitleBox>
+                )}
                 <SheetInputBox>
                     <SheetButton
                         isClicked={paymentMethod === PAY_TYPE.CREDIT_CARD}

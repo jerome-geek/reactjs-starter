@@ -1,58 +1,29 @@
-import styled from 'styled-components';
+import styled, { DefaultTheme, ThemeProps } from 'styled-components';
 import { UseFormRegister } from 'react-hook-form';
 
 import { PaymentReserve } from 'models/order';
+import { sheetInputStyle } from 'styles/componentStyle';
 
 const SheetInputWrapper = styled.div`
-    display: flex;
-    border-bottom: 1px solid #dbdbdb;
-    text-align: left;
-    min-height: 104px;
-    &:last-child {
-        border-bottom: none;
-    }
+    ${sheetInputStyle.sheetInputWrapper}
 `;
 
 const SheetInputTitleBox = styled.div`
-    width: 200px;
-    padding: 40px 0 40px 41px;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.sheetInputTitleBox}
 `;
 
 const SheetInputBox = styled.div<{ inputWidth?: string }>`
-    width: 440px;
-    padding-top: 30px;
-    padding-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: center;
-    color: ${(props) => props.theme.text1};
+    ${sheetInputStyle.sheetInputBox}
 `;
 
 const SheetTextInput = styled.input<{ inputWidth?: string }>`
-    letter-spacing: -0.64px;
-    font-weight: 400;
-    height: 44px;
-    width: ${(props) => (props.inputWidth ? props.inputWidth : '100%')};
-    padding: 0 20px;
-    min-height: 44px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    &::placeholder {
-        color: #a8a8a8;
-    }
-    &:focus {
-        border: 1px solid red;
-    }
+    ${sheetInputStyle.sheetTextInput}
+    width: ${(props: { inputWidth?: string }) =>
+        props.inputWidth ? props.inputWidth : '100%'};
 `;
 
 const OrdererInformationContainer = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.informationContainer}
 `;
 
 const OrdererInformation = ({
