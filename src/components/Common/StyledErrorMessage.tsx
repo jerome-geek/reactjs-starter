@@ -12,6 +12,7 @@ const StyledMessage = styled.p`
     color: ${(props) => props.theme.main};
     letter-spacing: 0;
     padding-top: 10px;
+    text-align: left;
 
     ${media.small} {
         padding-top: 5px;
