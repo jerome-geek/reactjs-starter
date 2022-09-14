@@ -7,7 +7,7 @@ import MemberPopup from 'components/Member/MemberPopup';
 import SearchLayer from 'components/Search/SearchLayer';
 import SideNavigation from 'components/shared/SideNavigation';
 import { useCart, useMember } from 'hooks';
-import { isDesktop } from 'utils/styles/responsive';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
 import CATEGORY from 'const/category';
@@ -190,13 +190,15 @@ const Header = () => {
                     </Link>
                 </LogoContainer>
 
-                <NavContainer>
-                    {headerNavList.map(({ url, name }) => (
-                        <NavLink key={url} to={url}>
-                            {name}
-                        </NavLink>
-                    ))}
-                </NavContainer>
+                {isDesktop(width) && (
+                    <NavContainer>
+                        {headerNavList.map(({ url, name }) => (
+                            <NavLink key={url} to={url}>
+                                {name}
+                            </NavLink>
+                        ))}
+                    </NavContainer>
+                )}
 
                 <IconContainer>
                     {isDesktop(width) && member?.memberName && (

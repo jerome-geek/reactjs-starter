@@ -51,9 +51,9 @@ const GlobalStyle = createGlobalStyle`
         }
     }
 
-    @media only screen and (max-width: 576px) {
+    @media only screen and (max-width: 1200px) {
         html {
-            font-size: 10px;
+            font-size: 14px;
         }
     }
 `;

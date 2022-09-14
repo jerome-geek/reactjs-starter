@@ -1,6 +1,6 @@
 import { FC, HTMLAttributes, useState } from 'react';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
@@ -8,19 +8,35 @@ import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 interface DropDownProps extends HTMLAttributes<HTMLDivElement> {
     title: string;
     menuList: { title: string; url: string }[];
+    isBorder?: boolean;
 }
 
 const DropDownContainer = styled.div`
     cursor: pointer;
+    display: inline-block;
+    margin: 0 auto;
+    position: relative;
 `;
 
-const DropDownHeader = styled.div`
-    position: relative;
+const DropDownHeader = styled.div<{ isBorder?: boolean }>`
+    color: #fff;
+    ${(props) =>
+        props.isBorder &&
+        css`
+            border: 1px solid #dbdbdb;
+            padding: 8px;
+        `};
+
+    & > svg {
+        margin-left: 5px;
+    }
 `;
 
 const DropDownListContainer = styled.div`
     position: absolute;
     margin-top: 10px;
+    width: inherit;
+    z-index: 100;
 `;
 
 const DropDownList = styled.ul`
@@ -41,17 +57,22 @@ const ListItem = styled.li`
     }
 `;
 
-const DropDown: FC<DropDownProps> = ({ title, menuList, ...props }) => {
+const DropDown: FC<DropDownProps> = ({
+    title,
+    menuList,
+    isBorder = false,
+    ...props
+}) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <DropDownContainer {...props}>
-            <DropDownHeader onClick={() => setIsOpen((prev) => !prev)}>
-                {title}{' '}
-                <FontAwesomeIcon
-                    icon={isOpen ? faAngleDown : faAngleUp}
-                    style={{ marginLeft: '5px' }}
-                />
+            <DropDownHeader
+                onClick={() => setIsOpen((prev) => !prev)}
+                isBorder={isBorder}
+            >
+                {title}&nbsp;
+                <FontAwesomeIcon icon={isOpen ? faAngleDown : faAngleUp} />
             </DropDownHeader>
 
             {isOpen && (
