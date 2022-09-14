@@ -322,8 +322,8 @@ const ProductDetail = () => {
     };
 
     const { data: mainBannerData } = useQuery(
-        ['mainCategoryBanner', BANNER.mainCategoryBanner],
-        async () => await banner.getBanners([BANNER.mainCategoryBanner]),
+        ['mainCategoryBanner', BANNER.MAIN_CATEGORY_BANNER],
+        async () => await banner.getBanners([BANNER.MAIN_CATEGORY_BANNER]),
         {
             select: ({ data }) => {
                 return data;
