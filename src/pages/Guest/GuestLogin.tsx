@@ -5,63 +5,18 @@ import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
+import JoinLayout from 'components/Layout/JoinLayout';
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
-import media from 'utils/styles/media';
 import { isDesktop } from 'utils/styles/responsive';
 import { guestOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE } from 'models';
-import { ReactComponent as VCLogo } from 'assets/logo/vc.svg';
 
 interface GuestLoginFormData {
     guestOrderNo: string;
     guestPassword: string;
 }
-
-const GuestLoginContainer = styled.div`
-    width: 440px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    padding: 10rem 0;
-
-    ${media.medium} {
-        width: calc(100% - 4rem);
-        padding: 44px 0 160px 0;
-    }
-`;
-
-const GuestLoginTitle = styled.h1`
-    font-size: 2.25rem;
-    line-height: 54px;
-    letter-spacing: -1.8px;
-    color: #191919;
-    margin-bottom: 30px;
-
-    ${media.medium} {
-        text-align: left;
-        line-height: 12px;
-        margin-bottom: 22px;
-    }
-`;
-
-const GuestLoginDescription = styled.p`
-    font-size: 16px;
-    line-height: 24px;
-    letter-spacing: -0.64px;
-    color: #858585;
-    margin-bottom: 54px;
-
-    ${media.medium} {
-        color: #191919;
-        letter-spacing: -1px;
-        text-align: left;
-        font-size: 20px;
-        line-height: 28px;
-        margin-bottom: 62px;
-    }
-`;
 
 const FlexFormContainer = styled.form`
     display: flex;
@@ -118,17 +73,14 @@ const GuestLogin = () => {
             ) : (
                 <MobileHeader title={'비회원 주문 조회'} />
             )}
-            g
-            <GuestLoginContainer>
-                <GuestLoginTitle>
-                    {isDesktop(width) ? '비회원 주문 조회' : <VCLogo />}
-                </GuestLoginTitle>
-                <GuestLoginDescription>
-                    메일로 발송된 주문서의 주문번호와
-                    <br />
-                    주문시 입력한 비밀번호를 입력해주세요.
-                </GuestLoginDescription>
 
+            <JoinLayout
+                title='비회원 주문 조회'
+                isDesktop={isDesktop(width)}
+                description={
+                    '메일로 발송된 주문서의 주문번호와<br />주문시 입력한 비밀번호를 입력해주세요.'
+                }
+            >
                 <FlexFormContainer onSubmit={onSubmit}>
                     <GuestLoginInputContainer>
                         <GuestLoginInput
@@ -175,7 +127,7 @@ const GuestLogin = () => {
 
                     <SubmitButton>조회하기</SubmitButton>
                 </FlexFormContainer>
-            </GuestLoginContainer>
+            </JoinLayout>
         </>
     );
 };
