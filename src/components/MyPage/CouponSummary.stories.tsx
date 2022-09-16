@@ -1,4 +1,5 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { COUPON_TYPES } from 'models';
 import CouponSummary from './CouponSummary';
 // import { Coupon as CouponInterface } from 'models/promotion';
 
@@ -26,7 +27,7 @@ OneCouponSummary.args = {
             couponIssueNo: 4472534,
             couponName: '쿠폰지급 테스트',
             couponNo: 14042,
-            couponType: 'PRODUCT',
+            couponType: COUPON_TYPES.PRODUCT,
             discountAmt: 0,
             discountRate: 10,
             fixedAmt: false,
@@ -49,6 +50,7 @@ OneCouponSummary.args = {
             freeDelivery: false,
             minDeliveryAmt: null,
             fiexdAmt: false,
+            reason: null,
         },
     ],
 };
@@ -60,7 +62,7 @@ MoreTwoCouponsSummary.args = {
             couponIssueNo: 4472534,
             couponName: '쿠폰지급 테스트1',
             couponNo: 14042,
-            couponType: 'PRODUCT',
+            couponType: COUPON_TYPES.PRODUCT,
             discountAmt: 0,
             discountRate: 10,
             fixedAmt: false,
@@ -83,12 +85,13 @@ MoreTwoCouponsSummary.args = {
             freeDelivery: false,
             minDeliveryAmt: null,
             fiexdAmt: false,
+            reason: null,
         },
         {
             couponIssueNo: 4472534,
             couponName: '쿠폰지급 테스트2',
             couponNo: 14042,
-            couponType: 'PRODUCT',
+            couponType: COUPON_TYPES.PRODUCT,
             discountAmt: 0,
             discountRate: 10,
             fixedAmt: false,
@@ -111,6 +114,7 @@ MoreTwoCouponsSummary.args = {
             freeDelivery: false,
             minDeliveryAmt: null,
             fiexdAmt: false,
+            reason: null,
         },
     ],
 };
