@@ -19,6 +19,7 @@ import NotFound from 'pages/NotFound';
 import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
 import Footer from 'components/shared/Footer';
+import JoinCompleted from 'pages/Member/JoinCompleted';
 import PrivateRoute from 'hoc/PrivateRoute';
 import ScrollToTop from 'hoc/ScrollToTop';
 
@@ -42,6 +43,10 @@ const App: FC = () => {
                                             <MemberRouter />
                                         </PrivateRoute>
                                     }
+                                />
+                                <Route
+                                    path='/member/join-completed'
+                                    element={<JoinCompleted />}
                                 />
                                 <Route
                                     path='/my-page/*'

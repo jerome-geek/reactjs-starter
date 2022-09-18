@@ -4,8 +4,6 @@ import request, { defaultHeaders } from 'api/core';
 import { CouponsParams, TargetParams } from 'models/promotion';
 import { tokenStorage } from 'utils/storage';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
 const coupon = {
     /**
      * 내 쿠폰 가져오기
@@ -14,24 +12,18 @@ const coupon = {
      * @param param0
      * @returns
      */
-    getUserCoupons: ({
-        endYmd,
-        pageNumber,
-        pageSize,
-        usable,
-        startYmd,
-    }: CouponsParams): Promise<AxiosResponse> => {
+    getUserCoupons: (params?: CouponsParams): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
             url: '/coupons',
             params: {
-                endYmd,
-                pageNumber,
-                pageSize,
-                usable,
-                startYmd,
+                pageNumber: params?.pageNumber || 1,
+                pageSize: params?.pageSize || 10,
+                usable: params?.usable || true,
+                startYmd: params?.startYmd,
+                endYmd: params?.endYmd,
             },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
@@ -39,28 +31,33 @@ const coupon = {
         });
     },
 
-    getCouponsIssuable: (): Promise<AxiosResponse> =>
-        request({
+    getCouponsIssuable: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: '/coupons/issuable',
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getCouponsSummary: ({
         expireDay,
     }: {
         expireDay: string;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/coupons/summary',
             params: { expireDay },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     issueCouponByPromotionCode: (
         promotionCode: string,
@@ -73,41 +70,50 @@ const coupon = {
     issueCoupon: (
         couponNo: number,
         { channelType }: { channelType?: string },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/coupons/${couponNo}/download`,
             data: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getExcludeTargetsByCouponNumber: (
         couponNo: string,
         { pageNumber, pageSize }: TargetParams,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/${couponNo}/exclude-targets`,
             params: { pageNumber, pageSize },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getCouponTargets: (
         couponNo: string,
         { pageNumber, pageSize }: TargetParams,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/${couponNo}/targets`,
             params: { pageNumber, pageSize },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     issueEventCoupons: (eventNo: string): Promise<AxiosResponse> =>
         request({
@@ -128,15 +134,18 @@ const coupon = {
     getIssuableCoupons: (
         productNo: string,
         { channelType }: { channelType?: string },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/coupons/products/${productNo}/issuable/coupons`,
             params: { channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default coupon;

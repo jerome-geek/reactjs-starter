@@ -1,3 +1,5 @@
+import { COUPON_TYPES } from 'models';
+
 export interface CouponsParams {
     endYmd?: string;
     pageNumber: number;
@@ -83,7 +85,7 @@ export interface Coupon {
     couponIssueNo: number;
     couponName: string;
     couponNo: number;
-    couponType: string;
+    couponType: COUPON_TYPES;
     discountAmt: number;
     discountRate: number;
     fixedAmt: boolean;
@@ -106,4 +108,5 @@ export interface Coupon {
     freeDelivery: boolean;
     minDeliveryAmt: null;
     fiexdAmt: boolean;
+    reason: Nullable<string>;
 }

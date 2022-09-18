@@ -3,6 +3,7 @@ const PATHS = {
     LOGIN: '/member/login',
     JOIN_AGREEMENT: '/member/join-agreement',
     JOIN: '/member/join',
+    JOIN_COMPLETED: '/member/join-completed',
     FIND_ID: '/member/find-id',
     FIND_PASSWORD: '/member/find-password',
     MY_PAGE: '/my-page/index',

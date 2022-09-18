@@ -5,6 +5,7 @@ const PROFILE_COUPONS = 'profile_coupons';
 const PROFILE_ACCUMULATION = 'profile_accumulation';
 const PROFILE_ORDER_SUMMARY = 'profile_orderSummary';
 const MY_ORDER_LIST = 'my_order_list';
+const MY_COUPON_LIST = 'my_coupon_list';
 
 export {
     BOARD_CATEGORY,
@@ -14,4 +15,5 @@ export {
     PROFILE_ACCUMULATION,
     PROFILE_ORDER_SUMMARY,
     MY_ORDER_LIST,
+    MY_COUPON_LIST,
 };

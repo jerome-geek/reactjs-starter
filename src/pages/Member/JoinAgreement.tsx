@@ -5,54 +5,30 @@ import { pipe, map, toArray, filter, every } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import MobileHeader from 'components/shared/MobileHeader';
+import JoinLayout from 'components/Layout/JoinLayout';
 import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import { SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
 import media from 'utils/styles/media';
+import { isDesktop } from 'utils/styles/responsive';
 import PATHS from 'const/paths';
-import { ReactComponent as VCLogo } from 'assets/logo/vc.svg';
 import { ReactComponent as ArrowRightIcon } from 'assets/icons/arrow_right.svg';
-
 interface Agreement {
     id: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES;
     name: string;
     isChecked: boolean;
 }
 
-const JoinAgreementTitle = styled.h1`
-    font-size: 36px;
-    line-height: 54px;
-    color: #191919;
-    letter-spacing: 0;
-    font-weight: medium;
-    margin-bottom: 14px;
-
-    ${media.small} {
-        text-align: left;
-        margin-bottom: 22px;
-    }
-`;
-
-const JoinAgreementDescription = styled.p`
-    font-size: 16px;
-    line-height: 24px;
-    color: #8f8f8f;
-    letter-spacing: 0;
-
-    ${media.small} {
-        text-align: left;
-        font-size: 20px;
-        color: #191919;
-        letter-spacing: -1px;
-        margin-bottom: 62px;
-    }
-`;
-
 const NextButton = styled(PrimaryButton)`
     width: 100%;
-    font-size: 16px;
-    line-height: 24px;
+    letter-spacing: -0.64px;
+
+    ${media.medium} {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        letter-spacing: -0.8px;
+    }
 `;
 
 const JoinAgreementTermList = styled.ul`
@@ -173,22 +149,21 @@ const JoinAgreement = () => {
 
     return (
         <>
-            <Header />
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={'회원가입'} />
+            )}
 
-            <LayoutResponsive type='small' style={{ marginTop: '150px' }}>
-                <JoinAgreementTitle>
-                    {width > 768 ? '회원가입' : <VCLogo />}
-                </JoinAgreementTitle>
-
-                <JoinAgreementDescription
-                    dangerouslySetInnerHTML={{
-                        __html:
-                            width > 768
-                                ? '서비스 이용을 위해 약관에 동의해 주세요.'
-                                : '서비스 이용을 위해 <br/>약관에 <b>동의</b>해 주세요.',
-                    }}
-                />
-
+            <JoinLayout
+                isDesktop={isDesktop(width)}
+                title={'회원가입'}
+                description={
+                    width > 768
+                        ? '서비스 이용을 위해 약관에 동의해 주세요.'
+                        : '서비스 이용을 위해 <br/>약관에 <b>동의</b>해 주세요.'
+                }
+            >
                 <JoinAgreementTermList>
                     {agreements.map(({ id, name, isChecked }) => (
                         <JoinAgreementTermListItem key={id}>
@@ -226,7 +201,7 @@ const JoinAgreement = () => {
                 </div>
 
                 <NextButton onClick={checkIsAllChecked}>다음</NextButton>
-            </LayoutResponsive>
+            </JoinLayout>
         </>
     );
 };
