@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { UseFormSetValue } from 'react-hook-form';
 import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 import { PAY_TYPE } from 'models';
 import { PaymentReserve } from 'models/order';
 import { isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
-import { useWindowSize } from 'usehooks-ts';
 
 const CommonPaymentContainer = styled.div`
     border-top: 2px solid #222943;
@@ -92,6 +93,8 @@ const CommonPayment = ({
         setPaymentMethod(payType);
         setValue('payType', payType);
     };
+
+    const { t: sheet } = useTranslation('orderSheet');
 
     return (
         <CommonPaymentContainer>

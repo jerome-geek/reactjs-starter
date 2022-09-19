@@ -1,5 +1,6 @@
-import styled, { DefaultTheme, ThemeProps } from 'styled-components';
+import styled from 'styled-components';
 import { UseFormRegister } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 import { PaymentReserve } from 'models/order';
 import { sheetInputStyle } from 'styles/componentStyle';
@@ -31,51 +32,67 @@ const OrdererInformation = ({
 }: {
     register: UseFormRegister<PaymentReserve>;
 }) => {
+    const { t: sheet } = useTranslation('orderSheet');
+
     return (
         <OrdererInformationContainer>
             <SheetInputWrapper>
-                <SheetInputTitleBox>이름</SheetInputTitleBox>
+                <SheetInputTitleBox>
+                    {sheet('ordererInformation.category.name')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='이름을 입력하세요.'
+                        placeholder={sheet(
+                            'ordererInformation.category.placeholder.name',
+                        )}
                         type={'text'}
                         {...register('orderer.ordererName', {
                             required: {
                                 value: true,
-                                message: '이름을 입력해주세요',
+                                message: sheet('alert.inputName'),
                             },
                         })}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
-                <SheetInputTitleBox>전화번호</SheetInputTitleBox>
+                <SheetInputTitleBox>
+                    {sheet('ordererInformation.category.phoneNumber')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='휴대폰 번호 &lsquo;-&lsquo;제외하고 입력해 주세요.'
+                        placeholder={sheet(
+                            'ordererInformation.category.placeholder.phoneNumber',
+                        )}
                         type={'text'}
                         {...register('orderer.ordererContact1', {
                             required: {
                                 value: true,
-                                message: '휴대폰 번호를 입력해주세요',
+                                message: sheet('alert.inputPhoneNumber'),
                             },
-                            pattern:
-                                /^[0-9]+$/ ||
-                                '휴대폰 번호는 숫자를 입력해주세요',
                         })}
+                        onInput={(e) => {
+                            e.currentTarget.value = e.currentTarget.value
+                                .replace(/[^0-9.]/g, '')
+                                .replace(/(\..*)\./g, '$1');
+                        }}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
-                <SheetInputTitleBox>이메일</SheetInputTitleBox>
+                <SheetInputTitleBox>
+                    {sheet('ordererInformation.category.eMail')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='이메일을 입력해주세요.'
+                        placeholder={sheet(
+                            'ordererInformation.category.placeholder.email',
+                        )}
                         type={'text'}
                         {...register('orderer.ordererEmail', {
                             required: {
                                 value: true,
-                                message: '이메일을 입력해주세요',
+                                message: sheet('alert.inputEmail'),
                             },
                         })}
                     />

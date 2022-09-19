@@ -47,9 +47,9 @@ const CartImage = styled.div`
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 142px;
     > img {
         width: 63%;
-        max-height: 90%;
     }
     ${media.medium} {
         width: 100%;
@@ -82,16 +82,25 @@ const CartName = styled.div`
         margin-top: 3px;
     }
     ${media.medium} {
+        width: 100%;
         > p {
-            font-size: 1.4rem;
+            font-size: 1rem;
             font-weight: bold;
             margin-top: 10px;
         }
         > p:last-child {
             color: ${(props) => props.theme.text3};
-            font-size: 1.4rem;
+            font-size: 1rem;
             margin-top: 10px;
             font-weight: 400;
+        }
+    }
+    ${media.small} {
+        > p {
+            font-size: 1.2rem;
+        }
+        > p:last-child {
+            font-size: 1.2rem;
         }
     }
 `;
@@ -352,7 +361,7 @@ const CartList = ({
                                     <Minus />
                                 </CartCountMinus>
                             )}
-                            {isModifiable && (
+                            {!isMobile(width) && (
                                 <CartCount>{cartData.orderCnt}</CartCount>
                             )}
                             {isModifiable && (
@@ -367,7 +376,6 @@ const CartList = ({
                             )}
                         </div>
                     </CartCountBox>
-
                     <CartPrice>
                         <p>
                             <span className='standard_amount'>

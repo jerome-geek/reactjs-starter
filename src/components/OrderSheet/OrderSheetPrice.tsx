@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import currency from 'currency.js';
 import { OrderPrice } from 'pages/Cart/Cart';
+import media from 'utils/styles/media';
 
 const CartOrderBox = styled.div`
     background: #f8f8fa;
@@ -44,7 +45,9 @@ const OrderPriceWrapper = styled.div`
 `;
 
 const CartOrderPaymentAmount = styled.div`
-    padding: 32px 43.5px;
+    margin: 0 auto;
+    width: 83%;
+    padding: 32px 0;
     display: flex;
     justify-content: space-between;
     span {
@@ -54,10 +57,23 @@ const CartOrderPaymentAmount = styled.div`
     }
 `;
 
-const CartOrderSubTitle = styled.div``;
+const CartOrderSubTitle = styled.div`
+    ${media.medium} {
+        font-size: 1.125rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
+`;
 
 const CartOrderPrice = styled.div`
     letter-spacing: 0px;
+    ${media.medium} {
+        font-size: 1.125rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
 `;
 
 const OrderSheetPrice = ({

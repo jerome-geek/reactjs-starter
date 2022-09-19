@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useRef } from 'react';
 import { UseFormGetValues, UseFormSetValue } from 'react-hook-form';
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 import { PaymentInfo, PaymentReserve } from 'models/order';
 import { OrderPrice } from 'pages/Cart/Cart';
@@ -88,20 +89,22 @@ const DiscountApply = ({
 
     const accumulationAmount = useRef<HTMLInputElement>(null);
 
+    const { t: sheet } = useTranslation('orderSheet');
+
     const applyAccumulationHandler = () => {
         if (!accumulationAmount.current?.value) {
-            return alert('포인트를 입력해주세요');
+            return alert(sheet('alert.inputPoint'));
         }
         if (
             paymentInfo?.availableMaxAccumulationAmt! <
             Number(accumulationAmount.current?.value)
         ) {
-            return alert('사용 가능한 포인트를 초과하였습니다.');
+            return alert(sheet('alert.exceedPoint'));
         }
         setValue('subPayAmt', Number(accumulationAmount.current?.value));
         setOrderPriceData((prev) => {
             prev.accumulationAmount = {
-                name: '적립금 사용금액',
+                name: sheet('paymentInformation.category.accumulationDiscount'),
                 price: `- ${getValues('subPayAmt')}`,
             };
 
@@ -112,7 +115,9 @@ const DiscountApply = ({
     return (
         <DiscountApplyContainer>
             <SheetInputWrapper>
-                <SheetInputTitleBox>할인 쿠폰</SheetInputTitleBox>
+                <SheetInputTitleBox>
+                    {sheet('applyDiscount.category.coupon')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
                         inputWidth={isMobile(width) ? '71%' : '75%'}
@@ -123,12 +128,14 @@ const DiscountApply = ({
                         width='20.4%'
                         onClick={() => setIsCouponListModal((prev) => !prev)}
                     >
-                        쿠폰적용
+                        {sheet('applyDiscount.applyCoupon')}
                     </SheetButton>
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
-                <SheetInputTitleBox>적립금</SheetInputTitleBox>
+                <SheetInputTitleBox>
+                    {sheet('applyDiscount.category.accumulation')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <AccumulationAmountBox boxWidth='75%'>
                         <SheetTextInput
@@ -142,7 +149,7 @@ const DiscountApply = ({
                             defaultValue={0}
                         />
                         <p>
-                            사용 가능 적립금:{' '}
+                            {sheet('applyDiscount.availableAccumulation')}:{' '}
                             {paymentInfo?.availableMaxAccumulationAmt}
                         </p>
                     </AccumulationAmountBox>
@@ -150,7 +157,7 @@ const DiscountApply = ({
                         width='20.4%'
                         onClick={() => applyAccumulationHandler()}
                     >
-                        적립금 사용
+                        {sheet('applyDiscount.useAccumulation')}
                     </SheetButton>
                 </SheetInputBox>
             </SheetInputWrapper>

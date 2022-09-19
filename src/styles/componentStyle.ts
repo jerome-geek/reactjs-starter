@@ -25,9 +25,8 @@ export const sheetInputStyle = {
     sheetInputTitleBox: (props: ThemeProps<DefaultTheme>) => `
         width: 200px;
         padding: 40px 0 40px 41px;
-        display: flex;
-        flex-direction: column;
         color: ${props.theme.text1};
+        line-height: 28px;
         ${media.medium} {
             padding: 25px 0 12px 10px;
         }
@@ -58,6 +57,7 @@ export const sheetInputStyle = {
         border: 1px solid ${props.theme.line2};
         color: ${props.theme.text3};
         &::placeholder {
+            font-weight: normal;
             color: ${props.theme.text3};
         }
         &:focus {
