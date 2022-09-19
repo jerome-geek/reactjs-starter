@@ -1,24 +1,25 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { shallowEqual } from 'react-redux';
+import { head, join, pipe, split } from '@fxts/core';
 import styled from 'styled-components';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
-import { head, join, pipe, split } from '@fxts/core';
 
+import { myOrder } from 'api/order';
+import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
+import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
 import { useTypedSelector } from 'state/reducers';
-import { myOrder } from 'api/order';
-import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
-import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
-import { useWindowSize } from 'usehooks-ts';
 
 const CompleteContainer = styled(LayoutResponsive)`
     padding: 118px 0;
@@ -58,7 +59,7 @@ const OrderNoContainer = styled.div`
     }
     ${media.xlarge} {
         padding: 80px 0;
-        height: 340px;
+        height: auto;
         > h2 {
             font-size: 1.71rem;
         }
@@ -363,6 +364,8 @@ const Complete = () => {
 
     const { width } = useWindowSize();
 
+    const { t: complete } = useTranslation('orderComplete');
+
     const orderParam = useMemo(
         () => new URLSearchParams(window.location.search),
         [],
@@ -447,13 +450,13 @@ const Complete = () => {
                     let payType = '';
                     switch (res.payType) {
                         case PAY_TYPE.CREDIT_CARD:
-                            payType = '신용카드';
+                            payType = complete('paymentMethod.creditCard');
                             break;
                         case PAY_TYPE.REALTIME_ACCOUNT_TRANSFER:
-                            payType = '실시간 계좌 이체';
+                            payType = complete('paymentMethod.realtimeAccount');
                             break;
                         case PAY_TYPE.VIRTUAL_ACCOUNT:
-                            payType = '가상계좌';
+                            payType = complete('paymentMethod.virtualAccount');
                             break;
                         case PAY_TYPE.KPAY:
                             payType = 'KPAY';
@@ -478,19 +481,21 @@ const Complete = () => {
         <>
             <SEOHelmet
                 data={{
-                    title: '주문 완료',
+                    title: complete('progress.now'),
                 }}
             />
             <Header />
             {orderCompleteData && (
                 <CompleteContainer type='large'>
                     <Progress>
-                        <div>주문서</div>
+                        <div>{complete('progress.before')}</div>
                         <div>&#8250;</div>
-                        <div className='current-progress'>주문 완료</div>
+                        <div className='current-progress'>
+                            {complete('progress.now')}
+                        </div>
                     </Progress>
                     <OrderNoContainer>
-                        <h2>주문이 완료되었습니다 !</h2>
+                        <h2>{complete('orderComplete')}</h2>
                         <PayType>{payTypeName}</PayType>
                         {orderCompleteData.payType ===
                             PAY_TYPE.VIRTUAL_ACCOUNT && (
@@ -503,10 +508,13 @@ const Complete = () => {
                                                     .bankInfo
                                                     ?.paymentExpirationYmdt,
                                             ).format('YY.MM.DD')}{' '}
-                                            까지 <br />
+                                            {complete('etc.until')}
+                                            <br />
                                         </span>
-                                        <span>계좌로 입금</span> 해주시면 제품이
-                                        발송됩니다.
+                                        <span>
+                                            {complete('etc.intoAccount')}
+                                        </span>{' '}
+                                        {complete('etc.productShipment')}
                                     </DepositDeadline>
                                 ) : (
                                     <DepositDeadline>
@@ -516,15 +524,17 @@ const Complete = () => {
                                                     .bankInfo
                                                     ?.paymentExpirationYmdt,
                                             ).format('YY.MM.DD')}{' '}
-                                            까지 계좌로 입금
+                                            {complete('etc.until')}{' '}
+                                            {complete('etc.intoAccount')}
                                         </span>
-                                        해주시면 제품이 발송됩니다.
+                                        {complete('etc.productShipment')}
                                     </DepositDeadline>
                                 )}
                             </>
                         )}
                         <OrderNoBox>
-                            주문번호 {orderParam.get('orderNo')}
+                            {complete('etc.orderNo')}{' '}
+                            {orderParam.get('orderNo')}
                         </OrderNoBox>
                     </OrderNoContainer>
                     <OrderInformationContainer>
@@ -532,11 +542,15 @@ const Complete = () => {
                             PAY_TYPE.VIRTUAL_ACCOUNT && (
                             <OrderInformationBox>
                                 <OrderInformationTitle>
-                                    이체 정보
+                                    {complete('transferInformation.title')}
                                 </OrderInformationTitle>
                                 <OrderInformationPrice marginBottom='60px'>
                                     <OrderInformationCategory>
-                                        <div>이체 금액</div>
+                                        <div>
+                                            {complete(
+                                                'transferInformation.category.price',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <ImportantInformation>
@@ -548,13 +562,17 @@ const Complete = () => {
                                                     precision: 0,
                                                 },
                                             ).format()}{' '}
-                                            원
+                                            {complete('etc.won')}
                                         </ImportantInformation>
                                     </OrderInformationContent>
                                 </OrderInformationPrice>
                                 <OrderInformationList marginBottom='32px'>
                                     <OrderInformationCategory>
-                                        <div>계좌 정보</div>
+                                        <div>
+                                            {complete(
+                                                'transferInformation.category.accountInformation',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <div>
@@ -577,7 +595,11 @@ const Complete = () => {
                                 </OrderInformationList>
                                 <OrderInformationList marginBottom='0'>
                                     <OrderInformationCategory>
-                                        <div>입금기한</div>
+                                        <div>
+                                            {complete(
+                                                'transferInformation.category.depositWait',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <div>
@@ -586,7 +608,7 @@ const Complete = () => {
                                                     .bankInfo
                                                     .paymentExpirationYmdt,
                                             ).format('YY.MM.DD HH:mm:ss')}{' '}
-                                            까지
+                                            {complete('etc.until')}
                                         </div>
                                     </OrderInformationContent>
                                 </OrderInformationList>
@@ -595,10 +617,15 @@ const Complete = () => {
                         <OrderInformationBox>
                             <OrderInformationTitle>
                                 결제 정보
+                                {complete('paymentInformation.title')}
                             </OrderInformationTitle>
                             <OrderInformationPrice marginBottom='24px'>
                                 <OrderInformationCategory>
-                                    <div>총 결제 금액</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.totalPrice',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <ImportantInformation>
@@ -606,13 +633,17 @@ const Complete = () => {
                                             orderCompleteData.payInfo.payAmt,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </ImportantInformation>
                                 </OrderInformationContent>
                             </OrderInformationPrice>
                             <OrderInformationList marginBottom='24px'>
                                 <OrderInformationCategory>
-                                    <div>상품 가격</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.productPrice',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <div>
@@ -621,13 +652,17 @@ const Complete = () => {
                                                 .standardAmt,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </div>
                                 </OrderInformationContent>
                             </OrderInformationList>
                             <OrderInformationList marginBottom='24px'>
                                 <OrderInformationCategory>
-                                    <div>배송비</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.deliverPrice',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <div>
@@ -636,13 +671,17 @@ const Complete = () => {
                                                 .deliveryAmt,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </div>
                                 </OrderInformationContent>
                             </OrderInformationList>
                             <OrderInformationList marginBottom='24px'>
                                 <OrderInformationCategory>
-                                    <div>할인 금액</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.discountPrice',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <div>
@@ -655,13 +694,17 @@ const Complete = () => {
                                                 -1,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </div>
                                 </OrderInformationContent>
                             </OrderInformationList>
                             <OrderInformationList marginBottom='24px'>
                                 <OrderInformationCategory>
-                                    <div>쿠폰 할인</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.couponDiscount',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <div>
@@ -674,13 +717,17 @@ const Complete = () => {
                                                 -1,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </div>
                                 </OrderInformationContent>
                             </OrderInformationList>
                             <OrderInformationList marginBottom='0'>
                                 <OrderInformationCategory>
-                                    <div>적립금 사용</div>
+                                    <div>
+                                        {complete(
+                                            'paymentInformation.category.useDeposit',
+                                        )}
+                                    </div>
                                 </OrderInformationCategory>
                                 <OrderInformationContent>
                                     <div>
@@ -689,7 +736,7 @@ const Complete = () => {
                                                 .subPayAmt * -1,
                                             { symbol: '', precision: 0 },
                                         ).format()}{' '}
-                                        원
+                                        {complete('etc.won')}
                                     </div>
                                 </OrderInformationContent>
                             </OrderInformationList>
@@ -697,11 +744,15 @@ const Complete = () => {
                         {deliveryInfo && (
                             <OrderInformationBox>
                                 <OrderInformationTitle>
-                                    배송 정보
+                                    {complete('deliveryInformation.title')}
                                 </OrderInformationTitle>
                                 <OrderInformationList marginBottom='28px'>
                                     <OrderInformationCategory>
-                                        <div>받는사람</div>
+                                        <div>
+                                            {complete(
+                                                'deliveryInformation.category.receiver',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <div>{deliveryInfo.receiverName}</div>
@@ -709,7 +760,11 @@ const Complete = () => {
                                 </OrderInformationList>
                                 <OrderInformationList marginBottom='28px'>
                                     <OrderInformationCategory>
-                                        <div>주소</div>
+                                        <div>
+                                            {complete(
+                                                'deliveryInformation.category.address',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <div>
@@ -720,7 +775,11 @@ const Complete = () => {
                                 </OrderInformationList>
                                 <OrderInformationList marginBottom='0'>
                                     <OrderInformationCategory>
-                                        <div>전화번호</div>
+                                        <div>
+                                            {complete(
+                                                'deliveryInformation.category.phoneNumber',
+                                            )}
+                                        </div>
                                     </OrderInformationCategory>
                                     <OrderInformationContent>
                                         <div>
@@ -739,21 +798,40 @@ const Complete = () => {
                         <OrderListButton
                             to={member ? PATHS.MY_ORDER_LIST : PATHS.MY_PAGE}
                         >
-                            주문 내역 보기
+                            {complete('etc.viewOrderList')}
                         </OrderListButton>
                         <ContinueShoppingButton to={PATHS.MAIN}>
-                            쇼핑 계속하기
+                            {complete('etc.keepShopping')}
                         </ContinueShoppingButton>
                     </ButtonWrapper>
                     <OrderProductListBox>
                         {isDesktop(width) && (
                             <OrderCategoryBox>
-                                <OrderInformation>상품 정보</OrderInformation>
-                                <OrderCount>수량</OrderCount>
-                                <OrderPrice>가격</OrderPrice>
-                                <OrderDelivery>배송비</OrderDelivery>
+                                <OrderInformation>
+                                    {complete(
+                                        'orderProductList.category.productInformation',
+                                    )}
+                                </OrderInformation>
+                                <OrderCount>
+                                    {complete(
+                                        'orderProductList.category.count',
+                                    )}
+                                </OrderCount>
+                                <OrderPrice>
+                                    {complete(
+                                        'orderProductList.category.price',
+                                    )}
+                                </OrderPrice>
+                                <OrderDelivery>
+                                    {' '}
+                                    {complete(
+                                        'orderProductList.category.deliverPrice',
+                                    )}
+                                </OrderDelivery>
                                 <OrderAmountPrice>
-                                    총 상품 금액
+                                    {complete(
+                                        'orderProductList.category.totalPrice',
+                                    )}
                                 </OrderAmountPrice>
                             </OrderCategoryBox>
                         )}

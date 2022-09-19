@@ -20,7 +20,7 @@ i18n.use(initReactI18next).init({
         default: ['ko-KR'],
     },
     debug: true,
-    keySeparator: false,
+    keySeparator: '.',
     interpolation: {
         escapeValue: false,
     },
