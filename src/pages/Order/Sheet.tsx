@@ -54,7 +54,7 @@ const Progress = styled.div`
     display: flex;
     color: ${(props) => props.theme.text3};
     font-weight: bold;
-    font-size: 24px;
+    font-size: 1.5rem;
     margin-bottom: 60px;
     .current-progress {
         color: ${(props) => props.theme.text1};
@@ -70,9 +70,9 @@ const Progress = styled.div`
 
 const MobileTitle = styled.div`
     position: relative;
+    font-size: 1.25rem;
     > h2 {
         text-align: center;
-        font-size: 1.25rem;
         font-weight: bold;
         color: ${(props) => props.theme.text1};
     }
@@ -81,6 +81,12 @@ const MobileTitle = styled.div`
         left: 0;
         top: 50%;
         transform: translateY(-50%);
+    }
+    ${media.medium} {
+        font-size: 1.125rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
     }
 `;
 
