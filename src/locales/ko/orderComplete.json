@@ -1,6 +1,8 @@
 {
-    "progress": { "before": "주문서", "now": "주문 완료" },
+    "progress": { "before": "주문서", "now": "주문 완료", "fail": "주문 실패" },
     "orderComplete": "주문이 완료되었습니다 !",
+    "orderFail": "주문이 실패하였습니다!",
+    "orderFailMessage": "결제가 정상적으로 이루어지지 않았습니다.<br />다시 결제 진행을 해주시기 바랍니다.<br />지속적으로 문제가 발생될 경우 고객센터에문의 하시기 바랍니다.",
     "paymentMethod": {
         "creditCard": "신용카드",
         "realtimeAccount": "실시간 계좌 이체",
