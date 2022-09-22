@@ -488,28 +488,6 @@ const Complete = () => {
         },
     );
 
-    const payTypeText = () => {
-        let payType = '';
-        switch (orderCompleteData?.data.payType) {
-            case 'ACCOUNT':
-                payType = '무통장 입금';
-                break;
-            case 'CREDIT_CARD':
-                payType = '신용카드';
-                break;
-            case 'REALTIME_ACCOUNT_TRANSFER':
-                payType = '실시간 계좌 이체';
-                break;
-            case 'VIRTUAL_ACCOUNT':
-                payType = '가상계좌';
-                break;
-            case 'KPAY':
-                payType = 'KPAY';
-                break;
-        }
-        return payType;
-    };
-
     return (
         <>
             <SEOHelmet
@@ -518,39 +496,155 @@ const Complete = () => {
                 }}
             />
             <Header />
-            <LayoutResponsive type='medium' style={{ padding: '10rem 0' }}>
-                {orderCompleteData && (
-                    <CompleteContainer>
-                        <Progress>
-                            <div>주문서</div>
-                            <div>&#8250;</div>
-                            <div className='current-progress'>주문 완료</div>
-                        </Progress>
-                        <OrderNoContainer>
-                            <p>주문이 완료되었습니다 !</p>
-                            <PayType>{payTypeText()}</PayType>
-                            <DepositDeadline>
-                                <span>
-                                    {dayjs(
-                                        orderCompleteData.data.payInfo.bankInfo
-                                            ?.paymentExpirationYmdt,
-                                    ).format('YY.MM.DD')}{' '}
-                                    까지 계좌로 입금
-                                </span>
-                                해주시면 제품이 발송됩니다.
-                            </DepositDeadline>
-                            <OrderNoBox>
-                                주문번호 {orderParam.get('orderNo')}
-                            </OrderNoBox>
-                        </OrderNoContainer>
-                        <OrderInformationContainer>
-                            {orderCompleteData.data.payType ===
-                                ('ACCOUNT' ||
-                                    'REALTIME_ACCOUNT_TRANSFER' ||
-                                    'VIRTUAL_ACCOUNT') && (
+            {
+                <CompleteContainer type='large'>
+                    {orderCompleteData ? (
+                        <>
+                            <Progress>
+                                <div>{complete('progress.before')}</div>
+                                <div>&#8250;</div>
+                                <div className='current-progress'>
+                                    {complete('progress.now')}
+                                </div>
+                            </Progress>
+                            <OrderNoContainer>
+                                <h2>{complete('orderComplete')}</h2>
+                                <PayType>{payTypeName}</PayType>
+                                {orderCompleteData.payType ===
+                                    PAY_TYPE.VIRTUAL_ACCOUNT && (
+                                    <>
+                                        {isMobile(width) ? (
+                                            <DepositDeadline>
+                                                <span>
+                                                    {dayjs(
+                                                        orderCompleteData
+                                                            .payInfo.bankInfo
+                                                            ?.paymentExpirationYmdt,
+                                                    ).format('YY.MM.DD')}{' '}
+                                                    {complete('etc.until')}
+                                                    <br />
+                                                </span>
+                                                <span>
+                                                    {complete(
+                                                        'etc.intoAccount',
+                                                    )}
+                                                </span>{' '}
+                                                {complete(
+                                                    'etc.productShipment',
+                                                )}
+                                            </DepositDeadline>
+                                        ) : (
+                                            <DepositDeadline>
+                                                <span>
+                                                    {dayjs(
+                                                        orderCompleteData
+                                                            .payInfo.bankInfo
+                                                            ?.paymentExpirationYmdt,
+                                                    ).format('YY.MM.DD')}{' '}
+                                                    {complete('etc.until')}{' '}
+                                                    {complete(
+                                                        'etc.intoAccount',
+                                                    )}
+                                                </span>
+                                                {complete(
+                                                    'etc.productShipment',
+                                                )}
+                                            </DepositDeadline>
+                                        )}
+                                    </>
+                                )}
+                                <OrderNoBox>
+                                    {complete('etc.orderNo')}{' '}
+                                    {orderParam.get('orderNo')}
+                                </OrderNoBox>
+                            </OrderNoContainer>
+                            <OrderInformationContainer>
+                                {orderCompleteData.payType ===
+                                    PAY_TYPE.VIRTUAL_ACCOUNT && (
+                                    <OrderInformationBox>
+                                        <OrderInformationTitle>
+                                            {complete(
+                                                'transferInformation.title',
+                                            )}
+                                        </OrderInformationTitle>
+                                        <OrderInformationPrice marginBottom='60px'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'transferInformation.category.price',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <ImportantInformation>
+                                                    {currency(
+                                                        orderCompleteData
+                                                            .payInfo.payAmt,
+                                                        {
+                                                            symbol: '',
+                                                            precision: 0,
+                                                        },
+                                                    ).format()}{' '}
+                                                    {complete('etc.won')}
+                                                </ImportantInformation>
+                                            </OrderInformationContent>
+                                        </OrderInformationPrice>
+                                        <OrderInformationList marginBottom='32px'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'transferInformation.category.accountInformation',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <div>
+                                                    {
+                                                        orderCompleteData
+                                                            .payInfo.bankInfo
+                                                            .bankName
+                                                    }{' '}
+                                                    {
+                                                        orderCompleteData
+                                                            .payInfo.bankInfo
+                                                            .account
+                                                    }
+                                                    <p className='depositor_name'>
+                                                        {
+                                                            orderCompleteData
+                                                                .payInfo
+                                                                .bankInfo
+                                                                .depositorName
+                                                        }
+                                                    </p>
+                                                </div>
+                                            </OrderInformationContent>
+                                        </OrderInformationList>
+                                        <OrderInformationList marginBottom='0'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'transferInformation.category.depositWait',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <div>
+                                                    {dayjs(
+                                                        orderCompleteData
+                                                            .payInfo.bankInfo
+                                                            .paymentExpirationYmdt,
+                                                    ).format(
+                                                        'YY.MM.DD HH:mm:ss',
+                                                    )}{' '}
+                                                    {complete('etc.until')}
+                                                </div>
+                                            </OrderInformationContent>
+                                        </OrderInformationList>
+                                    </OrderInformationBox>
+                                )}
                                 <OrderInformationBox>
                                     <OrderInformationTitle>
-                                        결제 정보
                                         {complete('paymentInformation.title')}
                                     </OrderInformationTitle>
                                     <OrderInformationPrice marginBottom='24px'>
