@@ -15,6 +15,7 @@ import SearchRouter from 'router/SearchRouter';
 import OrderRouter from 'router/OrderRouter';
 import Cart from 'pages/Cart/Cart';
 import Manager from 'pages/Manager';
+import Inquiry from 'pages/Contact/Inquiry';
 import NotFound from 'pages/NotFound';
 import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
@@ -86,6 +87,10 @@ const App: FC = () => {
                                 <Route
                                     path='/search'
                                     element={<SearchRouter />}
+                                />
+                                <Route
+                                    path='/support/*'
+                                    element={<Inquiry />}
                                 />
                                 <Route path='/*' element={<NotFound />} />
                             </Routes>

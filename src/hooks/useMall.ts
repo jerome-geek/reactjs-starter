@@ -17,7 +17,6 @@ const useMall = () => {
         async () => await mall.getMall(),
         // TODO: staleTime, cahceTime 설정
         {
-            enabled: isEmptyObject(mallInfo),
             staleTime: 5000,
             cacheTime: 5000,
             select: ({ data }) => {
