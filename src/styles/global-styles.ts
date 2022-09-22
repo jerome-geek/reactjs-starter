@@ -45,15 +45,15 @@ const GlobalStyle = createGlobalStyle`
         font-weight: bold;
     }
 
-    @media only screen and (max-width: 768px) {
-        html {
-            font-size: 12px;
-        }
-    }
-
     @media only screen and (max-width: 1200px) {
         html {
             font-size: 14px;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        html {
+            font-size: 12px;
         }
     }
 `;
