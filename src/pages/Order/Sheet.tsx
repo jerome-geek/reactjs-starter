@@ -4,18 +4,17 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 import { shallowEqual } from 'react-redux';
+import currency from 'currency.js';
 
 import { useTypedSelector } from 'state/reducers';
-import { orderSheet } from 'api/order';
-import {
-    CouponRequest,
-    OrderProductOption,
-    PaymentReserve,
-} from 'models/order';
-import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
 import orderPayment from 'pages/Order/orderPayment';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import { OrderPrice } from 'pages/Cart/Cart';
+import SEOHelmet from 'components/shared/SEOHelmet';
+import Header from 'components/shared/Header';
+import GoBackButton from 'components/Button/GoBackButton';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
 import ShippingAddress from 'components/OrderSheet/ShippingAddress';
@@ -28,35 +27,95 @@ import GuestPassword from 'components/OrderSheet/GuestPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
+import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
+import {
+    CouponRequest,
+    OrderProductOption,
+    PaymentReserve,
+} from 'models/order';
+import { orderSheet } from 'api/order';
 import { tokenStorage } from 'utils/storage';
-import { OrderPrice } from 'pages/Cart/Cart';
+import media from 'utils/styles/media';
+import { isMobile } from 'utils/styles/responsive';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
 
-const SheetContainer = styled(LayoutResponsive)`
-    display: flex;
-    justify-content: space-between;
-`;
-
-const SheetOrderWrapper = styled.div`
-    width: 838px;
+const SheetContainer = styled.div`
+    width: 1280px;
+    margin: 118px auto;
+    ${media.custom(1280)} {
+        padding: 0 24px;
+        margin-top: 35px;
+        width: 100%;
+    }
 `;
 
 const Progress = styled.div`
     display: flex;
-    color: #ababab;
+    color: ${(props) => props.theme.text3};
     font-weight: bold;
-    font-size: 24px;
+    font-size: 1.5rem;
+    margin-bottom: 60px;
     .current-progress {
         color: ${(props) => props.theme.text1};
+        margin-right: 18px;
     }
     > div {
         margin-right: 18px;
     }
+    ${media.medium} {
+        text-align: center;
+    }
+`;
+
+const MobileTitle = styled.div`
+    position: relative;
+    font-size: 1.25rem;
+    > h2 {
+        text-align: center;
+        font-weight: bold;
+        color: ${(props) => props.theme.text1};
+    }
+    > div {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    ${media.medium} {
+        font-size: 1.125rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
+`;
+
+const SheetMainContainer = styled.div`
+    width: 1280px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    ${media.custom(1280)} {
+        width: 100%;
+    }
+    ${media.medium} {
+        margin-top: 25px;
+        margin-bottom: 10px;
+        flex-direction: column;
+    }
+`;
+
+const SheetOrderWrapper = styled.div`
+    width: 838px;
+    ${media.custom(1280)} {
+        width: 65.4%;
+    }
+    ${media.medium} {
+        width: 100%;
+    }
 `;
 
 const GuestLoginBox = styled.div`
-    margin-top: 30px;
     border: ${(props) => `1px solid ${props.theme.line2}`};
     text-align: left;
     padding: 18px 18px;
@@ -74,19 +133,19 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
     position: relative;
     display: flex;
     align-items: center;
-    margin-top: ${(props) => (props.marginTop ? props.marginTop : '60px')};
-    padding: 0 0 20px 0;
+    margin: ${(props) =>
+        props.marginTop
+            ? `${props.marginTop} 0 20px 28px`
+            : '60px 0 20px 28px'};
     > h3 {
         text-align: left;
         color: ${(props) => props.theme.text1};
-        font-size: 24px;
+        font-size: 1.5rem;
         font-weight: bold;
-    }
-    > div {
     }
     .shipping-info {
         color: #000;
-        font-size: 12px;
+        font-size: 0.75rem;
         border: ${(props) => `1px solid ${props.theme.line2}`};
         padding: 5px 11px;
         margin-left: 20px;
@@ -95,7 +154,7 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
     .order-info {
         position: absolute;
         right: 0;
-        top: 12px;
+        bottom: 0;
         color: #8f8f8f;
         > input {
             display: none;
@@ -109,11 +168,41 @@ const SheetTitle = styled.div<{ marginTop?: string }>`
             }
         }
     }
+    ${media.medium} {
+        margin: ${(props) =>
+            props.marginTop ? `${props.marginTop} 0 20px` : '44px 0 20px'};
+        h3 {
+            font-size: 1.25rem;
+            letter-spacing: -0.72px;
+        }
+        .shipping-info {
+            font-size: 0.75rem;
+            letter-spacing: -0.4px;
+        }
+        .order-info {
+            font-size: 1rem;
+            letter-spacing: -0.56px;
+        }
+    }
+    ${media.small} {
+        h3 {
+            font-size: 1.8rem;
+            letter-spacing: -0.72px;
+        }
+        .shipping-info {
+            font-size: 1rem;
+            letter-spacing: -0.4px;
+        }
+        .order-info {
+            font-size: 1.4rem;
+            letter-spacing: -0.56px;
+        }
+    }
 `;
 
 const OrderProductListBox = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
+    border-top: ${(props) => `2px solid ${props.theme.secondary}`};
+    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
 `;
 
 const CartCategoryBox = styled.div`
@@ -130,13 +219,13 @@ const CartCategoryBox = styled.div`
 `;
 
 const CartInformation = styled.div`
-    width: 240px;
+    width: 29%;
     display: flex;
     justify-content: space-around;
 `;
 
 const CartCountBox = styled.div`
-    width: 150px;
+    width: 18%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -202,58 +291,85 @@ const SheetButton = styled.div<{ width: string }>`
     line-height: 44px;
     text-align: center;
     color: #fff;
-    background: #222943;
+    background: ${(props) => props.theme.secondary};
     margin-bottom: 10px;
+    font-weight: bold;
     cursor: pointer;
+    ${media.medium} {
+        width: 100vw;
+        height: 70px;
+        line-height: 70px;
+        margin-bottom: 0;
+        font-size: 1.125rem;
+        letter-spacing: -0.72px;
+        position: sticky;
+        bottom: 0;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
 `;
 
 const SheetOrderPriceWrapper = styled.form`
     height: fit-content;
     position: sticky;
-    top: 280px;
+    right: 0;
+    top: 84px;
     width: 400px;
+    ${media.custom(1280)} {
+        width: 31.25%;
+    }
+    ${media.medium} {
+        width: 100%;
+        margin-top: 44px;
+    }
 `;
 
-const AgreeButton = styled.div`
+const TermAgreeButton = styled.div`
     width: 100%;
     padding: 0 0 36px;
     border: 1px solid #d1d2d2;
     margin-top: 12px;
     white-space: nowrap;
+    font-size: 0.75rem;
+    > div {
+        margin-top: 20px;
+        text-align: left;
+        display: flex;
+        justify-content: center;
+        width: 56%;
+        width: 100%;
+    }
     > .guest_agree_box {
+        display: block;
         flex-direction: column;
         align-items: left;
         padding: 0 29px;
         > div {
             border-bottom: ${(props) => `1px dashed ${props.theme.text3}`};
-            padding: 10px 59px 30px;
-            font-size: 12px;
+            padding: 10px 0 30px;
         }
         .induce {
             letter-spacing: -0.48px;
             color: ${(props) => props.theme.text3};
             line-height: 16px;
+            > p {
+                width: 66%;
+                margin: 0 auto;
+            }
         }
-        .agree_Button_box {
+        .agree_button_box {
             > div {
+                width: 66%;
                 display: flex;
                 justify-content: left;
                 align-items: center;
-                width: 100%;
-                margin-top: 20px;
+                margin: 20px auto 0;
                 &:first-child {
-                    margin-top: 0px;
+                    margin: 0 auto;
                 }
             }
         }
-    }
-    > div {
-        margin-top: 30px;
-        font-size: 12px;
-        text-align: left;
-        display: flex;
-        justify-content: center;
-        width: 100%;
     }
     p {
         line-height: 16px;
@@ -273,6 +389,57 @@ const AgreeButton = styled.div`
     label {
         cursor: pointer;
         margin-right: 11px;
+    }
+    .agree_box {
+        width: 56%;
+        margin: 36px auto 0;
+        display: flex;
+        justify-content: left;
+    }
+    ${media.custom(1280)} {
+        .guest_agree_box {
+            .induce {
+                > p {
+                    width: 87.8%;
+                }
+            }
+            .agree_button_box {
+                > div {
+                    width: 87.8%;
+                }
+            }
+        }
+        .agree_box {
+            width: 72%;
+        }
+    }
+    ${media.medium} {
+        padding: 0 0 20px;
+        font-size: 1rem;
+        p {
+            line-height: 20px;
+        }
+        .guest_agree_box {
+            display: none;
+        }
+        .mobile_induce {
+            font-weight: 500;
+            padding: 10px 30px;
+            width: 100%;
+            > div {
+                width: 100%;
+                text-align: center;
+                padding-bottom: 30px;
+                border-bottom: ${(props) => `1px dashed ${props.theme.text3}`};
+            }
+        }
+        .agree_box {
+            margin-top: 20px;
+        }
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+        white-space: normal;
     }
 `;
 
@@ -295,6 +462,8 @@ const Sheet = () => {
 
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
+    const { width } = useWindowSize();
+
     const { member } = useTypedSelector(
         ({ member }) => ({
             member: member.data,
@@ -309,14 +478,17 @@ const Sheet = () => {
         shallowEqual,
     );
 
+    const { t: sheet } = useTranslation('orderSheet');
+
     const {
         register,
         handleSubmit,
         getValues,
         setValue,
-        watch,
         formState: { errors },
-    } = useForm<PaymentReserve>({ defaultValues: { subPayAmt: 0 } });
+    } = useForm<PaymentReserve>({
+        defaultValues: { subPayAmt: 0, payType: PAY_TYPE.CREDIT_CARD },
+    });
 
     const { data: orderData, refetch: orderRefetch } = useQuery(
         ['orderData', { member: member?.memberName }],
@@ -350,15 +522,21 @@ const Sheet = () => {
                 });
                 setOrderPriceData((prev) => {
                     prev.totalOrderPrice = {
-                        name: '총 주문금액',
+                        name: sheet(
+                            'paymentInformation.category.amountOrderPrice',
+                        ),
                         price: res?.data.paymentInfo.totalStandardAmt,
                     };
                     prev.totalDeliveryPrice = {
-                        name: '총 배송비',
+                        name: sheet(
+                            'paymentInformation.category.amountDeliveryFee',
+                        ),
                         price: res?.data.paymentInfo.deliveryAmt,
                     };
                     prev.totalDiscountPrice = {
-                        name: '총 할인금액',
+                        name: sheet(
+                            'paymentInformation.category.amountDiscount',
+                        ),
                         price: `- ${
                             res?.data.paymentInfo.totalImmediateDiscountAmt +
                             res?.data.paymentInfo.totalAdditionalDiscountAmt
@@ -366,7 +544,9 @@ const Sheet = () => {
                     };
                     if (member) {
                         prev.couponDiscount = {
-                            name: '쿠폰 할인',
+                            name: sheet(
+                                'paymentInformation.category.couponDiscount',
+                            ),
                             price: `- ${
                                 res?.data.paymentInfo.cartCouponAmt +
                                 res?.data.paymentInfo.productCouponAmt +
@@ -377,7 +557,6 @@ const Sheet = () => {
                     return { ...prev };
                 });
             },
-            refetchOnWindowFocus: false,
         },
     );
 
@@ -389,7 +568,9 @@ const Sheet = () => {
                 : 0,
             receiverZipCd: getValues('shippingAddress.receiverZipCd'),
             receiverAddress: getValues('shippingAddress.receiverAddress'),
-            receiverJibunAddress: 'asf',
+            receiverJibunAddress: getValues(
+                'shippingAddress.receiverJibunAddress',
+            ),
             receiverDetailAddress: getValues(
                 'shippingAddress.receiverDetailAddress',
             ),
@@ -398,11 +579,12 @@ const Sheet = () => {
             shippingInfoLaterInputContact: '',
             requestShippingDate: null,
             receiverContact2: null,
-            customsIdNumber: null,
+            customsIdNumber: '123',
             addressName: null,
             countryCd: null,
         },
-        orderTitle: 'asdf',
+        orderTitle:
+            orderData?.data.deliveryGroups[0]?.orderProducts[0]?.productName,
         useDefaultAddress: getValues('useDefaultAddress'),
         deliveryMemo: getValues('deliveryMemo'),
         member: !!member?.memberName,
@@ -424,8 +606,8 @@ const Sheet = () => {
             : null,
         updateMember: false,
         subPayAmt: getValues('subPayAmt') ? getValues('subPayAmt') : 0,
-        pgType: PG_TYPE.NONE,
-        payType: PAY_TYPE.ACCOUNT,
+        pgType: PG_TYPE.INICIS,
+        payType: getValues('payType'),
         inAppYn: 'N',
         accumulationAmt: 0,
         availableMaxAccumulationAmt: 0,
@@ -480,6 +662,12 @@ const Sheet = () => {
 
     return (
         <>
+            <SEOHelmet
+                data={{
+                    title: sheet('progress.now'),
+                }}
+            />
+            {!isMobile(width) && <Header />}
             {isShippingListModal && (
                 <ShippingListModal
                     onClickToggleModal={() =>
@@ -515,295 +703,378 @@ const Sheet = () => {
                     couponApplyMutate={couponApplyMutate}
                 ></CouponListModal>
             )}
-            <SheetContainer type='large' style={{ padding: '10rem 0' }}>
-                <SheetOrderWrapper>
+            <SheetContainer>
+                {isMobile(width) ? (
+                    <MobileTitle>
+                        <GoBackButton />
+                        <h2>{sheet('progress.now')}</h2>
+                    </MobileTitle>
+                ) : (
                     <Progress>
-                        <div className='current-progress'>주문서</div>
+                        <h2 className='current-progress'>
+                            {sheet('progress.now')}
+                        </h2>
                         <div>&#8250;</div>
-                        <div>주문 완료</div>
+                        <div>{sheet('progress.next')}</div>
                     </Progress>
-                    {!member && (
-                        <GuestLoginBox>
-                            <p>
-                                지금 보이스캐디의 회원이 되어 즉시 사용 가능한
-                                3,000원 할인 쿠폰 혜택을 만나보세요.
-                            </p>
-                            <Link to={'/member/join-agreement'}>
-                                회원 가입 바로가기
-                            </Link>
-                        </GuestLoginBox>
-                    )}
-                    <SheetTitle marginTop='30px'>
-                        <h3>주문 상품</h3>
-                    </SheetTitle>
-                    <OrderProductListBox>
-                        <CartCategoryBox>
-                            <CartInformation>상품 정보</CartInformation>
-                            <CartCountBox>수량</CartCountBox>
-                            <CartPrice>가격</CartPrice>
-                            <CartDelivery>배송비</CartDelivery>
-                            <CartAmount>총 상품 금액</CartAmount>
-                        </CartCategoryBox>
-                        {orderList.map((orderData) => {
-                            return (
-                                <CartList
-                                    cartData={orderData}
-                                    key={orderData.optionNo}
-                                    isModifiable={false}
-                                />
-                            );
-                        })}
-                    </OrderProductListBox>
-                    <SheetTitle>
-                        <h3>주문자 정보</h3>
-                    </SheetTitle>
-                    <OrdererInformation register={register} />
-                    <SheetTitle>
-                        <h3>배송지</h3>
-                        {member && (
-                            <div
-                                className='shipping-info'
-                                onClick={() => setIsShippingListModal(true)}
-                            >
-                                배송지 정보
-                            </div>
+                )}
+                <SheetMainContainer>
+                    <SheetOrderWrapper>
+                        {!member && !isMobile(width) && (
+                            <GuestLoginBox>
+                                <p>{sheet('etc.inviteJoin')}</p>
+                                <Link to={'/member/join-agreement'}>
+                                    {sheet('etc.joinMember')}
+                                </Link>
+                            </GuestLoginBox>
                         )}
-                        <div className='order-info'>
-                            <input
-                                type='checkbox'
-                                id='orderInfo'
-                                onChange={() =>
-                                    setOrdererInformation((prev) => !prev)
-                                }
-                                checked={ordererInformation}
-                            />
-                            <label htmlFor='orderInfo'>
-                                {ordererInformation ? (
-                                    <Checked />
-                                ) : (
-                                    <UnChecked />
-                                )}
-                                <p>주문자 정보와 동일</p>
-                            </label>
-                        </div>
-                    </SheetTitle>
-                    <ShippingAddress
-                        register={register}
-                        setValue={setValue}
-                        getValues={getValues}
-                        ordererInformation={
-                            ordererInformation
-                                ? {
-                                      receiverName: getValues(
-                                          'orderer.ordererName',
-                                      ),
-                                      receiverContact1: getValues(
-                                          'orderer.ordererContact1',
-                                      ),
-                                  }
-                                : undefined
-                        }
-                        setIsSearchAddressModal={setIsSearchAddressModal}
-                    />
-                    {member && (
-                        <>
-                            <SheetTitle>
-                                <h3>할인 적용</h3>
-                            </SheetTitle>
-                            <DiscountApply
-                                setIsCouponListModal={setIsCouponListModal}
-                                paymentInfo={orderData?.data.paymentInfo}
-                                setValue={setValue}
-                                setOrderPriceData={setOrderPriceData}
-                                getValues={getValues}
-                            />
-                        </>
-                    )}
-                    <SheetTitle>
-                        <h3>결제 방식</h3>
-                    </SheetTitle>
-                    <CommonPayment setValue={setValue} />
-                    {!member && (
-                        <>
-                            <SheetTitle>
-                                <h3>비회원 주문 비밀번호</h3>
-                                <div className='order-info'>
-                                    비회원 배송 조회 시 사용할 비밀번호를
-                                    입력해주세요.
+                        <SheetTitle marginTop='30px'>
+                            <h3>{sheet('orderProduct.title')}</h3>
+                        </SheetTitle>
+                        <OrderProductListBox>
+                            {!isMobile(width) && (
+                                <CartCategoryBox>
+                                    <CartInformation>
+                                        {sheet(
+                                            'orderProduct.category.information',
+                                        )}
+                                    </CartInformation>
+                                    <CartCountBox>
+                                        {sheet('orderProduct.category.count')}
+                                    </CartCountBox>
+                                    <CartPrice>
+                                        {sheet('orderProduct.category.price')}
+                                    </CartPrice>
+                                    <CartDelivery>
+                                        {sheet(
+                                            'orderProduct.category.deliveryPrice',
+                                        )}
+                                    </CartDelivery>
+                                    <CartAmount>
+                                        {sheet(
+                                            'orderProduct.category.amountPrice',
+                                        )}
+                                    </CartAmount>
+                                </CartCategoryBox>
+                            )}
+                            {orderList.map((orderData) => {
+                                return (
+                                    <CartList
+                                        cartData={orderData}
+                                        key={orderData.optionNo}
+                                        isModifiable={false}
+                                    />
+                                );
+                            })}
+                        </OrderProductListBox>
+                        <SheetTitle>
+                            <h3>{sheet('ordererInformation.title')}</h3>
+                        </SheetTitle>
+                        <OrdererInformation register={register} />
+                        <SheetTitle>
+                            <h3>{sheet('shippingAddress.title')}</h3>
+                            {member && (
+                                <div
+                                    className='shipping-info'
+                                    onClick={() => setIsShippingListModal(true)}
+                                >
+                                    {sheet(
+                                        'shippingAddress.addressInformation',
+                                    )}
                                 </div>
-                            </SheetTitle>
-                            <GuestPassword
-                                errors={errors}
-                                register={register}
-                            />
-                        </>
-                    )}
-                </SheetOrderWrapper>
-                <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
-                    <OrderSheetPrice
-                        title='총 결제 금액'
-                        cartOrderPrice={orderPriceData}
-                        amountPrice={
-                            orderData &&
-                            orderData.data.paymentInfo.paymentAmt -
-                                getValues('subPayAmt')
-                        }
-                    />
-                    <AgreeButton>
-                        {!member && (
+                            )}
+                            <div className='order-info'>
+                                <input
+                                    type='checkbox'
+                                    id='orderInfo'
+                                    onChange={() =>
+                                        setOrdererInformation((prev) => !prev)
+                                    }
+                                    checked={ordererInformation}
+                                />
+                                <label htmlFor='orderInfo'>
+                                    {ordererInformation ? (
+                                        <Checked />
+                                    ) : (
+                                        <UnChecked />
+                                    )}
+                                    {sheet(
+                                        'shippingAddress.sameOrderInformation',
+                                    )}
+                                </label>
+                            </div>
+                        </SheetTitle>
+                        <ShippingAddress
+                            register={register}
+                            setValue={setValue}
+                            getValues={getValues}
+                            ordererInformation={
+                                ordererInformation
+                                    ? {
+                                          receiverName: getValues(
+                                              'orderer.ordererName',
+                                          ),
+                                          receiverContact1: getValues(
+                                              'orderer.ordererContact1',
+                                          ),
+                                      }
+                                    : undefined
+                            }
+                            setIsSearchAddressModal={setIsSearchAddressModal}
+                        />
+                        {member && (
                             <>
-                                <div className='guest_agree_box'>
-                                    <div className='induce'>
-                                        비회원으로 상품을 구매하시면
-                                        보이스캐디의
-                                        <br />
-                                        쿠폰 및 적립급 혜택을 받을실 수
-                                        없습니다.
-                                    </div>
-                                </div>
-                                <div className='guest_agree_box'>
-                                    <div className='agree_Button_box'>
-                                        <div>
-                                            <input
-                                                type='checkbox'
-                                                onChange={(e) =>
-                                                    agreeAllHandler(
-                                                        e.target.checked,
-                                                    )
-                                                }
-                                                id='agreeOrderAll'
-                                                checked={
-                                                    agreePurchase.length ===
-                                                    orderTerms.length
-                                                }
-                                            />
-                                            <label htmlFor='agreeOrderAll'>
-                                                {agreePurchase.length ===
-                                                orderTerms.length ? (
-                                                    <Checked />
-                                                ) : (
-                                                    <UnChecked />
-                                                )}
-                                            </label>
-                                            <p>전체 동의</p>
-                                        </div>
-                                        <div>
-                                            <input
-                                                type='checkbox'
-                                                onChange={(e) =>
-                                                    agreeHandler(
-                                                        e.target.checked,
-                                                        e.target.id,
-                                                    )
-                                                }
-                                                checked={agreePurchase.includes(
-                                                    'agreeOrderService',
-                                                )}
-                                                id='agreeOrderService'
-                                            />
-                                            <label htmlFor='agreeOrderService'>
-                                                {agreePurchase.includes(
-                                                    'agreeOrderService',
-                                                ) ? (
-                                                    <Checked />
-                                                ) : (
-                                                    <UnChecked />
-                                                )}
-                                            </label>
-                                            <p>
-                                                서비스 이용약관 동의
-                                                <span>&nbsp;(필수)</span>
-                                                <Link to={'/'}>
-                                                    자세히보기
-                                                </Link>{' '}
-                                                {/* TODO 약관 페이지 이동*/}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <input
-                                                type='checkbox'
-                                                onChange={(e) =>
-                                                    agreeHandler(
-                                                        e.target.checked,
-                                                        e.target.id,
-                                                    )
-                                                }
-                                                id='agreeOrderInformation'
-                                                checked={agreePurchase.includes(
-                                                    'agreeOrderInformation',
-                                                )}
-                                            />
-                                            <label htmlFor='agreeOrderInformation'>
-                                                {agreePurchase.includes(
-                                                    'agreeOrderInformation',
-                                                ) ? (
-                                                    <Checked />
-                                                ) : (
-                                                    <UnChecked />
-                                                )}
-                                            </label>
-                                            <p>
-                                                개인정보 처리방침
-                                                <span>&nbsp;(필수)</span>
-                                                <Link to={'/'}>
-                                                    자세히보기
-                                                </Link>{' '}
-                                                {/* TODO 약관 페이지 이동*/}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
+                                <SheetTitle>
+                                    <h3>{sheet('applyDiscount.title')}</h3>
+                                </SheetTitle>
+                                <DiscountApply
+                                    setIsCouponListModal={setIsCouponListModal}
+                                    paymentInfo={orderData?.data.paymentInfo}
+                                    setValue={setValue}
+                                    setOrderPriceData={setOrderPriceData}
+                                    getValues={getValues}
+                                />
                             </>
                         )}
-                        <div>
-                            <input
-                                type='checkbox'
-                                onChange={(e) =>
-                                    agreeHandler(e.target.checked, e.target.id)
-                                }
-                                id='agreePurchase'
-                                checked={agreePurchase.includes(
-                                    'agreePurchase',
-                                )}
-                            />
-                            <label htmlFor='agreePurchase'>
-                                {agreePurchase.includes('agreePurchase') ? (
-                                    <Checked />
-                                ) : (
-                                    <UnChecked />
-                                )}
-                            </label>
-                            <p>
-                                주문할 제품의 거래조건을 확인 하였으며,
-                                <br /> 구매에 동의하시겠습니까 ?
-                                <span>&nbsp;(필수)</span>
-                            </p>
-                        </div>
-                    </AgreeButton>
-                    <SheetButton
-                        width='100%'
-                        onClick={handleSubmit(() => {
-                            if (accessTokenInfo?.accessToken) {
-                                if (!agreePurchase.includes('agreePurchase')) {
-                                    alert('약관에 동의해주세요.');
-                                    return;
-                                }
-                            } else if (
-                                agreePurchase.length !== orderTerms.length
-                            ) {
-                                alert('약관에 동의해주세요.');
+                        <SheetTitle>
+                            <h3>{sheet('paymentMethod.title')}</h3>
+                        </SheetTitle>
+                        <CommonPayment setValue={setValue} />
+                        {!member && (
+                            <>
+                                <SheetTitle>
+                                    <h3>{sheet('guestPassword.title')}</h3>
+                                    {!isMobile(width) && (
+                                        <div className='order-info'>
+                                            {sheet('guestPassword.desc')}
+                                        </div>
+                                    )}
+                                </SheetTitle>
+                                <GuestPassword
+                                    errors={errors}
+                                    register={register}
+                                />
+                            </>
+                        )}
+                    </SheetOrderWrapper>
+                    <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
+                        <OrderSheetPrice
+                            title={sheet('paymentInformation.title')}
+                            cartOrderPrice={orderPriceData}
+                            amountPrice={
+                                orderData &&
+                                orderData.data.paymentInfo.paymentAmt -
+                                    getValues('subPayAmt')
+                            }
+                        />
+                        <TermAgreeButton>
+                            {!member && (
+                                <>
+                                    <div className='guest_agree_box'>
+                                        <div className='induce'>
+                                            <p
+                                                dangerouslySetInnerHTML={{
+                                                    __html: sheet(
+                                                        'etc.guestAlert',
+                                                    ),
+                                                }}
+                                            ></p>
+                                        </div>
+                                    </div>
+                                    <div className='guest_agree_box'>
+                                        <div className='agree_button_box'>
+                                            <div>
+                                                <input
+                                                    type='checkbox'
+                                                    onChange={(e) =>
+                                                        agreeAllHandler(
+                                                            e.target.checked,
+                                                        )
+                                                    }
+                                                    id='agreeOrderAll'
+                                                    checked={
+                                                        agreePurchase.length ===
+                                                        orderTerms.length
+                                                    }
+                                                />
+                                                <label htmlFor='agreeOrderAll'>
+                                                    {agreePurchase.length ===
+                                                    orderTerms.length ? (
+                                                        <Checked />
+                                                    ) : (
+                                                        <UnChecked />
+                                                    )}
+                                                </label>
+                                                <p>{sheet('term.agreeAll')}</p>
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type='checkbox'
+                                                    onChange={(e) =>
+                                                        agreeHandler(
+                                                            e.target.checked,
+                                                            e.target.id,
+                                                        )
+                                                    }
+                                                    checked={agreePurchase.includes(
+                                                        'agreeOrderService',
+                                                    )}
+                                                    id='agreeOrderService'
+                                                />
+                                                <label htmlFor='agreeOrderService'>
+                                                    {agreePurchase.includes(
+                                                        'agreeOrderService',
+                                                    ) ? (
+                                                        <Checked />
+                                                    ) : (
+                                                        <UnChecked />
+                                                    )}
+                                                </label>
+                                                <p>
+                                                    {sheet('term.serviceAgree')}
+                                                    <span>
+                                                        &nbsp;(
+                                                        {sheet('etc.require')})
+                                                    </span>
+                                                    <Link to={'/'}>
+                                                        {sheet('etc.readMore')}
+                                                    </Link>{' '}
+                                                    {/* TODO 약관 페이지 이동*/}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <input
+                                                    type='checkbox'
+                                                    onChange={(e) =>
+                                                        agreeHandler(
+                                                            e.target.checked,
+                                                            e.target.id,
+                                                        )
+                                                    }
+                                                    id='agreeOrderInformation'
+                                                    checked={agreePurchase.includes(
+                                                        'agreeOrderInformation',
+                                                    )}
+                                                />
+                                                <label htmlFor='agreeOrderInformation'>
+                                                    {agreePurchase.includes(
+                                                        'agreeOrderInformation',
+                                                    ) ? (
+                                                        <Checked />
+                                                    ) : (
+                                                        <UnChecked />
+                                                    )}
+                                                </label>
+                                                <p>
+                                                    {sheet('term.privacyAgree')}
+                                                    <span>
+                                                        &nbsp;(
+                                                        {sheet('etc.require')})
+                                                    </span>
+                                                    <Link to={'/'}>
+                                                        {sheet('etc.readMore')}
+                                                    </Link>{' '}
+                                                    {/* TODO 약관 페이지 이동*/}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                            {isMobile(width) && (
+                                <div className='mobile_induce'>
+                                    <div>{sheet('etc.mobileInviteJoin')}</div>
+                                </div>
+                            )}
+                            <div className='agree_box'>
+                                <input
+                                    type='checkbox'
+                                    onChange={(e) =>
+                                        agreeHandler(
+                                            e.target.checked,
+                                            e.target.id,
+                                        )
+                                    }
+                                    id='agreePurchase'
+                                    checked={agreePurchase.includes(
+                                        'agreePurchase',
+                                    )}
+                                />
+                                <label htmlFor='agreePurchase'>
+                                    {agreePurchase.includes('agreePurchase') ? (
+                                        <Checked />
+                                    ) : (
+                                        <UnChecked />
+                                    )}
+                                </label>
+                                <p
+                                    dangerouslySetInnerHTML={{
+                                        __html: `${sheet(
+                                            'term.purchaseAgree',
+                                        )}<span>&nbsp;&#40;${sheet(
+                                            'etc.require',
+                                        )}	&#41;</span>`,
+                                    }}
+                                ></p>
+                            </div>
+                        </TermAgreeButton>
+                        {!isMobile(width) && (
+                            <SheetButton
+                                width='100%'
+                                onClick={handleSubmit(() => {
+                                    if (accessTokenInfo?.accessToken) {
+                                        if (
+                                            !agreePurchase.includes(
+                                                'agreePurchase',
+                                            )
+                                        ) {
+                                            alert(sheet('alert.agreeTerm'));
+                                            return;
+                                        }
+                                    } else if (
+                                        agreePurchase.length !==
+                                        orderTerms.length
+                                    ) {
+                                        alert(sheet('alert.agreeTerm'));
+                                        return;
+                                    }
+                                    orderPayment.setConfiguration();
+                                    orderPayment.reservation(paymentData);
+                                })}
+                            >
+                                {sheet('etc.payment')}
+                            </SheetButton>
+                        )}
+                    </SheetOrderPriceWrapper>
+                </SheetMainContainer>
+            </SheetContainer>
+            {isMobile(width) && (
+                <SheetButton
+                    width='100%'
+                    onClick={handleSubmit(() => {
+                        if (accessTokenInfo?.accessToken) {
+                            if (!agreePurchase.includes('agreePurchase')) {
+                                alert(sheet('alert.agreeTerm'));
                                 return;
                             }
-                            orderPayment.setConfiguration();
-                            orderPayment.reservation(paymentData);
-                            // paymentMutate();
-                            // devEnvironmentPayment();
-                        })}
-                    >
-                        결제하기
-                    </SheetButton>
-                </SheetOrderPriceWrapper>
-            </SheetContainer>
+                        } else if (agreePurchase.length !== orderTerms.length) {
+                            alert(sheet('alert.agreeTerm'));
+                            return;
+                        }
+                        orderPayment.setConfiguration();
+                        orderPayment.reservation(paymentData);
+                    })}
+                >
+                    {currency(
+                        paymentData.paymentAmt ? paymentData.paymentAmt : 0,
+                        {
+                            symbol: '',
+                            precision: 0,
+                        },
+                    ).format()}{' '}
+                    {sheet('etc.won')}&nbsp;{sheet('etc.payment')}
+                </SheetButton>
+            )}
         </>
     );
 };

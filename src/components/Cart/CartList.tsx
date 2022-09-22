@@ -8,7 +8,7 @@ import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchec
 import { ReactComponent as Plus } from 'assets/icons/plus_button.svg';
 import { ReactComponent as Minus } from 'assets/icons/minus_button.svg';
 import { OrderProductOption } from 'models/order';
-import { isDesktop } from 'utils/styles/responsive';
+import { isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 
 const CartListBox = styled.div`
@@ -34,7 +34,7 @@ const CartInformation = styled.div`
     align-items: center;
     justify-content: space-around;
     ${media.medium} {
-        width: 32.36;
+        width: 33.7%;
         min-width: 123px;
         padding-left: 11px;
     }
@@ -43,14 +43,13 @@ const CartInformation = styled.div`
 const CartImage = styled.div`
     background: #f8f8fa;
     width: 50%;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 142px;
     > img {
         width: 63%;
-        max-height: 90%;
     }
     ${media.medium} {
         width: 100%;
@@ -74,22 +73,34 @@ const CartName = styled.div`
     flex-direction: column;
     justify-content: center;
     > p {
-        font-size: 16px;
+        font-size: 1rem;
         color: ${(props) => props.theme.text1};
     }
     > p:last-child {
-        font-size: 12px;
+        font-size: 0.75rem;
         color: #999;
         margin-top: 3px;
     }
     ${media.medium} {
+        width: 100%;
         > p {
-            font-size: 14px;
+            font-size: 1rem;
             font-weight: bold;
+            margin-top: 10px;
         }
         > p:last-child {
             color: ${(props) => props.theme.text3};
+            font-size: 1rem;
+            margin-top: 10px;
             font-weight: 400;
+        }
+    }
+    ${media.small} {
+        > p {
+            font-size: 1.2rem;
+        }
+        > p:last-child {
+            font-size: 1.2rem;
         }
     }
 `;
@@ -204,29 +215,34 @@ const CartCloseButton = styled.div`
 `;
 
 const MobileCartInformationBox = styled.div`
-    width: 63.41%;
-    padding-right: 6px;
+    width: 61.5%;
+    padding-right: 8px;
     ${media.small} {
-        width: 58%;
+        width: 59%;
     }
 `;
 
 const MobileCartPriceBox = styled.div`
-    width: 100%;
-    border: ${(props) => `1px solid ${props.theme.line2}`};
-    text-align: center;
-    padding: 10px 0;
-    font-size: 16px;
-    color: ${(props) => props.theme.text3};
-    margin-top: 24px;
-    letter-spacing: 0;
+    ${media.medium} {
+        width: 100%;
+        border: ${(props) => `1px solid ${props.theme.line2}`};
+        text-align: center;
+        padding: 10px 0;
+        color: ${(props) => props.theme.text3};
+        margin-top: 24px;
+        letter-spacing: 0;
+        font-size: 1rem;
+    }
+    ${media.small} {
+        font-size: 1.6rem;
+    }
 `;
 
 const MobileCartBoxTop = styled.div`
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 8px 0 10px;
+    padding-bottom: 10px;
     margin-bottom: 10px;
     border-bottom: 1px solid #dbdbdb;
     ${media.medium} {
@@ -258,7 +274,7 @@ const CartList = ({
 
     return (
         <CartListBox>
-            {isDesktop(width) ? (
+            {!isMobile(width) ? (
                 <CartInformation>
                     <CartImage>
                         {isModifiable && (
@@ -331,7 +347,7 @@ const CartList = ({
                     </CartImage>
                 </CartInformation>
             )}
-            {isDesktop(width) ? (
+            {!isMobile(width) ? (
                 <>
                     <CartCountBox isModifiable={isModifiable}>
                         <div>
@@ -345,7 +361,9 @@ const CartList = ({
                                     <Minus />
                                 </CartCountMinus>
                             )}
-                            <CartCount>{cartData.orderCnt}</CartCount>
+                            {!isMobile(width) && (
+                                <CartCount>{cartData.orderCnt}</CartCount>
+                            )}
                             {isModifiable && (
                                 <CartCountPlus
                                     onClick={
@@ -435,7 +453,9 @@ const CartList = ({
                                         <Minus />
                                     </CartCountMinus>
                                 )}
-                                <CartCount>{cartData.orderCnt}</CartCount>
+                                {isModifiable && isMobile(width) && (
+                                    <CartCount>{cartData.orderCnt}</CartCount>
+                                )}
                                 {isModifiable && (
                                     <CartCountPlus
                                         onClick={
@@ -463,7 +483,7 @@ const CartList = ({
                     </MobileCartBoxBottom>
                 </MobileCartInformationBox>
             )}
-            {!isDesktop(width) && (
+            {isMobile(width) && (
                 <MobileCartPriceBox>
                     상품{' '}
                     {currency(cartData.price.buyAmt, {

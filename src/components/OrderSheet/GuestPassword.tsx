@@ -1,59 +1,68 @@
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import { useRef } from 'react';
 import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 import { PaymentReserve } from 'models/order';
+import { isMobile } from 'utils/styles/responsive';
+import { sheetInputStyle } from 'styles/componentStyle';
+import media from 'utils/styles/media';
+
+const OrdererInformationContainer = styled.div`
+    ${sheetInputStyle.informationContainer}
+    ${media.medium} {
+        padding-bottom: 8px;
+    }
+`;
 
 const SheetInputWrapper = styled.div`
-    display: flex;
-    border-bottom: 1px solid #dbdbdb;
-    text-align: left;
-    min-height: 104px;
-    &:last-child {
-        border-bottom: none;
+    ${sheetInputStyle.sheetInputWrapper}
+    .order-info {
+        color: #8f8f8f;
+        margin: 20px 0 0 10px;
+        > input {
+            display: none;
+        }
+        > label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            > p {
+                margin-left: 9px;
+            }
+        }
+    }
+    ${media.medium} {
+        margin-bottom: 12px;
+        .order-info {
+            font-size: 1rem;
+        }
+    }
+    ${media.small} {
+        margin-bottom: 12px;
+        .order-info {
+            font-size: 1.4rem;
+        }
     }
 `;
 
 const SheetInputTitleBox = styled.div`
-    width: 200px;
-    padding: 40px 0 40px 41px;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.sheetInputTitleBox}
+    ${media.medium} {
+        padding: 12px 0 12px 10px;
+    }
 `;
 
 const SheetInputBox = styled.div<{ inputWidth?: string }>`
-    width: 440px;
-    padding-top: 30px;
-    padding-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: center;
-    color: ${(props) => props.theme.text1};
+    ${sheetInputStyle.sheetInputBox}
+    ${media.medium} {
+    }
 `;
 
 const SheetTextInput = styled.input<{ inputWidth?: string }>`
-    letter-spacing: -0.64px;
-    font-weight: 400;
-    height: 44px;
-    width: ${(props) => (props.inputWidth ? props.inputWidth : '100%')};
-    padding: 0 20px;
-    min-height: 44px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    &::placeholder {
-        color: #a8a8a8;
-    }
-    &:focus {
-        border: 1px solid red;
-    }
-`;
-
-const OrdererInformationContainer = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.sheetTextInput}
+    width: 100%;
 `;
 
 const GuestPassword = ({
@@ -65,18 +74,31 @@ const GuestPassword = ({
 }) => {
     const checkTempPassword = useRef<HTMLInputElement>(null);
 
+    const { width } = useWindowSize();
+
+    const { t: sheet } = useTranslation('orderSheet');
+
     return (
         <OrdererInformationContainer>
             <SheetInputWrapper>
-                <SheetInputTitleBox>비밀번호</SheetInputTitleBox>
+                {isMobile(width) && (
+                    <div className='order-info'>
+                        {sheet('guestPassword.desc')}
+                    </div>
+                )}
+                <SheetInputTitleBox>
+                    {sheet('guestPassword.category.password')}
+                </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='비밀번호를 입력해주세요'
+                        placeholder={sheet(
+                            'guestPassword.category.placeholder.password',
+                        )}
                         type={'password'}
                         {...register('tempPassword', {
                             required: {
                                 value: true,
-                                message: '비밀번호를 입력해주세요',
+                                message: sheet('alert.inputPassword'),
                             },
                             validate: {
                                 matchPassword: (tempPassword) => {
@@ -92,10 +114,16 @@ const GuestPassword = ({
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
-                <SheetInputTitleBox>비밀번호 확인</SheetInputTitleBox>
+                {!isMobile(width) && (
+                    <SheetInputTitleBox>
+                        {sheet('guestPassword.category.checkPassword')}
+                    </SheetInputTitleBox>
+                )}
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='비밀번호 확인'
+                        placeholder={sheet(
+                            'guestPassword.category.placeholder.checkPassword',
+                        )}
                         type={'password'}
                         ref={checkTempPassword}
                     />

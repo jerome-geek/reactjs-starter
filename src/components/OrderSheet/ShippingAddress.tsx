@@ -2,79 +2,64 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { SingleValue, StylesConfig } from 'react-select';
 import { shallowEqual } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
     UseFormGetValues,
     UseFormRegister,
     UseFormSetValue,
 } from 'react-hook-form';
+import { useWindowSize } from 'usehooks-ts';
 
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { useTypedSelector } from 'state/reducers';
+import { sheetInputStyle } from 'styles/componentStyle';
+import media from 'utils/styles/media';
+import { isMobile } from 'utils/styles/responsive';
 
 const OrdererInformationContainer = styled.div`
-    border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.informationContainer}
 `;
 
 const SheetInputWrapper = styled.div`
-    display: flex;
-    border-bottom: 1px solid #dbdbdb;
-    text-align: left;
-    min-height: 104px;
-    &:last-child {
-        border-bottom: none;
-    }
+    ${sheetInputStyle.sheetInputWrapper}
 `;
 
 const SheetInputTitleBox = styled.div`
-    width: 200px;
-    padding: 44px 0 40px 41px;
-    display: flex;
-    flex-direction: column;
+    ${sheetInputStyle.sheetInputTitleBox}
 `;
 
 const SheetInputBox = styled.div`
-    width: 440px;
-    padding-top: 30px;
-    padding-bottom: 20px;
+    ${sheetInputStyle.sheetInputBox};
+`;
+
+const CheckBox = styled.label`
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
     align-items: center;
-    color: ${(props) => props.theme.text1};
-    > #defaultAddress {
-        display: none;
-    }
-    > label {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
+    ${media.medium} {
+        margin-top: 12px;
         > p {
-            color: #8f8f8f;
-            margin-left: 10px;
+            margin-left: 7px;
+            color: ${(props) => props.theme.text2};
         }
     }
 `;
 
 const SheetTextInput = styled.input<{ inputWidth?: string }>`
-    letter-spacing: -0.64px;
-    font-weight: 400;
-    height: 44px;
-    width: ${(props) => (props.inputWidth ? props.inputWidth : '100%')};
-    padding: 0 20px;
-    min-height: 44px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    &::placeholder {
-        color: #a8a8a8;
+    ${sheetInputStyle.sheetTextInput}
+    width: ${(props: { inputWidth?: string }) =>
+        props.inputWidth ? props.inputWidth : '100%'};
+    &:first-child {
+        margin-bottom: 12px;
     }
-    &:focus {
-        border: 1px solid red;
+    ${media.medium} {
+        min-height: 54px;
+        &:first-child {
+            width: ${(props: { inputWidth?: string }) =>
+                props.inputWidth ? props.inputWidth : '100%'};
+        }
     }
 `;
 
@@ -87,12 +72,16 @@ const SheetButton = styled.div<{ width: string }>`
     background: #222943;
     margin-bottom: 10px;
     cursor: pointer;
+    ${media.medium} {
+        width: 27.1%;
+        min-height: 54px;
+        line-height: 54px;
+    }
 `;
 
 const OrdererInformation = ({
     register,
     setValue,
-    getValues,
     ordererInformation,
     setIsSearchAddressModal,
 }: {
@@ -108,6 +97,8 @@ const OrdererInformation = ({
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
 
+    const { width } = useWindowSize();
+
     const { member } = useTypedSelector(
         ({ member }) => ({
             member: member.data,
@@ -115,14 +106,16 @@ const OrdererInformation = ({
         shallowEqual,
     );
 
+    const { t: sheet } = useTranslation('orderSheet');
+
     const deliveryMemo = [
-        { label: '배송 전에 미리 연락바랍니다.' },
-        { label: '집 앞에 놔주세요.' },
-        { label: '경비실에 맡겨주세요.' },
-        { label: '부재 시 집앞에 놔주세요.' },
-        { label: '부재 시 경비실에 맡겨주세요.' },
+        { label: sheet('shippingAddress.requestList.beforeDelivery') },
+        { label: sheet('shippingAddress.requestList.putHouse') },
+        { label: sheet('shippingAddress.requestList.securityOffice') },
+        { label: sheet('shippingAddress.requestList.absenceHouse') },
+        { label: sheet('shippingAddress.requestList.absenceOffice') },
         {
-            label: '직접 입력',
+            label: sheet('shippingAddress.requestList.directInput'),
             directInput: true,
         },
     ];
@@ -148,16 +141,18 @@ const OrdererInformation = ({
         <OrdererInformationContainer>
             <SheetInputWrapper>
                 <SheetInputTitleBox>
-                    <p>수령인 이름</p>
+                    <p>{sheet('shippingAddress.category.name')}</p>
                 </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='이름을 입력하세요.'
+                        placeholder={sheet(
+                            'shippingAddress.category.placeholder.name',
+                        )}
                         type={'text'}
                         {...register('shippingAddress.receiverName', {
                             required: {
                                 value: true,
-                                message: '이름을 입력해주세요.',
+                                message: sheet('alert.inputName'),
                             },
                         })}
                     />
@@ -165,35 +160,46 @@ const OrdererInformation = ({
             </SheetInputWrapper>
             <SheetInputWrapper>
                 <SheetInputTitleBox>
-                    <p>휴대폰 번호</p>
+                    <p>{sheet('shippingAddress.category.phoneNumber')}</p>
                 </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        placeholder='휴대폰 번호 &lsquo;-&lsquo;제외하고 입력해 주세요.'
+                        placeholder={sheet(
+                            'shippingAddress.category.placeholder.phoneNumber',
+                        )}
                         type={'text'}
+                        onInput={(e) => {
+                            e.currentTarget.value = e.currentTarget.value
+                                .replace(/[^0-9.]/g, '')
+                                .replace(/(\..*)\./g, '$1');
+                        }}
                         {...register('shippingAddress.receiverContact1', {
                             required: {
                                 value: true,
-                                message: '휴대폰 번호를 입력해주세요',
+                                message: sheet('alert.inputPhoneNumber'),
                             },
-                            pattern:
-                                /^[0-9]+$/ ||
-                                '휴대폰 번호는 숫자를 입력해주세요',
                         })}
                     />
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
                 <SheetInputTitleBox>
-                    <p>주소검색</p>
+                    <p>{sheet('shippingAddress.category.searchAddress')}</p>
                 </SheetInputTitleBox>
                 <SheetInputBox>
                     <SheetTextInput
-                        inputWidth='75%'
-                        placeholder='예) 테헤란로 108길 23'
+                        inputWidth='71%'
+                        placeholder={sheet(
+                            'shippingAddress.category.placeholder.address',
+                        )}
                         type={'text'}
                         disabled={true}
-                        {...register('shippingAddress.receiverAddress')}
+                        {...register('shippingAddress.receiverAddress', {
+                            required: {
+                                value: true,
+                                message: sheet('alert.inputAddress'),
+                            },
+                        })}
                     />
                     <SheetButton
                         width='20.4%'
@@ -201,20 +207,22 @@ const OrdererInformation = ({
                             setIsSearchAddressModal((prev) => !prev);
                         }}
                     >
-                        검색
+                        {sheet('etc.search')}
                     </SheetButton>
                     <SheetTextInput
-                        placeholder='상세 주소 입력'
+                        placeholder={sheet(
+                            'shippingAddress.category.placeholder.detailAddress',
+                        )}
                         type={'text'}
                         {...register('shippingAddress.receiverDetailAddress', {
                             required: {
                                 value: true,
-                                message: '상세 주소를 입력해주세요',
+                                message: sheet('alert.inputDetailAddress'),
                             },
                         })}
                     />
                     <input
-                        type='checkbox'
+                        type='hidden'
                         id='defaultAddress'
                         onChange={() => {
                             setDefaultAddress((prev) => !prev);
@@ -222,21 +230,23 @@ const OrdererInformation = ({
                         checked={defaultAddress}
                     />
                     {member && (
-                        <label htmlFor='defaultAddress'>
+                        <CheckBox htmlFor='defaultAddress'>
                             {defaultAddress ? <Checked /> : <UnChecked />}
-                            <p>기본 배송지로 설정</p>
-                        </label>
+                            <p>{sheet('shippingAddress.setDefaultAddress')}</p>
+                        </CheckBox>
                     )}
                 </SheetInputBox>
             </SheetInputWrapper>
             <SheetInputWrapper>
                 <SheetInputTitleBox>
-                    <p>택배사 요청 사항</p>
+                    <p>{sheet('shippingAddress.category.request')}</p>
                 </SheetInputTitleBox>
                 <SheetInputBox>
                     {directInput ? (
                         <SheetTextInput
-                            placeholder='직접 입력'
+                            placeholder={sheet(
+                                'shippingAddress.requestList.directInput',
+                            )}
                             type={'text'}
                             {...register('deliveryMemo')}
                         />
@@ -255,7 +265,9 @@ const OrdererInformation = ({
                                 >),
                                 container: (provided: any) => ({
                                     ...provided,
-                                    marginBottom: '10px',
+                                    marginBottom: `${
+                                        isMobile(width) ? '0' : '10px'
+                                    }`,
                                     boxSizing: 'border-box',
                                     width: '100%',
                                 }),
@@ -271,6 +283,10 @@ const OrdererInformation = ({
                                     height: '44px',
                                     paddingLeft: '5px',
                                     cursor: 'pointer',
+                                }),
+                                placeholder: (provided: any) => ({
+                                    ...provided,
+                                    fontWeight: 'normal',
                                 }),
                                 option: () => ({
                                     width: '100%',
@@ -288,7 +304,9 @@ const OrdererInformation = ({
                                     },
                                 }),
                             }}
-                            placeHolder='택배 요청 사항을 선택해 주세요.'
+                            placeHolder={sheet(
+                                'shippingAddress.category.placeholder.request',
+                            )}
                             options={deliveryMemo}
                             onChange={(
                                 selectedOption: SingleValue<
