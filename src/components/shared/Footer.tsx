@@ -212,7 +212,6 @@ const Footer = () => {
                             <MenuLink to='/'>개인정보 처리방침</MenuLink>
                         </FooterTopMenuListItem>
                         <FooterTopMenuListItem>
-                            {' '}
                             <DropDown
                                 title='ABOUT US'
                                 menuList={[
@@ -236,13 +235,9 @@ const Footer = () => {
                                 { title: '대리점 안내', url: '/' },
                             ]}
                             style={{
-                                border: '1px solid #DBDBDB',
                                 width: '232px',
-                                marginLeft: 'auto',
-                                marginRight: 'auto',
-                                padding: '8px',
-                                color: '#fff',
                             }}
+                            isBorder
                         />
                     </div>
                     <SocialMediaContainer>
@@ -253,7 +248,7 @@ const Footer = () => {
                 </FooterTopContentsContainer>
             </FooterTop>
             <FooterBottom>
-                <div>
+                <div style={{ maxWidth: '840px', margin: '0 auto' }}>
                     <div style={{ marginBottom: '20px' }}>
                         <FooterContents>
                             {`상호 ${mallInfo.serviceBasicInfo.companyName} 대표 ${mallInfo.serviceBasicInfo.representativeName} | Tel ${mallInfo.serviceBasicInfo.representPhoneNo} FAX ${mallInfo.serviceBasicInfo.faxNo}`}

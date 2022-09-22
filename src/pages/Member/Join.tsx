@@ -1,15 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { every, pipe, map, toArray, some } from '@fxts/core';
 import styled from 'styled-components';
 import { DevTool } from '@hookform/devtools';
 import { ErrorMessage } from '@hookform/error-message';
+import { useWindowSize } from 'usehooks-ts';
+import { useMutation } from 'react-query';
+import { Oval } from 'react-loader-spinner';
 
 import { useAppDispatch } from 'state/reducers';
+import FlexContainer from 'components/shared/FlexContainer';
 import { fetchProfile } from 'state/slices/memberSlice';
 import Header from 'components/shared/Header';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
@@ -21,6 +24,10 @@ import { useDebounce } from 'hooks';
 import { tokenStorage } from 'utils/storage';
 import media from 'utils/styles/media';
 import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
+import MobileHeader from 'components/shared/MobileHeader';
+import JoinLayout from 'components/Layout/JoinLayout';
+import { isDesktop } from 'utils/styles/responsive';
+import PATHS from 'const/paths';
 
 interface LocationState {
     joinTermsAgreements: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[];
@@ -30,11 +37,9 @@ interface SignUp {
     email: string;
     memberName: string;
     password: string;
-    year: number;
-    month: number;
-    day: number;
-    smsAgreed: boolean;
-    directMailAgreed: boolean;
+    birthday: number;
+    // smsAgreed: boolean;
+    // directMailAgreed: boolean;
     sex: SEX;
 }
 
@@ -68,14 +73,25 @@ const JoinInput = styled(StyledInput)`
     padding: 10px 20px;
     border: 1px solid #dbdbdb;
     letter-spacing: -0.64px;
-    color: #a8a8a8;
+    color: #191919;
     font-size: 16px;
     line-height: 24px;
     width: 100%;
+
+    &::placeholder {
+        font-size: 1rem;
+        color: #a8a8a8;
+        font-weight: normal;
+    }
+`;
+
+const RadioboxContainer = styled(FlexContainer)`
+    flex-wrap: nowrap;
+    white-space: nowrap;
 `;
 
 const CheckBoxContainer = styled.div`
-    border-bottom: 1px solid #dbdbdb;
+    border-top: 1px solid #dbdbdb;
     padding: 20px 0;
     text-align: left;
     display: flex;
@@ -96,9 +112,13 @@ const CheckboxTitle = styled.p`
     color: #191919;
     margin-left: 16px;
 
+    ${media.medium} {
+        font-size: 1rem;
+    }
+
     ${media.small} {
-        font-size: 14px;
-        line-height: 20px;
+        /* font-size: 14px;
+        line-height: 20px; */
         letter-spacing: -0.56px;
         margin-left: 8px;
     }
@@ -115,10 +135,21 @@ const MarketingListItem = styled.li`
 `;
 
 const SignUpButton = styled(PrimaryButton)`
-    width: 100%;
-    letter-spacing: 0;
     font-size: 16px;
     line-height: 24px;
+    width: 100%;
+    letter-spacing: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    ${media.medium} {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        letter-spacing: -0.64px;
+    }
 `;
 
 const Join = () => {
@@ -164,30 +195,23 @@ const Join = () => {
             ),
         );
 
-    const [isLoading, setIsLoading] = useState(false);
-
     const location = useLocation();
     const { joinTermsAgreements } = location.state as LocationState;
 
     const navigate = useNavigate();
+    const { width } = useWindowSize();
+    const dispatch = useAppDispatch();
 
     const {
         register,
-        setValue,
         watch,
         getValues,
         handleSubmit,
         setError,
         clearErrors,
-        setFocus,
         formState: { errors },
         control,
     } = useForm<SignUp & Id>();
-
-    const watchYear = watch('year');
-    const watchMonth = watch('month');
-
-    const dispatch = useAppDispatch();
 
     // TODO: 핸드폰 인증 로직
     // const certificatePhone = () => {
@@ -207,79 +231,80 @@ const Join = () => {
             });
     }, 1000);
 
-    const handleLogin = async (memberId: string, password: string) => {
-        try {
-            const { data } = await authentication.issueAccessToken({
-                memberId: memberId,
-                password: password,
-                keepLogin: false,
-            });
-
-            if (data) {
-                tokenStorage.setAccessToken(
-                    JSON.stringify({
-                        ...data,
-                        expiry: new Date().getTime() + data.expireIn * 1000,
-                    }),
-                );
-
-                dispatch(fetchProfile());
-                navigate('/member/join-completed');
-            }
-        } catch (error) {
-            alert('알 수 없는 에러 발생!');
-            navigate('/');
-        }
-    };
-
     const checkedMarketingAgreement = (id: string) =>
         pipe(
             marketingAgreement,
             some((b) => b.isChecked && b.id === id),
         );
 
-    const signUp = async (inputData: SignUp) => {
-        const { email, memberName, password, year, month, day, sex } =
-            inputData;
-
-        try {
-            const successSignUpResponse = await profile.createProfile({
+    const { isLoading, mutateAsync: signUpMutate } = useMutation(
+        async ({ email, memberName, password, birthday, sex }: SignUp) =>
+            await profile.createProfile({
                 email,
                 memberId: email,
                 memberName,
                 password,
-                birthday: year + '' + month + '' + day,
+                birthday: birthday.toString(),
                 smsAgreed: checkedMarketingAgreement('smsmAgreed'),
                 directMailAgreed: checkedMarketingAgreement('smsAgreed'),
                 joinTermsAgreements,
                 sex,
-            });
-            console.log(
-                '🚀 ~ file: Join.tsx ~ line 259 ~ signUp ~ successSignUpResponse',
-                successSignUpResponse,
-            );
-            return;
-            if (successSignUpResponse) {
-                handleLogin(email, password);
-            }
-        } catch (error: any) {}
-    };
+            }),
+    );
 
-    useEffect(() => {
-        if (watchYear?.toString().length === 4) {
-            setFocus('month');
-        }
-        if (watchMonth?.toString().length === 2) {
-            setFocus('day');
-        }
-    }, [watchYear, watchMonth, setFocus]);
+    const onSubmit = handleSubmit(
+        async ({ email, memberName, password, birthday, sex }) => {
+            try {
+                await signUpMutate({
+                    email,
+                    memberName,
+                    password,
+                    birthday,
+                    sex,
+                });
+
+                const { data } = await authentication.issueAccessToken({
+                    memberId: email,
+                    password,
+                    keepLogin: false,
+                });
+
+                if (data) {
+                    tokenStorage.setAccessToken(
+                        JSON.stringify({
+                            ...data,
+                            expiry: new Date().getTime() + data.expireIn * 1000,
+                        }),
+                    );
+
+                    dispatch(fetchProfile());
+                    navigate(PATHS.JOIN_COMPLETED);
+                }
+            } catch (error) {
+                alert('알 수 없는 에러 발생!');
+                navigate('/');
+            }
+        },
+    );
 
     return (
         <>
-            <Header />
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={'회원가입'} />
+            )}
 
-            <LayoutResponsive type='small' style={{ marginTop: '150px' }}>
-                <form onSubmit={handleSubmit(signUp)}>
+            <JoinLayout
+                isDesktop={isDesktop(width)}
+                title={'회원가입'}
+                description={
+                    isDesktop(width)
+                        ? '보이스캐디의 멤버가 되어<br/>새로운 골프 라이프를 경험해 보세요.'
+                        : '<b>개인정보</b>를<br /> 입력해주세요.'
+                }
+            >
+                <form onSubmit={onSubmit}>
                     <JoinInputContainer>
                         <label htmlFor='email'>이메일</label>
                         <JoinInput
@@ -332,64 +357,67 @@ const Join = () => {
                         />
                     </JoinInputContainer>
 
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <JoinInputContainer>
-                            <label htmlFor='memberName'>이름</label>
-                            <JoinInput
-                                type='text'
-                                placeholder='이름을 입력해주세요.'
-                                {...register('memberName', {
-                                    required: {
-                                        value: true,
-                                        message: '이름을 입력해주세요',
-                                    },
-                                })}
-                            />
-                        </JoinInputContainer>
-                        <JoinInputContainer>
-                            <p
-                                style={{
-                                    fontSize: '12px',
-                                    lineHeight: '18px',
-                                    color: '#191919',
-                                    letterSpacing: 0,
-                                    marginBottom: '8px',
-                                }}
-                            >
-                                성별
-                            </p>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}
-                            >
-                                <Radiobox
-                                    id='male'
-                                    value={SEX.MALE}
-                                    checked={SEX.MALE === watch('sex')}
-                                    {...register('sex', { required: true })}
-                                    onClick={(e) => {
-                                        console.log(e);
-                                    }}
-                                >
-                                    <p>남성</p>
-                                </Radiobox>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <JoinInputContainer style={{ marginBottom: 0 }}>
+                                <label htmlFor='memberName'>이름</label>
+                                <JoinInput
+                                    type='text'
+                                    placeholder='이름을 입력해주세요.'
+                                    {...register('memberName', {
+                                        required: {
+                                            value: true,
+                                            message: '이름을 입력해주세요',
+                                        },
+                                    })}
+                                />
+                            </JoinInputContainer>
+                            <JoinInputContainer style={{ marginBottom: 0 }}>
+                                <label htmlFor='sex'>성별</label>
 
-                                <Radiobox
-                                    id='female'
-                                    value={SEX.FEMALE}
-                                    checked={SEX.FEMALE === watch('sex')}
-                                    {...register('sex', { required: true })}
-                                >
-                                    <p>여성</p>
-                                </Radiobox>
-                            </div>
-                        </JoinInputContainer>
+                                <RadioboxContainer>
+                                    <Radiobox
+                                        id='male'
+                                        value={SEX.MALE}
+                                        checked={SEX.MALE === watch('sex')}
+                                        {...register('sex', {
+                                            required: {
+                                                value: true,
+                                                message: '성별을 선택해주세요.',
+                                            },
+                                        })}
+                                    >
+                                        <p>남성</p>
+                                    </Radiobox>
+
+                                    <Radiobox
+                                        id='female'
+                                        value={SEX.FEMALE}
+                                        checked={SEX.FEMALE === watch('sex')}
+                                        {...register('sex', {
+                                            required: {
+                                                value: true,
+                                                message: '성별을 선택해주세요.',
+                                            },
+                                        })}
+                                    >
+                                        <p>여성</p>
+                                    </Radiobox>
+                                </RadioboxContainer>
+                            </JoinInputContainer>
+                        </div>
                         <ErrorMessage
                             errors={errors}
                             name='memberName'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
+                        />
+                        <ErrorMessage
+                            errors={errors}
+                            name='sex'
                             render={({ message }) => (
                                 <StyledErrorMessage>
                                     {message}
@@ -421,7 +449,7 @@ const Join = () => {
                         <div>
                             <JoinInput
                                 type='password'
-                                placeholder='비밀번호를 입력해주세요. (영문 + 숫자 + 특수문자 8~16자리)'
+                                placeholder='비밀번호를 다시 입력해 주세요.'
                                 {...register('checkPassword', {
                                     validate: {
                                         positive: (val) =>
@@ -452,46 +480,28 @@ const Join = () => {
                         />
                     </JoinInputContainer>
 
-                    <div>
-                        <input
+                    <JoinInputContainer>
+                        <label htmlFor='birthday'>생년월일</label>
+                        <JoinInput
                             type='number'
-                            placeholder='2000'
-                            style={{ border: '1px solid #000' }}
-                            {...register('year', {
+                            placeholder='생년월일을 입력해주세요.'
+                            {...register('birthday', {
                                 required: {
                                     value: true,
                                     message: '생년월일을 입력해주세요',
                                 },
-                                maxLength: 4,
                             })}
                         />
-                        <span>/</span>
-                        <input
-                            type='number'
-                            placeholder='08'
-                            style={{ border: '1px solid #000' }}
-                            {...register('month', {
-                                required: {
-                                    value: true,
-                                    message: '생년월일을 입력해주세요',
-                                },
-                                maxLength: 2,
-                            })}
+                        <ErrorMessage
+                            errors={errors}
+                            name='birthday'
+                            render={({ message }) => (
+                                <StyledErrorMessage>
+                                    {message}
+                                </StyledErrorMessage>
+                            )}
                         />
-                        <span>/</span>
-                        <input
-                            type='number'
-                            placeholder='15'
-                            style={{ border: '1px solid #000' }}
-                            {...register('day', {
-                                required: {
-                                    value: true,
-                                    message: '생년월일을 입력해주세요',
-                                },
-                                maxLength: 2,
-                            })}
-                        />
-                    </div>
+                    </JoinInputContainer>
 
                     <CheckBoxContainer>
                         <Checkbox
@@ -527,9 +537,21 @@ const Join = () => {
                         </MarketingList>
                     </CheckBoxContainer>
 
-                    <SignUpButton type='submit'>회원가입</SignUpButton>
+                    <SignUpButton type='submit' disabled={isLoading}>
+                        <Oval
+                            height={16}
+                            width={16}
+                            color='#fff'
+                            visible={isLoading}
+                            ariaLabel='oval-loading'
+                            secondaryColor='#fff'
+                            strokeWidth={2}
+                            strokeWidthSecondary={2}
+                        />
+                        {!isLoading && <span>회원가입</span>}
+                    </SignUpButton>
                 </form>
-            </LayoutResponsive>
+            </JoinLayout>
 
             <DevTool control={control} placement='top-right' />
         </>

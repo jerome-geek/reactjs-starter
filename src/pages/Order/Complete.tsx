@@ -1,49 +1,73 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { shallowEqual } from 'react-redux';
+import { head, join, pipe, split } from '@fxts/core';
 import styled from 'styled-components';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
-import { head, join, pipe, split } from '@fxts/core';
 
-import { useTypedSelector } from 'state/reducers';
 import { myOrder } from 'api/order';
-import { ORDER_REQUEST_TYPE } from 'models';
+import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
-import PATHS from 'const/paths';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
+import { useTypedSelector } from 'state/reducers';
+import PATHS from 'const/paths';
+import media from 'utils/styles/media';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
 
-const CompleteContainer = styled.div`
-    padding: 0 40px;
+const CompleteContainer = styled(LayoutResponsive)`
+    padding: 118px 0;
+    ${media.custom(1280)} {
+        width: 100%;
+        padding: 24px 24px;
+    }
 `;
 
 const Progress = styled.div`
     display: flex;
     color: #ababab;
     font-weight: bold;
-    font-size: 24px;
+    font-size: 1.5rem;
+    margin-bottom: 48px;
     .current-progress {
         color: ${(props) => props.theme.text1};
     }
     > div {
         margin-right: 18px;
     }
+    ${media.custom(1280)} {
+        display: none;
+    }
 `;
 
 const OrderNoContainer = styled.div`
     width: 100%;
-    height: 340px;
+    height: 310px;
     background-color: ${(props) => props.theme.bg2};
-    margin: 48px 0 70px;
-    padding-top: 101px;
-    > p {
+    margin: 0 0 70px;
+    padding: 101px 0 0;
+    > h2 {
         font-weight: bold;
-        font-size: 30px;
+        font-size: 1.875rem;
         color: ${(props) => props.theme.text1};
+    }
+    ${media.xlarge} {
+        padding: 80px 0;
+        height: auto;
+        > h2 {
+            font-size: 1.71rem;
+        }
+    }
+    ${media.medium} {
+        > h2 {
+            font-size: 2.5rem;
+        }
     }
 `;
 
@@ -51,43 +75,77 @@ const PayType = styled.div`
     display: inline-block;
     padding: 6px 11px;
     border: 1px solid #8c909d;
-    margin: 30px 0 10px;
+    margin: 30px 0 14px;
     color: #767676;
-    font-size: 12px;
+    font-size: 0.75rem;
+    ${media.xlarge} {
+        font-size: 1rem;
+    }
+    ${media.medium} {
+        font-size: 1.166rem;
+    }
 `;
 
 const DepositDeadline = styled.div`
-    font: 16px;
     letter-spacing: -0.64px;
     color: #8f8f8f;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     > span {
         font-weight: bold;
         color: ${(props) => props.theme.text1};
     }
+    ${media.xlarge} {
+        font-size: 1.143rem;
+    }
+    ${media.medium} {
+        font-size: 1.333rem;
+        > span {
+            line-height: 30px;
+        }
+    }
 `;
 
 const OrderNoBox = styled.div`
-    font-size: 16px;
     color: #767676;
+    ${media.xlarge} {
+        font-size: 1rem;
+    }
+    ${media.medium} {
+        font-size: 1.166rem;
+    }
+`;
+
+const OrderFailMessage = styled.p`
+    margin-top: 20px;
+    font-size: 1.25rem;
+    color: ${(props) => props.theme.text2};
+    line-height: 1.4;
 `;
 
 const OrderInformationContainer = styled.div``;
 
 const OrderInformationBox = styled.div`
-    font-size: 16px;
     margin-bottom: 64px;
 `;
 
 const OrderInformationTitle = styled.div`
     text-align: left;
     color: ${(props) => props.theme.text1};
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
     letter-spacing: -1.2px;
     padding-bottom: 24px;
-    border-bottom: 2px solid #222943;
+    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
     margin-bottom: 40px;
+    ${media.xlarge} {
+        margin-bottom: 20px;
+        border-bottom: ${(props) => `1px solid ${props.theme.secondary}`};
+        letter-spacing: 0;
+        font-size: 1.143rem;
+    }
+    ${media.medium} {
+        font-size: 1.333rem;
+    }
 `;
 
 const OrderInformationPrice = styled.div<{ marginBottom: string }>`
@@ -98,6 +156,13 @@ const OrderInformationPrice = styled.div<{ marginBottom: string }>`
     margin-bottom: ${(props) => props.marginBottom};
     color: ${(props) => props.theme.text1};
     font-weight: bold;
+    ${media.xlarge} {
+        margin-bottom: 24px;
+        font-size: 1.143rem;
+    }
+    ${media.medium} {
+        font-size: 1.333rem;
+    }
 `;
 
 const OrderInformationList = styled.div<{ marginBottom: string }>`
@@ -107,16 +172,57 @@ const OrderInformationList = styled.div<{ marginBottom: string }>`
     text-align: right;
     margin-bottom: ${(props) => props.marginBottom};
     color: #767676;
+    ${media.xlarge} {
+        margin-bottom: 24px;
+        font-size: 1.143rem;
+        letter-spacing: 0;
+    }
+    ${media.medium} {
+        font-size: 1.333rem;
+    }
 `;
 
 const OrderInformationCategory = styled.div`
-    letter-spacing: -0.64px;
+    ${media.xlarge} {
+        color: ${(props) => props.theme.text1};
+        font-weight: 500;
+        letter-spacing: -0.64px;
+    }
+`;
+
+const ImportantInformation = styled.div`
+    ${media.xlarge} {
+        color: ${(props) => props.theme.primary};
+        font-size: 1.429rem;
+        font-weight: bold;
+    }
+    ${media.medium} {
+        color: ${(props) => props.theme.primary};
+        font-size: 1.666rem;
+    }
 `;
 
 const OrderInformationContent = styled.div`
     letter-spacing: 0;
     p {
-        margin-top: 12px;
+        margin-top: 0.75rem;
+    }
+    ${media.xlarge} {
+        color: ${(props) => props.theme.text1};
+        font-weight: 500;
+        .depositor_name {
+            font-size: 0.857rem;
+            color: ${(props) => props.theme.text2};
+        }
+    }
+    ${media.medium} {
+        max-width: 89%;
+        white-space: normal;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        .depositor_name {
+            font-size: 1rem;
+        }
     }
 `;
 
@@ -127,6 +233,21 @@ const ButtonWrapper = styled.div`
     display: flex;
     width: fit-content;
     margin: 0 auto;
+    ${media.xlarge} {
+        width: 100%;
+        justify-content: space-between;
+        > a {
+            height: 54px;
+            width: 48.94%;
+            line-height: 54px;
+            font-size: 1.143rem;
+        }
+    }
+    ${media.medium} {
+        > a {
+            font-size: 1.333rem;
+        }
+    }
 `;
 
 const OrderListButton = styled(Link)`
@@ -136,43 +257,49 @@ const OrderListButton = styled(Link)`
     width: 210px;
     height: 44px;
     margin-right: 21px;
+    ${media.medium} {
+        margin-right: 0;
+    }
 `;
 
 const ContinueShoppingButton = styled(Link)`
     display: block;
-    background: #222943;
+    background: ${(props) => props.theme.secondary};
     color: #fff;
     width: 210px;
     height: 44px;
 `;
 
+const GoMainButton = styled(ContinueShoppingButton)`
+    margin: 0 auto;
+`;
+
 const OrderProductListBox = styled.div`
     margin-top: 91px;
     border-top: 2px solid #222943;
-    border-bottom: 2px solid #222943;
+    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
 `;
 
-const CartCategoryBox = styled.div`
+const OrderCategoryBox = styled.div`
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #dbdbdb;
+    border-bottom: ${(props) => `1px solid ${props.theme.secondary}`};
     > div {
         padding: 20px 0;
         text-align: center;
-        color: #191919;
-        font-size: 16px;
+        color: ${(props) => props.theme.text1};
         font-weight: bold;
     }
 `;
 
-const CartInformation = styled.div`
-    width: 240px;
+const OrderInformation = styled.div`
+    width: 29%;
     display: flex;
     justify-content: space-around;
 `;
 
-const CartCountBox = styled.div`
-    width: 150px;
+const OrderCount = styled.div`
+    width: 18%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -191,7 +318,7 @@ const CartCountBox = styled.div`
     }
 `;
 
-const CartPrice = styled.div`
+const OrderPrice = styled.div`
     width: 140px;
     display: flex;
     flex-direction: column;
@@ -212,7 +339,7 @@ const CartPrice = styled.div`
     }
 `;
 
-const CartDelivery = styled.div`
+const OrderDelivery = styled.div`
     width: 140px;
     display: flex;
     justify-content: center;
@@ -221,7 +348,7 @@ const CartDelivery = styled.div`
     font: 16px;
 `;
 
-const CartAmount = styled.div`
+const OrderAmountPrice = styled.div`
     width: 200px;
     display: flex;
     justify-content: center;
@@ -244,6 +371,11 @@ const Complete = () => {
         >();
     const [deliveryInfo, setDeliveryInfo] =
         useState<OrderOptionsGroupByDelivery>();
+    const [payTypeName, setPayTypeName] = useState<string>();
+
+    const { width } = useWindowSize();
+
+    const { t: complete } = useTranslation('orderComplete');
 
     const orderParam = useMemo(
         () => new URLSearchParams(window.location.search),
@@ -264,6 +396,7 @@ const Complete = () => {
                 orderRequestTypes: ORDER_REQUEST_TYPE.ALL,
             }),
         {
+            select: (res) => res.data,
             onSuccess: (res) => {
                 const newOrderList: Array<
                     OrderProductOption & {
@@ -271,18 +404,40 @@ const Complete = () => {
                         productName: string;
                     }
                 > = [];
-                res.data.orderOptionsGroupByPartner.forEach(
-                    (partnerOptionGroup) => {
-                        partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
-                            (deliveryOptionGroup) => {
-                                deliveryOptionGroup.orderOptions.forEach(
-                                    ({
-                                        accumulationAmt,
-                                        optionNo,
+                res.orderOptionsGroupByPartner.forEach((partnerOptionGroup) => {
+                    partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
+                        (deliveryOptionGroup) => {
+                            deliveryOptionGroup.orderOptions.forEach(
+                                ({
+                                    accumulationAmt,
+                                    optionNo,
+                                    imageUrl,
+                                    optionManagementCd,
+                                    optionName,
+                                    orderOptionNo,
+                                    optionTitle,
+                                    optionType,
+                                    optionValue,
+                                    orderCnt,
+                                    price,
+                                    productName,
+                                    productNo,
+                                    reservation,
+                                    reservationDeliveryYmdt,
+                                    setOptions,
+                                    inputs,
+                                }) => {
+                                    newOrderList.push({
+                                        accumulationAmtWhenBuyConfirm:
+                                            accumulationAmt,
+                                        cartNo: optionNo,
+                                        deliveryAmt:
+                                            deliveryOptionGroup.deliveryAmt,
                                         imageUrl,
+                                        optionInputs: inputs,
                                         optionManagementCd,
                                         optionName,
-                                        orderOptionNo,
+                                        optionNo: orderOptionNo,
                                         optionTitle,
                                         optionType,
                                         optionValue,
@@ -290,46 +445,40 @@ const Complete = () => {
                                         price,
                                         productName,
                                         productNo,
+                                        recurringDeliveryCycles: null,
                                         reservation,
                                         reservationDeliveryYmdt,
                                         setOptions,
-                                        inputs,
-                                    }) => {
-                                        newOrderList.push({
-                                            accumulationAmtWhenBuyConfirm:
-                                                accumulationAmt,
-                                            cartNo: optionNo,
-                                            deliveryAmt:
-                                                deliveryOptionGroup.deliveryAmt,
-                                            imageUrl,
-                                            optionInputs: inputs,
-                                            optionManagementCd,
-                                            optionName,
-                                            optionNo: orderOptionNo,
-                                            optionTitle,
-                                            optionType,
-                                            optionValue,
-                                            orderCnt,
-                                            price,
-                                            productName,
-                                            productNo,
-                                            recurringDeliveryCycles: null,
-                                            reservation,
-                                            reservationDeliveryYmdt,
-                                            setOptions,
-                                            soldOut: false,
-                                            stockCnt: 999999,
-                                        });
-                                    },
-                                );
-                            },
-                        );
-                    },
-                );
+                                        soldOut: false,
+                                        stockCnt: 999999,
+                                    });
+                                },
+                            );
+                        },
+                    );
+                });
+                setPayTypeName(() => {
+                    let payType = '';
+                    switch (res.payType) {
+                        case PAY_TYPE.CREDIT_CARD:
+                            payType = complete('paymentMethod.creditCard');
+                            break;
+                        case PAY_TYPE.REALTIME_ACCOUNT_TRANSFER:
+                            payType = complete('paymentMethod.realtimeAccount');
+                            break;
+                        case PAY_TYPE.VIRTUAL_ACCOUNT:
+                            payType = complete('paymentMethod.virtualAccount');
+                            break;
+                        case PAY_TYPE.KPAY:
+                            payType = 'KPAY';
+                            break;
+                    }
+                    return payType;
+                });
                 setOrderList([...newOrderList]);
                 setDeliveryInfo(
                     head(
-                        head(res.data.orderOptionsGroupByPartner)!
+                        head(res.orderOptionsGroupByPartner)!
                             .orderOptionsGroupByDelivery,
                     ),
                 );
@@ -338,8 +487,6 @@ const Complete = () => {
             enabled: !!orderParam.get('orderNo'),
         },
     );
-
-    console.log(orderCompleteData);
 
     const payTypeText = () => {
         let payType = '';
@@ -367,7 +514,7 @@ const Complete = () => {
         <>
             <SEOHelmet
                 data={{
-                    title: '주문 완료',
+                    title: complete('progress.now'),
                 }}
             />
             <Header />
@@ -403,259 +550,291 @@ const Complete = () => {
                                     'VIRTUAL_ACCOUNT') && (
                                 <OrderInformationBox>
                                     <OrderInformationTitle>
-                                        이체 정보
+                                        결제 정보
+                                        {complete('paymentInformation.title')}
                                     </OrderInformationTitle>
-                                    <OrderInformationPrice marginBottom='60px'>
+                                    <OrderInformationPrice marginBottom='24px'>
                                         <OrderInformationCategory>
-                                            <div>이체 금액</div>
+                                            <div>
+                                                {complete(
+                                                    'paymentInformation.category.totalPrice',
+                                                )}
+                                            </div>
                                         </OrderInformationCategory>
                                         <OrderInformationContent>
-                                            <div>
+                                            <ImportantInformation>
                                                 {currency(
-                                                    orderCompleteData.data
-                                                        .payInfo.payAmt,
+                                                    orderCompleteData.payInfo
+                                                        .payAmt,
                                                     {
                                                         symbol: '',
                                                         precision: 0,
                                                     },
                                                 ).format()}{' '}
-                                                원
-                                            </div>
+                                                {complete('etc.won')}
+                                            </ImportantInformation>
                                         </OrderInformationContent>
                                     </OrderInformationPrice>
-                                    <OrderInformationList marginBottom='32px'>
+                                    <OrderInformationList marginBottom='24px'>
                                         <OrderInformationCategory>
-                                            <div>계좌정보</div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
                                             <div>
-                                                {
-                                                    orderCompleteData.data
-                                                        .payInfo.bankInfo
-                                                        .bankName
-                                                }{' '}
-                                                {
-                                                    orderCompleteData.data
-                                                        .payInfo.bankInfo
-                                                        .account
-                                                }
-                                                <p>
-                                                    {
-                                                        orderCompleteData.data
-                                                            .payInfo.bankInfo
-                                                            .depositorName
-                                                    }
-                                                </p>
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='0'>
-                                        <OrderInformationCategory>
-                                            <div>입금기한</div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {dayjs(
-                                                    orderCompleteData.data
-                                                        .payInfo.bankInfo
-                                                        .paymentExpirationYmdt,
-                                                ).format(
-                                                    'YY.MM.DD HH:mm:ss',
-                                                )}{' '}
-                                                까지
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                </OrderInformationBox>
-                            )}
-                            <OrderInformationBox>
-                                <OrderInformationTitle>
-                                    결제 정보
-                                </OrderInformationTitle>
-                                <OrderInformationPrice marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>총 결제금액</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData.data.payInfo
-                                                    .payAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationPrice>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>상품가격</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData?.data
-                                                    .lastOrderAmount
-                                                    .standardAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>배송비</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData?.data
-                                                    .lastOrderAmount
-                                                    .deliveryAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>할인 금액</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            -
-                                            {currency(
-                                                orderCompleteData?.data
-                                                    .lastOrderAmount
-                                                    .immediateDiscountAmt +
-                                                    orderCompleteData?.data
-                                                        .lastOrderAmount
-                                                        .additionalDiscountAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>쿠폰 할인</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            -
-                                            {currency(
-                                                orderCompleteData?.data
-                                                    .lastOrderAmount
-                                                    .cartCouponDiscountAmt +
-                                                    orderCompleteData?.data
-                                                        .lastOrderAmount
-                                                        .productCouponDiscountAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='0'>
-                                    <OrderInformationCategory>
-                                        <div>적립금 사용</div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {orderCompleteData?.data
-                                                .lastOrderAmount.subPayAmt >
-                                                0 && '-'}
-                                            {currency(
-                                                orderCompleteData?.data
-                                                    .lastOrderAmount.subPayAmt,
-                                                { symbol: '', precision: 0 },
-                                            ).format()}{' '}
-                                            원
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                            </OrderInformationBox>
-                            {deliveryInfo && (
-                                <OrderInformationBox>
-                                    <OrderInformationTitle>
-                                        배송 정보
-                                    </OrderInformationTitle>
-                                    <OrderInformationList marginBottom='28px'>
-                                        <OrderInformationCategory>
-                                            <div>받는사람</div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {deliveryInfo.receiverName}
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='28px'>
-                                        <OrderInformationCategory>
-                                            <div>주소</div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {deliveryInfo.receiverAddress}
-                                                {
-                                                    deliveryInfo.receiverDetailAddress
-                                                }
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='0'>
-                                        <OrderInformationCategory>
-                                            <div>전화번호</div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {pipe(
-                                                    deliveryInfo.receiverContact1,
-                                                    split('-'),
-                                                    join(''),
+                                                {complete(
+                                                    'paymentInformation.category.productPrice',
                                                 )}
                                             </div>
+                                        </OrderInformationCategory>
+                                        <OrderInformationContent>
+                                            <div>
+                                                {currency(
+                                                    orderCompleteData
+                                                        ?.lastOrderAmount
+                                                        .standardAmt,
+                                                    {
+                                                        symbol: '',
+                                                        precision: 0,
+                                                    },
+                                                ).format()}{' '}
+                                                {complete('etc.won')}
+                                            </div>
+                                        </OrderInformationContent>
+                                    </OrderInformationList>
+                                    <OrderInformationList marginBottom='24px'>
+                                        <OrderInformationCategory>
+                                            <div>
+                                                {complete(
+                                                    'paymentInformation.category.deliverPrice',
+                                                )}
+                                            </div>
+                                        </OrderInformationCategory>
+                                        <OrderInformationContent>
+                                            <div>
+                                                {currency(
+                                                    orderCompleteData
+                                                        ?.lastOrderAmount
+                                                        .deliveryAmt,
+                                                    {
+                                                        symbol: '',
+                                                        precision: 0,
+                                                    },
+                                                ).format()}{' '}
+                                                {complete('etc.won')}
+                                            </div>
+                                        </OrderInformationContent>
+                                    </OrderInformationList>
+                                    <OrderInformationList marginBottom='24px'>
+                                        <OrderInformationCategory>
+                                            <div>
+                                                {complete(
+                                                    'paymentInformation.category.discountPrice',
+                                                )}
+                                            </div>
+                                        </OrderInformationCategory>
+                                        <OrderInformationContent>
+                                            <div>
+                                                {currency(
+                                                    (orderCompleteData
+                                                        ?.lastOrderAmount
+                                                        .immediateDiscountAmt +
+                                                        orderCompleteData
+                                                            ?.lastOrderAmount
+                                                            .additionalDiscountAmt) *
+                                                        -1,
+                                                    {
+                                                        symbol: '',
+                                                        precision: 0,
+                                                    },
+                                                ).format()}{' '}
+                                                {complete('etc.won')}
+                                            </div>
+                                        </OrderInformationContent>
+                                    </OrderInformationList>
+                                    <OrderInformationList marginBottom='24px'>
+                                        <OrderInformationCategory>
+                                            <div>
+                                                {complete(
+                                                    'paymentInformation.category.couponDiscount',
+                                                )}
+                                            </div>
+                                        </OrderInformationCategory>
+                                        <OrderInformationContent>
+                                            <div>
+                                                {currency(
+                                                    (orderCompleteData
+                                                        ?.lastOrderAmount
+                                                        .cartCouponDiscountAmt +
+                                                        orderCompleteData
+                                                            ?.lastOrderAmount
+                                                            .productCouponDiscountAmt) *
+                                                        -1,
+                                                    {
+                                                        symbol: '',
+                                                        precision: 0,
+                                                    },
+                                                ).format()}{' '}
+                                                {complete('etc.won')}
+                                            </div>
+                                        </OrderInformationContent>
+                                    </OrderInformationList>
+                                    <OrderInformationList marginBottom='0'>
+                                        <OrderInformationCategory>
+                                            <div>
+                                                {complete(
+                                                    'paymentInformation.category.useDeposit',
+                                                )}
+                                            </div>
+                                        </OrderInformationCategory>
+                                        <OrderInformationContent>
+                                            <div>
+                                                {currency(
+                                                    orderCompleteData
+                                                        ?.lastOrderAmount
+                                                        .subPayAmt * -1,
+                                                    {
+                                                        symbol: '',
+                                                        precision: 0,
+                                                    },
+                                                ).format()}{' '}
+                                                {complete('etc.won')}
+                                            </div>
                                         </OrderInformationContent>
                                     </OrderInformationList>
                                 </OrderInformationBox>
-                            )}
-                        </OrderInformationContainer>
-                        <ButtonWrapper>
-                            <OrderListButton
-                                to={
-                                    member ? PATHS.MY_ORDER_LIST : PATHS.MY_PAGE
-                                }
-                            >
-                                주문 내역 보기
-                            </OrderListButton>
-                            <ContinueShoppingButton to={PATHS.MAIN}>
-                                쇼핑 계속하기
-                            </ContinueShoppingButton>
-                        </ButtonWrapper>
-                        <OrderProductListBox>
-                            <CartCategoryBox>
-                                <CartInformation>상품 정보</CartInformation>
-                                <CartCountBox>수량</CartCountBox>
-                                <CartPrice>가격</CartPrice>
-                                <CartDelivery>배송비</CartDelivery>
-                                <CartAmount>총 상품 금액</CartAmount>
-                            </CartCategoryBox>
-                            {orderList?.map((orderData) => {
-                                return (
-                                    <CartList
-                                        cartData={orderData}
-                                        key={orderData.optionNo}
-                                        isModifiable={false}
-                                    />
-                                );
-                            })}
-                        </OrderProductListBox>
-                    </CompleteContainer>
-                )}
-            </LayoutResponsive>
+                                {deliveryInfo && (
+                                    <OrderInformationBox>
+                                        <OrderInformationTitle>
+                                            {complete(
+                                                'deliveryInformation.title',
+                                            )}
+                                        </OrderInformationTitle>
+                                        <OrderInformationList marginBottom='28px'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'deliveryInformation.category.receiver',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <div>
+                                                    {deliveryInfo.receiverName}
+                                                </div>
+                                            </OrderInformationContent>
+                                        </OrderInformationList>
+                                        <OrderInformationList marginBottom='28px'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'deliveryInformation.category.address',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <div>
+                                                    {
+                                                        deliveryInfo.receiverAddress
+                                                    }
+                                                    {
+                                                        deliveryInfo.receiverDetailAddress
+                                                    }
+                                                </div>
+                                            </OrderInformationContent>
+                                        </OrderInformationList>
+                                        <OrderInformationList marginBottom='0'>
+                                            <OrderInformationCategory>
+                                                <div>
+                                                    {complete(
+                                                        'deliveryInformation.category.phoneNumber',
+                                                    )}
+                                                </div>
+                                            </OrderInformationCategory>
+                                            <OrderInformationContent>
+                                                <div>
+                                                    {pipe(
+                                                        deliveryInfo.receiverContact1,
+                                                        split('-'),
+                                                        join(''),
+                                                    )}
+                                                </div>
+                                            </OrderInformationContent>
+                                        </OrderInformationList>
+                                    </OrderInformationBox>
+                                )}
+                            </OrderInformationContainer>
+                            <ButtonWrapper>
+                                <OrderListButton
+                                    to={
+                                        member
+                                            ? PATHS.MY_ORDER_LIST
+                                            : PATHS.MY_PAGE
+                                    }
+                                >
+                                    {complete('etc.viewOrderList')}
+                                </OrderListButton>
+                                <ContinueShoppingButton to={PATHS.MAIN}>
+                                    {complete('etc.keepShopping')}
+                                </ContinueShoppingButton>
+                            </ButtonWrapper>
+                            <OrderProductListBox>
+                                {isDesktop(width) && (
+                                    <OrderCategoryBox>
+                                        <OrderInformation>
+                                            {complete(
+                                                'orderProductList.category.productInformation',
+                                            )}
+                                        </OrderInformation>
+                                        <OrderCount>
+                                            {complete(
+                                                'orderProductList.category.count',
+                                            )}
+                                        </OrderCount>
+                                        <OrderPrice>
+                                            {complete(
+                                                'orderProductList.category.price',
+                                            )}
+                                        </OrderPrice>
+                                        <OrderDelivery>
+                                            {' '}
+                                            {complete(
+                                                'orderProductList.category.deliverPrice',
+                                            )}
+                                        </OrderDelivery>
+                                        <OrderAmountPrice>
+                                            {complete(
+                                                'orderProductList.category.totalPrice',
+                                            )}
+                                        </OrderAmountPrice>
+                                    </OrderCategoryBox>
+                                )}
+                                {orderList?.map((orderData) => {
+                                    return (
+                                        <CartList
+                                            cartData={orderData}
+                                            key={orderData.optionNo}
+                                            isModifiable={false}
+                                        />
+                                    );
+                                })}
+                            </OrderProductListBox>
+                        </>
+                    ) : (
+                        <>
+                            <OrderNoContainer>
+                                <h2>{complete('orderFail')}</h2>
+                                <OrderFailMessage
+                                    dangerouslySetInnerHTML={{
+                                        __html: complete('orderFailMessage'),
+                                    }}
+                                ></OrderFailMessage>
+                            </OrderNoContainer>
+                            <ButtonWrapper>
+                                <GoMainButton to={PATHS.MAIN}>
+                                    {complete('etc.keepShopping')}
+                                </GoMainButton>
+                            </ButtonWrapper>
+                        </>
+                    )}
+                </CompleteContainer>
+            }
         </>
     );
 };

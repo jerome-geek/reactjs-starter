@@ -8,6 +8,7 @@ const RadioContainer = styled.label<{ checked: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
     border: 1px solid #dbdbdb;
     padding: 10px 30px;
     font-size: 16px;
@@ -19,13 +20,11 @@ const RadioContainer = styled.label<{ checked: boolean }>`
     color: ${(props) => (props.checked ? '#fff' : '#a8a8a8')};
 
     ${media.small} {
-        padding: 15px 30px;
+        padding: 12px 1.5rem;
     }
 `;
 
-const HiddenRadioInput = styled.input.attrs<RadioProps>((props) => ({
-    type: 'radio',
-}))`
+const HiddenRadioInput = styled.input.attrs<RadioProps>({ type: 'radio' })`
     border: 0;
     clip: rect(0 0 0 0);
     height: 1px;

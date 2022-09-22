@@ -3,24 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { useQueries } from 'react-query';
 import { filter, head, map, pipe, some, toArray } from '@fxts/core';
 import styled, { css } from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
-import LayoutResponsive from 'components/shared/LayoutResponsive';
+import FlexContainer from 'components/shared/FlexContainer';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import ProductSearchResult from 'components/Search/ProductSearchResult';
 import ManualSearchResult from 'components/Search/ManualSearchResult';
 import NoticeSearchResult from 'components/Search/NoticeSearchResult';
 import GolfCourseSearchResult from 'components/Search/GolfCourseSearchResult';
 import { useQueryString } from 'hooks';
+import BOARD from 'const/board';
+import BREAKPOINTS from 'const/breakpoints';
 import { board } from 'api/manage';
 import { product } from 'api/product';
+import media from 'utils/styles/media';
 import {
     ArticleParams,
     BoardListItem as BoardListItemModel,
 } from 'models/manage';
 import { ProductSearchParams } from 'models/product';
 import { ORDER_DIRECTION } from 'models';
-import BOARD from 'const/board';
 
 interface tab {
     key: string;
@@ -28,19 +31,42 @@ interface tab {
     isActive: boolean;
 }
 
+const SearchContainer = styled.div`
+    margin-left: 24px;
+    margin-right: 24px;
+`;
+
 const SearchResultSummary = styled.form`
     width: 100%;
     background-color: #f8f8fa;
     padding: 60px 0;
     margin-bottom: 40px;
+
+    ${media.small} {
+        background-color: #fff;
+    }
 `;
 const SearchResultTitle = styled.p`
     font-size: 32px;
-    line-height: 47px;
+    line-height: 48px;
+    text-align: center;
+    letter-spacing: 0px;
 
-    & > span {
-        color: #c00020;
+    ${media.small} {
+        font-size: 20px;
+        line-height: 28px;
+        text-align: left;
+        letter-spacing: -1px;
     }
+`;
+
+const SearchResultkeywords = styled.span`
+    font-weight: bold;
+    color: #191919;
+`;
+
+const SearchResultCount = styled.span`
+    color: #c00020;
 `;
 
 const SearchFilter = styled.ul`
@@ -260,15 +286,25 @@ const Search = () => {
         );
     };
 
+    const { width } = useWindowSize();
+
     return (
         <>
             <Header />
-            <LayoutResponsive type='large'>
+
+            <SearchContainer>
                 <SearchResultSummary onSubmit={onSubmitHandler}>
                     <SearchResultTitle>
-                        {`'${keywords}'에 대한 `}
-                        <span>{getSearchListLength()}</span>
-                        개의 통합 검색결과입니다.
+                        <SearchResultkeywords>
+                            '{`${keywords}`}'
+                        </SearchResultkeywords>
+                        에 대한&nbsp;
+                        <SearchResultCount>
+                            {getSearchListLength()}
+                        </SearchResultCount>
+                        개의
+                        {width <= BREAKPOINTS.SMALL && <br />}통합
+                        검색결과입니다.
                     </SearchResultTitle>
                     <InputWithIcon
                         placeholder='검색어를 입력해주세요.'
@@ -284,6 +320,39 @@ const Search = () => {
                         }}
                         onChange={onInputChange}
                     />
+
+                    <FlexContainer>
+                        <SearchFilter>
+                            {searchTab?.map(({ key, name, isActive }) => {
+                                return (
+                                    <SearchFilterItem
+                                        key={key}
+                                        onClick={(
+                                            e: React.MouseEvent<HTMLLIElement>,
+                                        ) => onSearchTabClick(e, key)}
+                                        isActive={isActive}
+                                    >{`${name}(${getSearchListLength(
+                                        key,
+                                    )})`}</SearchFilterItem>
+                                );
+                            })}
+                        </SearchFilter>
+                        <SearchFilter>
+                            {orderTab?.map(({ key, name, isActive }) => {
+                                return (
+                                    <SearchFilterItem
+                                        key={key}
+                                        onClick={(
+                                            e: React.MouseEvent<HTMLLIElement>,
+                                        ) => onOrderTabClick(e, key)}
+                                        isActive={isActive}
+                                    >
+                                        {name}
+                                    </SearchFilterItem>
+                                );
+                            })}
+                        </SearchFilter>
+                    </FlexContainer>
                 </SearchResultSummary>
 
                 <SearchResultContainer>
@@ -360,7 +429,7 @@ const Search = () => {
                         </>
                     )}
                 </SearchResultContainer>
-            </LayoutResponsive>
+            </SearchContainer>
         </>
     );
 };
