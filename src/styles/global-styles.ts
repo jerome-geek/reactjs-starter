@@ -13,6 +13,7 @@ const GlobalStyle = createGlobalStyle`
         font-size: 16px;
     }
     html {
+        font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
         -webkit-text-size-adjust: none;
         letter-spacing: -0.64px;
         -ms-overflow-style: none;

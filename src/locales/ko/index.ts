@@ -4,5 +4,14 @@ import manual from 'locales/ko/manual.json';
 import productDetail from 'locales/ko/productDetail.json';
 import orderSheet from 'locales/ko/orderSheet.json';
 import orderComplete from 'locales/ko/orderComplete.json';
+import inquiry from 'locales/ko/inquiry.json';
 
-export { main, manager, manual, productDetail, orderSheet, orderComplete };
+export {
+    main,
+    manager,
+    manual,
+    productDetail,
+    orderSheet,
+    orderComplete,
+    inquiry,
+};

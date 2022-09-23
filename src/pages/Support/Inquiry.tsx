@@ -1,36 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useMutation } from 'react-query';
 import { StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
-import { map, pipe, toArray } from '@fxts/core';
+import { head, map, pipe, toArray } from '@fxts/core';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
-import GoBackButton from 'components/Button/GoBackButton';
+import MobileHeader from 'components/shared/MobileHeader';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import { useMall } from 'hooks';
 import { isMobile } from 'utils/styles/responsive';
-import media from 'utils/styles/media';
 import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
-
-const MobilHeader = styled.div`
-    margin-top: 34px;
-    position: relative;
-    padding: 0 24px;
-    > p {
-        display: inline-block;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1.333rem;
-        font-weight: bold;
-        color: ${(props) => props.theme.text1};
-    }
-`;
+import media from 'utils/styles/media';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -75,6 +60,12 @@ const InquiryTypeContainer = styled.div`
         > div {
             font-size: 1.142rem;
             font-weight: bold;
+            > div {
+                font-weight: lighter;
+            }
+        }
+        > p {
+            font-size: 1.142rem;
         }
     }
     ${media.medium} {
@@ -189,18 +180,25 @@ const Inquiry = () => {
     const { register, handleSubmit, setValue, getValues } =
         useForm<WriteInquiry>();
 
+    const { t: translation } = useTranslation('inquiry');
+
     const { mutate: inquiryMutate } = useMutation(
         async (inquiryContent: WriteInquiry & { image?: File }) =>
             await inquiry.writeInquiry(inquiryContent),
+        {
+            onSuccess: () => {
+                alert('문의가 완료됐습니다.');
+            },
+        },
     );
 
     const uploadFileHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
             setUploadFile((prev) => {
-                return [...prev, e.target.files![0]];
+                return [...prev, head(e.target.files!)!];
             });
             setUploadImageList((prev) => {
-                return [...prev, URL.createObjectURL(e.target.files![0])];
+                return [...prev, URL.createObjectURL(head(e.target.files!)!)];
             });
         }
         return;
@@ -208,7 +206,7 @@ const Inquiry = () => {
 
     const onSubmit = handleSubmit(() => {
         if (!getValues('inquiryTypeNo')) {
-            alert('문의 유형을 선택해주세요.');
+            alert(translation('etc.inquiryTypeAlert'));
             return;
         }
         inquiryMutate({
@@ -222,29 +220,26 @@ const Inquiry = () => {
         <>
             <SEOHelmet
                 data={{
-                    title: '1:1 문의하기',
+                    title: translation('subTitle'),
                     meta: {
-                        title: '1:1 문의하기',
-                        description: '보이스캐디 1:1 문의',
+                        title: translation('subTitle'),
+                        description: translation('description'),
                     },
                     og: {
-                        title: '1:1 문의하기',
-                        description: '보이스캐디 1:1 문의',
+                        title: translation('subTitle'),
+                        description: translation('description'),
                     },
                 }}
             />
             {isMobile(width) ? (
-                <MobilHeader>
-                    <GoBackButton />
-                    <p>1:1 문의</p>
-                </MobilHeader>
+                <MobileHeader title={translation('mobileTitle')}></MobileHeader>
             ) : (
                 <Header />
             )}
             <InquiryContainer>
-                <Title>문의하기</Title>
+                <Title>{translation('title')}</Title>
                 <InquiryTypeContainer>
-                    <p>문의유형</p>
+                    <p>{translation('inquiryType.title')}</p>
                     <SelectBox<InquiryType>
                         options={pipe(
                             mallInfo.inquiryType as InquiryType[],
@@ -299,16 +294,20 @@ const Inquiry = () => {
                                 },
                             }),
                         }}
-                        placeHolder={'문의 유형을 선택해주세요'}
+                        placeHolder={translation('inquiryType.placeholder')}
                     />
                 </InquiryTypeContainer>
                 <InquiryContentContainer>
                     <InquiryContentList>
-                        <InquiryContentTitle>제목</InquiryContentTitle>
+                        <InquiryContentTitle>
+                            {translation('inquiryTitle.title')}
+                        </InquiryContentTitle>
                         <InquiryContentInputBox>
                             <InquiryContentInput
                                 type='text'
-                                placeholder='제목을 입력해주세요.'
+                                placeholder={translation(
+                                    'inquiryTitle.placeholder',
+                                )}
                                 {...register('inquiryTitle', {
                                     required: true,
                                 })}
@@ -316,10 +315,14 @@ const Inquiry = () => {
                         </InquiryContentInputBox>
                     </InquiryContentList>
                     <InquiryContentList>
-                        <InquiryContentTitle>내용</InquiryContentTitle>
+                        <InquiryContentTitle>
+                            {translation('inquiryContent.title')}
+                        </InquiryContentTitle>
                         <InquiryContentInputBox>
                             <InquiryContentText
-                                placeholder='내용을 입력해주세요.'
+                                placeholder={translation(
+                                    'inquiryContent.placeholder',
+                                )}
                                 {...register('inquiryContent', {
                                     required: true,
                                 })}
@@ -328,7 +331,7 @@ const Inquiry = () => {
                     </InquiryContentList>
                     <InquiryContentList>
                         <InquiryContentTitle>
-                            사진 및 동영상
+                            {translation('file.title')}
                         </InquiryContentTitle>
                         <InquiryContentInputBox></InquiryContentInputBox>
                     </InquiryContentList>
@@ -338,7 +341,7 @@ const Inquiry = () => {
                         onSubmit();
                     }}
                 >
-                    작성 완료
+                    {translation('etc.sendButton')}
                 </SendInquiryButton>
             </InquiryContainer>
         </>

@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 
-import Inquiry from 'pages/Contact/Inquiry';
+import Inquiry from 'pages/Support/Inquiry';
 import NotFound from 'pages/NotFound';
 
 const SupportRouter = () => (
