@@ -7,13 +7,14 @@ const GlobalStyle = createGlobalStyle`
     * {
         box-sizing: border-box;
         -ms-overflow-style: none;
-    }
-    html {
-        -webkit-text-size-adjust: none;
         font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
         font-weight: normal;
         font-display: fallback;
         font-size: 16px;
+    }
+    html {
+        font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
+        -webkit-text-size-adjust: none;
         letter-spacing: -0.64px;
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -31,6 +32,7 @@ const GlobalStyle = createGlobalStyle`
         background-color: transparent;
         border: none;
         outline: none;
+        font-family: inherit;
     }
     :focus {
         outline: none;
@@ -44,13 +46,11 @@ const GlobalStyle = createGlobalStyle`
     b {
         font-weight: bold;
     }
-
     @media only screen and (max-width: 1200px) {
         html {
-            font-size: 14px;
+            font-size: 12px;
         }
     }
-
     @media only screen and (max-width: 768px) {
         html {
             font-size: 12px;

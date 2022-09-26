@@ -2,6 +2,7 @@ import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
 import { InquiryTypes, WriteInquiry } from 'models/manage';
+import { tokenStorage } from 'utils/storage';
 
 const inquiry = {
     getInquiries: ({
@@ -15,8 +16,9 @@ const inquiry = {
         inquiryStatuses,
         keyword,
         searchType,
-    }: Paging & SearchDate & InquiryTypes): Promise<AxiosResponse> =>
-        request({
+    }: Paging & SearchDate & InquiryTypes): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/inquiries',
             params: {
@@ -32,64 +34,47 @@ const inquiry = {
                 searchType,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 400 error, message: 해당 쇼핑몰에서 접근할 수 없거나 없는 문의 유형입니다. test 필요
-    writeInquiry: ({
-        originalFileName,
-        inquiryTitle,
-        answerEmailSendYn,
-        uploadedFileName,
-        orderNo,
-        captcha,
-        inquiryTypeNo,
-        answerSmsSendYn,
-        inquiryContent,
-        email,
-        productNo,
-    }: WriteInquiry): Promise<AxiosResponse> =>
-        request({
+    writeInquiry: (data: WriteInquiry): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/inquiries',
-            data: {
-                originalFileName,
-                inquiryTitle,
-                answerEmailSendYn,
-                uploadedFileName,
-                orderNo,
-                captcha,
-                inquiryTypeNo,
-                answerSmsSendYn,
-                inquiryContent,
-                email,
-                productNo,
-            },
+            data,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // PREMIUM 타입에서 지원하지 않는 기능입니다.
-    getInquiryConfig: (): Promise<AxiosResponse> =>
-        request({
+    getInquiryConfig: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/inquiries/configurations',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 404 error, message: 문의글이 존재하지 않습니다.
-    getDetailInquiry: (inquiryNo: string): Promise<AxiosResponse> =>
-        request({
+    getDetailInquiry: (inquiryNo: string): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: `/inquiries/${inquiryNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 404 error, 위와 동일
     updateInquiry: (
@@ -105,8 +90,9 @@ const inquiry = {
             WriteInquiry,
             'orderNo' | 'captcha' | 'inquiryTypeNo' | 'email' | 'productNo'
         >,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: `/inquiries/${inquiryNo}`,
             data: {
@@ -118,19 +104,22 @@ const inquiry = {
                 answerEmailSendYn,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 404 error, 위와 동일
-    deleteInquiry: (inquiryNo: string): Promise<AxiosResponse> =>
-        request({
+    deleteInquiry: (inquiryNo: string): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'DELETE',
             url: `/inquiries/${inquiryNo}`,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default inquiry;
