@@ -1,3 +1,5 @@
+import { MultiLevelCategory } from 'models/display';
+
 export interface Url {
     pc: string;
     mobile: string;
@@ -91,7 +93,7 @@ export interface BankType {
 }
 
 export interface Categories {
-    multiLevelCategories: any[];
+    multiLevelCategories: MultiLevelCategory[];
     flatCategories: any[];
 }
 
