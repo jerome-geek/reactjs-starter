@@ -1,4 +1,6 @@
+import { filter, includes, map, pipe, toArray } from '@fxts/core';
 import { createSlice } from '@reduxjs/toolkit';
+
 import { ShoppingCartBody } from 'models/order';
 
 const cartInitialState: {
@@ -60,35 +62,29 @@ export const cartSlice = createSlice({
         },
         updateCart: (state, action) => {
             return {
-                data: [
-                    ...state.data.map((baseCartData) => {
-                        let addedOrderCnt: ShoppingCartBody = {
-                            ...baseCartData,
-                        };
-
-                        if (
-                            baseCartData?.optionNo === action.payload.optionNo
-                        ) {
-                            addedOrderCnt.orderCnt = action.payload.orderCnt;
-                        }
-
-                        return addedOrderCnt;
-                    }),
-                ],
+                data: pipe(
+                    state.data,
+                    map((a) =>
+                        a.optionNo === action.payload.optionNo
+                            ? {
+                                  ...a,
+                                  orderCnt: action.payload.orderCnt,
+                              }
+                            : a,
+                    ),
+                    toArray,
+                ),
             };
         },
         deleteCart: (state, action) => {
             return {
-                data: [
-                    ...state.data.filter((item: ShoppingCartBody) => {
-                        let isDeletedCart = false;
-                        action.payload.deleteList.forEach((cartNo: number) => {
-                            if (item.cartNo === cartNo) isDeletedCart = true;
-                        });
-
-                        if (!isDeletedCart) return item;
-                    }),
-                ],
+                data: pipe(
+                    state.data,
+                    filter(
+                        (a) => !includes(a.cartNo, action.payload.deleteList),
+                    ),
+                    toArray,
+                ),
             };
         },
     },
