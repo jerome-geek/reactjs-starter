@@ -6,6 +6,7 @@ const KRW = (
         symbol: '원',
         precision: 0,
         pattern: `#!`,
+        negativePattern: `-#!`,
     },
 ) => currency(value, { ...options });
 

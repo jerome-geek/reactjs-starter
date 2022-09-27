@@ -1,10 +1,17 @@
+import { FC } from 'react';
 import styled from 'styled-components';
 
-import currency from 'currency.js';
 import { OrderPrice } from 'pages/Cart/Cart';
 import media from 'utils/styles/media';
+import { KRW } from 'utils/currency';
 
-const CartOrderBox = styled.div`
+interface OrderSheetPriceProps {
+    title: string;
+    cartOrderPrice?: OrderPrice;
+    totalAmountPrice?: number;
+}
+
+const OrderSheetPriceContainer = styled.div`
     background: #f8f8fa;
     width: 100%;
 `;
@@ -76,17 +83,13 @@ const CartOrderPrice = styled.div`
     }
 `;
 
-const OrderSheetPrice = ({
+const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
     title,
     cartOrderPrice,
-    amountPrice,
-}: {
-    title: string;
-    cartOrderPrice?: OrderPrice;
-    amountPrice?: number;
+    totalAmountPrice = 0,
 }) => {
     return (
-        <CartOrderBox>
+        <OrderSheetPriceContainer>
             <CartOrderPriceTitle>{title}</CartOrderPriceTitle>
             <CartOrderPriceBox>
                 {cartOrderPrice &&
@@ -95,11 +98,11 @@ const OrderSheetPrice = ({
                             <OrderPriceWrapper key={name}>
                                 <CartOrderSubTitle>{name}</CartOrderSubTitle>
                                 <CartOrderPrice>
-                                    {currency(price, {
-                                        symbol: '',
-                                        precision: 0,
-                                    }).format()}{' '}
-                                    원
+                                    {KRW(price).format({
+                                        symbol: '원',
+                                        pattern: '# !',
+                                        negativePattern: `-# !`,
+                                    })}
                                 </CartOrderPrice>
                             </OrderPriceWrapper>
                         );
@@ -109,17 +112,15 @@ const OrderSheetPrice = ({
                 <CartOrderSubTitle>총 결제금액</CartOrderSubTitle>
                 <CartOrderPrice>
                     <span>
-                        {amountPrice
-                            ? currency(amountPrice, {
-                                  symbol: '',
-                                  precision: 0,
-                              }).format()
-                            : 0}
+                        {KRW(totalAmountPrice).format({
+                            symbol: '',
+                            precision: 0,
+                        })}
                     </span>
                     &nbsp;&nbsp;원
                 </CartOrderPrice>
             </CartOrderPaymentAmount>
-        </CartOrderBox>
+        </OrderSheetPriceContainer>
     );
 };
 
