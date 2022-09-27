@@ -1,4 +1,6 @@
+import { FC } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import currency from 'currency.js';
 
@@ -10,6 +12,19 @@ import { ReactComponent as Minus } from 'assets/icons/minus_button.svg';
 import { OrderProductOption } from 'models/order';
 import { isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
+import PATHS from 'const/paths';
+
+interface CartListProps {
+    cartData: OrderProductOption & {
+        deliveryAmt: number;
+        productName: string;
+    };
+    checkList?: number[];
+    agreeButton?: (checked: boolean, cartNo: number) => void;
+    productCountHandler?: (number: number, cartNo: number) => () => void;
+    deleteCartHandler?: (cartNo: number) => () => void;
+    isModifiable?: boolean;
+}
 
 const CartListBox = styled.div`
     display: flex;
@@ -137,6 +152,7 @@ const CartCountBox = styled.div<{ isModifiable: boolean }>`
 
 const CartCountMinus = styled.div`
     cursor: pointer;
+    height: 100%;
 `;
 
 const CartCount = styled.div`
@@ -147,6 +163,7 @@ const CartCount = styled.div`
 
 const CartCountPlus = styled.div`
     cursor: pointer;
+    height: 100%;
 `;
 
 const CartPrice = styled.div`
@@ -252,25 +269,16 @@ const MobileCartBoxTop = styled.div`
 
 const MobileCartBoxBottom = styled.div``;
 
-const CartList = ({
+const CartList: FC<CartListProps> = ({
     cartData,
     checkList,
     agreeButton,
     productCountHandler,
     deleteCartHandler,
     isModifiable = true,
-}: {
-    cartData: OrderProductOption & {
-        deliveryAmt: number;
-        productName: string;
-    };
-    checkList?: number[];
-    agreeButton?: (checked: boolean, cartNo: number) => void;
-    productCountHandler?: (number: number, cartNo: number) => () => void;
-    deleteCartHandler?: (cartNo: number) => () => void;
-    isModifiable?: boolean;
 }) => {
     const { width } = useWindowSize();
+    const navigate = useNavigate();
 
     return (
         <CartListBox>
@@ -305,6 +313,12 @@ const CartList = ({
                         <img
                             src={cartData.imageUrl}
                             alt={cartData.optionName}
+                            style={{ maxWidth: '100%' }}
+                            onClick={() =>
+                                navigate(
+                                    `${PATHS.PRODUCT_DETAIL}/${cartData.productNo}`,
+                                )
+                            }
                         />
                     </CartImage>
                     <CartName>
