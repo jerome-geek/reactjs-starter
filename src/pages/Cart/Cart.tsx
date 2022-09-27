@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
@@ -46,28 +46,6 @@ const CartListWrapper = styled.div`
     width: 65%;
     ${media.medium} {
         width: 100%;
-    }
-`;
-
-const TitleBox = styled.div`
-    position: relative;
-    > div {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-`;
-
-const Title = styled.h2`
-    margin-bottom: 60px;
-    width: 100%;
-    color: #191919;
-    font-size: 24px;
-    font-weight: bold;
-    ${media.medium} {
-        text-align: center;
-        font-size: 16px;
     }
 `;
 
@@ -309,10 +287,11 @@ export interface OrderPrice {
 const Cart = () => {
     const [checkList, setCheckList] = useState<number[]>([]);
     const [cartList, setCartList] = useState<CartListType>({});
-    const [cartOrderPrice, setCartOrderPrice] = useState<OrderPrice>({});
 
     const { refetch: cartRefetch } = useCart();
     const { member } = useMember();
+    const isLogin = useMemo(() => !!member, [member]);
+
     const { width } = useWindowSize();
 
     const dispatch = useAppDispatch();
@@ -372,26 +351,6 @@ const Cart = () => {
                 await guestOrder.getCart(cartList, {
                     divideInvalidProducts: true,
                 }),
-            {
-                onSuccess: (res) => {
-                    setCartOrderPrice((prev) => {
-                        prev.totalOrderPrice = {
-                            name: '총 주문금액',
-                            price: res?.data.price?.standardAmt,
-                        };
-                        prev.totalDiscountPrice = {
-                            name: '총 할인금액',
-                            price: res.data.price.discountAmt,
-                        };
-                        prev.totalDeliveryPrice = {
-                            name: '총 배송비',
-                            price: res?.data.price?.totalDeliveryAmt,
-                        };
-
-                        return { ...prev };
-                    });
-                },
-            },
         );
 
     const { isFetching: isCartLoading, refetch: getCartFetch } = useQuery(
@@ -420,23 +379,6 @@ const Cart = () => {
             }),
         {
             select: (res) => res.data,
-            onSuccess: (res) =>
-                setCartOrderPrice((prev) => {
-                    prev.totalOrderPrice = {
-                        name: '총 주문금액',
-                        price: res?.standardAmt,
-                    };
-                    prev.totalDiscountPrice = {
-                        name: '총 할인금액',
-                        price: res.discountAmt,
-                    };
-                    prev.totalDeliveryPrice = {
-                        name: '총 배송비',
-                        price: res?.totalDeliveryAmt,
-                    };
-
-                    return { ...prev };
-                }),
             enabled: !!member && checkList.length > 0,
         },
     );
@@ -702,19 +644,39 @@ const Cart = () => {
                         </DeleteSelection>
                     )}
                 </CartListWrapper>
+
                 {isDesktop(width) && (
                     <CartPriceContainer>
                         <CartPriceWrapper>
                             <OrderSheetPrice
                                 title={'주문서'}
-                                cartOrderPrice={cartOrderPrice}
-                                totalAmountPrice={
-                                    member
+                                totalStandardAmt={
+                                    isLogin
+                                        ? cartOrderPriceData?.standardAmt
+                                        : guestCartPriceData?.data.price
+                                              .standardAmt
+                                }
+                                totalDeliveryFee={
+                                    isLogin
+                                        ? cartOrderPriceData?.totalDeliveryAmt
+                                        : guestCartPriceData?.data.price
+                                              .totalDeliveryAmt
+                                }
+                                totalDiscount={
+                                    isLogin
+                                        ? cartOrderPriceData?.discountAmt
+                                        : guestCartPriceData?.data.price
+                                              .discountAmt
+                                }
+                                totalCouponDiscount={0}
+                                totalPaymentAmt={
+                                    isLogin
                                         ? cartOrderPriceData?.totalAmt
                                         : guestCartPriceData?.data.price
                                               .totalAmt
                                 }
                             />
+
                             {isCartListForResponsive('desktop') ? (
                                 <CartOrderPurchaseButton
                                     onClick={purchaseHandler}
