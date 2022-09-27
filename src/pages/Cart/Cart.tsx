@@ -7,7 +7,7 @@ import { shallowEqual } from 'react-redux';
 import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
-import GoBackButton from 'components/Button/GoBackButton';
+import MobileHeader from 'components/shared/MobileHeader';
 import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
@@ -360,6 +360,12 @@ const Cart = () => {
             },
         );
 
+    useEffect(() => {
+        if (!member) {
+            guestCartMutate(guestCartList);
+        }
+    }, [guestCartList]);
+
     const { data: guestCartPriceData, mutate: guestCartPriceMutate } =
         useMutation(
             async (cartList: ShoppingCartBody[]) =>
@@ -510,10 +516,6 @@ const Cart = () => {
     };
 
     useEffect(() => {
-        if (!member) guestCartMutate(guestCartList);
-    }, [guestCartList]);
-
-    useEffect(() => {
         guestCartPriceMutate(
             guestCartList.filter(({ optionNo }) => {
                 return checkList.includes(optionNo);
@@ -612,13 +614,14 @@ const Cart = () => {
 
     return (
         <>
-            <Header />
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={'장바구니'} />
+            )}
+
             <CartContainer>
                 <CartListWrapper>
-                    <TitleBox>
-                        <GoBackButton />
-                        <Title>장바구니</Title>
-                    </TitleBox>
                     {isCartListForResponsive('mustShowDesktop') && (
                         <SelectWrapper>
                             <SelectAll>
@@ -705,7 +708,7 @@ const Cart = () => {
                             <OrderSheetPrice
                                 title={'주문서'}
                                 cartOrderPrice={cartOrderPrice}
-                                amountPrice={
+                                totalAmountPrice={
                                     member
                                         ? cartOrderPriceData?.totalAmt
                                         : guestCartPriceData?.data.price
