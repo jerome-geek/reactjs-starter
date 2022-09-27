@@ -1,14 +1,17 @@
 import { FC } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
 import { OrderPrice } from 'pages/Cart/Cart';
 import media from 'utils/styles/media';
 import { KRW } from 'utils/currency';
+import { PaymentInfo } from 'models/order';
 
 interface OrderSheetPriceProps {
     title: string;
     cartOrderPrice?: OrderPrice;
     totalAmountPrice?: number;
+    paymentInfo?: PaymentInfo;
 }
 
 const OrderSheetPriceContainer = styled.div`
@@ -87,39 +90,87 @@ const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
     title,
     cartOrderPrice,
     totalAmountPrice = 0,
+    paymentInfo,
 }) => {
+    const { t } = useTranslation('orderSheet');
+
     return (
         <OrderSheetPriceContainer>
             <CartOrderPriceTitle>{title}</CartOrderPriceTitle>
-            <CartOrderPriceBox>
-                {cartOrderPrice &&
-                    Object.values(cartOrderPrice).map(({ name, price }) => {
-                        return (
-                            <OrderPriceWrapper key={name}>
-                                <CartOrderSubTitle>{name}</CartOrderSubTitle>
-                                <CartOrderPrice>
-                                    {KRW(price).format({
-                                        symbol: '원',
-                                        pattern: '# !',
-                                        negativePattern: `-# !`,
-                                    })}
-                                </CartOrderPrice>
-                            </OrderPriceWrapper>
-                        );
-                    })}
-            </CartOrderPriceBox>
-            <CartOrderPaymentAmount>
-                <CartOrderSubTitle>총 결제금액</CartOrderSubTitle>
-                <CartOrderPrice>
-                    <span>
-                        {KRW(totalAmountPrice).format({
-                            symbol: '',
-                            precision: 0,
-                        })}
-                    </span>
-                    &nbsp;&nbsp;원
-                </CartOrderPrice>
-            </CartOrderPaymentAmount>
+            {paymentInfo && (
+                <>
+                    <CartOrderPriceBox>
+                        <OrderPriceWrapper>
+                            <CartOrderSubTitle>
+                                {t(
+                                    'paymentInformation.category.amountOrderPrice',
+                                )}
+                            </CartOrderSubTitle>
+                            <CartOrderPrice>
+                                {KRW(paymentInfo?.totalStandardAmt).format()}
+                            </CartOrderPrice>
+                        </OrderPriceWrapper>
+                        <OrderPriceWrapper>
+                            <CartOrderSubTitle>
+                                {t(
+                                    'paymentInformation.category.amountDeliveryFee',
+                                )}
+                            </CartOrderSubTitle>
+                            <CartOrderPrice>
+                                {KRW(
+                                    paymentInfo?.deliveryAmt +
+                                        paymentInfo.remoteDeliveryAmt,
+                                ).format()}
+                            </CartOrderPrice>
+                        </OrderPriceWrapper>
+                        <OrderPriceWrapper>
+                            <CartOrderSubTitle>
+                                {t(
+                                    'paymentInformation.category.amountDiscount',
+                                )}
+                            </CartOrderSubTitle>
+                            <CartOrderPrice>
+                                {KRW(
+                                    Math.abs(
+                                        paymentInfo.totalImmediateDiscountAmt +
+                                            paymentInfo.totalAdditionalDiscountAmt,
+                                    ) * -1,
+                                ).format()}
+                            </CartOrderPrice>
+                        </OrderPriceWrapper>
+                        <OrderPriceWrapper>
+                            <CartOrderSubTitle>
+                                {t(
+                                    'paymentInformation.category.couponDiscount',
+                                )}
+                            </CartOrderSubTitle>
+                            <CartOrderPrice>
+                                {KRW(
+                                    Math.abs(
+                                        paymentInfo.productCouponAmt +
+                                            paymentInfo.cartCouponAmt +
+                                            paymentInfo.deliveryCouponAmt,
+                                    ) * -1,
+                                ).format()}
+                            </CartOrderPrice>
+                        </OrderPriceWrapper>
+                    </CartOrderPriceBox>
+                    <CartOrderPaymentAmount>
+                        <CartOrderSubTitle>
+                            {t('paymentInformation.category.amountPrice')}
+                        </CartOrderSubTitle>
+                        <CartOrderPrice>
+                            <span>
+                                {KRW(paymentInfo.paymentAmt).format({
+                                    symbol: '',
+                                    precision: 0,
+                                })}
+                            </span>
+                            &nbsp;&nbsp;원
+                        </CartOrderPrice>
+                    </CartOrderPaymentAmount>
+                </>
+            )}
         </OrderSheetPriceContainer>
     );
 };
