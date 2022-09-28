@@ -164,3 +164,39 @@ export interface BoardDetail {
     recommendCount: number;
     tags: string[];
 }
+
+export interface InquiriesResponse {
+    totalCount: number;
+    items: InquiryItem[];
+}
+
+export interface InquiryItem {
+    inquiryNo: number;
+    orderNo: string;
+    productNo: number;
+    productName: string;
+    inquiryTitle: string;
+    inquiryContent: string;
+    answerSmsSend: boolean;
+    answerEmailSend: boolean;
+    registerNo: number;
+    registerYmdt: string;
+    inquiryStatus: INQUIRY_STATUS;
+    inquiryType: InquiryType;
+    answer: Answer;
+    imageUrls: any[];
+    originalImageUrls: any[];
+    issuerName: string;
+}
+
+export interface InquiryType {
+    inquiryTypeNo: number;
+    inquiryTypeName: string;
+    inquiryTypeDescription: string;
+}
+
+export interface Answer {
+    answerNo: number;
+    answerContent: string;
+    answerRegisterYmdt: string;
+}
