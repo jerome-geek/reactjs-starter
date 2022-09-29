@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { Link } from 'react-router-dom';
@@ -15,7 +15,7 @@ import { isMobile } from 'utils/styles/responsive';
 import { inquiry } from 'api/manage';
 import media from 'utils/styles/media';
 
-const MyInquiryContainer = styled.div`
+const MyInquiryContainer = styled.section`
     width: 1060px;
     margin: 118px auto 155px;
     color: ${(props) => props.theme.text1};
@@ -74,6 +74,17 @@ const InquiryButton = styled(Link)`
 const MyInquiryListContainer = styled.ul`
     border-top: ${(props) => `2px solid ${props.theme.secondary}`};
     border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
+    > p {
+        padding: 80px 0;
+        text-align: center;
+        color: ${(props) => props.theme.text3};
+    }
+    ${media.xlarge} {
+        font-size: 1.142rem;
+    }
+    ${media.medium} {
+        font-size: 1.333rem;
+    }
 `;
 
 const InquiryPaging = styled(Paging)`
@@ -81,16 +92,16 @@ const InquiryPaging = styled(Paging)`
 `;
 
 const MyInquiry = () => {
-    const [inquiryParams, setInquiryParams] = useState(() => {
-        return {
-            pageNumber: 1,
-            pageSize: 10,
-            hasTotalCount: true,
-        };
+    const [inquiryParams, setInquiryParams] = useState({
+        pageNumber: 1,
+        pageSize: 10,
+        hasTotalCount: true,
     });
     const [totalPage, setTotalPage] = useState(1);
 
     const { width } = useWindowSize();
+
+    const { t: translation } = useTranslation('myInquiry');
 
     const {
         data: inquiryList,
@@ -122,51 +133,45 @@ const MyInquiry = () => {
             await inquiry.deleteInquiry(inquiryNo.toString()),
         {
             onSuccess: () => {
-                alert('삭제가 완료 됐습니다.');
+                alert(translation('deletedAlert'));
                 inquiryRefetch();
             },
         },
     );
 
-    const deleteInquiry = (
-        e: MouseEvent<HTMLButtonElement>,
-        inquiryNo: number,
-    ) => {
-        e.stopPropagation();
-        if (window.confirm('삭제하시겠습니까?')) {
+    const deleteInquiry = (inquiryNo: number | string) => {
+        if (window.confirm(translation('toDeleteAlert'))) {
             deleteMutation(inquiryNo);
         } else {
             return;
         }
     };
 
-    console.log(inquiryList);
-
     return (
         <>
             <SEOHelmet
                 data={{
-                    title: '문의 내역',
+                    title: translation('title'),
                     meta: {
-                        title: '문의 내역',
-                        description: '1:1 문의 내역',
+                        title: translation('title'),
+                        description: translation('description'),
                     },
                     og: {
-                        title: '문의 내역',
-                        description: '1:1 문의 내역',
+                        title: translation('title'),
+                        description: translation('description'),
                     },
                 }}
             />
             {isMobile(width) ? (
-                <MobileHeader title={'1:1 문의'}></MobileHeader>
+                <MobileHeader title={translation('mobileTitle')} />
             ) : (
                 <Header />
             )}
             <MyInquiryContainer>
                 <MyInquiryContainerTop>
-                    <Title>문의 내역</Title>
+                    <Title>{translation('title')}</Title>
                     <InquiryButton to={'/support/inquiry'}>
-                        1:1 문의하기
+                        {translation('subTitle')}
                     </InquiryButton>
                 </MyInquiryContainerTop>
                 {isLoading ? (
@@ -183,7 +188,7 @@ const MyInquiry = () => {
                                 );
                             })
                         ) : (
-                            <>문의 내역이 없습니다.</>
+                            <p>{translation('noInquiry')}</p>
                         )}
                     </MyInquiryListContainer>
                 )}

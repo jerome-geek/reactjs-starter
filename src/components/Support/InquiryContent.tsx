@@ -1,10 +1,10 @@
 import { MouseEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
 
-import { INQUIRY_STATUS } from 'const/status';
 import { InquiryItem } from 'models/manage';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
@@ -25,23 +25,11 @@ const MyInquiryListPreview = styled.div`
     }
 `;
 
-const MyInquiryListStatus = styled.div<{ status: string }>`
+const MyInquiryListLeft = styled.div`
     font-size: 0.625rem;
     width: 9.434%;
     display: flex;
     justify-content: center;
-    > p {
-        border: ${(props) =>
-            props.status === 'ANSWERED'
-                ? 'none'
-                : `1px solid ${props.theme.line1}`};
-        background: ${(props) =>
-            props.status === 'ANSWERED' ? props.theme.bg1 : 'none'};
-        color: ${(props) =>
-            props.status === 'ANSWERED' ? '#fff' : props.theme.text1};
-        display: inline-block;
-        padding: 2px 3px;
-    }
     ${media.xlarge} {
         font-size: 0.857rem;
     }
@@ -56,6 +44,19 @@ const MyInquiryListStatus = styled.div<{ status: string }>`
             text-align: center;
         }
     }
+`;
+
+const MyInquiryListStatus = styled.p<{ status: string }>`
+    border: ${(props) =>
+        props.status === 'ANSWERED'
+            ? 'none'
+            : `1px solid ${props.theme.line1}`};
+    background: ${(props) =>
+        props.status === 'ANSWERED' ? props.theme.bg1 : 'none'};
+    color: ${(props) =>
+        props.status === 'ANSWERED' ? '#fff' : props.theme.text1};
+    display: inline-block;
+    padding: 2px 3px;
 `;
 
 const MyInquiryListInformation = styled.div`
@@ -91,7 +92,7 @@ const MyInquiryPreviewTitle = styled.p`
     }
 `;
 
-const MyInquiryDate = styled.div`
+const MyInquiryDate = styled.p`
     font-size: 0.625rem;
     font-weight: normal;
     letter-spacing: 0;
@@ -257,31 +258,41 @@ const InquiryContent = ({
     deleteInquiry,
 }: {
     inquiryData: InquiryItem;
-    deleteInquiry: (
-        e: MouseEvent<HTMLButtonElement>,
-        inquiryNo: number,
-    ) => void;
+    deleteInquiry: (inquiryNo: number | string) => void;
 }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     const { width } = useWindowSize();
+
+    const { t: translation } = useTranslation('myInquiry');
 
     const handleDropdown = (e: MouseEvent<HTMLLIElement>) => {
         e.preventDefault();
         setIsVisible((prev) => !prev);
     };
 
+    const isModifiable =
+        inquiryData.inquiryStatus === 'ISSUED' ||
+        inquiryData.inquiryStatus === 'ASKED' ||
+        inquiryData.inquiryStatus === 'IN_PROGRESS'
+            ? true
+            : false;
+
     return (
         <MyInquiryList key={inquiryData.inquiryNo} onClick={handleDropdown}>
             <MyInquiryListPreview>
-                <MyInquiryListStatus status={inquiryData.inquiryStatus}>
-                    <p>{INQUIRY_STATUS[inquiryData.inquiryStatus]}</p>
+                <MyInquiryListLeft>
+                    <MyInquiryListStatus status={inquiryData.inquiryStatus}>
+                        {translation(
+                            `inquiryStatus.${inquiryData.inquiryStatus}`,
+                        )}
+                    </MyInquiryListStatus>
                     {isMobile(width) && (
                         <MyInquiryDate>
                             {dayjs(inquiryData.registerYmdt).format('YY-MM-DD')}
                         </MyInquiryDate>
                     )}
-                </MyInquiryListStatus>
+                </MyInquiryListLeft>
                 <MyInquiryListInformation>
                     <MyInquiryInformationLeft>
                         <MyInquiryPreviewTitle>
@@ -299,35 +310,27 @@ const InquiryContent = ({
                     <MyInquiryOrderNo>
                         {inquiryData.orderNo && (
                             <p>
-                                주문번호 <span>{inquiryData.orderNo}</span>
+                                {translation('orderNo')}{' '}
+                                <span>{inquiryData.orderNo}</span>
                             </p>
                         )}
                     </MyInquiryOrderNo>
                 </MyInquiryListInformation>
                 <MyInquiryListModify>
-                    {(inquiryData.inquiryStatus === 'ISSUED' ||
-                        inquiryData.inquiryStatus === 'ASKED' ||
-                        inquiryData.inquiryStatus === 'IN_PROGRESS') && (
+                    {isModifiable && (
                         <ModifyButton
                             to={`/support/inquiry/${inquiryData.inquiryNo}`}
                         >
-                            수정하기
+                            {translation('modify')}
                         </ModifyButton>
                     )}
                     <DeleteButton
-                        // onClick={(e) => {
-                        //     e.stopPropagation();
-                        //     if (window.confirm('삭제하시겠습니까?')) {
-                        //         deleteMutation(inquiryData.inquiryNo);
-                        //     } else {
-                        //         return;
-                        //     }
-                        // }}
                         onClick={(e) => {
-                            deleteInquiry(e, inquiryData.inquiryNo);
+                            e.stopPropagation();
+                            deleteInquiry(inquiryData.inquiryNo);
                         }}
                     >
-                        삭제하기
+                        {translation('delete')}
                     </DeleteButton>
                 </MyInquiryListModify>
             </MyInquiryListPreview>
@@ -338,7 +341,7 @@ const InquiryContent = ({
                 <MyInquiryContent>
                     <div>
                         <p>
-                            문의
+                            {translation('inquiry')}
                             <span>
                                 {dayjs(inquiryData.registerYmdt).format(
                                     'YY-MM-DD',
@@ -354,7 +357,7 @@ const InquiryContent = ({
                     {inquiryData.answer ? (
                         <div>
                             <p>
-                                답변
+                                {translation('answer')}
                                 <span>
                                     {dayjs(
                                         inquiryData.answer?.answerRegisterYmdt,
@@ -369,7 +372,7 @@ const InquiryContent = ({
                         </div>
                     ) : (
                         <div>
-                            <InquiryText>등록된 답변이 없습니다.</InquiryText>
+                            <InquiryText>{translation('noAnswer')}</InquiryText>
                         </div>
                     )}
                 </MyInquiryContent>

@@ -13,7 +13,7 @@ import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
 import SearchRouter from 'router/SearchRouter';
 import OrderRouter from 'router/OrderRouter';
-import Inquiry from 'router/SupportRouter';
+import Support from 'router/SupportRouter';
 import Cart from 'pages/Cart/Cart';
 import Manager from 'pages/Manager';
 import NotFound from 'pages/NotFound';
@@ -90,7 +90,7 @@ const App: FC = () => {
                                 />
                                 <Route
                                     path='/support/*'
-                                    element={<Inquiry />}
+                                    element={<Support />}
                                 />
                                 <Route path='/*' element={<NotFound />} />
                             </Routes>

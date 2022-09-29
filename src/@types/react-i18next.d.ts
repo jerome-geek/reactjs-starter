@@ -17,6 +17,7 @@ declare module 'react-i18next' {
             orderSheet: typeof ko.orderSheet;
             orderComplete: typeof ko.orderComplete;
             inquiry: typeof ko.inquiry;
+            myInquiry: typeof ko.myInquiry;
             // about: typeof ko.about;
             //   about: typeof ko
         };
