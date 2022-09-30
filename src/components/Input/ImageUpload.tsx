@@ -11,12 +11,13 @@ const ImageUploadButton = styled.label`
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    margin: 10px 0;
 `;
 
 const ImageUpload = ({
-    setFile,
+    onChange,
 }: {
-    setFile: Dispatch<SetStateAction<Array<Blob | MediaSource | null>>>;
+    onChange: (uploadedFileList: FileList | null) => void;
 }) => {
     return (
         <>
@@ -24,19 +25,9 @@ const ImageUpload = ({
                 id='imageUpload'
                 type={'file'}
                 style={{ display: 'none' }}
-                accept='image/*'
+                accept='.bmp, .tif, .tiff, .miff, .gif, .jpe, .jpeg, .jpg, .jps, .pjpeg, .jng, .mng, .png'
                 multiple={true}
-                onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                        setFile((prev) => {
-                            return [
-                                ...prev,
-                                e.target.files && e.target.files[0],
-                            ];
-                        });
-                    }
-                    // console.log(file);
-                }}
+                onChange={(e) => onChange(e.target.files)}
             />
             <ImageUploadButton htmlFor='imageUpload'>
                 <Cross />
