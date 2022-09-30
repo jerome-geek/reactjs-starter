@@ -101,7 +101,7 @@ const MyInquiry = () => {
 
     const { width } = useWindowSize();
 
-    const { t: translation } = useTranslation('myInquiry');
+    const { t: myInquiry } = useTranslation('myInquiry');
 
     const {
         data: inquiryList,
@@ -133,14 +133,14 @@ const MyInquiry = () => {
             await inquiry.deleteInquiry(inquiryNo.toString()),
         {
             onSuccess: () => {
-                alert(translation('deletedAlert'));
+                alert(myInquiry('deletedAlert'));
                 inquiryRefetch();
             },
         },
     );
 
     const deleteInquiry = (inquiryNo: number | string) => {
-        if (window.confirm(translation('toDeleteAlert'))) {
+        if (window.confirm(myInquiry('toDeleteAlert'))) {
             deleteMutation(inquiryNo);
         } else {
             return;
@@ -151,27 +151,27 @@ const MyInquiry = () => {
         <>
             <SEOHelmet
                 data={{
-                    title: translation('title'),
+                    title: myInquiry('title'),
                     meta: {
-                        title: translation('title'),
-                        description: translation('description'),
+                        title: myInquiry('title'),
+                        description: myInquiry('description'),
                     },
                     og: {
-                        title: translation('title'),
-                        description: translation('description'),
+                        title: myInquiry('title'),
+                        description: myInquiry('description'),
                     },
                 }}
             />
             {isMobile(width) ? (
-                <MobileHeader title={translation('mobileTitle')} />
+                <MobileHeader title={myInquiry('mobileTitle')} />
             ) : (
                 <Header />
             )}
             <MyInquiryContainer>
                 <MyInquiryContainerTop>
-                    <Title>{translation('title')}</Title>
+                    <Title>{myInquiry('title')}</Title>
                     <InquiryButton to={'/support/inquiry'}>
-                        {translation('subTitle')}
+                        {myInquiry('subTitle')}
                     </InquiryButton>
                 </MyInquiryContainerTop>
                 {isLoading ? (
@@ -184,11 +184,12 @@ const MyInquiry = () => {
                                     <InquiryContent
                                         deleteInquiry={deleteInquiry}
                                         inquiryData={inquiryData}
+                                        key={inquiryData.inquiryNo}
                                     />
                                 );
                             })
                         ) : (
-                            <p>{translation('noInquiry')}</p>
+                            <p>{myInquiry('noInquiry')}</p>
                         )}
                     </MyInquiryListContainer>
                 )}

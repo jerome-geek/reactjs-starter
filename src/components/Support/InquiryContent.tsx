@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
@@ -264,26 +264,27 @@ const InquiryContent = ({
 
     const { width } = useWindowSize();
 
-    const { t: translation } = useTranslation('myInquiry');
+    const { t: myInquiry } = useTranslation('myInquiry');
 
     const handleDropdown = (e: MouseEvent<HTMLLIElement>) => {
         e.preventDefault();
         setIsVisible((prev) => !prev);
     };
 
-    const isModifiable =
-        inquiryData.inquiryStatus === 'ISSUED' ||
-        inquiryData.inquiryStatus === 'ASKED' ||
-        inquiryData.inquiryStatus === 'IN_PROGRESS'
-            ? true
-            : false;
+    const isModifiable = useMemo(() => {
+        return (
+            inquiryData.inquiryStatus === 'ISSUED' ||
+            inquiryData.inquiryStatus === 'ASKED' ||
+            inquiryData.inquiryStatus === 'IN_PROGRESS'
+        );
+    }, [inquiryData]);
 
     return (
         <MyInquiryList key={inquiryData.inquiryNo} onClick={handleDropdown}>
             <MyInquiryListPreview>
                 <MyInquiryListLeft>
                     <MyInquiryListStatus status={inquiryData.inquiryStatus}>
-                        {translation(
+                        {myInquiry(
                             `inquiryStatus.${inquiryData.inquiryStatus}`,
                         )}
                     </MyInquiryListStatus>
@@ -310,7 +311,7 @@ const InquiryContent = ({
                     <MyInquiryOrderNo>
                         {inquiryData.orderNo && (
                             <p>
-                                {translation('orderNo')}{' '}
+                                {myInquiry('orderNo')}{' '}
                                 <span>{inquiryData.orderNo}</span>
                             </p>
                         )}
@@ -321,7 +322,7 @@ const InquiryContent = ({
                         <ModifyButton
                             to={`/support/inquiry/${inquiryData.inquiryNo}`}
                         >
-                            {translation('modify')}
+                            {myInquiry('modify')}
                         </ModifyButton>
                     )}
                     <DeleteButton
@@ -330,7 +331,7 @@ const InquiryContent = ({
                             deleteInquiry(inquiryData.inquiryNo);
                         }}
                     >
-                        {translation('delete')}
+                        {myInquiry('delete')}
                     </DeleteButton>
                 </MyInquiryListModify>
             </MyInquiryListPreview>
@@ -341,7 +342,7 @@ const InquiryContent = ({
                 <MyInquiryContent>
                     <div>
                         <p>
-                            {translation('inquiry')}
+                            {myInquiry('inquiry')}
                             <span>
                                 {dayjs(inquiryData.registerYmdt).format(
                                     'YY-MM-DD',
@@ -357,7 +358,7 @@ const InquiryContent = ({
                     {inquiryData.answer ? (
                         <div>
                             <p>
-                                {translation('answer')}
+                                {myInquiry('answer')}
                                 <span>
                                     {dayjs(
                                         inquiryData.answer?.answerRegisterYmdt,
@@ -372,7 +373,7 @@ const InquiryContent = ({
                         </div>
                     ) : (
                         <div>
-                            <InquiryText>{translation('noAnswer')}</InquiryText>
+                            <InquiryText>{myInquiry('noAnswer')}</InquiryText>
                         </div>
                     )}
                 </MyInquiryContent>
