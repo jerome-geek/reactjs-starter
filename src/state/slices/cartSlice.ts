@@ -3,8 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { ShoppingCartBody } from 'models/order';
 
+interface initialState extends ShoppingCartBody {
+    isChecked?: boolean;
+}
+
 const cartInitialState: {
-    data: ShoppingCartBody[];
+    data: initialState[];
 } = {
     data: [],
 };
@@ -18,7 +22,7 @@ export const cartSlice = createSlice({
                 return {
                     data: [
                         ...state.data.map((baseCartData) => {
-                            let addedOrderCnt: ShoppingCartBody[] = [];
+                            let addedOrderCnt: initialState[] = [];
                             action.payload.forEach(
                                 (newCartData: {
                                     optionNo: number;
@@ -34,6 +38,7 @@ export const cartSlice = createSlice({
                                         addedOrderCnt.push({
                                             ...baseCartData,
                                             orderCnt,
+                                            isChecked: true,
                                         });
                                     }
                                 },
@@ -65,13 +70,35 @@ export const cartSlice = createSlice({
                 data: pipe(
                     state.data,
                     map((a) =>
-                        a.optionNo === action.payload.optionNo
+                        a.cartNo === action.payload.cartNo
                             ? {
                                   ...a,
                                   orderCnt: action.payload.orderCnt,
                               }
                             : a,
                     ),
+                    toArray,
+                ),
+            };
+        },
+        checkCart: (state, action) => {
+            return {
+                data: pipe(
+                    state.data,
+                    map((a) =>
+                        a.optionNo === action.payload.optionNo
+                            ? { ...a, isChecked: !a.isChecked }
+                            : a,
+                    ),
+                    toArray,
+                ),
+            };
+        },
+        checkAllCart: (state, action) => {
+            return {
+                data: pipe(
+                    state.data,
+                    map((a) => ({ ...a, isChecked: action.payload.checked })),
                     toArray,
                 ),
             };
@@ -90,6 +117,7 @@ export const cartSlice = createSlice({
     },
 });
 
-export const { setCart, updateCart, deleteCart } = cartSlice.actions;
+export const { setCart, updateCart, checkCart, checkAllCart, deleteCart } =
+    cartSlice.actions;
 
 export default cartSlice;

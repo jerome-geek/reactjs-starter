@@ -18,11 +18,11 @@ interface CartListProps {
     cartData: OrderProductOption & {
         deliveryAmt: number;
         productName: string;
+        isChecked?: boolean;
     };
-    checkList?: number[];
-    agreeButton?: (checked: boolean, cartNo: number) => void;
+    agreeButton?: (optionNo: number) => void;
     productCountHandler?: (number: number, cartNo: number) => () => void;
-    deleteCartHandler?: (cartNo: number) => () => void;
+    deleteCartList?: (cartNo: number) => () => void;
     isModifiable?: boolean;
 }
 
@@ -271,10 +271,9 @@ const MobileCartBoxBottom = styled.div``;
 
 const CartList: FC<CartListProps> = ({
     cartData,
-    checkList,
     agreeButton,
     productCountHandler,
-    deleteCartHandler,
+    deleteCartList,
     isModifiable = true,
 }) => {
     const { width } = useWindowSize();
@@ -291,18 +290,13 @@ const CartList: FC<CartListProps> = ({
                                     type='checkbox'
                                     onChange={(e) =>
                                         agreeButton &&
-                                        agreeButton(
-                                            e.target.checked,
-                                            cartData.cartNo,
-                                        )
+                                        agreeButton(cartData.optionNo)
                                     }
-                                    checked={checkList?.includes(
-                                        cartData.cartNo,
-                                    )}
+                                    checked={cartData.isChecked}
                                     id={cartData.cartNo.toString()}
                                 />
                                 <label htmlFor={cartData.cartNo.toString()}>
-                                    {checkList?.includes(cartData.cartNo) ? (
+                                    {cartData.isChecked ? (
                                         <Checked />
                                     ) : (
                                         <UnChecked />
@@ -335,18 +329,13 @@ const CartList: FC<CartListProps> = ({
                                     type='checkbox'
                                     onChange={(e) =>
                                         agreeButton &&
-                                        agreeButton(
-                                            e.target.checked,
-                                            cartData.cartNo,
-                                        )
+                                        agreeButton(cartData.optionNo)
                                     }
-                                    checked={checkList?.includes(
-                                        cartData.cartNo,
-                                    )}
+                                    checked={cartData.isChecked}
                                     id={cartData.cartNo.toString()}
                                 />
                                 <label htmlFor={cartData.cartNo.toString()}>
-                                    {checkList?.includes(cartData.cartNo) ? (
+                                    {cartData.isChecked ? (
                                         <Checked />
                                     ) : (
                                         <UnChecked />
@@ -425,8 +414,8 @@ const CartList: FC<CartListProps> = ({
                     {isModifiable && (
                         <CartCloseButton
                             onClick={
-                                deleteCartHandler &&
-                                deleteCartHandler(cartData.cartNo)
+                                deleteCartList &&
+                                deleteCartList(cartData.cartNo)
                             }
                         >
                             <CloseButtonIcon />
@@ -443,8 +432,8 @@ const CartList: FC<CartListProps> = ({
                         {isModifiable && (
                             <CartCloseButton
                                 onClick={
-                                    deleteCartHandler &&
-                                    deleteCartHandler(cartData.cartNo)
+                                    deleteCartList &&
+                                    deleteCartList(cartData.cartNo)
                                 }
                             >
                                 <CloseButtonIcon />

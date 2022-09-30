@@ -71,7 +71,7 @@ const useCart = () => {
     return {
         cartInfo,
         totalCount,
-        refetch: isLogin ? guestCartRefetch : cartRefetch,
+        refetch: isLogin ? cartRefetch : guestCartRefetch,
     };
 };
 
