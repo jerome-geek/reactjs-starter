@@ -9,40 +9,24 @@ import styled from 'styled-components';
 import currency from 'currency.js';
 import dayjs from 'dayjs';
 
-import { myOrder } from 'api/order';
-import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
-import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import CartList from 'components/Cart/CartList';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
+import OrderProgress from 'components/OrderSheet/OrderProgress';
 import { useTypedSelector } from 'state/reducers';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { myOrder } from 'api/order';
+import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
+import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
 
 const CompleteContainer = styled(LayoutResponsive)`
     padding: 118px 0;
     ${media.custom(1280)} {
         width: 100%;
         padding: 24px 24px;
-    }
-`;
-
-const Progress = styled.div`
-    display: flex;
-    color: #ababab;
-    font-weight: bold;
-    font-size: 1.5rem;
-    margin-bottom: 48px;
-    .current-progress {
-        color: ${(props) => props.theme.text1};
-    }
-    > div {
-        margin-right: 18px;
-    }
-    ${media.custom(1280)} {
-        display: none;
     }
 `;
 
@@ -500,13 +484,11 @@ const Complete = () => {
                 <CompleteContainer type='large'>
                     {orderCompleteData ? (
                         <>
-                            <Progress>
-                                <div>{complete('progress.before')}</div>
-                                <div>&#8250;</div>
-                                <div className='current-progress'>
-                                    {complete('progress.now')}
-                                </div>
-                            </Progress>
+                            <OrderProgress
+                                type='complete'
+                                style={{ marginBottom: '48px' }}
+                            />
+
                             <OrderNoContainer>
                                 <h2>{complete('orderComplete')}</h2>
                                 <PayType>{payTypeName}</PayType>
