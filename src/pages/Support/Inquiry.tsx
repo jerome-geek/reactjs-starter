@@ -1,27 +1,25 @@
-import { useMemo, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
 import { map, pipe, pluck, toArray, uniqBy, concat } from '@fxts/core';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
-import ImageUpload from 'components/Input/ImageUpload';
+import ImageUploadButton from 'components/Input/ImageUploadButton';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
-import { useMall } from 'hooks';
+import { useMall, useMember } from 'hooks';
 import { isMobile } from 'utils/styles/responsive';
 import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
 import upload from 'api/etc/upload';
-import { useTypedSelector } from 'state/reducers';
-import { shallowEqual } from 'react-redux';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -217,23 +215,19 @@ const Inquiry = () => {
             inquiryTypeNo: string;
         }>();
 
-    const parameter = useParams(); // TODO 아래 줄로 코드 변경
-    const inquiryNo = parameter['*']?.split('/')[1]; // TODO 아래 줄로 코드 변경
-    // const { inquiryNo, orderNo } = useParams() //TODO 주문 내에서 문의하기를 누른 경우 orderNo를 받아와서 inquiryMutate 에 orderNo 추가해야 함
+    //TODO 주문 내에서 문의하기를 누른 경우 orderNo를 받아와서 inquiryMutate 에 orderNo 추가해야 함
+    const { inquiryNo, orderNo } = useParams();
 
-    const isModify = useMemo(() => !!inquiryNo, [inquiryNo]);
-    const isDefaultValue = (isModify && defaultValue) || !isModify;
+    const isModifiable = useMemo(() => !!inquiryNo, [inquiryNo]);
+    const isDefaultValue = (isModifiable && defaultValue) || !isModifiable;
 
-    const [mallInfo] = useMall();
+    const { mallInfo } = useMall();
 
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
+    const { member } = useMember();
 
     const { width } = useWindowSize();
+
+    const navigate = useNavigate();
 
     const { register, handleSubmit, setValue, getValues } =
         useForm<WriteInquiry>();
@@ -246,6 +240,7 @@ const Inquiry = () => {
         {
             onSuccess: () => {
                 alert('문의가 완료됐습니다.');
+                navigate('/support/my-inquiry');
             },
             onError: () => {
                 alert('문의 등록에 실패하였습니다.');
@@ -267,7 +262,7 @@ const Inquiry = () => {
                 });
                 setUploadedFileUrl(data.imageUrls);
             },
-            enabled: !!inquiryNo,
+            enabled: isModifiable,
         },
     );
 
@@ -277,6 +272,7 @@ const Inquiry = () => {
         {
             onSuccess: () => {
                 alert('문의가 완료됐습니다.');
+                navigate('/support/my-inquiry');
             },
             onError: () => {
                 alert('문의 등록에 실패하였습니다.');
@@ -284,18 +280,20 @@ const Inquiry = () => {
         },
     );
 
-    const uploadFileHandler = (uploadedFileList: FileList | null) => {
-        if (uploadedFileList) {
-            if (uploadFile.length + uploadedFileList.length > 10) {
+    const uploadFileHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        const fileList = e.target.files;
+
+        if (fileList) {
+            if (uploadFile.length + fileList.length > 10) {
                 alert('이미지는 최대 10장까지 등록이 가능합니다.');
                 return;
             }
 
-            if (uploadedFileList.length > 0) {
+            if (fileList.length > 0) {
                 setUploadFile((prev) => {
                     return pipe(
                         prev,
-                        concat(uploadedFileList),
+                        concat(fileList),
                         uniqBy((a) => a.name),
                         toArray,
                     );
@@ -444,7 +442,7 @@ const Inquiry = () => {
                             onChange={(e) => {
                                 setValue('inquiryTypeNo', e?.inquiryTypeNo);
                             }}
-                            isDisabled={isModify}
+                            isDisabled={isModifiable}
                             styles={{
                                 ...(customStyle as StylesConfig<
                                     Partial<InquiryType>,
@@ -526,7 +524,8 @@ const Inquiry = () => {
                             {translation('file.title')}
                         </InquiryContentTitle>
                         <InquiryContentInputBox>
-                            <ImageUpload onChange={uploadFileHandler} />
+                            <ImageUploadButton onChange={uploadFileHandler} />
+
                             {uploadedFileUrl.map((imageUrl) => {
                                 return (
                                     <UploadImageBox key={imageUrl}>
@@ -568,7 +567,7 @@ const Inquiry = () => {
                 </InquiryContentContainer>
                 <SendInquiryButton
                     onClick={() => {
-                        isModify ? onUpdateSubmit() : onSubmit();
+                        isModifiable ? onUpdateSubmit() : onSubmit();
                     }}
                 >
                     {translation('etc.sendButton')}

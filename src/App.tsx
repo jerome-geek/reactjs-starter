@@ -25,7 +25,7 @@ import PrivateRoute from 'hoc/PrivateRoute';
 import ScrollToTop from 'hoc/ScrollToTop';
 
 const App: FC = () => {
-    const [data, isLoading] = useMall();
+    const { isLoading } = useMall();
 
     return (
         <>

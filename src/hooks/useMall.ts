@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { setMall } from 'state/slices/mallSlice';
 import { useTypedSelector } from 'state/reducers';
 import mall from 'api/mall';
-import { isEmptyObject } from 'utils';
 
 const useMall = () => {
     const { mallInfo } = useTypedSelector(({ mall }) => ({
@@ -12,7 +11,7 @@ const useMall = () => {
     }));
 
     const dispatch = useDispatch();
-    const { data, isLoading } = useQuery(
+    const { isLoading } = useQuery(
         'mallInfo',
         async () => await mall.getMall(),
         // TODO: staleTime, cahceTime 설정
@@ -28,7 +27,7 @@ const useMall = () => {
         },
     );
 
-    return [mallInfo, isLoading];
+    return { mallInfo, isLoading };
 };
 
 export default useMall;
