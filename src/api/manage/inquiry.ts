@@ -70,30 +70,13 @@ const inquiry = {
     // TODO 404 error, 위와 동일
     updateInquiry: (
         inquiryNo: string,
-        {
-            inquiryTitle,
-            inquiryContent,
-            originalFileName,
-            uploadedFileName,
-            answerSmsSendYn,
-            answerEmailSendYn,
-        }: Omit<
-            WriteInquiry,
-            'orderNo' | 'captcha' | 'inquiryTypeNo' | 'email' | 'productNo'
-        >,
+        data: WriteInquiry,
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
         return request({
             method: 'PUT',
             url: `/inquiries/${inquiryNo}`,
-            data: {
-                inquiryTitle,
-                inquiryContent,
-                originalFileName,
-                uploadedFileName,
-                answerSmsSendYn,
-                answerEmailSendYn,
-            },
+            data,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),

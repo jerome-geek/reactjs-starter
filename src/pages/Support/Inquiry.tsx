@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
-import { useMutation } from 'react-query';
+import { useMemo, useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
 import { StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
-import { head, map, pipe, toArray } from '@fxts/core';
+import { map, pipe, pluck, toArray, uniqBy, concat } from '@fxts/core';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
+import ImageUpload from 'components/Input/ImageUpload';
+import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { useMall } from 'hooks';
 import { isMobile } from 'utils/styles/responsive';
 import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
+import upload from 'api/etc/upload';
+import { useTypedSelector } from 'state/reducers';
+import { shallowEqual } from 'react-redux';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -118,6 +124,8 @@ const InquiryContentTitle = styled.div`
 
 const InquiryContentInputBox = styled.div`
     width: 73.3%;
+    display: flex;
+    flex-wrap: wrap;
     ${media.medium} {
         width: 100%;
     }
@@ -148,6 +156,33 @@ const InquiryContentText = styled.textarea`
     }
 `;
 
+const UploadImageBox = styled.div`
+    width: 96px;
+    height: 96px;
+    margin: 10px 20px 10px 0;
+    position: relative;
+    &:nth-child(3) {
+        margin-left: 20px;
+    }
+`;
+
+const UploadImage = styled.img`
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+`;
+
+const ImageDeleteButton = styled.button`
+    opacity: 0.8;
+    position: absolute;
+    padding: 0;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+`;
+
 const SendInquiryButton = styled.button`
     width: 440px;
     height: 44px;
@@ -167,13 +202,36 @@ interface InquiryType {
     inquiryTypeNo: number;
 }
 
+interface AddNameBlob extends Blob {
+    name?: string;
+    lastModified?: number;
+    lastModifiedDate?: string;
+}
+
 const Inquiry = () => {
-    const [uploadFile, setUploadFile] = useState<
-        Array<Blob | MediaSource | null>
-    >([]);
-    const [uploadImageList, setUploadImageList] = useState<string[]>([]);
+    const [uploadFile, setUploadFile] = useState<Array<AddNameBlob>>([]);
+    const [uploadedFileUrl, setUploadedFileUrl] = useState<Array<string>>([]);
+    const [defaultValue, setDefaultValue] =
+        useState<{
+            label: string;
+            inquiryTypeNo: string;
+        }>();
+
+    const parameter = useParams(); // TODO 아래 줄로 코드 변경
+    const inquiryNo = parameter['*']?.split('/')[1]; // TODO 아래 줄로 코드 변경
+    // const { inquiryNo, orderNo } = useParams() //TODO 주문 내에서 문의하기를 누른 경우 orderNo를 받아와서 inquiryMutate 에 orderNo 추가해야 함
+
+    const isModify = useMemo(() => !!inquiryNo, [inquiryNo]);
+    const isDefaultValue = (isModify && defaultValue) || !isModify;
 
     const [mallInfo] = useMall();
+
+    const { member } = useTypedSelector(
+        ({ member }) => ({
+            member: member.data,
+        }),
+        shallowEqual,
+    );
 
     const { width } = useWindowSize();
 
@@ -189,19 +247,78 @@ const Inquiry = () => {
             onSuccess: () => {
                 alert('문의가 완료됐습니다.');
             },
+            onError: () => {
+                alert('문의 등록에 실패하였습니다.');
+            },
         },
     );
 
-    const uploadFileHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setUploadFile((prev) => {
-                return [...prev, head(e.target.files!)!];
-            });
-            setUploadImageList((prev) => {
-                return [...prev, URL.createObjectURL(head(e.target.files!)!)];
-            });
+    useQuery(
+        ['inquiry', { member: member?.memberId, inquiryNo }],
+        async () => await inquiry.getDetailInquiry(inquiryNo!),
+        {
+            select: (res) => res.data,
+            onSuccess: (data) => {
+                setValue('inquiryTitle', data.inquiryTitle);
+                setValue('inquiryContent', data.inquiryContent);
+                setDefaultValue({
+                    label: data.inquiryType.inquiryTypeName,
+                    inquiryTypeNo: data.inquiryType.inquiryTypeNo,
+                });
+                setUploadedFileUrl(data.imageUrls);
+            },
+            enabled: !!inquiryNo,
+        },
+    );
+
+    const { mutate: updateMutate } = useMutation(
+        async (inquiryContent: WriteInquiry & { image?: File }) =>
+            await inquiry.updateInquiry(inquiryNo!, inquiryContent),
+        {
+            onSuccess: () => {
+                alert('문의가 완료됐습니다.');
+            },
+            onError: () => {
+                alert('문의 등록에 실패하였습니다.');
+            },
+        },
+    );
+
+    const uploadFileHandler = (uploadedFileList: FileList | null) => {
+        if (uploadedFileList) {
+            if (uploadFile.length + uploadedFileList.length > 10) {
+                alert('이미지는 최대 10장까지 등록이 가능합니다.');
+                return;
+            }
+
+            if (uploadedFileList.length > 0) {
+                setUploadFile((prev) => {
+                    return pipe(
+                        prev,
+                        concat(uploadedFileList),
+                        uniqBy((a) => a.name),
+                        toArray,
+                    );
+                });
+            }
         }
         return;
+    };
+
+    const deleteUploadFileImage = (imageFileName: string) => {
+        setUploadFile((prev) => {
+            return prev.filter((file) => {
+                return file.name !== imageFileName;
+            });
+        });
+    };
+
+    const deleteUploadImage = (imageUrl: string) => {
+        setUploadedFileUrl((prev) => {
+            return prev.filter((uploadedFileUrl) => {
+                return uploadedFileUrl !== imageUrl;
+            });
+        });
     };
 
     const onSubmit = handleSubmit(() => {
@@ -209,11 +326,82 @@ const Inquiry = () => {
             alert(translation('etc.inquiryTypeAlert'));
             return;
         }
-        inquiryMutate({
-            inquiryTypeNo: getValues('inquiryTypeNo'),
-            inquiryTitle: getValues('inquiryTitle'),
-            inquiryContent: getValues('inquiryContent'),
-        });
+        if (uploadFile) {
+            Promise.all(
+                uploadFile.map((image) => {
+                    const data = new FormData();
+                    data.append('file', image as Blob);
+                    return upload.uploadImage(data);
+                }),
+            ).then((res) => {
+                inquiryMutate({
+                    inquiryTypeNo: getValues('inquiryTypeNo'),
+                    inquiryTitle: getValues('inquiryTitle'),
+                    inquiryContent: getValues('inquiryContent'),
+                    originalFileName: pipe(
+                        res,
+                        pluck('data'),
+                        pluck('imageUrl'),
+                        toArray,
+                    ),
+                    uploadedFileName: pipe(
+                        res,
+                        pluck('data'),
+                        pluck('imageUrl'),
+                        toArray,
+                    ),
+                });
+            });
+        } else {
+            inquiryMutate({
+                inquiryTypeNo: getValues('inquiryTypeNo'),
+                inquiryTitle: getValues('inquiryTitle'),
+                inquiryContent: getValues('inquiryContent'),
+            });
+        }
+    });
+
+    const onUpdateSubmit = handleSubmit(() => {
+        if (uploadFile) {
+            Promise.all(
+                uploadFile.map((image) => {
+                    const data = new FormData();
+                    data.append('file', image as Blob);
+                    return upload.uploadImage(data);
+                }),
+            ).then((res) => {
+                updateMutate({
+                    inquiryTypeNo: getValues('inquiryTypeNo'),
+                    inquiryTitle: getValues('inquiryTitle'),
+                    inquiryContent: getValues('inquiryContent'),
+                    originalFileName: pipe(
+                        res,
+                        pluck('data'),
+                        pluck('imageUrl'),
+                        concat(uploadedFileUrl),
+                        toArray,
+                    ),
+                    uploadedFileName: pipe(
+                        res,
+                        pluck('data'),
+                        pluck('imageUrl'),
+                        concat(uploadedFileUrl),
+                        toArray,
+                    ),
+                    answerSmsSendYn: true,
+                    answerEmailSendYn: true,
+                });
+            });
+        } else {
+            updateMutate({
+                inquiryTitle: getValues('inquiryTitle'),
+                inquiryContent: getValues('inquiryContent'),
+                originalFileName: uploadedFileUrl,
+                uploadedFileName: uploadedFileUrl,
+                answerSmsSendYn: false,
+                answerEmailSendYn: false,
+            });
+        }
     });
 
     return (
@@ -240,62 +428,66 @@ const Inquiry = () => {
                 <Title>{translation('title')}</Title>
                 <InquiryTypeContainer>
                     <p>{translation('inquiryType.title')}</p>
-                    <SelectBox<InquiryType>
-                        options={pipe(
-                            mallInfo.inquiryType as InquiryType[],
-                            map((a) => {
-                                return {
-                                    label: a.inquiryTypeName,
-                                    inquiryTypeNo: a.inquiryTypeNo,
-                                };
-                            }),
-                            toArray,
-                        )}
-                        onChange={(e) => {
-                            setValue('inquiryTypeNo', e?.inquiryTypeNo);
-                        }}
-                        styles={{
-                            ...(customStyle as StylesConfig<
-                                Partial<InquiryType>,
-                                false
-                            >),
-                            container: (provided) => ({
-                                ...provided,
-                                margin: '0',
-                            }),
-                            control: (
-                                provided,
-                                { menuIsOpen }: { menuIsOpen: boolean },
-                            ) => ({
-                                boxSizing: 'border-box',
-                                width: '100%',
-                                border: '2px solid #DBDBDB',
-                                borderBottom: menuIsOpen ? 'none' : '',
-                                display: 'flex',
-                                height: '44px',
-                                background: '#fff',
-                            }),
-                            option: () => ({
-                                height: '44px',
-                                lineHeight: '4px',
-                                width: '100%',
-                                boxSizing: 'border-box',
-                                borderLeft: '2px solid #DBDBDB',
-                                background: '#fff',
-                                padding: '20px',
-                                paddingLeft: '20px',
-                                color: '#191919',
-                                cursor: 'pointer',
-                                fontWeight: 'normal',
-                                '&:hover': {
-                                    borderLeft: '2px solid #c00020',
-                                    background: '#F0EFF4',
-                                    fontWeight: 'bold',
-                                },
-                            }),
-                        }}
-                        placeHolder={translation('inquiryType.placeholder')}
-                    />
+                    {isDefaultValue && (
+                        <SelectBox<InquiryType>
+                            options={pipe(
+                                mallInfo.inquiryType as InquiryType[],
+                                map((a) => {
+                                    return {
+                                        label: a.inquiryTypeName,
+                                        inquiryTypeNo: a.inquiryTypeNo,
+                                    };
+                                }),
+                                toArray,
+                            )}
+                            defaultValue={defaultValue}
+                            onChange={(e) => {
+                                setValue('inquiryTypeNo', e?.inquiryTypeNo);
+                            }}
+                            isDisabled={isModify}
+                            styles={{
+                                ...(customStyle as StylesConfig<
+                                    Partial<InquiryType>,
+                                    false
+                                >),
+                                container: (provided) => ({
+                                    ...provided,
+                                    margin: '0',
+                                }),
+                                control: (
+                                    provided,
+                                    { menuIsOpen }: { menuIsOpen: boolean },
+                                ) => ({
+                                    boxSizing: 'border-box',
+                                    width: '100%',
+                                    border: '2px solid #DBDBDB',
+                                    borderBottom: menuIsOpen ? 'none' : '',
+                                    display: 'flex',
+                                    height: '44px',
+                                    background: '#fff',
+                                }),
+                                option: () => ({
+                                    height: '44px',
+                                    lineHeight: '4px',
+                                    width: '100%',
+                                    boxSizing: 'border-box',
+                                    borderLeft: '2px solid #DBDBDB',
+                                    background: '#fff',
+                                    padding: '20px',
+                                    paddingLeft: '20px',
+                                    color: '#191919',
+                                    cursor: 'pointer',
+                                    fontWeight: 'normal',
+                                    '&:hover': {
+                                        borderLeft: '2px solid #c00020',
+                                        background: '#F0EFF4',
+                                        fontWeight: 'bold',
+                                    },
+                                }),
+                            }}
+                            placeHolder={translation('inquiryType.placeholder')}
+                        />
+                    )}
                 </InquiryTypeContainer>
                 <InquiryContentContainer>
                     <InquiryContentList>
@@ -333,12 +525,50 @@ const Inquiry = () => {
                         <InquiryContentTitle>
                             {translation('file.title')}
                         </InquiryContentTitle>
-                        <InquiryContentInputBox></InquiryContentInputBox>
+                        <InquiryContentInputBox>
+                            <ImageUpload onChange={uploadFileHandler} />
+                            {uploadedFileUrl.map((imageUrl) => {
+                                return (
+                                    <UploadImageBox key={imageUrl}>
+                                        <UploadImage
+                                            src={imageUrl}
+                                            alt={imageUrl}
+                                        />
+                                        <ImageDeleteButton
+                                            onClick={() => {
+                                                deleteUploadImage(imageUrl);
+                                            }}
+                                        >
+                                            <CloseButtonIcon />
+                                        </ImageDeleteButton>
+                                    </UploadImageBox>
+                                );
+                            })}
+                            {uploadFile.map((fileData) => {
+                                return (
+                                    <UploadImageBox key={fileData.name}>
+                                        <UploadImage
+                                            src={URL.createObjectURL(fileData!)}
+                                            alt={fileData.name}
+                                        />
+                                        <ImageDeleteButton
+                                            onClick={() => {
+                                                deleteUploadFileImage(
+                                                    fileData.name!,
+                                                );
+                                            }}
+                                        >
+                                            <CloseButtonIcon />
+                                        </ImageDeleteButton>
+                                    </UploadImageBox>
+                                );
+                            })}
+                        </InquiryContentInputBox>
                     </InquiryContentList>
                 </InquiryContentContainer>
                 <SendInquiryButton
                     onClick={() => {
-                        onSubmit();
+                        isModify ? onUpdateSubmit() : onSubmit();
                     }}
                 >
                     {translation('etc.sendButton')}
