@@ -5,6 +5,7 @@ import productDetail from 'locales/ko/productDetail.json';
 import orderSheet from 'locales/ko/orderSheet.json';
 import orderComplete from 'locales/ko/orderComplete.json';
 import inquiry from 'locales/ko/inquiry.json';
+import myInquiry from 'locales/ko/myInquiry.json';
 
 export {
     main,
@@ -14,4 +15,5 @@ export {
     orderSheet,
     orderComplete,
     inquiry,
+    myInquiry,
 };

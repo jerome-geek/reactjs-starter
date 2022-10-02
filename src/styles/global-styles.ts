@@ -10,7 +10,6 @@ const GlobalStyle = createGlobalStyle`
         font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
         font-weight: normal;
         font-display: fallback;
-        font-size: 16px;
     }
     html {
         font-family: 'Noto Sans KR',-apple-system,BlinkMacSystemFont,helvetica,Apple SD Gothic Neo,sans-serif;
@@ -48,7 +47,7 @@ const GlobalStyle = createGlobalStyle`
     }
     @media only screen and (max-width: 1200px) {
         html {
-            font-size: 12px;
+            font-size: 14px;
         }
     }
     @media only screen and (max-width: 768px) {
