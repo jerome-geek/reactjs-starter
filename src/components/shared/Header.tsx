@@ -7,7 +7,7 @@ import MemberPopup from 'components/Member/MemberPopup';
 import SearchLayer from 'components/Search/SearchLayer';
 import SideNavigation from 'components/shared/SideNavigation';
 import { useCart, useMember } from 'hooks';
-import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { isDesktop } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
 import CATEGORY from 'const/category';
