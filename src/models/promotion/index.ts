@@ -1,4 +1,4 @@
-import { COUPON_TYPES } from 'models';
+import { COUPON_TARGET_TYPES, COUPON_TYPES } from 'models';
 
 export interface CouponsParams {
     endYmd?: string;
@@ -11,17 +11,17 @@ export interface CouponsParams {
 export type TargetParams = Pick<CouponsParams, 'pageNumber' | 'pageSize'>;
 
 export interface IssuableCouponResponse {
-    couponNo: number;
-    couponName: string;
-    couponType: string;
-    couponTargetType: string;
-    allianceRefererType: any;
+    couponNo: number; // 쿠폰 번호
+    couponName: string; // 쿠폰 이름
+    couponType: COUPON_TYPES; // 쿠폰 종류
+    couponTargetType: COUPON_TARGET_TYPES; // 쿠폰 대상 종류
+    allianceRefererType: any; // deprecated(더 이상 제공하지 않는 개체항목입니다) 제휴 방문처 타입
     discountInfo: DiscountInfo;
     dateInfo: DateInfo;
     useConstraint: UseConstraint;
     issueConstraint: IssueConstraint;
     couponStatus: CouponStatus;
-    downloadable: boolean;
+    downloadable: boolean; // 다운로드 가능여부 (true: 다운로드 가능 / false: 다운로드 불가능)
 }
 
 export interface DiscountInfo {

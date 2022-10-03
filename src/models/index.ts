@@ -563,6 +563,15 @@ enum COUPON_TYPES {
     CART_DELIVERY = 'CART_DELIVERY', // 장바구니 배송비 할인
 }
 
+// 쿠폰 대상 종류
+enum COUPON_TARGET_TYPES {
+    ALL_PRODUCT = 'ALL_PRODUCT', // 전상품
+    PRODUCT = 'PRODUCT', // 개별상품
+    BRAND = 'BRAND', // 브랜드
+    CATEGORY = 'CATEGORY', // 카테고리
+    PARTNER = 'PARTNER', // 파트너사
+}
+
 export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
@@ -610,4 +619,5 @@ export {
     SHOPBY_TERMS_TYPES,
     VC_TERMS_TYPES,
     COUPON_TYPES,
+    COUPON_TARGET_TYPES,
 };
