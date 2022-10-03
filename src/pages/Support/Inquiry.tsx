@@ -2,7 +2,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
-import { map, pipe, pluck, toArray, uniqBy, concat } from '@fxts/core';
+import { map, pipe, pluck, toArray, uniqBy, concat, every } from '@fxts/core';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -207,8 +207,8 @@ interface AddNameBlob extends Blob {
 }
 
 const Inquiry = () => {
-    const [uploadFile, setUploadFile] = useState<Array<AddNameBlob>>([]);
-    const [uploadedFileUrl, setUploadedFileUrl] = useState<Array<string>>([]);
+    const [uploadFile, setUploadFile] = useState<AddNameBlob[]>([]);
+    const [uploadedFileUrl, setUploadedFileUrl] = useState<string[]>([]);
     const [defaultValue, setDefaultValue] =
         useState<{
             label: string;
@@ -281,9 +281,21 @@ const Inquiry = () => {
     );
 
     const uploadFileHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        const MAX_FILE_SIZE = 12 * 1024 * 1024;
+
         const fileList = e.target.files;
 
         if (fileList) {
+            const isSmallerThanMaxSize = pipe(
+                fileList,
+                every((a) => a.size < MAX_FILE_SIZE),
+            );
+
+            if (!isSmallerThanMaxSize) {
+                alert('12MB가 넘는 파일은 등록할 수 없습니다.');
+                return;
+            }
+
             if (uploadFile.length + fileList.length > 10) {
                 alert('이미지는 최대 10장까지 등록이 가능합니다.');
                 return;

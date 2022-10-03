@@ -21,6 +21,7 @@ const ImageUploadButtonContainer = styled.label`
 const ImageUploadButton: FC<ImageUploadButtonProps> = ({
     multiple = true,
     accept = '.bmp, .tif, .tiff, .miff, .gif, .jpe, .jpeg, .jpg, .jps, .pjpeg, .jng, .mng, .png',
+    ...props
 }) => {
     return (
         <ImageUploadButtonContainer>
@@ -29,6 +30,7 @@ const ImageUploadButton: FC<ImageUploadButtonProps> = ({
                 style={{ display: 'none' }}
                 accept={accept}
                 multiple={multiple}
+                {...props}
             />
             <Cross />
         </ImageUploadButtonContainer>
