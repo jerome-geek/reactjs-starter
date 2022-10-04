@@ -1,7 +1,12 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { CouponsParams, TargetParams } from 'models/promotion';
+import {
+    CouponsParams,
+    getCouponResponse,
+    IssuableCouponResponse,
+    TargetParams,
+} from 'models/promotion';
 import { tokenStorage } from 'utils/storage';
 
 const coupon = {
@@ -12,7 +17,9 @@ const coupon = {
      * @param param0
      * @returns
      */
-    getUserCoupons: (params?: CouponsParams): Promise<AxiosResponse> => {
+    getUserCoupons: (
+        params?: CouponsParams,
+    ): Promise<AxiosResponse<getCouponResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
@@ -37,7 +44,9 @@ const coupon = {
      *
      * @returns
      */
-    getIssuableCoupons: (): Promise<AxiosResponse> => {
+    getIssuableCoupons: (): Promise<
+        AxiosResponse<IssuableCouponResponse[]>
+    > => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
@@ -82,11 +91,17 @@ const coupon = {
      */
     issueCouponByPromotionCode: (
         promotionCode: string,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `coupons/register-code/${promotionCode}`,
-        }),
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
+        });
+    },
 
     /**
      * 쿠폰 발급하기
