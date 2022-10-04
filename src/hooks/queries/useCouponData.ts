@@ -1,32 +1,40 @@
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryOptions } from 'react-query';
 import dayjs from 'dayjs';
 
 import { coupon } from 'api/promotion';
 import { PROFILE_COUPONS } from 'const/queryKeys';
-import { CouponsParams } from 'models/promotion';
+import { Coupon, CouponsParams } from 'models/promotion';
+import { AxiosError, AxiosResponse } from 'axios';
+
+interface useCouponDataParams {
+    memberNo?: number;
+    params?: CouponsParams;
+    options?: UseQueryOptions<
+        AxiosResponse<{ totalCount: number; items: Coupon[] }>,
+        AxiosError,
+        { totalCount: number; items: Coupon[] },
+        [string, number | undefined, CouponsParams]
+    >;
+}
 
 const useCouponData = ({
-    memNo,
-    params,
-}: {
-    memNo?: number;
-    params?: CouponsParams;
-}) => {
-    const couponParams = params ?? {
+    memberNo,
+    params = {
         startYmd: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
         endYmd: dayjs().format('YYYY-MM-DD'),
         pageNumber: 1,
         pageSize: 30,
         usable: true,
-    };
-
+    },
+    options = {
+        enabled: !!memberNo,
+        select: ({ data }) => data,
+    },
+}: useCouponDataParams) => {
     return useQuery(
-        [PROFILE_COUPONS, memNo, { ...couponParams }],
-        async () => await coupon.getUserCoupons({ ...couponParams }),
-        {
-            enabled: !!memNo,
-            select: ({ data }) => data,
-        },
+        [PROFILE_COUPONS, memberNo, { ...params }],
+        async () => await coupon.getUserCoupons({ ...params }),
+        { ...options },
     );
 };
 
