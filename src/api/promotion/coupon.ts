@@ -112,15 +112,15 @@ const coupon = {
      * @returns
      */
     issueCoupon: (
-        couponNo: number,
-        { channelType }: { channelType?: string },
+        couponNo: string,
+        body?: { channelType: string },
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
             method: 'POST',
             url: `/coupons/${couponNo}/download`,
-            data: { channelType },
+            data: { channelType: body?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),

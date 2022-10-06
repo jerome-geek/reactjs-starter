@@ -1,10 +1,10 @@
 import { useQuery, UseQueryOptions } from 'react-query';
 import dayjs from 'dayjs';
+import { AxiosError, AxiosResponse } from 'axios';
 
 import { coupon } from 'api/promotion';
 import { PROFILE_COUPONS } from 'const/queryKeys';
 import { Coupon, CouponsParams } from 'models/promotion';
-import { AxiosError, AxiosResponse } from 'axios';
 
 interface useCouponDataParams {
     memberNo?: number;
