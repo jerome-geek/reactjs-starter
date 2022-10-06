@@ -7,7 +7,7 @@ export interface GolfCourseParams {
 }
 
 const golfCourse = {
-    getState: (params: GolfCourseParams): Promise<AxiosResponse> => {
+    getRegion: (params: GolfCourseParams): Promise<AxiosResponse> => {
         return axios({
             method: 'GET',
             baseURL: '/golf-course/search-realm.ajax.php',

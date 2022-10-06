@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { StylesConfig } from 'react-select';
+import { SingleValue, StylesConfig } from 'react-select';
 import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
-import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
-import { head } from '@fxts/core';
+import { head, map, pipe, toArray } from '@fxts/core';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
@@ -366,14 +367,21 @@ const dummyCourseData = [
     },
 ];
 
+interface SelectTypes {
+    label: string;
+    value: string;
+}
+
 const GolfCourseDetail = () => {
     const [courseCondition, setCourseCondition] = useState<GolfCourseParams>({
         q: '',
         country: '',
         realm: 'state',
     });
-    const [courseState, setCourseState] = useState([]);
-    const [courseCity, setCourseCity] = useState([]);
+    const [courseState, setCourseState] = useState<string[]>([]);
+    const [courseCity, setCourseCity] = useState<string[]>([]);
+
+    const { t: courseDetail } = useTranslation('courseDetail');
 
     const { courseNo } = useParams();
 
@@ -389,9 +397,9 @@ const GolfCourseDetail = () => {
         },
     );
 
-    const { data } = useQuery(
+    useQuery(
         ['golfCourse', { courseCondition }],
-        () => golfCourse.getState(courseCondition),
+        () => golfCourse.getRegion(courseCondition),
         {
             select: (res) => {
                 return res.data;
@@ -411,31 +419,88 @@ const GolfCourseDetail = () => {
         },
     );
 
-    console.log(data);
+    const courseConditionHandler = (
+        e: SingleValue<Partial<SelectTypes>>,
+        realm?: string,
+    ) => {
+        switch (realm) {
+            case 'state':
+                setCourseCondition({
+                    q: e?.value!,
+                    country: e?.value!,
+                    realm: 'state',
+                });
+                break;
+            case 'city':
+                setCourseCondition((prev) => {
+                    return {
+                        ...prev,
+                        q: e?.value!,
+                        realm: 'city',
+                    };
+                });
+                break;
+
+            default:
+                break;
+        }
+    };
+
+    const selectValues = useMemo<
+        Array<{ realm?: string; placeholder: string; options: string[] }>
+    >(
+        () => [
+            {
+                realm: 'state',
+                placeholder: courseDetail('courseAddress.country'),
+                options: countries,
+            },
+            {
+                realm: 'city',
+                placeholder: courseDetail('courseAddress.state'),
+                options: courseState,
+            },
+            {
+                placeholder: courseDetail('courseAddress.city'),
+                options: courseCity,
+            },
+        ],
+        [courseState, courseCity],
+    );
 
     return (
         <>
             <SEOHelmet
                 data={{
-                    title: `${productData?.productName} 지원 골프 코스`,
+                    title: `${productData?.productName} ${courseDetail(
+                        'title',
+                    )}`,
                     meta: {
-                        title: `${productData?.productName} 지원 골프 코스`,
-                        description: `${productData?.productName} 지원 골프 코스 상세 페이지`,
+                        title: `${productData?.productName} ${courseDetail(
+                            'title',
+                        )}`,
+                        description: `${
+                            productData?.productName
+                        } ${courseDetail('description')}`,
                     },
                     og: {
-                        title: `${productData?.productName} 지원 골프 코스`,
-                        description: `${productData?.productName} 지원 골프 코스 상세 페이지`,
+                        title: `${productData?.productName} ${courseDetail(
+                            'title',
+                        )}`,
+                        description: `${
+                            productData?.productName
+                        } ${courseDetail('description')}`,
                     },
                 }}
             />
             {isMobile(width) ? (
-                <MobileHeader title='지원 골프 코스'></MobileHeader>
+                <MobileHeader title={courseDetail('title')}></MobileHeader>
             ) : (
                 <Header />
             )}
             {productData && (
                 <CourseContainer>
-                    <Title>지원 골프 코스</Title>
+                    <Title>{courseDetail('title')}</Title>
                     <CourseTop>
                         <CourseProductImageBox>
                             <div>
@@ -454,85 +519,44 @@ const GolfCourseDetail = () => {
                             </CourseProductDescription>
                             <CourseDetailConditionForm>
                                 <CourseAddressBox>
-                                    <SelectBox
-                                        styles={{
-                                            ...(customStyle as StylesConfig<
-                                                Partial<{
-                                                    label: string;
-                                                    value: string;
-                                                }>,
-                                                false
-                                            >),
-                                            ...(selectStyle as StylesConfig<
-                                                Partial<any>,
-                                                false
-                                            >),
-                                        }}
-                                        options={countries.map((country) => {
-                                            return {
-                                                label: country,
-                                                value: country,
-                                            };
-                                        })}
-                                        onChange={(e) => {
-                                            setCourseCondition({
-                                                q: e?.value!,
-                                                country: e?.value!,
-                                                realm: 'state',
-                                            });
-                                        }}
-                                        placeHolder='국가'
-                                    />
-                                    <SelectBox
-                                        styles={{
-                                            ...(customStyle as StylesConfig<
-                                                Partial<any>,
-                                                false
-                                            >),
-                                            ...(selectStyle as StylesConfig<
-                                                Partial<any>,
-                                                false
-                                            >),
-                                        }}
-                                        options={courseState.map((state) => {
-                                            return {
-                                                label: state,
-                                                value: state,
-                                            };
-                                        })}
-                                        onChange={(e) => {
-                                            setCourseCondition((prev) => {
-                                                return {
-                                                    ...prev,
-                                                    q: e?.value!,
-                                                    realm: 'city',
-                                                };
-                                            });
-                                        }}
-                                        placeHolder='시/도/주'
-                                    />
-                                    <SelectBox
-                                        styles={{
-                                            ...(customStyle as StylesConfig<
-                                                Partial<any>,
-                                                false
-                                            >),
-                                            ...(selectStyle as StylesConfig<
-                                                Partial<any>,
-                                                false
-                                            >),
-                                        }}
-                                        options={courseCity.map((city) => {
-                                            return {
-                                                label: city,
-                                                value: city,
-                                            };
-                                        })}
-                                        placeHolder='도시'
-                                    />
+                                    {selectValues.map(
+                                        ({ realm, placeholder, options }) => {
+                                            return (
+                                                <SelectBox
+                                                    styles={{
+                                                        ...(customStyle as StylesConfig<
+                                                            Partial<SelectTypes>,
+                                                            false
+                                                        >),
+                                                        ...(selectStyle as StylesConfig<
+                                                            Partial<SelectTypes>,
+                                                            false
+                                                        >),
+                                                    }}
+                                                    options={pipe(
+                                                        options,
+                                                        map((a) => {
+                                                            return {
+                                                                label: a,
+                                                                value: a,
+                                                            };
+                                                        }),
+                                                        toArray,
+                                                    )}
+                                                    placeHolder={placeholder}
+                                                    onChange={(e) =>
+                                                        courseConditionHandler(
+                                                            e,
+                                                            realm,
+                                                        )
+                                                    }
+                                                />
+                                            );
+                                        },
+                                    )}
                                 </CourseAddressBox>
                                 <InputDetailMessage>
-                                    상세 지역을 입력하세요.
+                                    {courseDetail('inputDetailAddress')}
                                 </InputDetailMessage>
                                 <DetailAddressSearchContainer>
                                     <InputWithIcon
@@ -540,19 +564,21 @@ const GolfCourseDetail = () => {
                                             fontWeight: '400',
                                             fontSize: '16px',
                                         }}
-                                        placeholder='나라/지역/상세검색'
+                                        placeholder={courseDetail(
+                                            'searchPlaceholder',
+                                        )}
                                     />
                                     <DetailAddressSearchButton>
                                         검색
                                     </DetailAddressSearchButton>
                                 </DetailAddressSearchContainer>
                                 <CourseRequestMessage>
-                                    원하는 코스가 없으면 요청해 보세요.
+                                    {courseDetail('courseRequestMessage')}
                                 </CourseRequestMessage>
                                 <CourseRequestButton
                                     to={PATHS.GOLF_COURSE_REQUEST}
                                 >
-                                    코스 요청하기
+                                    {courseDetail('courseRequest')}
                                 </CourseRequestButton>
                             </CourseDetailConditionForm>
                         </CourseProductInformation>
@@ -577,32 +603,65 @@ const GolfCourseDetail = () => {
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th rowSpan={3}>제품</th>
-                                    <th rowSpan={3}>국가</th>
-                                    <th rowSpan={3}>시/도/주</th>
-                                    <th rowSpan={3}>도시</th>
-                                    <th rowSpan={3}>골프장</th>
-                                    <th rowSpan={3}>코스</th>
-                                    <th rowSpan={2}>
-                                        그린
-                                        <br />
-                                        앞/뒤
+                                    <th rowSpan={3}>
+                                        {courseDetail('courseCategory.product')}
                                     </th>
-                                    <th rowSpan={2}>고도</th>
-                                    <th rowSpan={2}>코스뷰</th>
+                                    <th rowSpan={3}>
+                                        {courseDetail('courseCategory.country')}
+                                    </th>
+                                    <th rowSpan={3}>
+                                        {courseDetail('courseCategory.state')}
+                                    </th>
+                                    <th rowSpan={3}>
+                                        {courseDetail('courseCategory.city')}
+                                    </th>
+                                    <th rowSpan={3}>
+                                        {courseDetail(
+                                            'courseCategory.golfCourse',
+                                        )}
+                                    </th>
+                                    <th rowSpan={3}>
+                                        {courseDetail('courseCategory.course')}
+                                    </th>
+                                    <th
+                                        rowSpan={2}
+                                        dangerouslySetInnerHTML={{
+                                            __html: courseDetail(
+                                                'courseCategory.green',
+                                            ),
+                                        }}
+                                    ></th>
+                                    <th rowSpan={2}>
+                                        {courseDetail(
+                                            'courseCategory.altitude',
+                                        )}
+                                    </th>
+                                    <th rowSpan={2}>
+                                        {courseDetail(
+                                            'courseCategory.courseView',
+                                        )}
+                                    </th>
                                     <th rowSpan={1} colSpan={2}>
-                                        그린뷰
+                                        {courseDetail(
+                                            'courseCategory.greenView',
+                                        )}
                                     </th>
-                                    <th rowSpan={2}>
-                                        그린뷰
-                                        <br />
-                                        핀리로드
-                                    </th>
-                                    <th rowSpan={2}>
-                                        벙커
-                                        <br />
-                                        /해저드
-                                    </th>
+                                    <th
+                                        rowSpan={2}
+                                        dangerouslySetInnerHTML={{
+                                            __html: courseDetail(
+                                                'courseCategory.finleyLoad',
+                                            ),
+                                        }}
+                                    ></th>
+                                    <th
+                                        rowSpan={2}
+                                        dangerouslySetInnerHTML={{
+                                            __html: courseDetail(
+                                                'courseCategory.hazard',
+                                            ),
+                                        }}
+                                    ></th>
                                     <th rowSpan={2}>APL</th>
                                 </tr>
                                 <tr>
