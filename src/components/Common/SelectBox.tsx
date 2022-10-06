@@ -39,7 +39,8 @@ export const customStyle = {
         background: '#fff',
         bottom: '0',
     }),
-    menuList: () => ({
+    menuList: (provided: any) => ({
+        ...provided,
         borderRight: '2px solid #DBDBDB',
         borderBottom: '2px solid #DBDBDB',
         borderTop: 'none',
