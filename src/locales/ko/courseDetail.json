@@ -26,5 +26,6 @@
         "hazard": "벙커<br/>해저드",
         "shape": "형태",
         "contour": "등고"
-    }
+    },
+    "noSearchMessage": "검색 결과가 없습니다."
 }

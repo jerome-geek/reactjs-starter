@@ -237,6 +237,9 @@ const CourseTable = styled.table`
                 height: 40px;
             }
         }
+        /* > p {
+            
+        } */
     }
     th,
     td {
@@ -267,6 +270,12 @@ const CourseTable = styled.table`
             height: 46px;
         }
     }
+`;
+
+const NoSearchResultMessage = styled.p`
+    text-align: center;
+    margin-top: 20px;
+    color: ${(props) => props.theme.text2};
 `;
 
 const selectStyle = {
@@ -520,9 +529,13 @@ const GolfCourseDetail = () => {
                             <CourseDetailConditionForm>
                                 <CourseAddressBox>
                                     {selectValues.map(
-                                        ({ realm, placeholder, options }) => {
+                                        (
+                                            { realm, placeholder, options },
+                                            index,
+                                        ) => {
                                             return (
                                                 <SelectBox
+                                                    key={realm! + index}
                                                     styles={{
                                                         ...(customStyle as StylesConfig<
                                                             Partial<SelectTypes>,
@@ -697,49 +710,55 @@ const GolfCourseDetail = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {dummyCourseData.map(
-                                    (
-                                        {
-                                            product,
-                                            country,
-                                            state,
-                                            city,
-                                            golfCourse,
-                                            courseOfStudy,
-                                            green,
-                                            altitude,
-                                            courseView,
-                                            shape,
-                                            contour,
-                                            finleyLoad,
-                                            bunkerHazard,
-                                            APL,
+                                {dummyCourseData.length > 0 &&
+                                    dummyCourseData.map(
+                                        (
+                                            {
+                                                product,
+                                                country,
+                                                state,
+                                                city,
+                                                golfCourse,
+                                                courseOfStudy,
+                                                green,
+                                                altitude,
+                                                courseView,
+                                                shape,
+                                                contour,
+                                                finleyLoad,
+                                                bunkerHazard,
+                                                APL,
+                                            },
+                                            index,
+                                        ) => {
+                                            return (
+                                                <tr key={golfCourse + index}>
+                                                    <td>{product}</td>
+                                                    <td>{country}</td>
+                                                    <td>{state}</td>
+                                                    <td>{city}</td>
+                                                    <td>{golfCourse}</td>
+                                                    <td>{courseOfStudy}</td>
+                                                    <td>{green}</td>
+                                                    <td>{altitude}</td>
+                                                    <td>{courseView}</td>
+                                                    <td>{shape}</td>
+                                                    <td>{contour}</td>
+                                                    <td>{finleyLoad}</td>
+                                                    <td>{bunkerHazard}</td>
+                                                    <td>{APL}</td>
+                                                </tr>
+                                            );
                                         },
-                                        index,
-                                    ) => {
-                                        return (
-                                            <tr key={golfCourse + index}>
-                                                <td>{product}</td>
-                                                <td>{country}</td>
-                                                <td>{state}</td>
-                                                <td>{city}</td>
-                                                <td>{golfCourse}</td>
-                                                <td>{courseOfStudy}</td>
-                                                <td>{green}</td>
-                                                <td>{altitude}</td>
-                                                <td>{courseView}</td>
-                                                <td>{shape}</td>
-                                                <td>{contour}</td>
-                                                <td>{finleyLoad}</td>
-                                                <td>{bunkerHazard}</td>
-                                                <td>{APL}</td>
-                                            </tr>
-                                        );
-                                    },
-                                )}
+                                    )}
                             </tbody>
                         </CourseTable>
                     </CourseBottom>
+                    {dummyCourseData.length === 0 && (
+                        <NoSearchResultMessage>
+                            {courseDetail('noSearchMessage')}
+                        </NoSearchResultMessage>
+                    )}
                 </CourseContainer>
             )}
         </>
