@@ -7,6 +7,7 @@ import Coupon from 'components/Coupon/Coupon';
 import { Coupon as CouponInterface } from 'models/promotion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import PATHS from 'const/paths';
 
 interface CouponSummaryProps extends HTMLAttributes<HTMLDivElement> {
     coupons: CouponInterface[];
@@ -55,32 +56,34 @@ const CouponSummary: FC<CouponSummaryProps> = ({ coupons }) => {
     return (
         <div>
             <div style={{ marginBottom: '20px' }}>
-                <CouponTitle onClick={() => navigate('/my-page/coupons')}>
+                <CouponTitle onClick={() => navigate(PATHS.MY_COUPONS)}>
                     보유 쿠폰 <FontAwesomeIcon icon={faAngleRight} />
                 </CouponTitle>
             </div>
             {coupons?.length > 0 ? (
                 <div style={{ display: 'flex', textAlign: 'center' }}>
-                    {coupons.map(
-                        ({
-                            couponIssueNo,
-                            discountAmt,
-                            discountRate,
-                            couponName,
-                            useEndYmdt,
-                        }: CouponInterface) => (
-                            <Coupon
-                                key={couponIssueNo}
-                                discountAmt={discountAmt}
-                                discountRate={discountRate}
-                                couponName={couponName}
-                                useEndYmdt={useEndYmdt}
-                            />
-                        ),
-                    )}
+                    {coupons
+                        .slice(0, 2)
+                        .map(
+                            ({
+                                couponIssueNo,
+                                discountAmt,
+                                discountRate,
+                                couponName,
+                                useEndYmdt,
+                            }: CouponInterface) => (
+                                <Coupon
+                                    key={couponIssueNo}
+                                    discountAmt={discountAmt}
+                                    discountRate={discountRate}
+                                    couponName={couponName}
+                                    useEndYmdt={useEndYmdt}
+                                />
+                            ),
+                        )}
                     {coupons.length >= 2 && (
                         <ViewAllButton
-                            onClick={() => console.log('보유쿠폰 전체보기')}
+                            onClick={() => navigate(PATHS.MY_COUPONS)}
                         />
                     )}
                 </div>
