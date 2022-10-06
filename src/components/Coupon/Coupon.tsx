@@ -2,6 +2,9 @@ import { FC, HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
 
+import { KRW } from 'utils/currency';
+import media from 'utils/styles/media';
+
 interface CouponProps extends HTMLAttributes<HTMLDivElement> {
     discountAmt: number;
     discountRate: number;
@@ -12,7 +15,7 @@ interface CouponProps extends HTMLAttributes<HTMLDivElement> {
 const CouponContainer = styled.div`
     border: 1px solid ${(props) => props.theme.line2};
     border-radius: 8px;
-    width: 350px;
+    min-width: 350px;
     height: 143px;
     display: flex;
     flex-direction: column;
@@ -20,6 +23,12 @@ const CouponContainer = styled.div`
     padding: 14px;
     margin-right: 10px;
     flex: 1 0;
+    background-image: url('/assets/images/coupon_background.png');
+    background-size: cover;
+
+    ${media.medium} {
+        margin-right: 0;
+    }
 `;
 
 const CouponPrice = styled.span`
@@ -61,7 +70,7 @@ const Coupon: FC<CouponProps> = ({
                             <span style={{ fontSize: '20px' }}>%</span>
                         </>
                     ) : (
-                        discountAmt
+                        KRW(discountAmt, { symbol: '', precision: 0 }).format()
                     )}
                 </CouponPrice>
                 <CouponTitle>{couponName}</CouponTitle>

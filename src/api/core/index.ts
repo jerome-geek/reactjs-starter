@@ -43,14 +43,9 @@ request.interceptors.response.use(
                 return window.location.replace(PATHS.ERROR);
 
             case HTTP_RESPONSE.HTTP_BAD_REQUEST:
-                alert(error?.response?.data.message || '잘못된 요청입니다.');
-                return window.location.replace(PATHS.LOGIN);
+                return error.response;
 
             default:
-                alert(
-                    error?.response?.data.message ||
-                        '알 수 없는 오류가 발생했습니다.',
-                );
                 return error;
         }
     },

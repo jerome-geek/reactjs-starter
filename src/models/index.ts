@@ -461,37 +461,38 @@ enum ADDRESS_TYPE {
     RECURRING_PAYMENT = 'RECURRING_PAYMENT',
 }
 
+// 결제수단
 enum PAY_TYPE {
-    CREDIT_CARD = 'CREDIT_CARD',
-    ACCOUNT = 'ACCOUNT',
-    MOBILE = 'MOBILE',
-    REALTIME_ACCOUNT_TRANSFER = 'REALTIME_ACCOUNT_TRANSFER',
-    VIRTUAL_ACCOUNT = 'VIRTUAL_ACCOUNT',
-    GIFT = 'GIFT',
-    ATM = 'ATM',
-    PAYCO = 'PAYCO',
-    ZERO_PAY = 'ZERO_PAY',
-    ACCUMULATION = 'ACCUMULATION',
-    PHONE_BILL = 'PHONE_BILL',
-    POINT = 'POINT',
-    YPAY = 'YPAY',
-    KPAY = 'KPAY',
-    PAYPIN = 'PAYPIN',
-    INIPAY = 'INIPAY',
-    PAYPAL = 'PAYPAL',
-    STRIPE = 'STRIPE',
-    NAVER_PAY = 'NAVER_PAY',
-    KAKAO_PAY = 'KAKAO_PAY',
-    NAVER_EASY_PAY = 'NAVER_EASY_PAY',
-    SAMSUNG_PAY = 'SAMSUNG_PAY',
-    CHAI = 'CHAI',
-    TOSS_PAY = 'TOSS_PAY',
-    ESCROW_REALTIME_ACCOUNT_TRANSFER = 'ESCROW_REALTIME_ACCOUNT_TRANSFER',
-    ESCROW_VIRTUAL_ACCOUNT = 'ESCROW_VIRTUAL_ACCOUNT',
+    CREDIT_CARD = 'CREDIT_CARD', // 신용카드
+    ACCOUNT = 'ACCOUNT', // 무통장입금
+    MOBILE = 'MOBILE', // 휴대폰결제
+    REALTIME_ACCOUNT_TRANSFER = 'REALTIME_ACCOUNT_TRANSFER', // 실시간계좌이체
+    VIRTUAL_ACCOUNT = 'VIRTUAL_ACCOUNT', // 가상계좌
+    GIFT = 'GIFT', // 상품권
+    ATM = 'ATM', // ATM
+    PAYCO = 'PAYCO', // PAYCO
+    ZERO_PAY = 'ZERO_PAY', // 0원결제
+    ACCUMULATION = 'ACCUMULATION', // 적립금 전액 사용
+    PHONE_BILL = 'PHONE_BILL', // 전화결제
+    POINT = 'POINT', // 포인트결제
+    YPAY = 'YPAY', // 옐로페이
+    KPAY = 'KPAY', // 케이페이
+    PAYPIN = 'PAYPIN', // 페이핀
+    INIPAY = 'INIPAY', // INIPay 간편결제
+    PAYPAL = 'PAYPAL', // PAYPAL
+    STRIPE = 'STRIPE', // STRIPE
+    NAVER_PAY = 'NAVER_PAY', // 네이버페이 주문형
+    KAKAO_PAY = 'KAKAO_PAY', // 카카오페이
+    NAVER_EASY_PAY = 'NAVER_EASY_PAY', // 네이버페이 결제형
+    SAMSUNG_PAY = 'SAMSUNG_PAY', // 삼성페이
+    CHAI = 'CHAI', // 차이
+    TOSS_PAY = 'TOSS_PAY', // 토스페이
+    ESCROW_REALTIME_ACCOUNT_TRANSFER = 'ESCROW_REALTIME_ACCOUNT_TRANSFER', // 실시간계좌이체 - 에스크로
+    ESCROW_VIRTUAL_ACCOUNT = 'ESCROW_VIRTUAL_ACCOUNT', // 가상계좌 - 에스크로
     RENTAL = 'RENTAL',
-    VERITRANS_CARD = 'VERITRANS_CARD',
-    TOASTCAM = 'TOASTCAM',
-    ETC = 'ETC',
+    VERITRANS_CARD = 'VERITRANS_CARD', // Veritrans CreditCard
+    TOASTCAM = 'TOASTCAM', // 토스트캠
+    ETC = 'ETC', // 기타결제수단
 }
 
 enum PG_TYPE {
@@ -563,6 +564,22 @@ enum COUPON_TYPES {
     CART_DELIVERY = 'CART_DELIVERY', // 장바구니 배송비 할인
 }
 
+// 쿠폰 대상 종류
+enum COUPON_TARGET_TYPES {
+    ALL_PRODUCT = 'ALL_PRODUCT', // 전상품
+    PRODUCT = 'PRODUCT', // 개별상품
+    BRAND = 'BRAND', // 브랜드
+    CATEGORY = 'CATEGORY', // 카테고리
+    PARTNER = 'PARTNER', // 파트너사
+}
+
+// 사용가능 플랫폼
+enum USABLE_PLATFORMS {
+    PC = 'PC',
+    MOBILE_WEB = 'MOBILE_WEB',
+    MOBILE_APP = 'MOBILE_APP',
+}
+
 export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
@@ -610,4 +627,6 @@ export {
     SHOPBY_TERMS_TYPES,
     VC_TERMS_TYPES,
     COUPON_TYPES,
+    COUPON_TARGET_TYPES,
+    USABLE_PLATFORMS,
 };
