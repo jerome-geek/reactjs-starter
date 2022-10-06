@@ -23,7 +23,7 @@ const StyledInput = styled.input<InputProps>`
     }
 
     &:focus {
-        border: 1px solid red;
+        border: 1px solid #222943;
     }
 `;
 
