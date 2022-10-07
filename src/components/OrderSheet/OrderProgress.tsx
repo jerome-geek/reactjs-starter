@@ -12,7 +12,6 @@ const OrderProgressContainer = styled.div`
     display: flex;
     justify-content: flex-start;
     align-items: center;
-
     color: ${(props) => props.theme.text3};
     font-weight: bold;
     font-size: 1.5rem;
