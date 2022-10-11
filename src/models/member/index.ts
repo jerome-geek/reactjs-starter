@@ -129,3 +129,66 @@ export interface UpdatePasswordParams {
     key: string;
     certificationNumber: string;
 }
+export interface ProfileResponse {
+    mallName: string;
+    memberNo: number;
+    memberGradeName: string;
+    memberGroupNames: string;
+    memberGroups: MemberGroup[];
+    memberName: string;
+    memberId: string;
+    mobileNo: string;
+    telephoneNo: string;
+    memberStatus: string;
+    memberType: string;
+    principalCertificated: boolean;
+    certificationType: any;
+    birthday: string;
+    sex: string;
+    email: string;
+    zipCd: string;
+    address: string;
+    detailAddress: string;
+    jibunAddress: string;
+    jibunDetailAddress: string;
+    nickname: string;
+    joinTypeName: string;
+    joinYmdt: string;
+    lastLoginYmdt: string;
+    lastLoginIp: string;
+    loginCount: number;
+    pushNotificationAgreed: boolean;
+    pushNotificationAgreeYmdt: string;
+    pushNotificationDisagreeYmdt: any;
+    smsAgreed: boolean;
+    smsAgreeYmdt: string;
+    smsDisagreeYmdt: any;
+    directMailAgreed: boolean;
+    directMailAgreeYmdt: string;
+    directMailDisagreeYmdt: any;
+    countryCd: string;
+    oauthIdNo: string;
+    additionalInfo: string;
+    adultCertificated: boolean;
+    adultCertificatedYmdt: string;
+    refundBank: string;
+    refundBankAccount: string;
+    refundBankDepositorName: string;
+    agreedTerms: string[];
+    agreedTermsInfos: AgreedTermsInfo[];
+    providerType: string;
+    providerTypes: string[];
+    businessName: any;
+    registrationNo: any;
+}
+
+export interface MemberGroup {
+    memberGroupNo: number;
+    memberGroupName: string;
+    memberGroupDescription: string;
+}
+
+export interface AgreedTermsInfo {
+    termsType: string;
+    agreementYmdt: string;
+}
