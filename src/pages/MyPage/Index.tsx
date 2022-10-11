@@ -19,7 +19,6 @@ import { useMember } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import useCouponData from 'hooks/queries/useCouponData';
-import { take } from '@fxts/core';
 
 const MyPageSummaryContainer = styled.div`
     display: flex;

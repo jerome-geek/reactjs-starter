@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
-import { tap, every, pipe, toArray, map, filter } from '@fxts/core';
+import { every, pipe, toArray, map } from '@fxts/core';
 import { DevTool } from '@hookform/devtools';
 import orderPayment from 'pages/Order/orderPayment';
 import SEOHelmet from 'components/shared/SEOHelmet';
@@ -29,7 +29,7 @@ import {
     OrderProductOption,
     PaymentReserve,
 } from 'models/order';
-import { orderConfiguration, orderSheet } from 'api/order';
+import { orderSheet } from 'api/order';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import { useMall, useMember } from 'hooks';
@@ -246,31 +246,6 @@ const CartAmount = styled.div`
     }
 `;
 
-const SheetButton = styled.div<{ width: string }>`
-    width: ${(props) => props.width};
-    height: 44px;
-    line-height: 44px;
-    text-align: center;
-    color: #fff;
-    background: ${(props) => props.theme.secondary};
-    margin-bottom: 10px;
-    font-weight: bold;
-    cursor: pointer;
-    ${media.medium} {
-        width: 100vw;
-        height: 70px;
-        line-height: 70px;
-        margin-bottom: 0;
-        font-size: 1.125rem;
-        letter-spacing: -0.72px;
-        position: sticky;
-        bottom: 0;
-    }
-    ${media.small} {
-        font-size: 1.6rem;
-    }
-`;
-
 const SheetOrderPriceWrapper = styled.div`
     height: fit-content;
     position: sticky;
@@ -283,124 +258,6 @@ const SheetOrderPriceWrapper = styled.div`
     ${media.medium} {
         width: 100%;
         margin-top: 44px;
-    }
-`;
-
-const TermAgreeButton = styled.div`
-    width: 100%;
-    padding: 0 0 36px;
-    border: 1px solid #d1d2d2;
-    margin-top: 12px;
-    white-space: nowrap;
-    font-size: 0.75rem;
-    > div {
-        margin-top: 20px;
-        text-align: left;
-        display: flex;
-        justify-content: center;
-        width: 56%;
-        width: 100%;
-    }
-    > .guest_agree_box {
-        display: block;
-        flex-direction: column;
-        align-items: left;
-        padding: 0 29px;
-        > div {
-            border-bottom: ${(props) => `1px dashed ${props.theme.text3}`};
-            padding: 10px 0 30px;
-        }
-        .induce {
-            letter-spacing: -0.48px;
-            color: ${(props) => props.theme.text3};
-            line-height: 16px;
-            > p {
-                width: 66%;
-                margin: 0 auto;
-            }
-        }
-        .agree_button_box {
-            > div {
-                width: 66%;
-                display: flex;
-                justify-content: left;
-                align-items: center;
-                margin: 20px auto 0;
-                &:first-child {
-                    margin: 0 auto;
-                }
-            }
-        }
-    }
-    p {
-        line-height: 16px;
-        > span {
-            color: ${(props) => props.theme.text3};
-        }
-        > a {
-            margin-left: 10px;
-            text-decoration: underline;
-            letter-spacing: 0;
-            color: #8c8c8c;
-        }
-    }
-    input {
-        display: none;
-    }
-    label {
-        cursor: pointer;
-        margin-right: 11px;
-    }
-    .agree_box {
-        width: 56%;
-        margin: 36px auto 0;
-        display: flex;
-        justify-content: left;
-    }
-    ${media.custom(1280)} {
-        .guest_agree_box {
-            .induce {
-                > p {
-                    width: 87.8%;
-                }
-            }
-            .agree_button_box {
-                > div {
-                    width: 87.8%;
-                }
-            }
-        }
-        .agree_box {
-            width: 72%;
-        }
-    }
-    ${media.medium} {
-        padding: 0 0 20px;
-        font-size: 1rem;
-        p {
-            line-height: 20px;
-        }
-        .guest_agree_box {
-            display: none;
-        }
-        .mobile_induce {
-            font-weight: 500;
-            padding: 10px 30px;
-            width: 100%;
-            > div {
-                width: 100%;
-                text-align: center;
-                padding-bottom: 30px;
-                border-bottom: ${(props) => `1px dashed ${props.theme.text3}`};
-            }
-        }
-        .agree_box {
-            margin-top: 20px;
-        }
-    }
-    ${media.small} {
-        font-size: 1.6rem;
-        white-space: normal;
     }
 `;
 
@@ -455,7 +312,7 @@ const Sheet = () => {
 
     const { width } = useWindowSize();
 
-    const [mallInfo] = useMall();
+    const { mallInfo } = useMall();
 
     const { t: sheet } = useTranslation('orderSheet');
 
