@@ -11,8 +11,6 @@ import {
 } from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
 const orderSheet = {
     writeOrderSheet: ({
         productCoupons,
@@ -20,8 +18,10 @@ const orderSheet = {
         cartNos,
         channelType,
         products,
-    }: OrderSheetBody): Promise<AxiosResponse<{ orderSheetNo: string }>> =>
-        request({
+    }: OrderSheetBody): Promise<AxiosResponse<{ orderSheetNo: string }>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: '/order-sheets',
             data: {
@@ -34,56 +34,61 @@ const orderSheet = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getOrderSheet: (
         orderSheetNo: string,
         { includeMemberAddress }: { includeMemberAddress?: boolean },
-    ): Promise<AxiosResponse<OrderSheetResponse>> =>
-        request({
+    ): Promise<AxiosResponse<OrderSheetResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/order-sheets/${orderSheetNo}`,
             params: { includeMemberAddress },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getCalculatedOrderSheet: (
         orderSheetNo: string,
-        {
-            addressRequest,
-            couponRequest,
-            accumulationUseAmt,
-            shippingAddress,
-        }: GetCalculatedOrderSheet,
-    ): Promise<AxiosResponse> =>
-        request({
+        body: GetCalculatedOrderSheet,
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/order-sheets/${orderSheetNo}/calculate`,
             data: {
-                addressRequest,
-                couponRequest,
-                accumulationUseAmt,
-                shippingAddress,
+                addressRequest: body?.addressRequest,
+                couponRequest: body?.couponRequest,
+                accumulationUseAmt: body?.accumulationUseAmt,
+                shippingAddress: body?.shippingAddress,
             },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getCanApplyCoupon: (
         orderSheetNo: string,
         params?: { channelType: string },
-    ): Promise<AxiosResponse<ApplyCouponResponse>> =>
-        request({
+    ): Promise<AxiosResponse<ApplyCouponResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/order-sheets/${orderSheetNo}/coupons`,
             params: { channelType: params?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     applyCoupon: (
         orderSheetNo: string,
@@ -93,8 +98,10 @@ const orderSheet = {
             promotionCode,
             productCoupons,
         }: CouponRequest,
-    ): Promise<AxiosResponse<CouponApplyResponse>> =>
-        request({
+    ): Promise<AxiosResponse<CouponApplyResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/order-sheets/${orderSheetNo}/coupons/apply`,
             data: {
@@ -106,7 +113,8 @@ const orderSheet = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getAppliedCouponPrice: (
         orderSheetNo: string,
@@ -116,8 +124,10 @@ const orderSheet = {
             promotionCode,
             productCoupons,
         }: CouponRequest,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/order-sheets/${orderSheetNo}/coupons/calculate`,
             data: {
@@ -129,13 +139,15 @@ const orderSheet = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
-
+        });
+    },
     getMaximumAppliedCouponPrice: (
         orderSheetNo: string,
         { channelType }: { channelType?: string },
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/order-sheets/${orderSheetNo}/coupons/maximum`,
             data: {
@@ -144,7 +156,8 @@ const orderSheet = {
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default orderSheet;

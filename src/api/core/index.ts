@@ -44,7 +44,7 @@ request.interceptors.response.use(
 
             case HTTP_RESPONSE.HTTP_BAD_REQUEST:
                 alert(error?.response?.data.message || '잘못된 요청입니다.');
-                return window.location.replace(PATHS.LOGIN);
+                return error;
 
             default:
                 alert(
