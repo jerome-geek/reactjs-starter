@@ -96,4 +96,16 @@ sketch
 # and uncomment the following lines
 # .pnp.*
 
+# build
+build
+
+# pem
+*.pem
+
+# ppk
+*.ppk
+
+# dev
+*_dev.*
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,visualstudiocode,yarn,react,dotenv
