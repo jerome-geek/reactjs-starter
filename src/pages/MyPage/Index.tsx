@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -12,16 +13,13 @@ import CouponSummary from 'components/MyPage/CouponSummary';
 import MyGoodsSummary from 'components/MyPage/MyGoodsSummary';
 import { accumulation } from 'api/manage';
 import { myOrder } from 'api/order';
-import { coupon } from 'api/promotion';
-import {
-    PROFILE_ACCUMULATION,
-    PROFILE_COUPONS,
-    PROFILE_ORDER_SUMMARY,
-} from 'const/queryKeys';
+import { PROFILE_ACCUMULATION, PROFILE_ORDER_SUMMARY } from 'const/queryKeys';
 import PATHS from 'const/paths';
 import { useMember } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
+import useCouponData from 'hooks/queries/useCouponData';
+import { take } from '@fxts/core';
 
 const MyPageSummaryContainer = styled.div`
     display: flex;
@@ -57,7 +55,9 @@ const MyPageIndex = () => {
 
     const { member, onLogOutClick } = useMember();
 
-    if (!member) {
+    const isLogin = useMemo(() => !!member, [member]);
+
+    if (!isLogin) {
         navigate(PATHS.GUEST_LOGIN);
     }
 
@@ -71,7 +71,7 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }),
         {
-            enabled: !!member,
+            enabled: isLogin,
             select: ({ data }) => {
                 return data;
             },
@@ -88,30 +88,13 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }),
         {
-            enabled: !!member,
+            enabled: isLogin,
             select: ({ data }) => {
                 return data;
             },
         },
     );
-
-    const { data: couponData } = useQuery(
-        [PROFILE_COUPONS, member?.memberId],
-        async () =>
-            await coupon.getUserCoupons({
-                startYmd: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
-                endYmd: dayjs().format('YYYY-MM-DD'),
-                pageNumber: 1,
-                pageSize: 30,
-                usable: true,
-            }),
-        {
-            enabled: !!member,
-            select: ({ data }) => {
-                return data;
-            },
-        },
-    );
+    const couponData = useCouponData({ memberNo: member?.memberNo });
 
     return (
         <>
@@ -151,18 +134,18 @@ const MyPageIndex = () => {
                             님, 안녕하세요!
                         </p>
 
-                        <StyledLink to='/my-page/info'>
+                        <StyledLink to={PATHS.MY_INFO}>
                             정보수정 <FontAwesomeIcon icon={faAngleRight} />
                         </StyledLink>
                     </MyPageSummaryContainer>
 
-                    {accumulationData && couponData && (
+                    {accumulationData && couponData.data && (
                         <ShoppingSummary
                             myGoodsCount={0}
                             totalAvailableAmt={
                                 accumulationData.totalAvailableAmt
                             }
-                            couponCount={couponData.totalCount}
+                            couponCount={couponData.data.totalCount}
                         />
                     )}
 
@@ -179,7 +162,9 @@ const MyPageIndex = () => {
                 </MyPageSection>
 
                 <MyPageSection style={{ border: 0 }}>
-                    {couponData && <CouponSummary coupons={couponData.items} />}
+                    {couponData.data && (
+                        <CouponSummary coupons={couponData.data.items} />
+                    )}
                 </MyPageSection>
             </MyPageWrapper>
         </>

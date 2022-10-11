@@ -13,9 +13,9 @@ import EtcRouter from 'router/EtcRouter';
 import EventRouter from 'router/EventRouter';
 import SearchRouter from 'router/SearchRouter';
 import OrderRouter from 'router/OrderRouter';
+import Support from 'router/SupportRouter';
 import Cart from 'pages/Cart/Cart';
 import Manager from 'pages/Manager';
-import Inquiry from 'pages/Support/Inquiry';
 import NotFound from 'pages/NotFound';
 import { useMall } from 'hooks';
 import Loader from 'components/shared/Loader';
@@ -25,7 +25,7 @@ import PrivateRoute from 'hoc/PrivateRoute';
 import ScrollToTop from 'hoc/ScrollToTop';
 
 const App: FC = () => {
-    const [data, isLoading] = useMall();
+    const { isLoading } = useMall();
 
     return (
         <>
@@ -90,7 +90,7 @@ const App: FC = () => {
                                 />
                                 <Route
                                     path='/support/*'
-                                    element={<Inquiry />}
+                                    element={<Support />}
                                 />
                                 <Route path='/*' element={<NotFound />} />
                             </Routes>

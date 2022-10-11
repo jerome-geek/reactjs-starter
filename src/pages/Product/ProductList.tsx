@@ -111,17 +111,17 @@ const ProductList = () => {
 
     const navigate = useNavigate();
 
-    const [mall] = useMall();
+    const { mallInfo } = useMall();
 
     const categoryInfo = useMemo<any>(
         () =>
             pipe(
-                mall.categories.multiLevelCategories,
+                mallInfo.categories.multiLevelCategories,
                 filter((a: any) => a.categoryNo.toString() === categoryNo),
                 toArray,
                 head,
             ),
-        [categoryNo, mall.categories.multiLevelCategories],
+        [categoryNo, mallInfo.categories.multiLevelCategories],
     );
 
     const [productCategory, setProductCategory] = useState<ProductCategory[]>([

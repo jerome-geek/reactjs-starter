@@ -10,6 +10,8 @@ export interface SelectBoxProps<T> {
         actionMeta: ActionMeta<Partial<T>>,
     ) => void;
     styles?: StylesConfig<Partial<T>, false>;
+    defaultValue?: any;
+    isDisabled?: boolean;
 }
 
 export const customStyle = {
@@ -37,7 +39,8 @@ export const customStyle = {
         background: '#fff',
         bottom: '0',
     }),
-    menuList: () => ({
+    menuList: (provided: any) => ({
+        ...provided,
         borderRight: '2px solid #DBDBDB',
         borderBottom: '2px solid #DBDBDB',
         borderTop: 'none',
@@ -77,6 +80,8 @@ const SelectBox = <T extends any>({
     onChange,
     styles,
     placeHolder,
+    defaultValue,
+    isDisabled,
 }: SelectBoxProps<T>) => {
     const DropdownIndicator = () => {
         return <DropDownIcon />;
@@ -84,6 +89,7 @@ const SelectBox = <T extends any>({
 
     return (
         <Select
+            defaultValue={defaultValue}
             options={options}
             onChange={onChange}
             placeholder={placeHolder}
@@ -92,6 +98,7 @@ const SelectBox = <T extends any>({
                     ? styles
                     : (customStyle as StylesConfig<Partial<T>, false>)
             }
+            isDisabled={isDisabled}
             components={{ DropdownIndicator }}
         />
     );

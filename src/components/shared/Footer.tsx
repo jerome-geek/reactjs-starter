@@ -161,7 +161,7 @@ const FooterContents = styled.p`
 `;
 
 const Footer = () => {
-    const [mallInfo, isLoading] = useMall();
+    const { mallInfo } = useMall();
     const { width } = useWindowSize();
 
     const SocialMediaList = useMemo(

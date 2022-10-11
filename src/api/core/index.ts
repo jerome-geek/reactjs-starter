@@ -44,13 +44,9 @@ request.interceptors.response.use(
 
             case HTTP_RESPONSE.HTTP_BAD_REQUEST:
                 alert(error?.response?.data.message || '잘못된 요청입니다.');
-                return error;
+                return error.response;
 
             default:
-                alert(
-                    error?.response?.data.message ||
-                        '알 수 없는 오류가 발생했습니다.',
-                );
                 return error;
         }
     },

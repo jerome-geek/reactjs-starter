@@ -224,7 +224,7 @@ export interface OptionValue {
 }
 
 export interface Coupon {
-    coupons: Coupon2[];
+    coupons: DownloadableCoupon[];
     guideImageUrl: string;
     issuedImageUrl: string;
     alreadyIssuedImageUrl: string;
@@ -233,7 +233,7 @@ export interface Coupon {
     dateExpiredImageUrl: string;
 }
 
-export interface Coupon2 {
+export interface DownloadableCoupon {
     couponNo: number;
     couponName: string;
     couponType: string;

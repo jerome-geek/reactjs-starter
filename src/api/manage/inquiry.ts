@@ -1,37 +1,28 @@
 import { AxiosResponse } from 'axios';
 
 import request, { defaultHeaders } from 'api/core';
-import { InquiryTypes, WriteInquiry } from 'models/manage';
+import { InquiriesResponse, InquiryTypes, WriteInquiry } from 'models/manage';
 import { tokenStorage } from 'utils/storage';
 
 const inquiry = {
-    getInquiries: ({
-        pageNumber,
-        pageSize,
-        hasTotalCount,
-        startYmd,
-        endYmd,
-        inquiryTypeNo,
-        inquiryStatus,
-        inquiryStatuses,
-        keyword,
-        searchType,
-    }: Paging & SearchDate & InquiryTypes): Promise<AxiosResponse> => {
+    getInquiries: (
+        params?: Partial<Paging & SearchDate & InquiryTypes>,
+    ): Promise<AxiosResponse<InquiriesResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
         return request({
             method: 'GET',
             url: '/inquiries',
             params: {
-                pageNumber,
-                pageSize,
-                hasTotalCount,
-                startYmd,
-                endYmd,
-                inquiryTypeNo,
-                inquiryStatus,
-                inquiryStatuses,
-                keyword,
-                searchType,
+                pageNumber: params?.pageNumber,
+                pageSize: params?.pageSize,
+                hasTotalCount: params?.hasTotalCount,
+                startYmd: params?.startYmd,
+                endYmd: params?.endYmd,
+                inquiryTypeNo: params?.inquiryTypeNo,
+                inquiryStatus: params?.inquiryStatus,
+                inquiryStatuses: params?.inquiryStatuses,
+                keyword: params?.keyword,
+                searchType: params?.searchType,
             },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
@@ -79,30 +70,13 @@ const inquiry = {
     // TODO 404 error, 위와 동일
     updateInquiry: (
         inquiryNo: string,
-        {
-            inquiryTitle,
-            inquiryContent,
-            originalFileName,
-            uploadedFileName,
-            answerSmsSendYn,
-            answerEmailSendYn,
-        }: Omit<
-            WriteInquiry,
-            'orderNo' | 'captcha' | 'inquiryTypeNo' | 'email' | 'productNo'
-        >,
+        data: WriteInquiry,
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
         return request({
             method: 'PUT',
             url: `/inquiries/${inquiryNo}`,
-            data: {
-                inquiryTitle,
-                inquiryContent,
-                originalFileName,
-                uploadedFileName,
-                answerSmsSendYn,
-                answerEmailSendYn,
-            },
+            data,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
