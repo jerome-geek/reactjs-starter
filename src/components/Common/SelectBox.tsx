@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import Select, { SingleValue, ActionMeta, StylesConfig } from 'react-select';
 
 import { ReactComponent as DropDownIcon } from 'assets/icons/arrow_drop_down.svg';
@@ -67,6 +68,7 @@ export const customStyle = {
         color: '#a8a8a8',
         fontSize: '16px',
         fontFamily: 'Noto Sans CJK KR',
+        marginTop: '4px',
     }),
     indicatorsContainer: (provided: any) => ({
         ...provided,
@@ -75,33 +77,42 @@ export const customStyle = {
     indicatorSeparator: () => ({}),
 };
 
-const SelectBox = <T extends any>({
+const SelectBox = forwardRef(
+    <T extends any>({
+        options,
+        onChange,
+        styles,
+        placeHolder,
+        defaultValue,
+        isDisabled,
+    }: SelectBoxProps<T>) => {
+        const DropdownIndicator = () => {
+            return <DropDownIcon />;
+        };
+
+        return (
+            <Select
+                defaultValue={defaultValue}
+                options={options}
+                onChange={onChange}
+                placeholder={placeHolder}
+                styles={
+                    styles
+                        ? styles
+                        : (customStyle as StylesConfig<Partial<T>, false>)
+                }
+                isDisabled={isDisabled}
+                components={{ DropdownIndicator }}
+            />
+        );
+    },
+);
+
+export default SelectBox as <T extends any>({
     options,
     onChange,
     styles,
     placeHolder,
     defaultValue,
     isDisabled,
-}: SelectBoxProps<T>) => {
-    const DropdownIndicator = () => {
-        return <DropDownIcon />;
-    };
-
-    return (
-        <Select
-            defaultValue={defaultValue}
-            options={options}
-            onChange={onChange}
-            placeholder={placeHolder}
-            styles={
-                styles
-                    ? styles
-                    : (customStyle as StylesConfig<Partial<T>, false>)
-            }
-            isDisabled={isDisabled}
-            components={{ DropdownIndicator }}
-        />
-    );
-};
-
-export default SelectBox;
+}: SelectBoxProps<T>) => JSX.Element;
