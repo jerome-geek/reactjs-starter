@@ -20,7 +20,9 @@ interface CommomPaymentProps {
     }[];
 }
 
-const CommonPaymentContainer = styled.div``;
+const CommonPaymentContainer = styled.div`
+    margin-bottom: 60px;
+`;
 
 const PaymentTitle = styled.h3`
     font-size: 24px;
@@ -77,7 +79,9 @@ const PaymentList = styled.div`
     }
 `;
 
-const PaymentListItem = styled(PrimaryButton)<{ isClicked: boolean }>`
+const PaymentListItem = styled(PrimaryButton).attrs({ type: 'button' })<{
+    isClicked: boolean;
+}>`
     width: 31%;
     padding: 10px 26px;
     box-sizing: border-box;

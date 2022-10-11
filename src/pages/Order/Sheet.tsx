@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
@@ -6,15 +6,11 @@ import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
-import { shallowEqual } from 'react-redux';
-import currency from 'currency.js';
-
-import { useTypedSelector } from 'state/reducers';
+import { tap, every, pipe, toArray, map, filter } from '@fxts/core';
+import { DevTool } from '@hookform/devtools';
 import orderPayment from 'pages/Order/orderPayment';
-import { OrderPrice } from 'pages/Cart/Cart';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
-import GoBackButton from 'components/Button/GoBackButton';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
 import ShippingAddress from 'components/OrderSheet/ShippingAddress';
@@ -23,70 +19,35 @@ import CommonPayment from 'components/OrderSheet/CommonPayment';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import ShippingListModal from 'components/Modal/ShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
-import GuestPassword from 'components/OrderSheet/GuestPassword';
+import GuestOrderPassword from 'components/OrderSheet/GuestOrderPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
-import { CHANNEL_TYPE, PAY_TYPE, PG_TYPE } from 'models';
+import { CHANNEL_TYPE, COUNTRY_CD, PAY_TYPE, PG_TYPE } from 'models';
 import {
     CouponRequest,
     OrderProductOption,
     PaymentReserve,
 } from 'models/order';
-import { orderSheet } from 'api/order';
-import { tokenStorage } from 'utils/storage';
+import { orderConfiguration, orderSheet } from 'api/order';
 import media from 'utils/styles/media';
-import { isMobile } from 'utils/styles/responsive';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { useMall, useMember } from 'hooks';
+import OrderTermsAgreement from 'components/OrderSheet/OrderTermsAgreement';
+import MobileHeader from 'components/shared/MobileHeader';
+import PATHS from 'const/paths';
+import { KRW } from 'utils/currency';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import OrderProgress from 'components/OrderSheet/OrderProgress';
 
-const accessTokenInfo = tokenStorage.getAccessToken();
-
-const SheetContainer = styled.div`
+const OrderSheetContainer = styled.form`
     width: 1280px;
     margin: 118px auto;
+
     ${media.custom(1280)} {
         padding: 0 24px;
         margin-top: 35px;
         width: 100%;
-    }
-`;
-
-const Progress = styled.div`
-    display: flex;
-    color: ${(props) => props.theme.text3};
-    font-weight: bold;
-    font-size: 1.5rem;
-    margin-bottom: 60px;
-    .current-progress {
-        color: ${(props) => props.theme.text1};
-        margin-right: 18px;
-    }
-    > div {
-        margin-right: 18px;
-    }
-    ${media.medium} {
-        text-align: center;
-    }
-`;
-
-const MobileTitle = styled.div`
-    position: relative;
-    font-size: 1.25rem;
-    > h2 {
-        text-align: center;
-        font-weight: bold;
-        color: ${(props) => props.theme.text1};
-    }
-    > div {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    ${media.medium} {
-        font-size: 1.125rem;
-    }
-    ${media.small} {
-        font-size: 1.6rem;
     }
 `;
 
@@ -310,7 +271,7 @@ const SheetButton = styled.div<{ width: string }>`
     }
 `;
 
-const SheetOrderPriceWrapper = styled.form`
+const SheetOrderPriceWrapper = styled.div`
     height: fit-content;
     position: sticky;
     right: 0;
@@ -443,7 +404,22 @@ const TermAgreeButton = styled.div`
     }
 `;
 
+const PaymentButton = styled(PrimaryButton)`
+    width: 100%;
+
+    ${media.small} {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
+`;
+
 const Sheet = () => {
+    const { orderSheetNo } = useParams() as { orderSheetNo: string };
+
+    const { member } = useMember();
+    const isLogin = useMemo(() => !!member, [member]);
+
     const [orderList, setOrderList] = useState<
         Array<
             OrderProductOption & {
@@ -453,41 +429,98 @@ const Sheet = () => {
         >
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
-    const [orderPriceData, setOrderPriceData] = useState<OrderPrice>({});
-    const [agreePurchase, setAgreePurchase] = useState<string[]>([]);
+    const [orderPriceData, setOrderPriceData] = useState({
+        standardAmt: 0, // 총 주문금액
+        totalDeliveryAmt: 0, // 총 배송비
+        totalDiscountPrice: 0, // 총 할인금액
+        totalCouponPrice: 0, // 쿠폰 할인
+        totalAmt: 0, // 총 결제금액
+    });
+    const [orderTerms, setOrderTerms] = useState<
+        { id: string; url: ''; isChecked: boolean }[]
+    >(
+        isLogin
+            ? [{ id: 'agreePurchase', url: '', isChecked: false }]
+            : [
+                  { id: 'agreeOrderService', url: '', isChecked: false },
+                  { id: 'agreeOrderInformation', url: '', isChecked: false },
+                  { id: 'agreePurchase', url: '', isChecked: false },
+              ],
+    );
+
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
     const [isCouponListModal, setIsCouponListModal] = useState(false);
     const [selectCoupon, setSelectCoupon] = useState<CouponRequest>();
 
-    const { orderSheetNo } = useParams() as { orderSheetNo: string };
-
     const { width } = useWindowSize();
 
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
-
-    const { mallInfo } = useTypedSelector(
-        ({ mall }) => ({
-            mallInfo: mall,
-        }),
-        shallowEqual,
-    );
+    const [mallInfo] = useMall();
 
     const { t: sheet } = useTranslation('orderSheet');
 
+    // TODO:해외배송상품여부에 따라 통관부호 받아야함
     const {
         register,
         handleSubmit,
         getValues,
         setValue,
+        watch,
+        control,
         formState: { errors },
     } = useForm<PaymentReserve>({
-        defaultValues: { subPayAmt: 0, payType: PAY_TYPE.CREDIT_CARD },
+        defaultValues: {
+            orderSheetNo,
+            orderTitle: '',
+            pgType: PG_TYPE.INICIS,
+            payType: PAY_TYPE.CREDIT_CARD,
+            orderer: {
+                ordererName: '',
+                ordererEmail: '',
+                ordererContact1: '',
+                ordererContact2: '',
+            },
+            shippingAddress: {
+                addressNo: 0,
+                receiverZipCd: '',
+                receiverAddress: '',
+                receiverJibunAddress: '',
+                receiverDetailAddress: '',
+                receiverName: '',
+                addressName: '',
+                requestShippingDate: '',
+                receiverContact1: '',
+                receiverContact2: '',
+                customsIdNumber: '', // TODO: 해외배송 상품인 경우 처리 필요
+                countryCd: COUNTRY_CD.KR,
+                shippingInfoLaterInputContact: '',
+            },
+
+            // orderTitle:
+            //     orderData?.data.deliveryGroups[0]?.orderProducts[0]
+            //         ?.productName,
+            useDefaultAddress: false,
+            deliveryMemo: '',
+            member: !!member?.memberName,
+
+            // coupons: {
+            //     productCoupons: null,
+            //     cartCouponIssueNo: null,
+            // },
+            // tempPassword: '', // TODO: 비회원용
+            updateMember: false,
+            subPayAmt: 0,
+            inAppYn: 'N',
+            // accumulationAmt: 0,  // TODO: schema 확인 필요
+            // availableMaxAccumulationAmt: 0,  // TODO: schema 확인 필요
+            // paymentAmt: 0, // TODO: schema 확인 필요
+            // paymentAmt: orderData?.data.paymentInfo.paymentAmt,
+            bankAccountToDeposit: {
+                bankAccount: mallInfo.bankAccountInfo.bankAccount,
+                bankCode: mallInfo.bankAccountInfo.bankName,
+                bankDepositorName: mallInfo.bankAccountInfo.bankDepositorName,
+            },
+        },
     });
 
     const { data: orderData, refetch: orderRefetch } = useQuery(
@@ -498,6 +531,10 @@ const Sheet = () => {
             }),
         {
             onSuccess: (res) => {
+                console.log(
+                    '🚀 ~ file: Sheet.tsx ~ line 534 ~ Sheet ~ res',
+                    res,
+                );
                 setOrderList(() => {
                     const newOrderList: Array<
                         OrderProductOption & {
@@ -520,104 +557,22 @@ const Sheet = () => {
                     });
                     return [...newOrderList];
                 });
-                setOrderPriceData((prev) => {
-                    prev.totalOrderPrice = {
-                        name: sheet(
-                            'paymentInformation.category.amountOrderPrice',
-                        ),
-                        price: res?.data.paymentInfo.totalStandardAmt,
-                    };
-                    prev.totalDeliveryPrice = {
-                        name: sheet(
-                            'paymentInformation.category.amountDeliveryFee',
-                        ),
-                        price: res?.data.paymentInfo.deliveryAmt,
-                    };
-                    prev.totalDiscountPrice = {
-                        name: sheet(
-                            'paymentInformation.category.amountDiscount',
-                        ),
-                        price: `- ${
-                            res?.data.paymentInfo.totalImmediateDiscountAmt +
-                            res?.data.paymentInfo.totalAdditionalDiscountAmt
-                        }`,
-                    };
-                    if (member) {
-                        prev.couponDiscount = {
-                            name: sheet(
-                                'paymentInformation.category.couponDiscount',
-                            ),
-                            price: `- ${
-                                res?.data.paymentInfo.cartCouponAmt +
-                                res?.data.paymentInfo.productCouponAmt +
-                                res?.data.paymentInfo.deliveryCouponAmt
-                            }`,
-                        };
-                    }
-                    return { ...prev };
+
+                setOrderPriceData({
+                    standardAmt: res?.data.paymentInfo.totalStandardAmt,
+                    totalDeliveryAmt: res?.data.paymentInfo.deliveryAmt,
+                    totalDiscountPrice:
+                        res?.data.paymentInfo.totalImmediateDiscountAmt +
+                        res?.data.paymentInfo.totalAdditionalDiscountAmt,
+                    totalCouponPrice:
+                        res?.data.paymentInfo.cartCouponAmt +
+                        res?.data.paymentInfo.productCouponAmt +
+                        res?.data.paymentInfo.deliveryCouponAmt,
+                    totalAmt: res?.data.paymentInfo.paymentAmt,
                 });
             },
         },
     );
-
-    const paymentData = {
-        orderSheetNo,
-        shippingAddress: {
-            addressNo: getValues('shippingAddress.addressNo')
-                ? getValues('shippingAddress.addressNo')
-                : 0,
-            receiverZipCd: getValues('shippingAddress.receiverZipCd'),
-            receiverAddress: getValues('shippingAddress.receiverAddress'),
-            receiverJibunAddress: getValues(
-                'shippingAddress.receiverJibunAddress',
-            ),
-            receiverDetailAddress: getValues(
-                'shippingAddress.receiverDetailAddress',
-            ),
-            receiverName: getValues('shippingAddress.receiverName'),
-            receiverContact1: getValues('shippingAddress.receiverContact1'),
-            shippingInfoLaterInputContact: '',
-            requestShippingDate: null,
-            receiverContact2: null,
-            customsIdNumber: '123',
-            addressName: null,
-            countryCd: null,
-        },
-        orderTitle:
-            orderData?.data.deliveryGroups[0]?.orderProducts[0]?.productName,
-        useDefaultAddress: getValues('useDefaultAddress'),
-        deliveryMemo: getValues('deliveryMemo'),
-        member: !!member?.memberName,
-        orderer: {
-            ordererName: getValues('orderer.ordererName'),
-            ordererEmail: getValues('orderer.ordererEmail'),
-            ordererContact1: getValues('orderer.ordererContact1'),
-        },
-        coupons: {
-            productCoupons: selectCoupon?.productCoupons
-                ? selectCoupon.productCoupons
-                : null,
-            cartCouponIssueNo: selectCoupon?.cartCouponIssueNo
-                ? selectCoupon.cartCouponIssueNo
-                : null,
-        },
-        tempPassword: getValues('tempPassword')
-            ? getValues('tempPassword')
-            : null,
-        updateMember: false,
-        subPayAmt: getValues('subPayAmt') ? getValues('subPayAmt') : 0,
-        pgType: PG_TYPE.INICIS,
-        payType: getValues('payType'),
-        inAppYn: 'N',
-        accumulationAmt: 0,
-        availableMaxAccumulationAmt: 0,
-        paymentAmt: orderData?.data.paymentInfo.paymentAmt,
-        bankAccountToDeposit: {
-            bankAccount: mallInfo.bankAccountInfo.bankAccount,
-            bankCode: mallInfo.bankAccountInfo.bankName,
-            bankDepositorName: mallInfo.bankAccountInfo.bankDepositorName,
-        },
-    };
 
     const { mutate: couponApplyMutate } = useMutation(
         async () =>
@@ -634,40 +589,65 @@ const Sheet = () => {
         },
     );
 
-    const orderTerms = [
-        'agreeOrderService',
-        'agreeOrderInformation',
-        'agreePurchase',
-    ];
+    const isAllOrderTermsChecked = useMemo(
+        () =>
+            pipe(
+                orderTerms,
+                every((b) => b.isChecked),
+            ),
+        [orderTerms],
+    );
 
     const agreeAllHandler = (checked: boolean) => {
-        if (checked) {
-            accessTokenInfo?.accessToken
-                ? setAgreePurchase(['agreePurchase'])
-                : setAgreePurchase([...orderTerms]);
-        } else {
-            setAgreePurchase([]);
-        }
+        setOrderTerms((prev) =>
+            pipe(
+                prev,
+                map((a) => ({ ...a, isChecked: checked })),
+                toArray,
+            ),
+        );
     };
 
-    const agreeHandler = (checked: boolean, term: string) => {
-        if (checked) {
-            setAgreePurchase((prev) => [...prev, term]);
+    const agreeHandler = (term: string) => {
+        setOrderTerms((prev) =>
+            pipe(
+                prev,
+                map((a: any) =>
+                    a.id === term ? { ...a, isChecked: !a.isChecked } : a,
+                ),
+                toArray,
+            ),
+        );
+    };
+
+    const onOrderFormSubmit = handleSubmit(async (data) => {
+        if (isAllOrderTermsChecked) {
+            await orderPayment.setConfiguration();
+            await orderPayment.reservation(data);
         } else {
-            setAgreePurchase((prev) =>
-                prev.filter((agreeTerm) => agreeTerm !== term),
-            );
+            alert('필수약관에 동의해주세요.');
+            return;
         }
+    });
+
+    const onCouponModalClick = () => {
+        setIsCouponListModal((prev) => !prev);
+    };
+
+    const onAccumulationButtonClick = () => {
+        // TODO: 적립금 사용 버튼을 눌렀을 경우 getCalculatedOrderSheet API 호출 후 계산값을 다시 세팅해준다
     };
 
     return (
         <>
+            <DevTool control={control} placement='top-right' />
+
             <SEOHelmet
                 data={{
                     title: sheet('progress.now'),
                 }}
             />
-            {!isMobile(width) && <Header />}
+
             {isShippingListModal && (
                 <ShippingListModal
                     onClickToggleModal={() =>
@@ -677,7 +657,7 @@ const Sheet = () => {
                     register={register}
                     setValue={setValue}
                     setIsShippingListModal={setIsShippingListModal}
-                ></ShippingListModal>
+                />
             )}
             {isSearchAddressModal && (
                 <SearchAddressModal
@@ -688,7 +668,7 @@ const Sheet = () => {
                     height={'720px'}
                     register={register}
                     setValue={setValue}
-                ></SearchAddressModal>
+                />
             )}
             {isCouponListModal && (
                 <CouponListModal
@@ -701,36 +681,37 @@ const Sheet = () => {
                     setSelectCoupon={setSelectCoupon}
                     orderSheetNo={orderSheetNo}
                     couponApplyMutate={couponApplyMutate}
-                ></CouponListModal>
+                />
             )}
-            <SheetContainer>
-                {isMobile(width) ? (
-                    <MobileTitle>
-                        <GoBackButton />
-                        <h2>{sheet('progress.now')}</h2>
-                    </MobileTitle>
-                ) : (
-                    <Progress>
-                        <h2 className='current-progress'>
-                            {sheet('progress.now')}
-                        </h2>
-                        <div>&#8250;</div>
-                        <div>{sheet('progress.next')}</div>
-                    </Progress>
+
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={sheet('progress.now')} />
+            )}
+
+            <OrderSheetContainer onSubmit={onOrderFormSubmit}>
+                {!isMobile(width) && (
+                    <OrderProgress
+                        type='progress'
+                        style={{ marginBottom: '60px' }}
+                    />
                 )}
                 <SheetMainContainer>
                     <SheetOrderWrapper>
-                        {!member && !isMobile(width) && (
+                        {!isLogin && !isMobile(width) && (
                             <GuestLoginBox>
                                 <p>{sheet('etc.inviteJoin')}</p>
-                                <Link to={'/member/join-agreement'}>
+                                <Link to={PATHS.JOIN_AGREEMENT}>
                                     {sheet('etc.joinMember')}
                                 </Link>
                             </GuestLoginBox>
                         )}
+
                         <SheetTitle marginTop='30px'>
                             <h3>{sheet('orderProduct.title')}</h3>
                         </SheetTitle>
+
                         <OrderProductListBox>
                             {!isMobile(width) && (
                                 <CartCategoryBox>
@@ -767,10 +748,16 @@ const Sheet = () => {
                                 );
                             })}
                         </OrderProductListBox>
+
                         <SheetTitle>
                             <h3>{sheet('ordererInformation.title')}</h3>
                         </SheetTitle>
-                        <OrdererInformation register={register} />
+
+                        <OrdererInformation
+                            register={register}
+                            errors={errors}
+                        />
+
                         <SheetTitle>
                             <h3>{sheet('shippingAddress.title')}</h3>
                             {member && (
@@ -804,6 +791,7 @@ const Sheet = () => {
                                 </label>
                             </div>
                         </SheetTitle>
+
                         <ShippingAddress
                             register={register}
                             setValue={setValue}
@@ -822,7 +810,8 @@ const Sheet = () => {
                             }
                             setIsSearchAddressModal={setIsSearchAddressModal}
                         />
-                        {member && (
+
+                        {/* {member && (
                             <>
                                 <SheetTitle>
                                     <h3>{sheet('applyDiscount.title')}</h3>
@@ -835,246 +824,74 @@ const Sheet = () => {
                                     getValues={getValues}
                                 />
                             </>
+                        )} */}
+
+                        <DiscountApply
+                            paymentInfo={orderData?.data.paymentInfo}
+                            setValue={setValue}
+                            subPayAmt={watch('subPayAmt')}
+                            onAccumulationButtonClick={
+                                onAccumulationButtonClick
+                            }
+                            onCouponModalClick={onCouponModalClick}
+                        />
+
+                        {orderData?.data.availablePayTypes && (
+                            <CommonPayment
+                                setValue={setValue}
+                                payType={watch('payType')}
+                                availablePayTypes={
+                                    orderData?.data.availablePayTypes
+                                }
+                            />
                         )}
-                        <SheetTitle>
-                            <h3>{sheet('paymentMethod.title')}</h3>
-                        </SheetTitle>
-                        <CommonPayment setValue={setValue} />
-                        {!member && (
-                            <>
-                                <SheetTitle>
-                                    <h3>{sheet('guestPassword.title')}</h3>
-                                    {!isMobile(width) && (
-                                        <div className='order-info'>
-                                            {sheet('guestPassword.desc')}
-                                        </div>
-                                    )}
-                                </SheetTitle>
-                                <GuestPassword
-                                    errors={errors}
-                                    register={register}
-                                />
-                            </>
+
+                        {!isLogin && (
+                            <GuestOrderPassword
+                                register={register}
+                                errors={errors}
+                            />
                         )}
                     </SheetOrderWrapper>
-                    <SheetOrderPriceWrapper id='SendPayForm_id' method='POST'>
-                        <OrderSheetPrice
-                            title={sheet('paymentInformation.title')}
-                            cartOrderPrice={orderPriceData}
-                            amountPrice={
-                                orderData &&
-                                orderData.data.paymentInfo.paymentAmt -
-                                    getValues('subPayAmt')
-                            }
-                        />
-                        <TermAgreeButton>
-                            {!member && (
-                                <>
-                                    <div className='guest_agree_box'>
-                                        <div className='induce'>
-                                            <p
-                                                dangerouslySetInnerHTML={{
-                                                    __html: sheet(
-                                                        'etc.guestAlert',
-                                                    ),
-                                                }}
-                                            ></p>
-                                        </div>
-                                    </div>
-                                    <div className='guest_agree_box'>
-                                        <div className='agree_button_box'>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeAllHandler(
-                                                            e.target.checked,
-                                                        )
-                                                    }
-                                                    id='agreeOrderAll'
-                                                    checked={
-                                                        agreePurchase.length ===
-                                                        orderTerms.length
-                                                    }
-                                                />
-                                                <label htmlFor='agreeOrderAll'>
-                                                    {agreePurchase.length ===
-                                                    orderTerms.length ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>{sheet('term.agreeAll')}</p>
-                                            </div>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeHandler(
-                                                            e.target.checked,
-                                                            e.target.id,
-                                                        )
-                                                    }
-                                                    checked={agreePurchase.includes(
-                                                        'agreeOrderService',
-                                                    )}
-                                                    id='agreeOrderService'
-                                                />
-                                                <label htmlFor='agreeOrderService'>
-                                                    {agreePurchase.includes(
-                                                        'agreeOrderService',
-                                                    ) ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {sheet('term.serviceAgree')}
-                                                    <span>
-                                                        &nbsp;(
-                                                        {sheet('etc.require')})
-                                                    </span>
-                                                    <Link to={'/'}>
-                                                        {sheet('etc.readMore')}
-                                                    </Link>{' '}
-                                                    {/* TODO 약관 페이지 이동*/}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <input
-                                                    type='checkbox'
-                                                    onChange={(e) =>
-                                                        agreeHandler(
-                                                            e.target.checked,
-                                                            e.target.id,
-                                                        )
-                                                    }
-                                                    id='agreeOrderInformation'
-                                                    checked={agreePurchase.includes(
-                                                        'agreeOrderInformation',
-                                                    )}
-                                                />
-                                                <label htmlFor='agreeOrderInformation'>
-                                                    {agreePurchase.includes(
-                                                        'agreeOrderInformation',
-                                                    ) ? (
-                                                        <Checked />
-                                                    ) : (
-                                                        <UnChecked />
-                                                    )}
-                                                </label>
-                                                <p>
-                                                    {sheet('term.privacyAgree')}
-                                                    <span>
-                                                        &nbsp;(
-                                                        {sheet('etc.require')})
-                                                    </span>
-                                                    <Link to={'/'}>
-                                                        {sheet('etc.readMore')}
-                                                    </Link>{' '}
-                                                    {/* TODO 약관 페이지 이동*/}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                            {isMobile(width) && (
-                                <div className='mobile_induce'>
-                                    <div>{sheet('etc.mobileInviteJoin')}</div>
-                                </div>
-                            )}
-                            <div className='agree_box'>
-                                <input
-                                    type='checkbox'
-                                    onChange={(e) =>
-                                        agreeHandler(
-                                            e.target.checked,
-                                            e.target.id,
-                                        )
-                                    }
-                                    id='agreePurchase'
-                                    checked={agreePurchase.includes(
-                                        'agreePurchase',
-                                    )}
-                                />
-                                <label htmlFor='agreePurchase'>
-                                    {agreePurchase.includes('agreePurchase') ? (
-                                        <Checked />
-                                    ) : (
-                                        <UnChecked />
-                                    )}
-                                </label>
-                                <p
-                                    dangerouslySetInnerHTML={{
-                                        __html: `${sheet(
-                                            'term.purchaseAgree',
-                                        )}<span>&nbsp;&#40;${sheet(
-                                            'etc.require',
-                                        )}	&#41;</span>`,
-                                    }}
-                                ></p>
-                            </div>
-                        </TermAgreeButton>
-                        {!isMobile(width) && (
-                            <SheetButton
-                                width='100%'
-                                onClick={handleSubmit(() => {
-                                    if (accessTokenInfo?.accessToken) {
-                                        if (
-                                            !agreePurchase.includes(
-                                                'agreePurchase',
-                                            )
-                                        ) {
-                                            alert(sheet('alert.agreeTerm'));
-                                            return;
-                                        }
-                                    } else if (
-                                        agreePurchase.length !==
-                                        orderTerms.length
-                                    ) {
-                                        alert(sheet('alert.agreeTerm'));
-                                        return;
-                                    }
-                                    orderPayment.setConfiguration();
-                                    orderPayment.reservation(paymentData);
-                                })}
-                            >
-                                {sheet('etc.payment')}
-                            </SheetButton>
+
+                    <SheetOrderPriceWrapper>
+                        {orderData?.data.paymentInfo && (
+                            <OrderSheetPrice
+                                title={sheet('paymentInformation.title')}
+                                totalStandardAmt={orderPriceData.totalAmt}
+                                totalDeliveryFee={
+                                    orderPriceData.totalDeliveryAmt
+                                }
+                                totalDiscount={
+                                    orderPriceData.totalDiscountPrice
+                                }
+                                totalCouponDiscount={
+                                    orderPriceData.totalCouponPrice
+                                }
+                                totalPaymentAmt={
+                                    orderData.data.paymentInfo.paymentAmt
+                                }
+                            />
                         )}
+
+                        <OrderTermsAgreement
+                            isLogin={isLogin}
+                            orderTerms={orderTerms}
+                            isAllOrderTermsChecked={isAllOrderTermsChecked}
+                            agreeHandler={agreeHandler}
+                            agreeAllHandler={agreeAllHandler}
+                        />
+
+                        <PaymentButton type='submit'>
+                            {isMobile(width)
+                                ? `${KRW(
+                                      orderPriceData.totalAmt,
+                                  ).format()} ${sheet('etc.payment')}`
+                                : sheet('etc.payment')}
+                        </PaymentButton>
                     </SheetOrderPriceWrapper>
                 </SheetMainContainer>
-            </SheetContainer>
-            {isMobile(width) && (
-                <SheetButton
-                    width='100%'
-                    onClick={handleSubmit(() => {
-                        if (accessTokenInfo?.accessToken) {
-                            if (!agreePurchase.includes('agreePurchase')) {
-                                alert(sheet('alert.agreeTerm'));
-                                return;
-                            }
-                        } else if (agreePurchase.length !== orderTerms.length) {
-                            alert(sheet('alert.agreeTerm'));
-                            return;
-                        }
-                        orderPayment.setConfiguration();
-                        orderPayment.reservation(paymentData);
-                    })}
-                >
-                    {currency(
-                        paymentData.paymentAmt ? paymentData.paymentAmt : 0,
-                        {
-                            symbol: '',
-                            precision: 0,
-                        },
-                    ).format()}{' '}
-                    {sheet('etc.won')}&nbsp;{sheet('etc.payment')}
-                </SheetButton>
-            )}
+            </OrderSheetContainer>
         </>
     );
 };

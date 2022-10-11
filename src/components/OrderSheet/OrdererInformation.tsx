@@ -1,11 +1,19 @@
+import { FC } from 'react';
 import styled from 'styled-components';
-import { UseFormRegister } from 'react-hook-form';
+import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { ErrorMessage } from '@hookform/error-message';
 
 import { PaymentReserve } from 'models/order';
 import { sheetInputStyle } from 'styles/componentStyle';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 
-const SheetInputWrapper = styled.div`
+interface OrdererInformationProps {
+    register: UseFormRegister<PaymentReserve>;
+    errors: FieldErrors<PaymentReserve>;
+}
+
+const OrdererInputContainer = styled.div`
     ${sheetInputStyle.sheetInputWrapper}
 `;
 
@@ -27,16 +35,15 @@ const OrdererInformationContainer = styled.div`
     ${sheetInputStyle.informationContainer}
 `;
 
-const OrdererInformation = ({
+const OrdererInformation: FC<OrdererInformationProps> = ({
     register,
-}: {
-    register: UseFormRegister<PaymentReserve>;
+    errors,
 }) => {
     const { t: sheet } = useTranslation('orderSheet');
 
     return (
         <OrdererInformationContainer>
-            <SheetInputWrapper>
+            <OrdererInputContainer>
                 <SheetInputTitleBox>
                     {sheet('ordererInformation.category.name')}
                 </SheetInputTitleBox>
@@ -53,9 +60,17 @@ const OrdererInformation = ({
                             },
                         })}
                     />
+                    <ErrorMessage
+                        errors={errors}
+                        name='orderer.ordererName'
+                        render={({ message }) => (
+                            <StyledErrorMessage>{message}</StyledErrorMessage>
+                        )}
+                    />
                 </SheetInputBox>
-            </SheetInputWrapper>
-            <SheetInputWrapper>
+            </OrdererInputContainer>
+
+            <OrdererInputContainer>
                 <SheetInputTitleBox>
                     {sheet('ordererInformation.category.phoneNumber')}
                 </SheetInputTitleBox>
@@ -77,9 +92,17 @@ const OrdererInformation = ({
                                 .replace(/(\..*)\./g, '$1');
                         }}
                     />
+                    <ErrorMessage
+                        errors={errors}
+                        name='orderer.ordererContact1'
+                        render={({ message }) => (
+                            <StyledErrorMessage>{message}</StyledErrorMessage>
+                        )}
+                    />
                 </SheetInputBox>
-            </SheetInputWrapper>
-            <SheetInputWrapper>
+            </OrdererInputContainer>
+
+            <OrdererInputContainer>
                 <SheetInputTitleBox>
                     {sheet('ordererInformation.category.eMail')}
                 </SheetInputTitleBox>
@@ -97,7 +120,7 @@ const OrdererInformation = ({
                         })}
                     />
                 </SheetInputBox>
-            </SheetInputWrapper>
+            </OrdererInputContainer>
         </OrdererInformationContainer>
     );
 };

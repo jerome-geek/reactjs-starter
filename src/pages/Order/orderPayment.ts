@@ -11,7 +11,12 @@ const orderPayment = {
             platform: getPlatform(),
             accessToken: accessTokenInfo?.accessToken || '',
         }),
+
     reservation: (paymentData: any) => {
+        if (!window.NCPPay) {
+            throw new Error('ncp_pay 스크립트를 로드해주세요.');
+        }
+
         window.NCPPay.reservation(paymentData);
     },
 };
