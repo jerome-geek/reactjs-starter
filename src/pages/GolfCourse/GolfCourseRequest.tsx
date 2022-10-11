@@ -673,6 +673,7 @@ const GolfCourseRequest = () => {
                                             accept='.bmp, .tif, .tiff, .miff, .gif, .jpe, .jpeg, .jpg, .jps, .pjpeg, .jng, .mng, .png'
                                             onChange={(e) => {
                                                 if (e.target.files) {
+                                                    setImageName((prev) => {
                                                         return {
                                                             ...prev,
                                                             courseLayoutImageName:
