@@ -10,8 +10,11 @@ import {
     OPEN_ID_PROVIDER,
 } from 'models';
 
+// 상품쿠폰
 interface ProductCoupons {
+    // 쿠폰 발급 번호 (example: 1415130)
     couponIssueNo: number;
+    // 상품번호(example: 100398947)
     productNo: number;
 }
 
@@ -21,41 +24,65 @@ interface PaymentProductCoupons {
     productNo: number;
 }
 
+// 정기결제 배송 정보
 interface RecurringPaymentDelivery {
+    // 정기결제 배송주기 일자 (example: 20)
     data: number;
+    // 정기결제 배송주기 타입 (example: MONTH)
     cycleType: CYCLE_TYPE;
+    // 정기결제 첫 배송 예정일 (example: YYYY-MM-DD)
     firstRecurringDate: string;
+    // 정기결제 배송주기 (example: 1)
     cycle: number;
 }
 
-interface OptionInputs {
+export interface OptionInputs {
     inputValue: string;
     inputLabel: string;
     required: boolean;
 }
 
+// 상품결제 파라미터
 export interface Products {
+    // 렌탈 정보 (nullable)
     rentalInfos?: RentalInfo[];
+    // 정기결제 배송 정보
     recurringPaymentDelivery?: RecurringPaymentDelivery;
     channelType: string;
+    // 주문수량 (example: 1)
     orderCnt: number;
     optionInputs?: OptionInputs[];
+    // 옵션번호 (example: 1258932)
     optionNo: number;
+    // 상품번호 (example: 100398947)
     productNo: number;
 }
 
+// 주소
 export interface AddressRequest {
+    // 	배송지 주소 (example: 경기도 성남시 분당구 대왕판교로645번길 12)
     receiverAddress: string;
+    // 배송지 지번(지역추가배송비계산 시 사용) (example: 경기도 성남시 분당구 삼평동 629번지 NHN 플레이뮤지엄)
     receiverJibunAddress?: string;
-    defaultYn: string; // boolean?
+    // 기본배송지 여부 (example: false), TODO: boolean인지 string인지 확인 필요
+    defaultYn: string;
+    // 배송지타입 (example: BOOK)
     addressType: ADDRESS_TYPE;
+    // 수령자 명 (example: 홍길동)
     receiverName: string;
+    // 개인고유통관부호 (nullable) (example: P12341234)
     customsIdNumber?: string;
+    // 국가코드 (example: KR)
     countryCd?: COUNTRY_CD;
+    // 배송지 우편 번호 (example: 13487)
     receiverZipCd: string;
+    // 주소록명 (example: 홍길동집)
     addressName?: string;
+    // 배송지 상세 주소 (example: 16 NHN 플레이뮤지엄)
     receiverDetailAddress?: string;
+    // 연락처1( example: 010-0000-0000)
     receiverContact1: string;
+    // 연락처2( example: 010-0000-0000)
     receiverContact2: string;
 }
 
@@ -76,9 +103,13 @@ interface ExtraData2 {
     cardId: string;
 }
 
+// 무통장 입금 정보
 interface BankAccountToDeposit {
+    // 계좌번호 (example: 1234123)
     bankAccount: string;
+    // 은행명 (example: 002)
     bankCode: string;
+    // 입금자명 (example: 홍길동)
     bankDepositorName: string;
 }
 
@@ -88,10 +119,15 @@ interface PaymentCoupons {
     promotionCode?: string;
 }
 
+// 쿠폰
 export interface CouponRequest {
+    // 상품 쿠폰 (nullable)
     productCoupons?: ProductCoupons[];
+    // 장바구니 쿠폰 발행 번호 (example: 12121212)
     cartCouponIssueNo?: number;
+    // 쿠폰 할인 코드 (example: 1258932)
     promotionCode?: string;
+    // 쇼핑채널링-채널타입 (example: NAVER_EP)
     channelType: string;
 }
 
@@ -102,14 +138,23 @@ export interface CouponApplyResponse {
     paymentInfo: PaymentInfo;
 }
 
+// 복수 배송지 정보
 interface ShippingAddresses {
+    // 상품결제 파라미터
     payProductParams: Omit<Products, 'channelType'>[];
+    // 배송지정일 (example: YYYY-MM-DD)
     requestShippingDate?: string;
+    // 배송지 번호(0:신규, 0이상:이전배송지) (example: 1)
     addressNo: number;
+    // 배송지 나중입력 여부 (true: 나중입력, false: 바로입력) (example: false)
     usesShippingInfoLaterInput?: boolean;
+    // 기본 주소지 설정 여부 (true 이면 선택한 배송지 정보가 기본주소지로 설정되어 저장된다) (true: 설정, false: 미설정) (example: false)
     useDefaultAddress: boolean;
+    // TODO: 배송지 정보
     shippingAddress: Omit<AddressRequest, 'addressType'>;
+    // 주소록명 (example: 홍길동집)
     addressName: string;
+    // 배송지 나중입력 연락처(example: 010-7770-7777)
     shippingInfoLaterInputContact?: string;
 }
 
@@ -120,6 +165,7 @@ interface Orderer {
     ordererName: string;
 }
 
+// TOOD: cartNo, optionNo차이?
 export interface ShoppingCartBody {
     orderCnt: number;
     channelType: string;
@@ -137,8 +183,11 @@ export interface TokenIssueBody {
     orderRequestType: ORDER_REQUEST_TYPE;
 }
 
+// 현금영수증
 export interface CashReceiptBody {
+    // 발급용도 (example: INCOME_TAX_DEDUCTION)
     cashReceiptIssuePurposeType: CASH_RECEIPT_ISSUE_PURPOSE_TYPE;
+    // 발급용도에 따른 키(소득공제용: 휴대폰번호, 지출증빙용: 사업자번호) (example: 01011111111)
     cashReceiptKey: string;
 }
 
@@ -173,42 +222,78 @@ export interface OrderSheetBody {
 export interface GetCalculatedOrderSheet {
     addressRequest: AddressRequest;
     couponRequest: CouponRequest;
+    // 적립금 사용액(example: 0)
     accumulationUseAmt: number;
+    // 복수 배송지 정보
     shippingAddress: ShippingAddresses[];
 }
 
 export interface PaymentReserve {
-    clientParams?: ClientParams; // 결제 완료 API 호출 후 다시 전달 받을 값(NCPPay script에서 넣음)
+    // 결제완료 API 호출 후 다시 전달 받을 값(NCPPay script에서 넣음) (nullable) (example: {"mallNo" : "1", "orderName" : "주문테스트"})
+    clientParams?: ClientParams;
+    // 	추가 정보 (ex : Stripe결제수단의 경우 카드 정보 or 저장된 카드의 cardId) (nullable) (example: {'cardNumber':4242424242424242, 'cardExpMonth':12, 'cardExpYear':'2020', 'cardCvc':'123', 'saveYn':'Y'} or {'cardId':'card_12354123124'})
     extraData?: ExtraData | ExtraData2;
+    // 주문메모 (nullable) (example: 빠른 배송 부탁 드립니다.)
     orderMemo?: string;
+    // 무통장 입금 정보
     bankAccountToDeposit?: BankAccountToDeposit;
+    // 렌탈 상품 정보
     rentalInfo?: RentalInfo;
+    // 결제수단 (example: CREDIT_CARD)
     payType: PAY_TYPE;
-    clientReturnUrl: string; //결제 완료 후 리턴 될 URL(NCPPay script에서 넣음)
+    // 결제 완료 후 리턴되는 쇼핑몰의 URL (example: http://쇼핑몰 URL/return.html)
+    // URL 의 파라미터중
+    // result=SUCCESS 인 경우 : 성공 페이지 구현 (orderNo 파라미터로 주문정보 출력가능)
+    // result=FAIL 인 경우 : message 값을 화면이나 경고창으로 출력함
+    clientReturnUrl: string;
+    // TODO
     coupons?: PaymentCoupons;
+    // 기본 주소지 설정 여부 (true: 선택한 배송지 정보가 기본주소지로 설정, false: 미설정) (nullable) (example: true)
     useDefaultAddress?: boolean;
+    // 회원 여부 (example: true)
     member: boolean;
+    // 앱내 결제 여부, Y인 경우 extraData.appUrl에 결제완료 후 돌아갈 app scheme을 넣어야 함 (nullable) (example: Y)
     inAppYn?: string;
+    // 무통장 거래 시 현금영수증 발행 신청 여부(true: 신청, false: 미신청) * kcp 현금영수증 발행 대행 서비스 사용 시 true (nullable) (example: false)
     applyCashReceipt?: boolean;
+    // PG 명세서에 표시될 주문명 (nullable)^|테스트상품 외 2건(default생성)
     orderTitle?: string;
+    // 임시주문번호(비회원인경우 필수) (nullable) (example: 1212)
     tempPassword?: string;
+    // 주소록에 등록 여부 (example: true)
+    // (true 이면 선택한 배송지 정보가 주소록에 저장된다.
+    // 이미 저장된 주소록을 선택하여 주소를 수정했다면, 변경한 주소로 수정되어 저장한다)
     saveAddressBook: boolean;
+    // true 인 경우 주문자 정보로 회원의 정보를 수정함. 몰설정에서 회원의 점유인증을 하지 않는 경우에만 update 된다. (example: false)
     updateMember: boolean;
+    // 주문서번호 (example: 202001012000000009)
     orderSheetNo: string;
+    // 외부 PG사 (example: KCP)
     pgType: PG_TYPE;
+    // 무통장 입금 시 입금할 입금자 이름 (nullable) (example: 홍길동)
     remitter?: string;
+    // 배송메모 (nullable) (example: 문앞에 놔주세요)
     deliveryMemo?: string;
+    // TODO
     orderer: Orderer;
+    // 선택한 결제수단 사용여부(true: 사용, false: 미사용) (nullable) (example: false)
     paymentAmtForVerification: number;
+    // TODO
     shippingAddress: MainAddress &
         Omit<DeliveryBody, 'deliveryMemo'> &
         Pick<
             ShippingAddresses,
-            'shippingInfoLaterInputContact' | 'usesShippingInfoLaterInput'
+            | 'requestShippingDate'
+            | 'shippingInfoLaterInputContact'
+            | 'usesShippingInfoLaterInput'
         >;
+    // 선택한 결제수단 사용여부(true: 사용, false: 미사용) (nullable) (example: false)
     savesLastPayType?: boolean;
+    // 보조결제 수단 결제액(적립금 사용액) (example: 0)
     subPayAmt: number;
+    // 현금영수증
     cashReceipt?: CashReceiptBody;
+    // TODO
     shippingAddresses?: ShippingAddresses & { savedAddressBook?: boolean }[];
 }
 
@@ -229,8 +314,11 @@ export interface OAuthBegin {
     code: string;
 }
 
+// 렌탈 정보
 export interface RentalInfo {
+    // 렌탈 기간 (example: 1)
     rentalPeriod: number;
+    // 월 렌탈료 (example: 10000)
     monthlyRentalAmount: number;
 }
 export interface CartList {
@@ -556,27 +644,49 @@ export interface ProductCoupon {
 }
 
 export interface PaymentInfo {
+    // 보유한 적립금
     accumulationAmt: number;
+    // 구매확정시 예상 적립금
     accumulationAmtWhenBuyConfirm: number;
+    // 최대 사용가능한 적립금
     availableMaxAccumulationAmt: number;
+    // buyAmt[장바구니 금액] = totalStandardAmt[최종상품금액] - totalImmediateDiscountAmt[즉시할인가] - totalAdditionalDiscountAmt[추가할인가] - productCouponAmt[상품쿠폰할인금액]
     cartAmt: number;
+    // 장바구니 쿠폰 할인금액
     cartCouponAmt: number;
+    // customs Duty [관세] (미국 몰 전용)
     customsDuty: number;
+    // 배송비
     deliveryAmt: number;
+    // 착불 배송비
     deliveryAmtOnDelivery: number;
+    // 배송비 쿠폰 할인금액
     deliveryCouponAmt: number;
+    // 적립금 사용 가능 여부 (true: 가능, false: 불가능)
     isAvailableAccumulation: boolean;
+    // 적립금을 사용할 수 있는 최소 적립금 기준
     minAccumulationLimit: number;
+    // 적립금을 사용할 수 있는 최소 결제 금액 기준
     minPriceLimit: number;
+    // paymentAmt[결제예정금액] = buyAmt[장바구니 금액] - cartCouponAmt[장바구니 쿠폰할인금액] + deliveryAmt[배송비] + remoteDeliveryAmt[지역별추가배송비] + salesTaxAmt - deliveryCouponAmt[배송비 쿠폰 할인금액] (- usedAccumulationAmt[사용한적립금]:OrderSheet시점에는 hidden)
     paymentAmt: number;
+    // productAmt[상품금액] = totalStandardAmt[최종상품금액] - totalImmediateDiscountAmt[즉시할인가] - totalAdditionalDiscountAmt[추가할인가]
     productAmt: number;
+    // 상품쿠폰 할인금액(상품쿠폰 + 플러스쿠폰)
     productCouponAmt: number;
+    // 추가배송비(조건에 의해 계산되어진)
     remoteDeliveryAmt: number;
+    // 착불 지역별 추가 배송비
     remoteDeliveryAmtOnDelivery: number;
+    // sales Tax (미국 몰 전용)
     salesTaxAmt: number;
+    // additionalDiscountAmt[추가할인가] * orderCnt[구매수량]
     totalAdditionalDiscountAmt: number;
+    // immediateDiscountAmt[즉시할인가] * orderCnt[구매수량]
     totalImmediateDiscountAmt: number;
+    // standardPrice[최종상품금액] (salePrice[판매가] + addPrice[옵션추가금액]) * orderCnt[구매수량]
     totalStandardAmt: number;
+    // 사용한 적립금
     usedAccumulationAmt: number;
 }
 
