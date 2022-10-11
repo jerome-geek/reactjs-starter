@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { profile } from 'api/member';
-import { ProfileResponse } from 'models/member';
+import { GetProfileParams } from 'models/member';
 
 export const fetchProfile = createAsyncThunk('member/profile', async () => {
     try {
@@ -13,7 +13,7 @@ export const fetchProfile = createAsyncThunk('member/profile', async () => {
 
 const memberInitialState: {
     loading: boolean;
-    data: Nullable<ProfileResponse>;
+    data: Nullable<GetProfileParams>;
     error: any;
 } = {
     loading: false,
