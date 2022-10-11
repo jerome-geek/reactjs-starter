@@ -1,31 +1,46 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
-import { head } from '@fxts/core';
-import { shallowEqual } from 'react-redux';
+import {
+    head,
+    pipe,
+    toArray,
+    filter,
+    map,
+    every,
+    isArray,
+    pluck,
+    isUndefined,
+    isEmpty,
+} from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
-import GoBackButton from 'components/Button/GoBackButton';
+import MobileHeader from 'components/shared/MobileHeader';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import SecondaryButton from 'components/Button/SecondaryButton';
 import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
-import { useAppDispatch, useTypedSelector } from 'state/reducers';
-import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
-import { useCart, useMember } from 'hooks';
+import Checkbox from 'components/Input/Checkbox';
+import FlexContainer from 'components/shared/FlexContainer';
+import { useAppDispatch } from 'state/reducers';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
+import { useCart, useMember } from 'hooks';
 import { cart, guestOrder, orderSheet } from 'api/order';
-import { CHANNEL_TYPE } from 'models';
 import {
     DeliveryGroup,
+    OptionInputs,
     OrderProductOption,
     OrderSheetBody,
-    Products,
-    ShoppingCartBody,
 } from 'models/order';
 import { isDesktop } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
+import PATHS from 'const/paths';
+
+export interface OrderPrice {
+    [id: string]: { name: string; price: string | number };
+}
 
 const CartContainer = styled.div`
     width: 1280px;
@@ -42,32 +57,12 @@ const CartContainer = styled.div`
     }
 `;
 
+const SelectAllContainer = styled(FlexContainer)``;
+
 const CartListWrapper = styled.div`
     width: 65%;
     ${media.medium} {
         width: 100%;
-    }
-`;
-
-const TitleBox = styled.div`
-    position: relative;
-    > div {
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-`;
-
-const Title = styled.h2`
-    margin-bottom: 60px;
-    width: 100%;
-    color: #191919;
-    font-size: 24px;
-    font-weight: bold;
-    ${media.medium} {
-        text-align: center;
-        font-size: 16px;
     }
 `;
 
@@ -81,38 +76,6 @@ const SelectWrapper = styled.div`
     }
 `;
 
-const SelectAll = styled.div`
-    display: flex;
-    margin: 0 0 14px 6px;
-    > input {
-        display: none;
-    }
-    > label {
-        height: 24px;
-        margin-top: 2px;
-    }
-    > div {
-        display: flex;
-        color: #191919;
-        align-items: center;
-        font-size: 16px;
-        margin-left: 9.5px;
-        line-height: 24px;
-        > p {
-            margin-left: 10px;
-        }
-    }
-    ${media.medium} {
-        margin: 0;
-        > div {
-            margin-left: 0;
-            > p {
-                color: #999999;
-            }
-        }
-    }
-`;
-
 const CheckCount = styled.div`
     color: #8f8f8f;
     > span {
@@ -121,27 +84,15 @@ const CheckCount = styled.div`
     }
 `;
 
-const DeleteSelection = styled.div`
+const CartDeleteButton = styled(SecondaryButton)`
     width: 210px;
-    height: 44px;
-    border: 1px solid #dbdbdb;
-    margin-top: 30px;
-    line-height: 44px;
-    text-align: center;
-    cursor: pointer;
-    ${media.medium} {
-        width: auto;
-        height: auto;
-        margin-top: 0;
-        border: none;
-        color: #999999;
-        font-size: 16px;
-    }
 `;
 
 const CartListContainer = styled.div`
     border-top: 2px solid #222943;
     border-bottom: 2px solid #222943;
+    margin-bottom: 30px;
+
     ${media.medium} {
         margin-bottom: 24px;
     }
@@ -256,196 +207,169 @@ const CartPriceContainer = styled.div`
 `;
 
 const CartPriceWrapper = styled.div`
-    position: sticky;
-    top: 175px;
+    /* position: sticky;
+    top: 175px; */
     ${media.medium} {
         top: auto;
         bottom: 0;
     }
 `;
 
-const CartOrderPurchaseButton = styled.div`
+const DirectPurchaseButton = styled(PrimaryButton)`
     width: 100%;
-    height: 44px;
-    background: #222943;
-    text-align: center;
-    line-height: 44px;
-    color: #fff;
-    font-size: 16px;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    cursor: pointer;
-    ${media.medium} {
+
+    ${media.small} {
         position: fixed;
-        top: auto;
         bottom: 0;
+        left: 0;
     }
 `;
-
-const ContinueShoppingButton = styled(CartOrderPurchaseButton)`
-    > a {
-        display: inline-block;
-        width: 100%;
-    }
-    ${media.medium} {
-        position: unset;
-        height: 54px;
-        line-height: 54px;
-    }
-`;
-
-interface CartListType {
-    [id: number]: OrderProductOption & {
-        deliveryAmt: number;
-        productName: string;
-    };
-}
-
-export interface OrderPrice {
-    [id: string]: { name: string; price: string | number };
+interface testInterface extends OrderProductOption {
+    deliveryAmt: number;
+    productName: string;
+    isChecked: boolean;
 }
 
 const Cart = () => {
-    const [checkList, setCheckList] = useState<number[]>([]);
-    const [cartList, setCartList] = useState<CartListType>({});
-    const [cartOrderPrice, setCartOrderPrice] = useState<OrderPrice>({});
+    const [cartList, setCartList] = useState<testInterface[]>([]);
+    const [checkedPriceData, setCheckedPriceData] = useState({
+        standardAmt: 0, // 총 주문금액
+        totalDeliveryAmt: 0, // 총 배송비
+        totalDiscountPrice: 0, // 총 할인금액
+        totalCouponPrice: 0, // 쿠폰 할인
+        totalAmt: 0, // 총 결제금액
+    });
 
-    const { refetch: cartRefetch } = useCart();
     const { member } = useMember();
+    const isLogin = useMemo(() => !!member, [member]);
+
     const { width } = useWindowSize();
 
     const dispatch = useAppDispatch();
 
-    const { cart: guestCartList } = useTypedSelector(
-        ({ cart }) => ({
-            cart: cart.data,
-        }),
-        shallowEqual,
-    );
+    const navigate = useNavigate();
 
-    const setCartHandler = (deliveryGroups: DeliveryGroup[]): CartListType => {
-        const cartList: CartListType = {};
+    const setCartHandler = (deliveryGroups: DeliveryGroup[]) => {
+        const cartListTemp: any[] = [];
 
         deliveryGroups.forEach((deliveryGroup) => {
             deliveryGroup.orderProducts.forEach((orderProduct) => {
                 orderProduct.orderProductOptions.forEach((productOption) => {
-                    cartList[productOption.cartNo] = {
+                    cartListTemp.push({
                         ...productOption,
                         deliveryAmt: deliveryGroup.deliveryAmt,
                         productName: orderProduct.productName,
-                    };
+                        isChecked: true,
+                    });
                 });
             });
         });
 
-        return cartList;
+        return cartListTemp;
     };
 
-    const { mutate: guestCartMutate, isLoading: isGuestCartLoading } =
-        useMutation(
-            async (cartList: ShoppingCartBody[]) =>
-                await guestOrder.getCart(cartList, {
-                    divideInvalidProducts: true,
-                }),
-            {
-                onSuccess: (res) => {
-                    setCartList((prev) => {
-                        return {
-                            ...prev,
-                            ...setCartHandler(res.data.deliveryGroups),
-                        };
-                    });
-                },
-            },
-        );
+    const { cartInfo, refetch } = useCart();
 
-    const { data: guestCartPriceData, mutate: guestCartPriceMutate } =
-        useMutation(
-            async (cartList: ShoppingCartBody[]) =>
-                await guestOrder.getCart(cartList, {
-                    divideInvalidProducts: true,
-                }),
-            {
-                onSuccess: (res) => {
-                    setCartOrderPrice((prev) => {
-                        prev.totalOrderPrice = {
-                            name: '총 주문금액',
-                            price: res?.data.price?.standardAmt,
-                        };
-                        prev.totalDiscountPrice = {
-                            name: '총 할인금액',
-                            price: res.data.price.discountAmt,
-                        };
-                        prev.totalDeliveryPrice = {
-                            name: '총 배송비',
-                            price: res?.data.price?.totalDeliveryAmt,
-                        };
+    useEffect(() => {
+        if (cartInfo?.deliveryGroups) {
+            setCartList(setCartHandler(cartInfo.deliveryGroups));
+            setCheckedPriceData({
+                standardAmt: cartInfo.price.standardAmt, // 총 주문금액
+                totalDeliveryAmt: cartInfo.price.totalDeliveryAmt, // 총 배송비
+                totalDiscountPrice: cartInfo.price.discountAmt, // 총 할인금액
+                totalCouponPrice: 0, // 쿠폰 할인
+                totalAmt: cartInfo.price.totalAmt, // 총 결제금액
+            });
+        }
+    }, [cartInfo]);
 
-                        return { ...prev };
-                    });
-                },
-            },
-        );
+    const checkedCartList = useMemo(
+        () =>
+            pipe(
+                cartList,
+                filter((a) => a.isChecked),
+                map((b) => ({
+                    cartNo: b.cartNo,
+                    channelType: 'NAVER_EP',
+                    optionInputs: b.optionInputs,
+                    optionNo: b.optionNo,
+                    orderCnt: b.orderCnt,
+                    productNo: b.productNo,
+                })),
+                toArray,
+            ),
+        [cartList],
+    );
 
-    const { isFetching: isCartLoading, refetch: getCartFetch } = useQuery(
-        ['cartList', { member: member?.memberName }],
-        async () => await cart.getCart({ divideInvalidProducts: true }),
+    useQuery(
+        ['guestCart', checkedCartList],
+        async () =>
+            await guestOrder.getCart(checkedCartList, {
+                divideInvalidProducts: true,
+            }),
         {
-            onSuccess: (res) => {
-                cartRefetch();
-                setCartList((prev) => {
-                    return {
-                        ...prev,
-                        ...setCartHandler(res.data.deliveryGroups),
-                    };
+            enabled: !isLogin,
+            select: (response) => response.data,
+            onSuccess: (data) => {
+                setCheckedPriceData({
+                    standardAmt: data.price.standardAmt, // 총 주문금액
+                    totalDeliveryAmt: data.price.totalDeliveryAmt, // 총 배송비
+                    totalDiscountPrice: data.price.discountAmt, // 총 할인금액
+                    totalCouponPrice: 0, // 쿠폰 할인
+                    totalAmt: data.price.totalAmt, // 총 결제금액
                 });
             },
-            enabled: !!member,
         },
     );
 
-    const { data: cartOrderPriceData } = useQuery(
-        ['cartPrice', { member: member?.memberName, checkList, cartList }],
-        async () =>
-            await cart.getSelectedCartPrice({
-                divideInvalidProducts: true,
-                cartNo: checkList,
-            }),
-        {
-            select: (res) => res.data,
-            onSuccess: (res) =>
-                setCartOrderPrice((prev) => {
-                    prev.totalOrderPrice = {
-                        name: '총 주문금액',
-                        price: res?.standardAmt,
-                    };
-                    prev.totalDiscountPrice = {
-                        name: '총 할인금액',
-                        price: res.discountAmt,
-                    };
-                    prev.totalDeliveryPrice = {
-                        name: '총 배송비',
-                        price: res?.totalDeliveryAmt,
-                    };
+    useQuery(
+        ['cartPrice', { member: member?.memberName, checkedCartList }],
+        async () => {
+            const checkedCartNoList = pipe(
+                checkedCartList,
+                pluck('cartNo'),
+                toArray,
+            );
 
-                    return { ...prev };
-                }),
-            enabled: !!member && checkList.length > 0,
+            return await cart.getSelectedCartPrice({
+                divideInvalidProducts: true,
+                cartNo: isEmpty(checkedCartNoList) ? null : checkedCartNoList,
+            });
+        },
+        {
+            enabled: isLogin,
+            select: (res) => res.data,
+            onSuccess: (data) => {
+                setCheckedPriceData({
+                    standardAmt: data.standardAmt, // 총 주문금액
+                    totalDeliveryAmt: data.totalDeliveryAmt, // 총 배송비
+                    totalDiscountPrice: data.discountAmt, // 총 할인금액
+                    totalCouponPrice: 0, // 쿠폰 할인
+                    totalAmt: data.totalAmt, // 총 결제금액
+                });
+            },
         },
     );
 
     const { mutate: updateCartMutate } = useMutation(
-        async (
-            updateCartData: Pick<
-                ShoppingCartBody,
-                'cartNo' | 'orderCnt' | 'optionInputs'
-            >,
-        ) => await cart.updateCart(updateCartData),
+        async (updateCartData: {
+            cartNo: number;
+            orderCnt: number;
+            optionInputs: OptionInputs[];
+        }) => await cart.updateCart(updateCartData),
         {
-            onSuccess: () => {
-                getCartFetch();
+            onSuccess: (res) => {
+                refetch();
             },
+        },
+    );
+
+    const { mutate: deleteCartMutate } = useMutation(
+        async (deleteCartNos: { cartNo: number | number[] }) =>
+            await cart.deleteCart(deleteCartNos),
+        {
+            onSuccess: () => refetch(),
+            onError: () => {},
         },
     );
 
@@ -454,7 +378,7 @@ const Cart = () => {
             await orderSheet.writeOrderSheet(orderSheetList),
         {
             onSuccess: (res) => {
-                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` });
+                navigate(`${PATHS.ORDER}/${res.data.orderSheetNo}`);
             },
             onError: () => {
                 alert('구매 실패!');
@@ -463,134 +387,119 @@ const Cart = () => {
     );
 
     const purchaseHandler = () => {
-        if (checkList.length <= 0) {
-            return;
-        }
-
-        const products: Products[] = [];
-
-        checkList.forEach((cartNo) => {
-            products.push({
+        const products = pipe(
+            checkedCartList,
+            map((a) => ({
                 channelType: '',
-                orderCnt: cartList[cartNo].orderCnt,
-                optionNo: cartList[cartNo].optionNo,
-                productNo: cartList[cartNo].productNo,
-            });
-        });
+                productNo: a.productNo,
+                optionNo: a.optionNo,
+                orderCnt: a.orderCnt,
+                optionInputs: a.optionInputs,
+            })),
+            toArray,
+        );
 
         purchaseMutate({
-            trackingKey: '',
-            channelType: CHANNEL_TYPE.NAVER_EP,
-            products: products,
-            cartNos: checkList,
+            products,
             productCoupons: [],
+            cartNos: pipe(checkedCartList, pluck('cartNo'), toArray),
+            trackingKey: '',
+            channelType: '',
         });
     };
 
-    const productCountHandler = (number: number, cartNo: number) => () => {
-        if (cartList[cartNo].orderCnt + number <= 0) {
-            alert('1개 이상 구매하여야 합니다.');
-            return;
-        }
+    const productCountHandler = (count: number, cartNo: number) => () => {
+        const cartInfo = pipe(
+            cartList,
+            filter((a) => a.cartNo === cartNo),
+            head,
+        );
 
-        if (member) {
-            updateCartMutate({
-                cartNo: cartList[cartNo].cartNo,
-                orderCnt: cartList[cartNo].orderCnt + number,
-                optionInputs: cartList[cartNo].optionInputs,
-            });
+        if (!isUndefined(cartInfo)) {
+            if (cartInfo.orderCnt + count <= 0) {
+                return;
+            }
+
+            if (isLogin) {
+                updateCartMutate({
+                    cartNo: cartInfo.cartNo,
+                    orderCnt: cartInfo.orderCnt + count,
+                    optionInputs: cartInfo.optionInputs,
+                });
+            } else {
+                dispatch(
+                    updateCart({
+                        cartNo,
+                        orderCnt: cartInfo.orderCnt + count,
+                    }),
+                );
+            }
+        }
+    };
+
+    const deleteCartList = (cartNo: number) => () => {
+        if (isLogin) {
+            deleteCartMutate({ cartNo: [cartNo] });
         } else {
             dispatch(
-                updateCart({
-                    optionNo: cartList[cartNo].cartNo,
-                    orderCnt: cartList[cartNo].orderCnt + number,
+                deleteCart({
+                    deleteList: pipe(
+                        cartList,
+                        filter((a) => a.cartNo === cartNo),
+                        map((b) => b.cartNo),
+                        toArray,
+                    ),
                 }),
             );
         }
     };
 
-    useEffect(() => {
-        if (!member) guestCartMutate(guestCartList);
-    }, [guestCartList]);
-
-    useEffect(() => {
-        guestCartPriceMutate(
-            guestCartList.filter(({ optionNo }) => {
-                return checkList.includes(optionNo);
-            }),
+    const deleteCheckedCartList = () => {
+        const checkedCartNoList = pipe(
+            checkedCartList,
+            map((a) => a.cartNo),
+            toArray,
         );
-    }, [checkList, cartList]);
 
-    const { mutate: deleteCartMutate } = useMutation(
-        async (deleteCartNos: { cartNo: number | number[] }) =>
-            await cart.deleteCart(deleteCartNos),
-        {
-            onSuccess: () => {
-                getCartFetch();
-            },
-            onError: () => {},
-        },
-    );
-
-    const deleteCartHandler = (cartNo: number) => () => {
-        setCartList((prev) => {
-            const copyCartList = { ...prev };
-            delete copyCartList[cartNo];
-            return { ...copyCartList };
-        });
-        if (member) {
-            deleteCartMutate({ cartNo });
+        if (isLogin) {
+            deleteCartMutate({ cartNo: checkedCartNoList });
         } else {
-            dispatch(deleteCart({ deleteList: [cartNo] }));
+            dispatch(
+                deleteCart({
+                    deleteList: checkedCartNoList,
+                }),
+            );
         }
     };
-
-    const deleteCheckCartHandler = () => {
-        if (checkList.length < 1) {
-            return;
-        }
-
-        setCartList((prev) => {
-            const copyCartList = { ...prev };
-            checkList.forEach((checkedCartNo) => {
-                delete copyCartList[checkedCartNo];
-                return { ...copyCartList };
-            });
-            return { ...copyCartList };
-        });
-
-        if (member) {
-            deleteCartMutate({
-                cartNo: checkList.length > 1 ? checkList : head(checkList)!,
-            });
-        } else {
-            dispatch(deleteCart({ deleteList: checkList }));
-        }
-
-        setCheckList([]);
-    };
-
-    const navigate = useNavigate();
 
     const agreeAllButton = (checked: boolean) => {
-        if (checked) {
-            const checkList: number[] = [];
-            Object.keys(cartList).forEach((optionNo) => {
-                checkList.push(parseFloat(optionNo));
-            });
-            setCheckList(checkList);
-        } else {
-            setCheckList([]);
-        }
+        setCartList((prev) =>
+            pipe(
+                prev,
+                map((a) => ({ ...a, isChecked: checked })),
+                toArray,
+            ),
+        );
     };
 
-    const agreeButton = (checked: boolean, optionNo: number) => {
-        if (checked) {
-            setCheckList((prev) => [...prev, optionNo]);
-        } else {
-            setCheckList((prev) => prev.filter((check) => check !== optionNo));
-        }
+    const agreeButton = (optionNo: number) => {
+        setCartList((prev) =>
+            pipe(
+                prev,
+                map((a) =>
+                    a.optionNo === optionNo
+                        ? { ...a, isChecked: !a.isChecked }
+                        : a,
+                ),
+                toArray,
+            ),
+        );
     };
+
+    const isAllChecked = useMemo(
+        () => every((a) => a.isChecked, cartList),
+        [cartList],
+    );
 
     const isCartListForResponsive = (
         device: 'desktop' | 'mobile' | 'mustShowDesktop',
@@ -612,53 +521,48 @@ const Cart = () => {
 
     return (
         <>
-            <Header />
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={'장바구니'} />
+            )}
+
             <CartContainer>
                 <CartListWrapper>
-                    <TitleBox>
-                        <GoBackButton />
-                        <Title>장바구니</Title>
-                    </TitleBox>
                     {isCartListForResponsive('mustShowDesktop') && (
                         <SelectWrapper>
-                            <SelectAll>
-                                <input
-                                    type='checkbox'
+                            <SelectAllContainer>
+                                <Checkbox
+                                    shape='square'
                                     onChange={(e) =>
                                         agreeAllButton(e.target.checked)
                                     }
-                                    checked={
-                                        checkList.length ===
-                                        Object.keys(cartList).length
-                                    }
-                                    id='agreeAll'
-                                />
-                                <label htmlFor='agreeAll'>
-                                    {checkList.length ===
-                                    Object.keys(cartList).length ? (
-                                        <Checked />
-                                    ) : (
-                                        <UnChecked />
-                                    )}
-                                </label>
-                                <div>
-                                    {' '}
-                                    <p>전체 선택</p>
+                                    checked={isAllChecked}
+                                >
+                                    <p style={{ marginLeft: '10px' }}>
+                                        전체 선택
+                                    </p>
                                     <CheckCount>
-                                        &nbsp;(<span>{checkList.length}</span>/
-                                        {Object.keys(cartList).length})
+                                        &nbsp;(
+                                        <span>
+                                            {isArray(checkedCartList)
+                                                ? checkedCartList.length
+                                                : 0}
+                                        </span>
+                                        /{cartList.length})
                                     </CheckCount>
-                                </div>
-                            </SelectAll>
+                                </Checkbox>
+                            </SelectAllContainer>
                             {!isDesktop(width) && (
-                                <DeleteSelection
-                                    onClick={deleteCheckCartHandler}
+                                <CartDeleteButton
+                                    onClick={deleteCheckedCartList}
                                 >
                                     선택 상품 삭제
-                                </DeleteSelection>
+                                </CartDeleteButton>
                             )}
                         </SelectWrapper>
                     )}
+
                     <CartListContainer>
                         {isDesktop(width) && (
                             <CartCategoryBox>
@@ -670,73 +574,59 @@ const Cart = () => {
                                 <CartCloseButton></CartCloseButton>
                             </CartCategoryBox>
                         )}
-                        {Object.keys(cartList).length < 1 ? (
+                        {cartList.length === 0 ? (
                             <NoProductMessage>
                                 장바구니에 담긴 상품이 없습니다.
                             </NoProductMessage>
-                        ) : isCartLoading || isGuestCartLoading ? (
-                            '장바구니 불러오는 중' //TODO 로딩
                         ) : (
-                            Object.values(cartList).map((cartData) => {
+                            cartList?.map((cartData: any) => {
                                 return (
                                     <CartList
+                                        key={cartData.optionNo}
                                         cartData={cartData}
-                                        checkList={checkList}
                                         agreeButton={agreeButton}
                                         productCountHandler={
                                             productCountHandler
                                         }
-                                        deleteCartHandler={deleteCartHandler}
-                                        key={cartData.cartNo}
-                                    ></CartList>
+                                        deleteCartList={deleteCartList}
+                                    />
                                 );
                             })
                         )}
                     </CartListContainer>
+
                     {isDesktop(width) && (
-                        <DeleteSelection onClick={deleteCheckCartHandler}>
+                        <CartDeleteButton onClick={deleteCheckedCartList}>
                             선택 상품 삭제
-                        </DeleteSelection>
+                        </CartDeleteButton>
                     )}
                 </CartListWrapper>
-                {isDesktop(width) && (
-                    <CartPriceContainer>
-                        <CartPriceWrapper>
-                            <OrderSheetPrice
-                                title={'주문서'}
-                                cartOrderPrice={cartOrderPrice}
-                                amountPrice={
-                                    member
-                                        ? cartOrderPriceData?.totalAmt
-                                        : guestCartPriceData?.data.price
-                                              .totalAmt
-                                }
-                            />
-                            {isCartListForResponsive('desktop') ? (
-                                <CartOrderPurchaseButton
-                                    onClick={purchaseHandler}
-                                >
-                                    {checkList.length} 개 상품 바로구매
-                                </CartOrderPurchaseButton>
-                            ) : (
-                                <ContinueShoppingButton>
-                                    <Link to={'/'}>쇼핑 계속하기</Link>
-                                </ContinueShoppingButton>
-                            )}
-                        </CartPriceWrapper>
-                    </CartPriceContainer>
-                )}
-                {!isCartListForResponsive('mustShowDesktop') && (
-                    <ContinueShoppingButton>
-                        <Link to={'/'}>쇼핑 계속하기</Link>
-                    </ContinueShoppingButton>
-                )}
+
+                <CartPriceContainer>
+                    <CartPriceWrapper>
+                        <OrderSheetPrice
+                            title={'주문서'}
+                            totalStandardAmt={checkedPriceData.standardAmt}
+                            totalDeliveryFee={checkedPriceData.totalDeliveryAmt}
+                            totalDiscount={checkedPriceData.totalDiscountPrice}
+                            totalCouponDiscount={0}
+                            totalPaymentAmt={checkedPriceData.totalAmt}
+                        />
+
+                        <DirectPurchaseButton
+                            onClick={
+                                checkedCartList.length === 0
+                                    ? () => navigate(PATHS.MAIN)
+                                    : purchaseHandler
+                            }
+                        >
+                            {checkedCartList.length === 0
+                                ? '쇼핑 계속하기'
+                                : `${checkedCartList.length} 개 상품 바로구매 `}
+                        </DirectPurchaseButton>
+                    </CartPriceWrapper>
+                </CartPriceContainer>
             </CartContainer>
-            {isCartListForResponsive('mobile') && (
-                <CartOrderPurchaseButton onClick={purchaseHandler}>
-                    {checkList.length} 개 상품 바로구매
-                </CartOrderPurchaseButton>
-            )}
         </>
     );
 };

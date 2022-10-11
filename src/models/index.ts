@@ -170,8 +170,11 @@ enum ORDER_STATUS_TYPE {
     REFUND_DONE = 'REFUND_DONE',
 }
 
+// (현금영수증) 발급용도
 enum CASH_RECEIPT_ISSUE_PURPOSE_TYPE {
+    // 소득공제용
     INCOME_TAX_DEDUCTION = 'INCOME_TAX_DEDUCTION',
+    // 지출증빙용
     PROOF_EXPENDITURE = 'PROOF_EXPENDITURE',
 }
 
@@ -450,14 +453,21 @@ enum BANK {
     CAPE = 'CAPE',
 }
 
+// 정기결제 배송주기 타입
 enum CYCLE_TYPE {
+    // 월
     MONTH = 'MONTH',
+    // 주
     WEEK = 'WEEK',
 }
 
+// 배송지 타입
 enum ADDRESS_TYPE {
+    // 기본주소
     BOOK = 'BOOK',
+    // 최근주소
     RECENT = 'RECENT',
+    // 정기결제 배송주소
     RECURRING_PAYMENT = 'RECURRING_PAYMENT',
 }
 

@@ -5,7 +5,8 @@ const KRW = (
     options: currency.Options = {
         symbol: '원',
         precision: 0,
-        pattern: `#!`,
+        pattern: `# !`,
+        negativePattern: `- # !`,
     },
 ) => currency(value, { ...options });
 

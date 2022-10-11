@@ -1,10 +1,20 @@
+import { FC } from 'react';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
 
-import currency from 'currency.js';
-import { OrderPrice } from 'pages/Cart/Cart';
 import media from 'utils/styles/media';
+import { KRW } from 'utils/currency';
 
-const CartOrderBox = styled.div`
+interface OrderSheetPriceProps {
+    title: string;
+    totalStandardAmt?: number; // 총 주문금액
+    totalDeliveryFee?: number; // 총 배송비
+    totalDiscount?: number; // 총 할인금액
+    totalCouponDiscount?: number; // 쿠폰할인
+    totalPaymentAmt?: number; // 총 결제금액
+}
+
+const OrderSheetPriceContainer = styled.div`
     background: #f8f8fa;
     width: 100%;
 `;
@@ -76,50 +86,68 @@ const CartOrderPrice = styled.div`
     }
 `;
 
-const OrderSheetPrice = ({
+const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
     title,
-    cartOrderPrice,
-    amountPrice,
-}: {
-    title: string;
-    cartOrderPrice?: OrderPrice;
-    amountPrice?: number;
+    totalStandardAmt = 0,
+    totalDeliveryFee = 0,
+    totalDiscount = 0,
+    totalCouponDiscount = 0,
+    totalPaymentAmt = 0,
 }) => {
+    const { t } = useTranslation('orderSheet');
+
     return (
-        <CartOrderBox>
+        <OrderSheetPriceContainer>
             <CartOrderPriceTitle>{title}</CartOrderPriceTitle>
             <CartOrderPriceBox>
-                {cartOrderPrice &&
-                    Object.values(cartOrderPrice).map(({ name, price }) => {
-                        return (
-                            <OrderPriceWrapper key={name}>
-                                <CartOrderSubTitle>{name}</CartOrderSubTitle>
-                                <CartOrderPrice>
-                                    {currency(price, {
-                                        symbol: '',
-                                        precision: 0,
-                                    }).format()}{' '}
-                                    원
-                                </CartOrderPrice>
-                            </OrderPriceWrapper>
-                        );
-                    })}
+                <OrderPriceWrapper>
+                    <CartOrderSubTitle>
+                        {t('paymentInformation.category.amountOrderPrice')}
+                    </CartOrderSubTitle>
+                    <CartOrderPrice>
+                        {KRW(totalStandardAmt).format()}
+                    </CartOrderPrice>
+                </OrderPriceWrapper>
+                <OrderPriceWrapper>
+                    <CartOrderSubTitle>
+                        {t('paymentInformation.category.amountDeliveryFee')}
+                    </CartOrderSubTitle>
+                    <CartOrderPrice>
+                        {KRW(totalDeliveryFee).format()}
+                    </CartOrderPrice>
+                </OrderPriceWrapper>
+                <OrderPriceWrapper>
+                    <CartOrderSubTitle>
+                        {t('paymentInformation.category.amountDiscount')}
+                    </CartOrderSubTitle>
+                    <CartOrderPrice>
+                        {KRW(Math.abs(totalDiscount) * -1).format()}
+                    </CartOrderPrice>
+                </OrderPriceWrapper>
+                <OrderPriceWrapper>
+                    <CartOrderSubTitle>
+                        {t('paymentInformation.category.couponDiscount')}
+                    </CartOrderSubTitle>
+                    <CartOrderPrice>
+                        {KRW(Math.abs(totalCouponDiscount) * -1).format()}
+                    </CartOrderPrice>
+                </OrderPriceWrapper>
             </CartOrderPriceBox>
             <CartOrderPaymentAmount>
-                <CartOrderSubTitle>총 결제금액</CartOrderSubTitle>
+                <CartOrderSubTitle>
+                    {t('paymentInformation.category.amountPrice')}
+                </CartOrderSubTitle>
                 <CartOrderPrice>
                     <span>
-                        {amountPrice
-                            ? currency(amountPrice, {
-                                  symbol: '',
-                                  precision: 0,
-                              }).format()
-                            : 0}
+                        {KRW(totalPaymentAmt).format({
+                            symbol: '',
+                            precision: 0,
+                        })}
                     </span>
                     &nbsp;&nbsp;원
                 </CartOrderPrice>
             </CartOrderPaymentAmount>
-        </CartOrderBox>
+        </OrderSheetPriceContainer>
     );
 };
 

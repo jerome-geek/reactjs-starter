@@ -2,7 +2,12 @@ import { AxiosResponse } from 'axios';
 import qs from 'qs';
 
 import request, { defaultHeaders } from 'api/core';
-import { CartList, CartPrice, ShoppingCartBody } from 'models/order/index';
+import {
+    CartList,
+    CartPrice,
+    OptionInputs,
+    ShoppingCartBody,
+} from 'models/order/index';
 import { tokenStorage } from 'utils/storage';
 
 const cart = {
@@ -29,10 +34,11 @@ const cart = {
         cartNo,
         orderCnt,
         optionInputs,
-    }: Pick<
-        ShoppingCartBody,
-        'cartNo' | 'orderCnt' | 'optionInputs'
-    >): Promise<AxiosResponse> => {
+    }: {
+        cartNo: number;
+        orderCnt: number;
+        optionInputs: OptionInputs[];
+    }): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
