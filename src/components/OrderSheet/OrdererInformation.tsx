@@ -52,7 +52,7 @@ const OrdererInformation: FC<OrdererInformationProps> = ({
                         placeholder={sheet(
                             'ordererInformation.category.placeholder.name',
                         )}
-                        type={'text'}
+                        type='text'
                         {...register('orderer.ordererName', {
                             required: {
                                 value: true,
@@ -79,7 +79,7 @@ const OrdererInformation: FC<OrdererInformationProps> = ({
                         placeholder={sheet(
                             'ordererInformation.category.placeholder.phoneNumber',
                         )}
-                        type={'text'}
+                        type='text'
                         {...register('orderer.ordererContact1', {
                             required: {
                                 value: true,
@@ -111,7 +111,7 @@ const OrdererInformation: FC<OrdererInformationProps> = ({
                         placeholder={sheet(
                             'ordererInformation.category.placeholder.email',
                         )}
-                        type={'text'}
+                        type='text'
                         {...register('orderer.ordererEmail', {
                             required: {
                                 value: true,

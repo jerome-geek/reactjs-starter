@@ -8,9 +8,11 @@ import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { every, pipe, toArray, map } from '@fxts/core';
 import { DevTool } from '@hookform/devtools';
+
 import orderPayment from 'pages/Order/orderPayment';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
+import MobileHeader from 'components/shared/MobileHeader';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
 import ShippingAddress from 'components/OrderSheet/ShippingAddress';
@@ -21,6 +23,9 @@ import ShippingListModal from 'components/Modal/ShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestOrderPassword from 'components/OrderSheet/GuestOrderPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
+import OrderTermsAgreement from 'components/OrderSheet/OrderTermsAgreement';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import OrderProgress from 'components/OrderSheet/OrderProgress';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import { CHANNEL_TYPE, COUNTRY_CD, PAY_TYPE, PG_TYPE } from 'models';
@@ -33,12 +38,8 @@ import { orderSheet } from 'api/order';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import { useMall, useMember } from 'hooks';
-import OrderTermsAgreement from 'components/OrderSheet/OrderTermsAgreement';
-import MobileHeader from 'components/shared/MobileHeader';
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
-import PrimaryButton from 'components/Button/PrimaryButton';
-import OrderProgress from 'components/OrderSheet/OrderProgress';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -287,11 +288,12 @@ const Sheet = () => {
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
     const [orderPriceData, setOrderPriceData] = useState({
-        standardAmt: 0, // 총 주문금액
+        totalStandardAmt: 0, // 총 상품금액
         totalDeliveryAmt: 0, // 총 배송비
-        totalDiscountPrice: 0, // 총 할인금액
-        totalCouponPrice: 0, // 쿠폰 할인
-        totalAmt: 0, // 총 결제금액
+        totalDiscountAmt: 0, // 총 할인금액
+        totalCouponAmt: 0, // 쿠폰 할인
+        usedAccumulationAmt: 0, // 적립금 결제
+        paymentAmt: 0, // 총 결제금액
     });
     const [orderTerms, setOrderTerms] = useState<
         { id: string; url: ''; isChecked: boolean }[]
@@ -332,9 +334,9 @@ const Sheet = () => {
             pgType: PG_TYPE.INICIS,
             payType: PAY_TYPE.CREDIT_CARD,
             orderer: {
-                ordererName: '',
-                ordererEmail: '',
-                ordererContact1: '',
+                ordererName: member?.memberName,
+                ordererEmail: member?.email,
+                ordererContact1: member?.mobileNo,
                 ordererContact2: '',
             },
             shippingAddress: {
@@ -352,19 +354,17 @@ const Sheet = () => {
                 countryCd: COUNTRY_CD.KR,
                 shippingInfoLaterInputContact: '',
             },
-
             // orderTitle:
             //     orderData?.data.deliveryGroups[0]?.orderProducts[0]
             //         ?.productName,
             useDefaultAddress: false,
             deliveryMemo: '',
-            member: !!member?.memberName,
-
+            member: isLogin,
             // coupons: {
             //     productCoupons: null,
             //     cartCouponIssueNo: null,
             // },
-            // tempPassword: '', // TODO: 비회원용
+            tempPassword: '', // TODO: 비회원용
             updateMember: false,
             subPayAmt: 0,
             inAppYn: 'N',
@@ -387,11 +387,8 @@ const Sheet = () => {
                 includeMemberAddress: false,
             }),
         {
-            onSuccess: (res) => {
-                console.log(
-                    '🚀 ~ file: Sheet.tsx ~ line 534 ~ Sheet ~ res',
-                    res,
-                );
+            select: ({ data }) => data,
+            onSuccess: (data) => {
                 setOrderList(() => {
                     const newOrderList: Array<
                         OrderProductOption & {
@@ -399,7 +396,7 @@ const Sheet = () => {
                             productName: string;
                         }
                     > = [];
-                    res?.data.deliveryGroups.forEach((deliveryGroup) => {
+                    data.deliveryGroups.forEach((deliveryGroup) => {
                         deliveryGroup.orderProducts.forEach((orderProduct) => {
                             orderProduct.orderProductOptions.forEach(
                                 (productOption) => {
@@ -416,16 +413,19 @@ const Sheet = () => {
                 });
 
                 setOrderPriceData({
-                    standardAmt: res?.data.paymentInfo.totalStandardAmt,
-                    totalDeliveryAmt: res?.data.paymentInfo.deliveryAmt,
-                    totalDiscountPrice:
-                        res?.data.paymentInfo.totalImmediateDiscountAmt +
-                        res?.data.paymentInfo.totalAdditionalDiscountAmt,
-                    totalCouponPrice:
-                        res?.data.paymentInfo.cartCouponAmt +
-                        res?.data.paymentInfo.productCouponAmt +
-                        res?.data.paymentInfo.deliveryCouponAmt,
-                    totalAmt: res?.data.paymentInfo.paymentAmt,
+                    totalStandardAmt: data.paymentInfo.totalStandardAmt,
+                    totalDeliveryAmt:
+                        data.paymentInfo.deliveryAmt +
+                        data.paymentInfo.remoteDeliveryAmt,
+                    totalDiscountAmt:
+                        data.paymentInfo.totalImmediateDiscountAmt +
+                        data.paymentInfo.totalAdditionalDiscountAmt,
+                    usedAccumulationAmt: data.paymentInfo.usedAccumulationAmt,
+                    totalCouponAmt:
+                        data.paymentInfo.cartCouponAmt +
+                        data.paymentInfo.productCouponAmt +
+                        data.paymentInfo.deliveryCouponAmt,
+                    paymentAmt: data.paymentInfo.paymentAmt,
                 });
             },
         },
@@ -684,7 +684,7 @@ const Sheet = () => {
                         )} */}
 
                         <DiscountApply
-                            paymentInfo={orderData?.data.paymentInfo}
+                            paymentInfo={orderData?.paymentInfo}
                             setValue={setValue}
                             subPayAmt={watch('subPayAmt')}
                             onAccumulationButtonClick={
@@ -693,13 +693,11 @@ const Sheet = () => {
                             onCouponModalClick={onCouponModalClick}
                         />
 
-                        {orderData?.data.availablePayTypes && (
+                        {orderData?.availablePayTypes && (
                             <CommonPayment
                                 setValue={setValue}
                                 payType={watch('payType')}
-                                availablePayTypes={
-                                    orderData?.data.availablePayTypes
-                                }
+                                availablePayTypes={orderData?.availablePayTypes}
                             />
                         )}
 
@@ -712,21 +710,21 @@ const Sheet = () => {
                     </SheetOrderWrapper>
 
                     <SheetOrderPriceWrapper>
-                        {orderData?.data.paymentInfo && (
+                        {orderData?.paymentInfo && (
                             <OrderSheetPrice
                                 title={sheet('paymentInformation.title')}
-                                totalStandardAmt={orderPriceData.totalAmt}
-                                totalDeliveryFee={
+                                totalStandardAmt={
+                                    orderPriceData.totalStandardAmt
+                                }
+                                totalDeliveryAmt={
                                     orderPriceData.totalDeliveryAmt
                                 }
-                                totalDiscount={
-                                    orderPriceData.totalDiscountPrice
+                                totalDiscountAmt={
+                                    orderPriceData.totalDiscountAmt
                                 }
-                                totalCouponDiscount={
-                                    orderPriceData.totalCouponPrice
-                                }
+                                totalCouponAmt={orderPriceData.totalCouponAmt}
                                 totalPaymentAmt={
-                                    orderData.data.paymentInfo.paymentAmt
+                                    orderData.paymentInfo.paymentAmt
                                 }
                             />
                         )}
@@ -742,7 +740,7 @@ const Sheet = () => {
                         <PaymentButton type='submit'>
                             {isMobile(width)
                                 ? `${KRW(
-                                      orderPriceData.totalAmt,
+                                      orderPriceData.paymentAmt,
                                   ).format()} ${sheet('etc.payment')}`
                                 : sheet('etc.payment')}
                         </PaymentButton>
