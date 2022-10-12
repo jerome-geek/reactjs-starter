@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { StylesConfig } from 'react-select';
 import { shallowEqual } from 'react-redux';
-import { useWindowSize } from 'usehooks-ts';
-import { ErrorMessage } from '@hookform/error-message';
 import { useForm } from 'react-hook-form';
+import { ErrorMessage } from '@hookform/error-message';
+import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 import { head } from '@fxts/core';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
@@ -242,11 +243,19 @@ const AgreeTermContainer = styled.div`
             display: none;
         }
     }
-    > a {
+    > button {
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
         font-size: 10px;
         letter-spacing: 0;
         color: #bcbcbc;
         text-decoration: underline;
+    }
+    ${media.medium} {
+        > button {
+            display: none;
+        }
     }
 `;
 
@@ -269,13 +278,6 @@ const dummyRequestProgressData = [
     { status: '대기', count: '2' },
     { status: '취소', count: '1' },
     { status: '완료', count: '20' },
-];
-
-const dummyRequestCategory = [
-    '골프장 정보 추가 및 업데이트',
-    '고도 정보 추가 및 업데이트',
-    '그린뷰 정보 추가 및 업데이트',
-    '코스뷰 정보 추가 및 업데이트',
 ];
 
 interface CourseRequestBody {
@@ -340,7 +342,7 @@ const GolfCourseRequest = () => {
                 lineHeight: isMobile(width) ? '12px' : '4px',
                 width: '100%',
                 boxSizing: 'border-box',
-                border: '1px solid #DBDBDB',
+                borderBottom: 'none',
                 background: '#fff',
                 padding: '20px',
                 paddingLeft: '21px',
@@ -359,9 +361,11 @@ const GolfCourseRequest = () => {
         };
     }, [width]);
 
+    const { t: courseRequest } = useTranslation('courseRequest');
+
     const onSubmit = handleSubmit(() => {
         if (!isAgreeTerm) {
-            alert('약관에 동의해주세요');
+            alert(courseRequest('etc.allowTermAlert'));
             return;
         }
         // TODO 요청완료시 alert “골프장코스요청이완료되었습니다.신속하게반영될수있도록노력하겠습니다."
@@ -372,55 +376,65 @@ const GolfCourseRequest = () => {
             {isDesktop(width) ? (
                 <Header />
             ) : (
-                <MobileHeader title={'코스 요청하기'} />
+                <MobileHeader title={courseRequest('title')} />
             )}
             <SEOHelmet
                 data={{
-                    title: '보이스캐디 코스 요청',
+                    title: courseRequest('subTitle'),
                     meta: {
-                        title: '보이스캐디 코스 요청',
-                        description: '보이스캐디 코스 요청하기',
+                        title: courseRequest('subTitle'),
+                        description: courseRequest('description'),
                     },
                     og: {
-                        title: '보이스캐디 코스 요청',
-                        description: '보이스캐디 코스 요청하기',
+                        title: courseRequest('subTitle'),
+                        description: courseRequest('description'),
                     },
                 }}
             />
             <CourseRequestContainer>
                 <RequestResultContainer>
-                    <RequestResultTitle>나의 요청 결과</RequestResultTitle>
+                    <RequestResultTitle>
+                        {courseRequest('myRequestResult')}
+                    </RequestResultTitle>
                     <GoRequestListButton to={PATHS.GOLF_COURSE_LIST}>
-                        자세히 <ArrowRight />
+                        {courseRequest('detail')} <ArrowRight />
                     </GoRequestListButton>
                     <RequestResultProgress
                         requestProgressData={dummyRequestProgressData}
                     />
                 </RequestResultContainer>
                 <CourseRequestBottom>
-                    <CourseRequestTitle>코스 요청하기</CourseRequestTitle>
-                    <CourseRequestDescription>
-                        필요한 골프장 정보를 입력해주세요.
-                        <br />
-                        신속하게 반영될 수 있도록 노력하겠습니다.
-                    </CourseRequestDescription>
+                    <CourseRequestTitle>
+                        {courseRequest('title')}
+                    </CourseRequestTitle>
+                    <CourseRequestDescription
+                        dangerouslySetInnerHTML={{
+                            __html: courseRequest('guideMessage'),
+                        }}
+                    />
                     <CourseRequestForm>
                         <RequestInformationContainer>
                             <CourseRequestSubTitle>
-                                요청자 정보
+                                {courseRequest('requesterInformation.title')}
                             </CourseRequestSubTitle>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    이메일
+                                    {courseRequest(
+                                        'requesterInformation.email.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
                                 <CourseRequestInput
                                     type={'email'}
-                                    placeholder='이메일을 입력해주세요.'
+                                    placeholder={courseRequest(
+                                        'requesterInformation.email.placeholder',
+                                    )}
                                     {...register('userEmail', {
                                         required: {
                                             value: true,
-                                            message: '이메일을 입력해주세요',
+                                            message: courseRequest(
+                                                'requesterInformation.email.alert',
+                                            ),
                                         },
                                     })}
                                 />
@@ -436,16 +450,22 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    이름
+                                    {courseRequest(
+                                        'requesterInformation.name.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
                                 <CourseRequestInput
                                     type={'text'}
-                                    placeholder='이름을 입력해주세요.'
+                                    placeholder={courseRequest(
+                                        'requesterInformation.name.placeholder',
+                                    )}
                                     {...register('userName', {
                                         required: {
                                             value: true,
-                                            message: '이름을 입력해주세요',
+                                            message: courseRequest(
+                                                'requesterInformation.name.alert',
+                                            ),
                                         },
                                     })}
                                 />
@@ -463,11 +483,15 @@ const GolfCourseRequest = () => {
 
                         <RequestInformationContainer>
                             <CourseRequestSubTitle>
-                                골프장 요청 정보
+                                {courseRequest(
+                                    'requestCourseInformation.title',
+                                )}
                             </CourseRequestSubTitle>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    국가
+                                    {courseRequest(
+                                        'requestCourseInformation.country.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
                                 <SelectBox<any>
@@ -490,13 +514,17 @@ const GolfCourseRequest = () => {
                                     {...register('country', {
                                         required: {
                                             value: true,
-                                            message: '국가를 선택해주세요',
+                                            message: courseRequest(
+                                                'requestCourseInformation.country.alert',
+                                            ),
                                         },
                                     })}
                                     onChange={(e) => {
                                         setValue('country', e?.value);
                                     }}
-                                    placeHolder='국가를 선택해주세요.'
+                                    placeholder={courseRequest(
+                                        'requestCourseInformation.country.placeholder',
+                                    )}
                                 />
                                 <ErrorMessage
                                     errors={errors}
@@ -510,7 +538,9 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    지역
+                                    {courseRequest(
+                                        'requestCourseInformation.region.title',
+                                    )}
                                 </CourseRequestInputTitle>
                                 <CourseRequestInput
                                     type={'text'}
@@ -519,7 +549,9 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    골프장명
+                                    {courseRequest(
+                                        'requestCourseInformation.courseName.title',
+                                    )}
                                 </CourseRequestInputTitle>
                                 <CourseRequestInput
                                     type={'text'}
@@ -528,10 +560,12 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    요청항목
+                                    {courseRequest(
+                                        'requestCourseInformation.requestCategory.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
-                                <SelectBox
+                                <SelectBox<any>
                                     styles={{
                                         ...(customStyle as StylesConfig<
                                             Partial<any>,
@@ -542,24 +576,31 @@ const GolfCourseRequest = () => {
                                             false
                                         >),
                                     }}
-                                    options={dummyRequestCategory.map(
-                                        (category) => {
-                                            return {
-                                                label: category,
-                                                value: category,
-                                            };
+                                    options={courseRequest(
+                                        'requestCourseInformation.requestCategory.value',
+                                        {
+                                            returnObjects: true,
                                         },
-                                    )}
+                                    ).map((category) => {
+                                        return {
+                                            label: category,
+                                            value: category,
+                                        };
+                                    })}
                                     {...register('requestCategory', {
                                         required: {
                                             value: true,
-                                            message: '요청 항목을 선택해주세요',
+                                            message: courseRequest(
+                                                'requestCourseInformation.requestCategory.alert',
+                                            ),
                                         },
                                     })}
                                     onChange={(e) => {
                                         setValue('requestCategory', e?.value);
                                     }}
-                                    placeHolder='요청 항목을 선택해주세요.'
+                                    placeholder={courseRequest(
+                                        'requestCourseInformation.requestCategory.placeholder',
+                                    )}
                                 />
                                 <ErrorMessage
                                     errors={errors}
@@ -573,7 +614,9 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    세부내용
+                                    {courseRequest(
+                                        'requestCourseInformation.requestDetail.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
                                 <CourseRequestTextArea
@@ -581,10 +624,14 @@ const GolfCourseRequest = () => {
                                     {...register('requestDetail', {
                                         required: {
                                             value: true,
-                                            message: '세부내용을 입력해주세요',
+                                            message: courseRequest(
+                                                'requestCourseInformation.requestDetail.alert',
+                                            ),
                                         },
                                     })}
-                                    placeholder='요청사항을 적어주세요.'
+                                    placeholder={courseRequest(
+                                        'requestCourseInformation.requestDetail.placeholder',
+                                    )}
                                 />
                                 <ErrorMessage
                                     errors={errors}
@@ -598,7 +645,9 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    사용제품
+                                    {courseRequest(
+                                        'requestCourseInformation.product.title',
+                                    )}
                                     <RequireIcon />
                                 </CourseRequestInputTitle>
                                 <CourseRequestInput
@@ -606,7 +655,9 @@ const GolfCourseRequest = () => {
                                     {...register('productName', {
                                         required: {
                                             value: true,
-                                            message: '사용제품을 입력해주세요',
+                                            message: courseRequest(
+                                                'requestCourseInformation.product.alert',
+                                            ),
                                         },
                                     })}
                                 />
@@ -622,11 +673,15 @@ const GolfCourseRequest = () => {
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    스코어카드 이미지
+                                    {courseRequest(
+                                        'requestCourseInformation.imageFile.scoreCardTitle',
+                                    )}
                                 </CourseRequestInputTitle>
                                 <CourseRequestImageFileContainer>
                                     <CourseRequestImageTitle
-                                        placeholder='파일을 선택해주세요'
+                                        placeholder={courseRequest(
+                                            'requestCourseInformation.imageFile.placeholder',
+                                        )}
                                         type='text'
                                         disabled
                                         value={imageName.scoreImageName}
@@ -651,17 +706,23 @@ const GolfCourseRequest = () => {
                                                 }
                                             }}
                                         />
-                                        파일 선택
+                                        {courseRequest(
+                                            'requestCourseInformation.imageFile.selectFile',
+                                        )}
                                     </label>
                                 </CourseRequestImageFileContainer>
                             </CourseRequestInputContainer>
                             <CourseRequestInputContainer>
                                 <CourseRequestInputTitle>
-                                    코스 레이아웃 이미지
+                                    {courseRequest(
+                                        'requestCourseInformation.imageFile.courseLayoutTitle',
+                                    )}
                                 </CourseRequestInputTitle>
                                 <CourseRequestImageFileContainer>
                                     <CourseRequestImageTitle
-                                        placeholder='파일을 선택해주세요'
+                                        placeholder={courseRequest(
+                                            'requestCourseInformation.imageFile.placeholder',
+                                        )}
                                         type='text'
                                         disabled
                                         value={imageName.courseLayoutImageName}
@@ -686,7 +747,9 @@ const GolfCourseRequest = () => {
                                                 }
                                             }}
                                         />
-                                        파일 선택
+                                        {courseRequest(
+                                            'requestCourseInformation.imageFile.selectFile',
+                                        )}
                                     </label>
                                 </CourseRequestImageFileContainer>
                             </CourseRequestInputContainer>
@@ -702,16 +765,14 @@ const GolfCourseRequest = () => {
                             />
                             <label htmlFor='agreeRequestTerm'>
                                 {isAgreeTerm ? <Checked /> : <UnChecked />}
-                                <p>
-                                    개인정보수집에 대한 내용을 읽었으며,
-                                    동의합니다.
-                                </p>
+                                <p>{courseRequest('etc.agreePrivacyTerm')}</p>
                             </label>
                         </div>
-                        <Link to={PATHS.MAIN}>자세히보기</Link>
+                        {/* TODO button 클릭시 모달창 띄우기 */}
+                        <button>{courseRequest('etc.detailTerm')}</button>
                     </AgreeTermContainer>
                     <CourseRequestButton onClick={() => onSubmit()}>
-                        골프 코스 요청하기
+                        {courseRequest('etc.requestGolfCourse')}
                     </CourseRequestButton>
                 </CourseRequestBottom>
             </CourseRequestContainer>

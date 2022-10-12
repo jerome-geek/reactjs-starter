@@ -69,7 +69,7 @@ const RequestResult = ({
         <RequestResultProgressContainer>
             {requestProgressData?.map(({ status, count }) => {
                 return (
-                    <RequestResultProgress>
+                    <RequestResultProgress key={status}>
                         <RequestResultStatus>{status}</RequestResultStatus>
                         <RequestResultCount>
                             {count}

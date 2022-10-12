@@ -160,7 +160,7 @@ const ProductOptionList = ({
             <SelectBox<FlatOption>
                 options={productOptions}
                 onChange={optionSelectHandler}
-                placeHolder={'제품을 선택해주세요'}
+                placeholder={'제품을 선택해주세요'}
             />
             <div>
                 {Array.from(selectOptionProducts.values()).map(

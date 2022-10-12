@@ -1,6 +1,6 @@
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { StylesConfig } from 'react-select';
+import { GroupBase, StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
 import { map, pipe, pluck, toArray, uniqBy, concat, every } from '@fxts/core';
 import { useForm } from 'react-hook-form';
@@ -20,6 +20,7 @@ import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
 import upload from 'api/etc/upload';
+import Group from 'react-select/dist/declarations/src/components/Group';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -195,9 +196,10 @@ const SendInquiryButton = styled.button`
 `;
 
 interface InquiryType {
-    inquiryTypeDescription: string;
-    inquiryTypeName: string;
-    inquiryTypeNo: number;
+    inquiryTypeDescription?: string;
+    inquiryTypeName?: string;
+    inquiryTypeNo?: number;
+    label?: string;
 }
 
 interface AddNameBlob extends Blob {
@@ -212,7 +214,7 @@ const Inquiry = () => {
     const [defaultValue, setDefaultValue] =
         useState<{
             label: string;
-            inquiryTypeNo: string;
+            inquiryTypeNo: number;
         }>();
 
     //TODO 주문 내에서 문의하기를 누른 경우 orderNo를 받아와서 inquiryMutate 에 orderNo 추가해야 함
@@ -439,7 +441,7 @@ const Inquiry = () => {
                 <InquiryTypeContainer>
                     <p>{translation('inquiryType.title')}</p>
                     {isDefaultValue && (
-                        <SelectBox<InquiryType>
+                        <SelectBox<InquiryType, false, GroupBase<InquiryType>>
                             options={pipe(
                                 mallInfo.inquiryType as InquiryType[],
                                 map((a) => {
@@ -466,22 +468,30 @@ const Inquiry = () => {
                                 }),
                                 control: (
                                     provided,
+
                                     { menuIsOpen }: { menuIsOpen: boolean },
                                 ) => ({
                                     boxSizing: 'border-box',
                                     width: '100%',
-                                    border: '2px solid #DBDBDB',
-                                    borderBottom: menuIsOpen ? 'none' : '',
+                                    border: '1px solid #DBDBDB',
+                                    borderBottom: menuIsOpen
+                                        ? 'none'
+                                        : '1px solid #DBDBDB',
                                     display: 'flex',
                                     height: '44px',
                                     background: '#fff',
+                                }),
+                                menuList: (provided: any) => ({
+                                    ...customStyle.menuList,
+                                    borderRight: '1px solid #DBDBDB',
+                                    borderBottom: '1px solid #DBDBDB',
                                 }),
                                 option: () => ({
                                     height: '44px',
                                     lineHeight: '4px',
                                     width: '100%',
                                     boxSizing: 'border-box',
-                                    borderLeft: '2px solid #DBDBDB',
+                                    borderLeft: '1px solid #DBDBDB',
                                     background: '#fff',
                                     padding: '20px',
                                     paddingLeft: '20px',
@@ -495,7 +505,7 @@ const Inquiry = () => {
                                     },
                                 }),
                             }}
-                            placeHolder={translation('inquiryType.placeholder')}
+                            placeholder={translation('inquiryType.placeholder')}
                         />
                     )}
                 </InquiryTypeContainer>
