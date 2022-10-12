@@ -7,11 +7,18 @@ import { KRW } from 'utils/currency';
 
 interface OrderSheetPriceProps {
     title: string;
-    totalStandardAmt?: number; // 총 주문금액
-    totalDeliveryFee?: number; // 총 배송비
-    totalDiscount?: number; // 총 할인금액
-    totalCouponDiscount?: number; // 쿠폰할인
-    totalPaymentAmt?: number; // 총 결제금액
+    // 총 상품금액
+    totalStandardAmt?: number;
+    // 총 배송비
+    totalDeliveryAmt?: number;
+    // 총 할인금액 (고도몰에서는 쿠폰할인까지 포함하여주지만, 여기서는 분리해서 보여준다)
+    totalDiscountAmt?: number;
+    // 쿠폰할인
+    totalCouponAmt?: number;
+    // 적립금 결제
+    usedAccumulationAmt?: number;
+    // 총 결제금액
+    totalPaymentAmt?: number;
 }
 
 const OrderSheetPriceContainer = styled.div`
@@ -89,12 +96,12 @@ const CartOrderPrice = styled.div`
 const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
     title,
     totalStandardAmt = 0,
-    totalDeliveryFee = 0,
-    totalDiscount = 0,
-    totalCouponDiscount = 0,
+    totalDeliveryAmt = 0,
+    totalDiscountAmt = 0,
+    totalCouponAmt = 0,
     totalPaymentAmt = 0,
 }) => {
-    const { t } = useTranslation('orderSheet');
+    const { t: orderSheet } = useTranslation('orderSheet');
 
     return (
         <OrderSheetPriceContainer>
@@ -102,7 +109,7 @@ const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
             <CartOrderPriceBox>
                 <OrderPriceWrapper>
                     <CartOrderSubTitle>
-                        {t('paymentInformation.category.amountOrderPrice')}
+                        {orderSheet('price.totalStandardAmt')}
                     </CartOrderSubTitle>
                     <CartOrderPrice>
                         {KRW(totalStandardAmt).format()}
@@ -110,32 +117,40 @@ const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
                 </OrderPriceWrapper>
                 <OrderPriceWrapper>
                     <CartOrderSubTitle>
-                        {t('paymentInformation.category.amountDeliveryFee')}
+                        {orderSheet('price.totalDeliveryAmt')}
                     </CartOrderSubTitle>
                     <CartOrderPrice>
-                        {KRW(totalDeliveryFee).format()}
+                        {KRW(totalDeliveryAmt).format()}
                     </CartOrderPrice>
                 </OrderPriceWrapper>
                 <OrderPriceWrapper>
                     <CartOrderSubTitle>
-                        {t('paymentInformation.category.amountDiscount')}
+                        {orderSheet('price.totalDiscountAmt')}
                     </CartOrderSubTitle>
                     <CartOrderPrice>
-                        {KRW(Math.abs(totalDiscount) * -1).format()}
+                        {KRW(Math.abs(totalDiscountAmt) * -1).format()}
                     </CartOrderPrice>
                 </OrderPriceWrapper>
                 <OrderPriceWrapper>
                     <CartOrderSubTitle>
-                        {t('paymentInformation.category.couponDiscount')}
+                        {orderSheet('price.totalCouponAmt')}
                     </CartOrderSubTitle>
                     <CartOrderPrice>
-                        {KRW(Math.abs(totalCouponDiscount) * -1).format()}
+                        {KRW(Math.abs(totalCouponAmt) * -1).format()}
+                    </CartOrderPrice>
+                </OrderPriceWrapper>
+                <OrderPriceWrapper>
+                    <CartOrderSubTitle>
+                        {orderSheet('price.usedAccumulationAmt')}
+                    </CartOrderSubTitle>
+                    <CartOrderPrice>
+                        {KRW(Math.abs(totalCouponAmt) * -1).format()}
                     </CartOrderPrice>
                 </OrderPriceWrapper>
             </CartOrderPriceBox>
             <CartOrderPaymentAmount>
                 <CartOrderSubTitle>
-                    {t('paymentInformation.category.amountPrice')}
+                    {orderSheet('price.totalPaymentAmt')}
                 </CartOrderSubTitle>
                 <CartOrderPrice>
                     <span>
