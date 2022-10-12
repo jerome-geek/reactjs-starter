@@ -1,5 +1,11 @@
-import { forwardRef } from 'react';
-import Select, { SingleValue, ActionMeta, StylesConfig } from 'react-select';
+import { forwardRef, Ref } from 'react';
+import Select, {
+    SingleValue,
+    ActionMeta,
+    StylesConfig,
+    Props,
+    GroupBase,
+} from 'react-select';
 
 import { ReactComponent as DropDownIcon } from 'assets/icons/arrow_drop_down.svg';
 
@@ -42,8 +48,10 @@ export const customStyle = {
     }),
     menuList: (provided: any) => ({
         ...provided,
-        borderRight: '2px solid #DBDBDB',
-        borderBottom: '2px solid #DBDBDB',
+        padding: '0',
+        borderLeft: '1px solid #DBDBDB',
+        borderRight: '1px solid #DBDBDB',
+        borderBottom: '1px solid #DBDBDB',
         borderTop: 'none',
         width: '100%',
         boxSizing: 'border-box',
@@ -51,7 +59,9 @@ export const customStyle = {
     option: () => ({
         width: '100%',
         boxSizing: 'border-box',
-        borderLeft: '2px solid #DBDBDB',
+        borderLeft: '1px solid #DBDBDB',
+        borderRight: '1px solid #DBDBDB',
+        borderBottom: '1px solid #DBDBDB',
         background: '#fff',
         padding: '20px',
         paddingLeft: '20px',
@@ -78,41 +88,36 @@ export const customStyle = {
 };
 
 const SelectBox = forwardRef(
-    <T extends any>({
-        options,
-        onChange,
-        styles,
-        placeHolder,
-        defaultValue,
-        isDisabled,
-    }: SelectBoxProps<T>) => {
+    <
+        Option,
+        IsMulti extends boolean = false,
+        Group extends GroupBase<Option> = GroupBase<Option>,
+    >(
+        { ...props }: Props<Option, IsMulti, Group>,
+        ref?: Ref<any>,
+    ) => {
         const DropdownIndicator = () => {
             return <DropDownIcon />;
         };
 
         return (
             <Select
-                defaultValue={defaultValue}
-                options={options}
-                onChange={onChange}
-                placeholder={placeHolder}
-                styles={
-                    styles
-                        ? styles
-                        : (customStyle as StylesConfig<Partial<T>, false>)
-                }
-                isDisabled={isDisabled}
+                ref={ref}
+                styles={{
+                    ...(customStyle as StylesConfig<Option, IsMulti, Group>),
+                    ...props.styles,
+                }}
+                {...props}
                 components={{ DropdownIndicator }}
             />
         );
     },
 );
 
-export default SelectBox as <T extends any>({
-    options,
-    onChange,
-    styles,
-    placeHolder,
-    defaultValue,
-    isDisabled,
-}: SelectBoxProps<T>) => JSX.Element;
+export default SelectBox as <
+    Option,
+    IsMulti extends boolean = false,
+    Group extends GroupBase<Option> = GroupBase<Option>,
+>(
+    props: Props<Option, IsMulti, Group>,
+) => JSX.Element;

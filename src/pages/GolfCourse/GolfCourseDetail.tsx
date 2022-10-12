@@ -556,7 +556,7 @@ const GolfCourseDetail = () => {
                                                         }),
                                                         toArray,
                                                     )}
-                                                    placeHolder={placeholder}
+                                                    placeholder={placeholder}
                                                     onChange={(e) =>
                                                         courseConditionHandler(
                                                             e,

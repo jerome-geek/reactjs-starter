@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { SingleValue, StylesConfig } from 'react-select';
+import { GroupBase, SingleValue, StylesConfig } from 'react-select';
 import { shallowEqual } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
@@ -78,6 +78,11 @@ const SheetButton = styled.div<{ width: string }>`
         line-height: 54px;
     }
 `;
+
+interface SelectRequestOption {
+    label: string;
+    directInput?: boolean;
+}
 
 const OrdererInformation = ({
     register,
@@ -251,17 +256,20 @@ const OrdererInformation = ({
                             {...register('deliveryMemo')}
                         />
                     ) : (
-                        <SelectBox<{
-                            label: string;
-                            directInput: boolean;
-                        }>
+                        <SelectBox<
+                            SelectRequestOption,
+                            false,
+                            GroupBase<SelectRequestOption>
+                        >
+                            placeholder={sheet(
+                                'shippingAddress.category.placeholder.request',
+                            )}
+                            options={deliveryMemo}
                             styles={{
                                 ...(customStyle as StylesConfig<
-                                    Partial<{
-                                        label: string;
-                                        directInput: boolean;
-                                    }>,
-                                    false
+                                    SelectRequestOption,
+                                    false,
+                                    GroupBase<SelectRequestOption>
                                 >),
                                 container: (provided: any) => ({
                                     ...provided,
@@ -277,7 +285,7 @@ const OrdererInformation = ({
                                 ) => ({
                                     boxSizing: 'border-box',
                                     width: '100%',
-                                    border: '2px solid #DBDBDB',
+                                    border: '1px solid #DBDBDB',
                                     borderBottom: menuIsOpen ? 'none' : '',
                                     display: 'flex',
                                     height: '44px',
@@ -291,7 +299,6 @@ const OrdererInformation = ({
                                 option: () => ({
                                     width: '100%',
                                     boxSizing: 'border-box',
-                                    borderLeft: '2px solid #DBDBDB',
                                     background: '#fff',
                                     padding: '15px 20px',
                                     paddingLeft: '20px',
@@ -304,16 +311,9 @@ const OrdererInformation = ({
                                     },
                                 }),
                             }}
-                            placeHolder={sheet(
-                                'shippingAddress.category.placeholder.request',
-                            )}
-                            options={deliveryMemo}
                             onChange={(
                                 selectedOption: SingleValue<
-                                    Partial<{
-                                        label: string;
-                                        directInput: boolean;
-                                    }>
+                                    Partial<SelectRequestOption>
                                 >,
                             ) => {
                                 if (selectedOption?.directInput) {
