@@ -122,5 +122,13 @@
         "inputPhoneNumber": "휴대폰 번호를 입력해주세요",
         "inputAddress": "주소를 입력해주세요",
         "inputDetailAddress": "상세 주소를 입력해주세요"
+    },
+    "price": {
+        "totalStandardAmt": "총 상품금액",
+        "totalDeliveryAmt": "총 배송비",
+        "totalDiscountAmt": "총 할인금액",
+        "totalCouponAmt": "쿠폰 할인",
+        "usedAccumulationAmt": "적립금 결제",
+        "totalPaymentAmt": "총 결제금액"
     }
 }

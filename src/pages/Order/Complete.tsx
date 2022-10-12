@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { head, join, pipe, split } from '@fxts/core';
 import styled from 'styled-components';
 import currency from 'currency.js';
@@ -16,21 +16,21 @@ import Header from 'components/shared/Header';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
-import { isDesktop } from 'utils/styles/responsive';
-import { myOrder } from 'api/order';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
 import { useMember, useQueryString } from 'hooks';
+import { KRW } from 'utils/currency';
+import HTTP_RESPONSE from 'const/http';
 
 const CompleteContainer = styled(LayoutResponsive)`
-    padding: 118px 0;
-    ${media.custom(1280)} {
-        width: 100%;
-        padding: 24px 24px;
-    }
+    max-width: 840px;
 `;
 
-const OrderInformationContainer = styled.div``;
+const OrderInformationContainer = styled.section`
+    margin-bottom: 24px;
+`;
 
 const OrderInformationBox = styled.div`
     margin-bottom: 64px;
@@ -73,7 +73,7 @@ const OrderInformationPrice = styled.div<{ marginBottom: string }>`
     }
 `;
 
-const OrderInformationList = styled.div<{ marginBottom: string }>`
+const OrderInformationListDiv = styled.div<{ marginBottom: string }>`
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -134,7 +134,8 @@ const OrderInformationContent = styled.div`
     }
 `;
 
-const ButtonWrapper = styled.div`
+const ButtonContainer = styled.div`
+    margin-bottom: 90px;
     font-size: 16px;
     letter-spacing: -0.64px;
     line-height: 44px;
@@ -267,25 +268,56 @@ const OrderAmountPrice = styled.div`
     }
 `;
 
+const OrderInformationListTitle = styled.h3`
+    font-size: 24px;
+    line-height: 36px;
+    font-weight: bold;
+    letter-spacing: -1.2px;
+    color: #191919;
+    text-align: left;
+    margin-bottom: 24px;
+`;
+
+const OrderInformationList = styled.ul`
+    border-top: 2px solid #222943;
+    padding: 40px 10px;
+`;
+
+const OrderInformationListItem = styled.li`
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    font-size: 16px;
+    line-height: 24px;
+    color: #191919;
+
+    & > p:first-child {
+        letter-spacing: -0.64px;
+        text-align: left;
+    }
+
+    & > p:last-child {
+        letter-spacing: 0;
+        text-align: right;
+    }
+`;
+
 const Complete = () => {
-    const [orderList, setOrderList] =
-        useState<
-            Array<
-                OrderProductOption & {
-                    deliveryAmt: number;
-                    productName: string;
-                }
-            >
-        >();
-    const [deliveryInfo, setDeliveryInfo] =
-        useState<OrderOptionsGroupByDelivery>();
+    const query = useQueryString();
+
+    const [orderList, setOrderList] = useState<
+        Array<
+            OrderProductOption & {
+                deliveryAmt: number;
+                productName: string;
+            }
+        >
+    >([]);
 
     const { width } = useWindowSize();
 
     const { t: orderComplete } = useTranslation('orderComplete');
-
-    const query = useQueryString();
-    console.log('🚀 ~ file: Complete.tsx ~ line 367 ~ Complete ~ query', query);
 
     // TODO: https://shopby.works/guide/dev-cover/order#/pay-button, useQueryString
     const orderParam = useMemo(
@@ -294,7 +326,11 @@ const Complete = () => {
     );
 
     const { member } = useMember();
+    const isLogin = useMemo(() => !!member, [member]);
 
+    const navigate = useNavigate();
+
+    // TODO 캐시타임 지정 후 stale 상태이면 refetch or redirect
     const { data: orderCompleteData } = useQuery(
         ['orderCompleteData', { member: member?.memberName }],
         async () =>
@@ -302,77 +338,253 @@ const Complete = () => {
                 orderRequestTypes: ORDER_REQUEST_TYPE.ALL,
             }),
         {
-            select: (res) => res.data,
-            onSuccess: (res) => {
-                const newOrderList: Array<
-                    OrderProductOption & {
-                        deliveryAmt: number;
-                        productName: string;
-                    }
-                > = [];
-                res.orderOptionsGroupByPartner.forEach((partnerOptionGroup) => {
-                    partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
-                        (deliveryOptionGroup) => {
-                            deliveryOptionGroup.orderOptions.forEach(
-                                ({
-                                    accumulationAmt,
-                                    optionNo,
-                                    imageUrl,
-                                    optionManagementCd,
-                                    optionName,
-                                    orderOptionNo,
-                                    optionTitle,
-                                    optionType,
-                                    optionValue,
-                                    orderCnt,
-                                    price,
-                                    productName,
-                                    productNo,
-                                    reservation,
-                                    reservationDeliveryYmdt,
-                                    setOptions,
-                                    inputs,
-                                }) => {
-                                    newOrderList.push({
-                                        accumulationAmtWhenBuyConfirm:
+            enabled: isLogin && !!orderParam.get('orderNo'),
+            select: (res) => ({ ...res.data, status: res.status }),
+            onSuccess: (data) => {
+                console.log(
+                    '🚀 ~ file: Complete.tsx ~ line 452 ~ Complete ~ data',
+                    data,
+                );
+
+                if (data.status === HTTP_RESPONSE.HTTP_OK) {
+                    data.orderOptionsGroupByPartner.forEach(
+                        (partnerOptionGroup: any) => {
+                            partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
+                                (deliveryOptionGroup: any) => {
+                                    deliveryOptionGroup.orderOptions.forEach(
+                                        ({
                                             accumulationAmt,
-                                        cartNo: optionNo,
-                                        deliveryAmt:
-                                            deliveryOptionGroup.deliveryAmt,
-                                        imageUrl,
-                                        optionInputs: inputs,
-                                        optionManagementCd,
-                                        optionName,
-                                        optionNo: orderOptionNo,
-                                        optionTitle,
-                                        optionType,
-                                        optionValue,
-                                        orderCnt,
-                                        price,
-                                        productName,
-                                        productNo,
-                                        recurringDeliveryCycles: null,
-                                        reservation,
-                                        reservationDeliveryYmdt,
-                                        setOptions,
-                                        soldOut: false,
-                                        stockCnt: 999999,
-                                    });
+                                            optionNo,
+                                            imageUrl,
+                                            optionManagementCd,
+                                            optionName,
+                                            optionTitle,
+                                            optionType,
+                                            optionValue,
+                                            orderCnt,
+                                            price,
+                                            productName,
+                                            productNo,
+                                            reservation,
+                                            reservationDeliveryYmdt,
+                                            setOptions,
+                                            inputs,
+                                        }: any) => {
+                                            console.log(
+                                                '🚀 ~ file: Complete.tsx ~ line 373 ~ Complete ~ optionNo',
+                                                optionNo,
+                                            );
+                                            setOrderList((prev) => [
+                                                ...prev,
+                                                {
+                                                    accumulationAmtWhenBuyConfirm:
+                                                        accumulationAmt,
+                                                    cartNo: optionNo,
+                                                    deliveryAmt:
+                                                        deliveryOptionGroup.deliveryAmt,
+                                                    imageUrl,
+                                                    optionInputs: inputs,
+                                                    optionManagementCd,
+                                                    optionName,
+                                                    optionNo,
+                                                    optionTitle,
+                                                    optionType,
+                                                    optionValue,
+                                                    orderCnt,
+                                                    price,
+                                                    productName,
+                                                    productNo,
+                                                    recurringDeliveryCycles:
+                                                        null,
+                                                    reservation,
+                                                    reservationDeliveryYmdt,
+                                                    setOptions,
+                                                    soldOut: false, // TODO: check 필요
+                                                    stockCnt: 999999, // TODO: check 필요
+                                                },
+                                            ]);
+                                        },
+                                    );
                                 },
                             );
                         },
                     );
-                });
-                setOrderList([...newOrderList]);
-                setDeliveryInfo(
-                    head(
-                        head(res.orderOptionsGroupByPartner)!
-                            .orderOptionsGroupByDelivery,
-                    ),
+                }
+            },
+            onError: (error) => {
+                console.log(
+                    '🚀 ~ file: Complete.tsx ~ line 449 ~ Complete ~ error',
+                    error,
                 );
             },
-            enabled: !!orderParam.get('orderNo'),
+            //     onSuccess: (res) => {
+            //         const newOrderList: Array<
+            //             OrderProductOption & {
+            //                 deliveryAmt: number;
+            //                 productName: string;
+            //             }
+            //         > = [];
+            //         res.orderOptionsGroupByPartner.forEach((partnerOptionGroup) => {
+            //             partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
+            //                 (deliveryOptionGroup) => {
+            //                     deliveryOptionGroup.orderOptions.forEach(
+            //                         ({
+            //                             accumulationAmt,
+            //                             optionNo,
+            //                             imageUrl,
+            //                             optionManagementCd,
+            //                             optionName,
+            //                             orderOptionNo,
+            //                             optionTitle,
+            //                             optionType,
+            //                             optionValue,
+            //                             orderCnt,
+            //                             price,
+            //                             productName,
+            //                             productNo,
+            //                             reservation,
+            //                             reservationDeliveryYmdt,
+            //                             setOptions,
+            //                             inputs,
+            //                         }) => {
+            //                             newOrderList.push({
+            //                                 accumulationAmtWhenBuyConfirm:
+            //                                     accumulationAmt,
+            //                                 cartNo: optionNo,
+            //                                 deliveryAmt:
+            //                                     deliveryOptionGroup.deliveryAmt,
+            //                                 imageUrl,
+            //                                 optionInputs: inputs,
+            //                                 optionManagementCd,
+            //                                 optionName,
+            //                                 optionNo: orderOptionNo,
+            //                                 optionTitle,
+            //                                 optionType,
+            //                                 optionValue,
+            //                                 orderCnt,
+            //                                 price,
+            //                                 productName,
+            //                                 productNo,
+            //                                 recurringDeliveryCycles: null,
+            //                                 reservation,
+            //                                 reservationDeliveryYmdt,
+            //                                 setOptions,
+            //                                 soldOut: false,
+            //                                 stockCnt: 999999,
+            //                             });
+            //                         },
+            //                     );
+            //                 },
+            //             );
+            //         });
+            //         setOrderList([...newOrderList]);
+            //         setDeliveryInfo(
+            //             head(
+            //                 head(res.orderOptionsGroupByPartner)!
+            //                     .orderOptionsGroupByDelivery,
+            //             ),
+            //         );
+            //     },
         },
+    );
+
+    const { data: guestOrderCompleteData } = useQuery(
+        ['guestOrderCompleteData'],
+        async () =>
+            guestOrder.getOrderDetail(
+                orderParam.get('guestToken')!,
+                orderParam.get('orderNo')!,
+                {
+                    orderRequestType: ORDER_REQUEST_TYPE.ALL,
+                },
+            ),
+        {
+            enabled: !isLogin && !!orderParam.get('orderNo'),
+            select: (res) => ({ ...res.data, status: res.status }),
+            onSuccess: (data) => {
+                console.log(
+                    '🚀 ~ file: Complete.tsx ~ line 452 ~ Complete ~ data',
+                    data,
+                );
+
+                if (data.status === HTTP_RESPONSE.HTTP_OK) {
+                    data.orderOptionsGroupByPartner.forEach(
+                        (partnerOptionGroup: any) => {
+                            partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
+                                (deliveryOptionGroup: any) => {
+                                    deliveryOptionGroup.orderOptions.forEach(
+                                        ({
+                                            accumulationAmt,
+                                            optionNo,
+                                            imageUrl,
+                                            optionManagementCd,
+                                            optionName,
+                                            orderOptionNo,
+                                            optionTitle,
+                                            optionType,
+                                            optionValue,
+                                            orderCnt,
+                                            price,
+                                            productName,
+                                            productNo,
+                                            reservation,
+                                            reservationDeliveryYmdt,
+                                            setOptions,
+                                            inputs,
+                                        }: any) => {
+                                            setOrderList((prev) => [
+                                                ...prev,
+                                                {
+                                                    accumulationAmtWhenBuyConfirm:
+                                                        accumulationAmt,
+                                                    cartNo: optionNo,
+                                                    deliveryAmt:
+                                                        deliveryOptionGroup.deliveryAmt,
+                                                    imageUrl,
+                                                    optionInputs: inputs,
+                                                    optionManagementCd,
+                                                    optionName,
+                                                    optionNo,
+                                                    optionTitle,
+                                                    optionType,
+                                                    optionValue,
+                                                    orderCnt,
+                                                    price,
+                                                    productName,
+                                                    productNo,
+                                                    recurringDeliveryCycles:
+                                                        null,
+                                                    reservation,
+                                                    reservationDeliveryYmdt,
+                                                    setOptions,
+                                                    soldOut: false, // TODO: check 필요
+                                                    stockCnt: 999999, // TODO: check 필요
+                                                },
+                                            ]);
+                                        },
+                                    );
+                                },
+                            );
+                        },
+                    );
+                } else {
+                    console.log('not ok');
+                    alert(data.message);
+                    navigate(PATHS.MAIN);
+                }
+            },
+            onError: (error) => {
+                console.log(
+                    '🚀 ~ file: Complete.tsx ~ line 449 ~ Complete ~ error',
+                    error,
+                );
+            },
+        },
+    );
+
+    const orderInfo = useMemo(
+        () => (isLogin ? orderCompleteData : guestOrderCompleteData),
+        [isLogin, orderCompleteData, guestOrderCompleteData],
     );
 
     return (
@@ -382,320 +594,252 @@ const Complete = () => {
                     title: orderComplete('progress.now'),
                 }}
             />
-            <Header />
-            <CompleteContainer type='large'>
-                <OrderProgress
-                    type='complete'
-                    style={{ marginBottom: '48px' }}
-                />
 
-                {query.result && (
+            <Header />
+
+            <CompleteContainer>
+                {!isMobile(width) && (
+                    <OrderProgress
+                        type='complete'
+                        style={{ marginBottom: '48px' }}
+                    />
+                )}
+
+                {query.result && orderInfo && (
                     <OrderCompleteTopContent
                         result={query.result as 'SUCCESS' | 'FAIL'}
-                        payType={orderCompleteData?.payType as PAY_TYPE}
+                        payType={orderInfo.payType as PAY_TYPE}
                         orderNo={query.orderNo as string}
                         paymentExpirationYmdt={
-                            orderCompleteData?.payInfo?.bankInfo
-                                ?.paymentExpirationYmdt
+                            orderInfo.payInfo?.bankInfo?.paymentExpirationYmdt
                         }
                         message={query?.message as string}
                     />
                 )}
 
-                {query.result === 'SUCCESS' && orderCompleteData && (
+                {orderInfo && (
                     <>
                         <OrderInformationContainer>
-                            {orderCompleteData.payType ===
-                                PAY_TYPE.VIRTUAL_ACCOUNT && (
-                                <OrderInformationBox>
-                                    <OrderInformationTitle>
+                            <OrderInformationListTitle>
+                                {orderComplete('transferInformation.title')}
+                            </OrderInformationListTitle>
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p style={{ fontWeight: 'bold' }}>
                                         {orderComplete(
-                                            'transferInformation.title',
+                                            'transferInformation.category.price',
                                         )}
-                                    </OrderInformationTitle>
-                                    <OrderInformationPrice marginBottom='60px'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'transferInformation.category.price',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <ImportantInformation>
-                                                {currency(
-                                                    orderCompleteData.payInfo
-                                                        .payAmt,
-                                                    {
-                                                        symbol: '',
-                                                        precision: 0,
-                                                    },
-                                                ).format()}{' '}
-                                                {orderComplete('etc.won')}
-                                            </ImportantInformation>
-                                        </OrderInformationContent>
-                                    </OrderInformationPrice>
-                                    <OrderInformationList marginBottom='32px'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'transferInformation.category.accountInformation',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {
-                                                    orderCompleteData.payInfo
-                                                        .bankInfo.bankName
-                                                }{' '}
-                                                {
-                                                    orderCompleteData.payInfo
-                                                        .bankInfo.account
-                                                }
-                                                <p className='depositor_name'>
-                                                    {
-                                                        orderCompleteData
-                                                            .payInfo.bankInfo
-                                                            .depositorName
-                                                    }
-                                                </p>
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='0'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'transferInformation.category.depositWait',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {dayjs(
-                                                    orderCompleteData.payInfo
-                                                        .bankInfo
-                                                        .paymentExpirationYmdt,
-                                                ).format(
-                                                    'YY.MM.DD HH:mm:ss',
-                                                )}{' '}
-                                                {orderComplete('etc.until')}
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                </OrderInformationBox>
-                            )}
-                            <OrderInformationBox>
-                                <OrderInformationTitle>
-                                    {orderComplete('paymentInformation.title')}
-                                </OrderInformationTitle>
-                                <OrderInformationPrice marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.totalPrice',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <ImportantInformation>
-                                            {currency(
-                                                orderCompleteData.payInfo
-                                                    .payAmt,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </ImportantInformation>
-                                    </OrderInformationContent>
-                                </OrderInformationPrice>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.productPrice',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData
-                                                    ?.lastOrderAmount
-                                                    .standardAmt,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.deliverPrice',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData
-                                                    ?.lastOrderAmount
-                                                    .deliveryAmt,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.discountPrice',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                (orderCompleteData
-                                                    ?.lastOrderAmount
-                                                    .immediateDiscountAmt +
-                                                    orderCompleteData
-                                                        ?.lastOrderAmount
-                                                        .additionalDiscountAmt) *
-                                                    -1,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='24px'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.couponDiscount',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                (orderCompleteData
-                                                    ?.lastOrderAmount
-                                                    .cartCouponDiscountAmt +
-                                                    orderCompleteData
-                                                        ?.lastOrderAmount
-                                                        .productCouponDiscountAmt) *
-                                                    -1,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                                <OrderInformationList marginBottom='0'>
-                                    <OrderInformationCategory>
-                                        <div>
-                                            {orderComplete(
-                                                'paymentInformation.category.useDeposit',
-                                            )}
-                                        </div>
-                                    </OrderInformationCategory>
-                                    <OrderInformationContent>
-                                        <div>
-                                            {currency(
-                                                orderCompleteData
-                                                    ?.lastOrderAmount
-                                                    .subPayAmt * -1,
-                                                {
-                                                    symbol: '',
-                                                    precision: 0,
-                                                },
-                                            ).format()}{' '}
-                                            {orderComplete('etc.won')}
-                                        </div>
-                                    </OrderInformationContent>
-                                </OrderInformationList>
-                            </OrderInformationBox>
-                            {deliveryInfo && (
-                                <OrderInformationBox>
-                                    <OrderInformationTitle>
+                                    </p>
+                                    <p
+                                        style={{
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            color: '#C00020',
+                                        }}
+                                    >
+                                        {KRW(orderInfo.payInfo.payAmt).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
                                         {orderComplete(
-                                            'deliveryInformation.title',
+                                            'transferInformation.category.accountInformation',
                                         )}
-                                    </OrderInformationTitle>
-                                    <OrderInformationList marginBottom='28px'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'deliveryInformation.category.receiver',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {deliveryInfo.receiverName}
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='28px'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'deliveryInformation.category.address',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {deliveryInfo.receiverAddress}
-                                                {
-                                                    deliveryInfo.receiverDetailAddress
-                                                }
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                    <OrderInformationList marginBottom='0'>
-                                        <OrderInformationCategory>
-                                            <div>
-                                                {orderComplete(
-                                                    'deliveryInformation.category.phoneNumber',
-                                                )}
-                                            </div>
-                                        </OrderInformationCategory>
-                                        <OrderInformationContent>
-                                            <div>
-                                                {pipe(
-                                                    deliveryInfo.receiverContact1,
-                                                    split('-'),
-                                                    join(''),
-                                                )}
-                                            </div>
-                                        </OrderInformationContent>
-                                    </OrderInformationList>
-                                </OrderInformationBox>
-                            )}
+                                    </p>
+                                    <p>
+                                        {`${orderInfo.payInfo.bankInfo.bankName} ${orderInfo.payInfo.bankInfo.account}`}
+                                        <br />
+                                        <span
+                                            style={{
+                                                marginTop: '12px',
+                                                color: '#858585',
+                                            }}
+                                        >
+                                            {`${orderInfo.payInfo.bankInfo.remitterName}`}
+                                        </span>
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'transferInformation.category.depositWait',
+                                        )}
+                                    </p>
+
+                                    <p>
+                                        {`${dayjs(
+                                            orderInfo.payInfo.bankInfo
+                                                .paymentExpirationYmdt,
+                                        ).format(
+                                            'YY.MM.DD HH:mm:ss',
+                                        )} ${orderComplete('etc.until')}`}
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
                         </OrderInformationContainer>
-                        <ButtonWrapper>
+
+                        <OrderInformationContainer>
+                            <OrderInformationListTitle>
+                                {orderComplete('paymentInformation.title')}
+                            </OrderInformationListTitle>
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p style={{ fontWeight: 'bold' }}>
+                                        {orderComplete(
+                                            'paymentInformation.category.totalPrice',
+                                        )}
+                                    </p>
+                                    <p
+                                        style={{
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            color: '#C00020',
+                                        }}
+                                    >
+                                        {KRW(orderInfo.payInfo.payAmt).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.productPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            orderInfo.lastOrderAmount
+                                                .standardAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.deliverPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            orderInfo.lastOrderAmount
+                                                .deliveryAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.discountPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            orderInfo.lastOrderAmount
+                                                .immediateDiscountAmt,
+                                        )
+                                            .add(
+                                                orderInfo.lastOrderAmount
+                                                    .additionalDiscountAmt,
+                                            )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.couponDiscount',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            orderInfo.lastOrderAmount
+                                                .cartCouponDiscountAmt,
+                                        )
+                                            .add(
+                                                orderInfo.lastOrderAmount
+                                                    .productCouponDiscountAmt,
+                                            )
+                                            .add(
+                                                orderInfo.lastOrderAmount
+                                                    .deliveryCouponDiscountAmt,
+                                            )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.useDeposit',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            orderInfo.lastOrderAmount.subPayAmt,
+                                        )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
+                        </OrderInformationContainer>
+
+                        <OrderInformationContainer
+                            style={{ marginBottom: '80px' }}
+                        >
+                            <OrderInformationListTitle>
+                                {orderComplete('deliveryInformation.title')}
+                            </OrderInformationListTitle>
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.receiver',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {orderInfo.shippingAddress.receiverName}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.address',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {
+                                            orderInfo.shippingAddress
+                                                .receiverAddress
+                                        }
+                                        <br />
+                                        {
+                                            orderInfo.shippingAddress
+                                                .receiverDetailAddress
+                                        }
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.phoneNumber',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {
+                                            orderInfo.shippingAddress
+                                                .receiverContact1
+                                        }
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
+                        </OrderInformationContainer>
+                    </>
+                )}
+
+                <ButtonContainer>
+                    {query.result === 'SUCCESS' && (
+                        <>
                             <OrderListButton
                                 to={
                                     member ? PATHS.MY_ORDER_LIST : PATHS.MY_PAGE
@@ -706,56 +850,56 @@ const Complete = () => {
                             <ContinueShoppingButton to={PATHS.MAIN}>
                                 {orderComplete('etc.keepShopping')}
                             </ContinueShoppingButton>
-                        </ButtonWrapper>
-                        <OrderProductListBox>
-                            {isDesktop(width) && (
-                                <OrderCategoryBox>
-                                    <OrderInformation>
-                                        {orderComplete(
-                                            'orderProductList.category.productInformation',
-                                        )}
-                                    </OrderInformation>
-                                    <OrderCount>
-                                        {orderComplete(
-                                            'orderProductList.category.count',
-                                        )}
-                                    </OrderCount>
-                                    <OrderPrice>
-                                        {orderComplete(
-                                            'orderProductList.category.price',
-                                        )}
-                                    </OrderPrice>
-                                    <OrderDelivery>
-                                        {' '}
-                                        {orderComplete(
-                                            'orderProductList.category.deliverPrice',
-                                        )}
-                                    </OrderDelivery>
-                                    <OrderAmountPrice>
-                                        {orderComplete(
-                                            'orderProductList.category.totalPrice',
-                                        )}
-                                    </OrderAmountPrice>
-                                </OrderCategoryBox>
-                            )}
-                            {orderList?.map((orderData) => {
-                                return (
-                                    <CartList
-                                        cartData={orderData}
-                                        key={orderData.optionNo}
-                                        isModifiable={false}
-                                    />
-                                );
-                            })}
-                        </OrderProductListBox>
-                    </>
-                )}
-                {query.result === 'FAIL' && (
-                    <ButtonWrapper>
+                        </>
+                    )}
+                    {query.result === 'FAIL' && (
                         <GoMainButton to={PATHS.MAIN}>
                             {orderComplete('etc.keepShopping')}
                         </GoMainButton>
-                    </ButtonWrapper>
+                    )}
+                </ButtonContainer>
+
+                {orderList.length > 0 && (
+                    <OrderProductListBox>
+                        {isDesktop(width) && (
+                            <OrderCategoryBox>
+                                <OrderInformation>
+                                    {orderComplete(
+                                        'orderProductList.category.productInformation',
+                                    )}
+                                </OrderInformation>
+                                <OrderCount>
+                                    {orderComplete(
+                                        'orderProductList.category.count',
+                                    )}
+                                </OrderCount>
+                                <OrderPrice>
+                                    {orderComplete(
+                                        'orderProductList.category.price',
+                                    )}
+                                </OrderPrice>
+                                <OrderDelivery>
+                                    {orderComplete(
+                                        'orderProductList.category.deliverPrice',
+                                    )}
+                                </OrderDelivery>
+                                <OrderAmountPrice>
+                                    {orderComplete(
+                                        'orderProductList.category.totalPrice',
+                                    )}
+                                </OrderAmountPrice>
+                            </OrderCategoryBox>
+                        )}
+                        {orderList?.map((orderData) => {
+                            return (
+                                <CartList
+                                    cartData={orderData}
+                                    key={orderData.optionNo}
+                                    isModifiable={false}
+                                />
+                            );
+                        })}
+                    </OrderProductListBox>
                 )}
             </CompleteContainer>
         </>

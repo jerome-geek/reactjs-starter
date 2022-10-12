@@ -12,7 +12,6 @@ import {
 } from 'models/order';
 
 const guestOrder = {
-    // TODO parameter 모름 400, 404 error 발생 추후 테스트 필요
     getCart: (
         body: ShoppingCartBody[],
         {
@@ -28,22 +27,32 @@ const guestOrder = {
             data: body,
         }),
 
+    /**
+     * 비회원 주문 상세 조회하기
+     * - 비회원 주문의 상세정보를 조회하는 API 입니다.
+     *
+     * @param guestToken
+     * @param orderNo
+     * @param param1
+     * @returns
+     */
     getOrderDetail: (
-        orderNo: String,
-        { orderRequestType }: { orderRequestType?: ORDER_REQUEST_TYPE },
-    ): Promise<AxiosResponse> =>
-        request({
+        guestToken: string,
+        orderNo: string,
+        params?: { orderRequestType: ORDER_REQUEST_TYPE },
+    ): Promise<AxiosResponse> => {
+        return request({
             method: 'GET',
             url: `/guest/orders/${orderNo}`,
-            params: { orderRequestType },
+            params: { orderRequestType: params?.orderRequestType },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: localStorage.getItem('guestToken') || '',
+                guestToken,
             }),
-        }),
+        });
+    },
 
-    // TODO orderNo 모름, 404 error 발생 추후 테스트 필요
     issueOrderToken: (
-        orderNo: String,
+        orderNo: string,
         { password, name, mobileNo, email, orderRequestType }: TokenIssueBody,
     ): Promise<AxiosResponse> =>
         request({
@@ -53,31 +62,36 @@ const guestOrder = {
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
-    confirmOrder: (orderOptionNo: String): Promise<AxiosResponse> =>
+    confirmOrder: (
+        guestToken: string,
+        orderOptionNo: string,
+    ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/confirm`,
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: localStorage.getItem('guestToken') || '',
+                guestToken,
             }),
         }),
 
     // TODO GuestToken, orderOptionNo 모름, 400 error 발생 추후 테스트 필요
     confirmDeliveryCompletion: (
-        orderOptionNo: String,
+        guestToken: string,
+        orderOptionNo: string,
     ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
             url: `/guest/order-options/${orderOptionNo}/delivery-done`,
             data: { orderOptionNo },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: localStorage.getItem('guestToken') || '',
+                guestToken,
             }),
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     requestReceipt: (
-        orderNo: String,
+        guestToken: string,
+        orderNo: string,
         { cashReceiptIssuePurposeType, cashReceiptKey }: CashReceiptBody,
     ): Promise<AxiosResponse> =>
         request({
@@ -85,13 +99,13 @@ const guestOrder = {
             url: `/guest/orders/${orderNo}/cashReceipt`,
             data: { cashReceiptIssuePurposeType, cashReceiptKey },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: localStorage.getItem('guestToken') || '',
+                guestToken,
             }),
         }),
 
     // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     getGuestOrderDetail: (
-        orderNo: String,
+        orderNo: string,
         {
             orderRequestType,
             claimType,
@@ -105,7 +119,8 @@ const guestOrder = {
 
     // TODO guestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
     updateDeliveryInfo: (
-        orderNo: String,
+        guestToken: string,
+        orderNo: string,
         {
             receiverZipCd,
             receiverAddress,
@@ -137,13 +152,13 @@ const guestOrder = {
                 deliveryMemo,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                guestToken: localStorage.getItem('guestToken') || '',
+                guestToken,
             }),
         }),
 
     // TODO orderNo 모름, 400 error 발생 추후 테스트 필요
     sendPasswordByEmail: (
-        orderNo: String,
+        orderNo: string,
         { replyType, mobileNo, email, name }: PasswordParams,
     ): Promise<AxiosResponse> =>
         request({

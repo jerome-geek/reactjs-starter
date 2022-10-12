@@ -607,9 +607,11 @@ const Cart = () => {
                         <OrderSheetPrice
                             title={'주문서'}
                             totalStandardAmt={checkedPriceData.standardAmt}
-                            totalDeliveryFee={checkedPriceData.totalDeliveryAmt}
-                            totalDiscount={checkedPriceData.totalDiscountPrice}
-                            totalCouponDiscount={0}
+                            totalDeliveryAmt={checkedPriceData.totalDeliveryAmt}
+                            totalDiscountAmt={
+                                checkedPriceData.totalDiscountPrice
+                            }
+                            totalCouponAmt={0}
                             totalPaymentAmt={checkedPriceData.totalAmt}
                         />
 

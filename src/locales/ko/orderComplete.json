@@ -9,7 +9,7 @@
         "virtualAccount": "가상계좌"
     },
     "transferInformation": {
-        "title": "이체 정보",
+        "title": "이체정보",
         "category": {
             "price": "이체 금액",
             "accountInformation": "계좌 정보",
@@ -17,7 +17,7 @@
         }
     },
     "paymentInformation": {
-        "title": "결제 정보",
+        "title": "결제정보",
         "category": {
             "totalPrice": "총 결제 금액",
             "productPrice": "상품 가격",
@@ -28,9 +28,9 @@
         }
     },
     "deliveryInformation": {
-        "title": "배송 정보",
+        "title": "배송정보",
         "category": {
-            "receiver": "받는 사람",
+            "receiver": "받는사람",
             "address": "주소",
             "phoneNumber": "전화번호"
         }
