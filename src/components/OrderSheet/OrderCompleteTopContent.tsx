@@ -27,6 +27,7 @@ const Container = styled.div`
     ${media.xlarge} {
         padding: 80px 0;
         height: auto;
+        min-height: 340px;
     }
 `;
 
@@ -34,6 +35,7 @@ const Title = styled.h2`
     font-weight: bold;
     font-size: 1.875rem;
     color: ${(props) => props.theme.text1};
+    margin-bottom: 30px;
 
     ${media.xlarge} {
         font-size: 1.71rem;
@@ -48,9 +50,10 @@ const PayType = styled.div`
     display: inline-block;
     padding: 6px 11px;
     border: 1px solid #8c909d;
-    margin: 30px 0 14px;
     color: #767676;
     font-size: 0.75rem;
+    margin-bottom: 12px;
+
     ${media.xlarge} {
         font-size: 1rem;
     }
@@ -60,38 +63,34 @@ const PayType = styled.div`
 `;
 
 const OrderFailMessage = styled.p`
-    margin-top: 20px;
     font-size: 1.25rem;
     color: ${(props) => props.theme.text2};
     line-height: 1.4;
 `;
 
-const DepositDeadline = styled.div`
+const DepositDeadline = styled.p`
+    margin-bottom: 10px;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 24px;
     letter-spacing: -0.64px;
     color: #8f8f8f;
-    margin-bottom: 14px;
-    > span {
+
+    & > b {
         font-weight: bold;
-        color: ${(props) => props.theme.text1};
-    }
-    ${media.xlarge} {
-        font-size: 1.143rem;
-    }
-    ${media.medium} {
-        font-size: 1.333rem;
-        > span {
-            line-height: 30px;
-        }
+        color: #191919;
     }
 `;
 
-const OrderNoBox = styled.div`
+const OrderNoDescription = styled.p`
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0;
     color: #767676;
-    ${media.xlarge} {
-        font-size: 1rem;
-    }
+
     ${media.medium} {
-        font-size: 1.166rem;
+        font-size: 14px;
+        line-height: 20px;
     }
 `;
 
@@ -116,34 +115,32 @@ const OrderCompleteTopContent: FC<OrderCompleteTopContentProps> = ({
                         <>
                             {isMobile(width) ? (
                                 <DepositDeadline>
-                                    <span>
+                                    <b>
                                         {`${dayjs(paymentExpirationYmdt).format(
                                             'YY.MM.DD',
                                         )} ${orderComplete('etc.until')}`}
                                         <br />
-                                    </span>
-                                    <span>
-                                        {orderComplete('etc.intoAccount')}
-                                    </span>{' '}
+                                    </b>
+                                    <b>{orderComplete('etc.intoAccount')}</b>
                                     {orderComplete('etc.productShipment')}
                                 </DepositDeadline>
                             ) : (
                                 <DepositDeadline>
-                                    <span>
+                                    <b>
                                         {dayjs(paymentExpirationYmdt).format(
                                             'YY.MM.DD',
                                         )}{' '}
                                         {orderComplete('etc.until')}{' '}
                                         {orderComplete('etc.intoAccount')}
-                                    </span>
+                                    </b>
                                     {orderComplete('etc.productShipment')}
                                 </DepositDeadline>
                             )}
                         </>
                     )}
-                    <OrderNoBox>
-                        {orderComplete('etc.orderNo')} {orderNo}
-                    </OrderNoBox>
+                    <OrderNoDescription>
+                        {`${orderComplete('etc.orderNo')} ${orderNo}`}
+                    </OrderNoDescription>
                 </>
             )}
             {result === 'FAIL' && (
