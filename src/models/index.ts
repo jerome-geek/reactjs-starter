@@ -1,3 +1,121 @@
+// 필수 여부
+enum REQUIRED_TYPE {
+    // 사용함
+    USED = 'USED',
+    // 필수
+    REQUIRED = 'REQUIRED',
+    // 사용안함
+    NOT_USED = 'NOT_USED',
+}
+
+// 리스트 이미지 유형
+enum IMAGE_DISPLAY_TYPE {
+    // 사용 안함
+    NOT_USED = 'NOT_USED',
+    // 첨부파일 사용
+    ATTACHMENT = 'ATTACHMENT',
+    // 상품 이미지 사용
+    PRODUCT = 'PRODUCT',
+}
+
+// 게시판 노출 유형
+enum BOARD_DISPLAY_TYPE {
+    // 리스트형
+    LIST = 'LIST',
+    // 카드형
+    CARD = 'CARD',
+    // 댓글형
+    REPLY = 'REPLY',
+    // 문의형
+    INQUIRY = 'INQUIRY',
+}
+
+// 인트로 페이지 설정정보
+enum INTRO_REDIRECTION_TYPE {
+    // 사용안함
+    NONE = 'NONE',
+    // 접속 불가
+    NO_ACCESS = 'NO_ACCESS',
+    // 회원 인증
+    ONLY_MEMBER = 'ONLY_MEMBER',
+    // 성인 인증
+    ONLY_ADULT = 'ONLY_ADULT',
+}
+
+// 상품 금액 기준 설정
+enum PRODUCT_ACCUMULATION_BASIS_TYPE {
+    // 판매가
+    SALE_PRICE = 'SALE_PRICE',
+    // 판매가 ± 옵션가
+    SALE_STANDARD_PRICE = 'SALE_STANDARD_PRICE',
+    // 판매가 ± 옵션가 - 프로모션할인
+    SALE_PROMOTION_PRICE = 'SALE_PROMOTION_PRICE',
+    // 할인적용가
+    DISCOUNTED_PRICE = 'DISCOUNTED_PRICE',
+    // 할인적용가 ± 옵션가
+    DISCOUNTED_STANDARD_PRICE = 'DISCOUNTED_STANDARD_PRICE',
+    // 할인적용가 ± 옵션가 - 프로모션할인
+    DISCOUNTED_PROMOTION_PRICE = 'DISCOUNTED_PROMOTION_PRICE',
+}
+
+// 적립금 노출 설정
+enum ACCUMULATION_DISPLAY_FORMAT_TYPE {
+    // 정액 단일표시
+    FIXED_AMT = 'FIXED_AMT',
+    // 정률(%) 단일표시 (ex 2%)
+    FIXED_RATE = 'FIXED_RATE',
+    // 정률 정액 동시표시
+    FIRST_FIXED_RATE = 'FIRST_FIXED_RATE',
+    // 정액 정률 동시표시
+    FIRST_FIXED_AMT = 'FIRST_FIXED_AMT',
+}
+
+// 적립금 지급 시점
+enum ACCUMULATION_GIVE_POINT {
+    // 즉시적립
+    IMMEDIATE = 'IMMEDIATE',
+    // 익일
+    NEXTDAY = 'NEXTDAY',
+    // 2일
+    DAY_AFTER_TOMMOROW = 'DAY_AFTER_TOMMOROW',
+    // 7일
+    AFTER_A_WEEK = 'AFTER_A_WEEK',
+    // 14일
+    AFTER_TWO_WEEK = 'AFTER_TWO_WEEK',
+    // 20일
+    AFTER_TWENTY_DAYS = 'AFTER_TWENTY_DAYS',
+    // 30일
+    AFTER_THIRTY_DAYS = 'AFTER_THIRTY_DAYS',
+    // 익월
+    NEXT_MONTH = 'NEXT_MONTH',
+}
+
+// 쇼핑몰 회원 인증 수단
+enum AUTHENTICATION_TYPE {
+    // 휴대폰 본인 인증
+    AUTHENTICATION_BY_PHONE = 'AUTHENTICATION_BY_PHONE',
+    // SMS 비점유 인증
+    SMS_AUTHENTICATION = 'SMS_AUTHENTICATION',
+    // SMS 점유 인증
+    SMS_OCCUPANCY_AUTHENTICATION = 'SMS_OCCUPANCY_AUTHENTICATION',
+    // EMAIL 인증
+    AUTHENTICATION_BY_EMAIL = 'AUTHENTICATION_BY_EMAIL',
+    // 인증 없음
+    NOT_USED = 'NOT_USED',
+}
+
+// 쇼핑몰 회원 인증 시점
+enum AUTHENTICATION_TIME_TYPE {
+    // 회원가입 시 인증
+    JOIN_TIME = 'JOIN_TIME',
+    // 최초 상품 구매 시 인증
+    PAYMENT_TIME = 'PAYMENT_TIME',
+    // 가입 완료 후 바로 인증
+    AFTER_JOIN_TIME = 'AFTER_JOIN_TIME',
+    // 인증하지 않음
+    NONE = 'NONE',
+}
+
 enum AUTH_TYPE {
     NONE = 'NONE',
     SMS = 'SMS',
@@ -133,10 +251,15 @@ enum ORDER_REQUEST_TYPE {
     ALL = 'ALL',
     CLAIM = 'CLAIM',
     NORMAL = 'NORMAL',
+
     DEPOSIT_WAIT = 'DEPOSIT_WAIT',
+
     PAY_DONE = 'PAY_DONE',
+
     PRODUCT_PREPARE = 'PRODUCT_PREPARE',
+
     DELIVERY_PREPARE = 'DELIVERY_PREPARE',
+
     DELIVERY_ING = 'DELIVERY_ING',
     DELIVERY_DONE = 'DELIVERY_DONE',
     BUY_CONFIRM = 'BUY_CONFIRM',
@@ -150,23 +273,39 @@ enum ORDER_REQUEST_TYPE {
     EXCHANGE_WAIT = 'EXCHANGE_WAIT',
     REFUND_DONE = 'REFUND_DONE',
 }
-
+// 주문상태 값
 enum ORDER_STATUS_TYPE {
+    // 입금대기
     DEPOSIT_WAIT = 'DEPOSIT_WAIT',
+    // 결제완료
     PAY_DONE = 'PAY_DONE',
+    // 상품준비중
     PRODUCT_PREPARE = 'PRODUCT_PREPARE',
+    // 배송준비중
     DELIVERY_PREPARE = 'DELIVERY_PREPARE',
+    // 배송중
     DELIVERY_ING = 'DELIVERY_ING',
+    // 배송완료
     DELIVERY_DONE = 'DELIVERY_DONE',
+    // 구매확정
     BUY_CONFIRM = 'BUY_CONFIRM',
+    // 취소완료
     CANCEL_DONE = 'CANCEL_DONE',
+    // 반품완료
     RETURN_DONE = 'RETURN_DONE',
+    // 교환완료
     EXCHANGE_DONE = 'EXCHANGE_DONE',
+    // 결제대기
     PAY_WAIT = 'PAY_WAIT',
+    // 결제포기
     PAY_CANCEL = 'PAY_CANCEL',
+    // 결제실패
     PAY_FAIL = 'PAY_FAIL',
+    // 삭제
     DELETE = 'DELETE',
+    // 교환대기
     EXCHANGE_WAIT = 'EXCHANGE_WAIT',
+    // 환불완료
     REFUND_DONE = 'REFUND_DONE',
 }
 
@@ -396,37 +535,69 @@ enum DELIVERY_COMPANY_TYPE {
     ETC = 'ETC',
 }
 
+// 은행 영문 관리명
 enum BANK {
+    // 미확인은행
     ANONYMOUS = 'ANONYMOUS',
+    // 산업은행
     KDB = 'KDB',
+    // 기업은행
     IBK = 'IBK',
+    // 국민은행
     KB = 'KB',
+    // 외환은행
     KEB = 'KEB',
+    // 수협
     SUHYUP = 'SUHYUP',
+    // 수출입은행
     KEXIM = 'KEXIM',
+    // NH농협은향
     NH = 'NH',
+    // 지역농축협
     NHLOCAL = 'NHLOCAL',
+    // 우리은행
     WOORI = 'WOORI',
+    // SC제일은행
     SC = 'SC',
+    // 한국씨티은행
     CITY = 'CITY',
+    // 대구은행
     DAEGU = 'DAEGU',
+    // 부산은행
     PUSAN = 'PUSAN',
+    // 광주은행
     GWANGJU = 'GWANGJU',
+    // 제주은행
     JEJU = 'JEJU',
+    // 전북은행
     JEONBUK = 'JEONBUK',
+    // 경남은행
     GYEONGNAM = 'GYEONGNAM',
+    // 새마을금고
     KFCC = 'KFCC',
+    // 신협
     CU = 'CU',
+    // 상호저축은행
     SANGHO = 'SANGHO',
+    // HSBC은행
     HSBC = 'HSBC',
+    // 도이치은행
     DEUTSCHE = 'DEUTSCHE',
+    // 산림조합중앙회
     NFCF = 'NFCF',
+    // 우체국
     EPOST = 'EPOST',
+    // KEB하나은행
     KEBHANA = 'KEBHANA',
+    // 신한은행
     SHINHAN = 'SHINHAN',
+    // 케이뱅크
     KBANK = 'KBANK',
+    // 카카오뱅크
     KAKAO = 'KAKAO',
+    // 토스뱅크
     TOSS = 'TOSS',
+    // 유안타증권
     YUANTA = 'YUANTA',
     KBSEC = 'KBSEC',
     MIRAE = 'MIRAE',
@@ -590,7 +761,60 @@ enum USABLE_PLATFORMS {
     MOBILE_APP = 'MOBILE_APP',
 }
 
+// 환불 예상 방법
+enum REFUND_TYPE {
+    // PG 환불
+    PG = 'PG',
+    // 입금 전 취소,
+    CANCEL_DEPOSIT = 'CANCEL_DEPOSIT',
+    // 무통장입금 환불,
+    ACCOUNT = 'ACCOUNT',
+    // 적립금 환불,
+    ACCUMULATION = 'ACCUMULATION',
+    // 0원 환불,
+    ZERO_REFUND = 'ZERO_REFUND',
+    // 현금 환불,
+    CASH = 'CASH',
+    // 페이코 환불,
+    PAYCO = 'PAYCO',
+    // PAYPAL 환불,
+    PAYPAL = 'PAYPAL',
+    // STRIPE 환불,
+    STRIPE = 'STRIPE',
+    // KCP 환불,
+    KCP = 'KCP',
+    // 신용카드 환불,
+    CREDIT_CARD = 'CREDIT_CARD',
+    // 리브메이트 환불,
+    LIIVMATE = 'LIIVMATE',
+    // 이니시스 환불,
+    INICIS = 'INICIS',
+    // 네이버페이(간펼결제) 환불,
+    NAVER_EASY_PAY = 'NAVER_EASY_PAY',
+    // 카카오페이 환불,
+    KAKAO_PAY = 'KAKAO_PAY',
+    // 네이버(주문형) 환불
+    NAVER_PAY = 'NAVER_PAY',
+    // 토스페이먼츠 환불
+    LG_U_PLUS = 'LG_U_PLUS',
+    // 토스페이먼츠 환불
+    TOSS_PAYMENTS = 'TOSS_PAYMENTS',
+    // 강제 환불,
+    FORCE_REFUND = 'FORCE_REFUND',
+    // 없음
+    DUMMY = 'DUMMY',
+}
+
 export {
+    REQUIRED_TYPE,
+    IMAGE_DISPLAY_TYPE,
+    BOARD_DISPLAY_TYPE,
+    INTRO_REDIRECTION_TYPE,
+    PRODUCT_ACCUMULATION_BASIS_TYPE,
+    ACCUMULATION_DISPLAY_FORMAT_TYPE,
+    ACCUMULATION_GIVE_POINT,
+    AUTHENTICATION_TYPE,
+    AUTHENTICATION_TIME_TYPE,
     AUTH_TYPE,
     CERTIFICATED_USAGE,
     PLATFORM_TYPE,
@@ -639,4 +863,5 @@ export {
     COUPON_TYPES,
     COUPON_TARGET_TYPES,
     USABLE_PLATFORMS,
+    REFUND_TYPE,
 };

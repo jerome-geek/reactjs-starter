@@ -1,16 +1,19 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { GroupBase, SingleValue, StylesConfig } from 'react-select';
 import { shallowEqual } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
+    FieldErrors,
     UseFormGetValues,
     UseFormRegister,
     UseFormSetValue,
 } from 'react-hook-form';
 import { useWindowSize } from 'usehooks-ts';
+import { ErrorMessage } from '@hookform/error-message';
 
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
@@ -18,6 +21,23 @@ import { useTypedSelector } from 'state/reducers';
 import { sheetInputStyle } from 'styles/componentStyle';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
+
+interface ShippingAddressProps {
+    register: UseFormRegister<PaymentReserve>;
+    setValue: UseFormSetValue<PaymentReserve>;
+    getValues: UseFormGetValues<PaymentReserve>;
+    ordererInformation?: {
+        receiverName: string;
+        receiverContact1: string;
+    };
+    setIsSearchAddressModal: Dispatch<SetStateAction<boolean>>;
+    errors: FieldErrors<PaymentReserve>;
+}
+
+interface SelectRequestOption {
+    label: string;
+    directInput?: boolean;
+}
 
 const OrdererInformationContainer = styled.div`
     ${sheetInputStyle.informationContainer}
@@ -79,25 +99,12 @@ const SheetButton = styled.div<{ width: string }>`
     }
 `;
 
-interface SelectRequestOption {
-    label: string;
-    directInput?: boolean;
-}
-
-const OrdererInformation = ({
+const ShippingAddress: FC<ShippingAddressProps> = ({
     register,
     setValue,
     ordererInformation,
     setIsSearchAddressModal,
-}: {
-    register: UseFormRegister<PaymentReserve>;
-    setValue: UseFormSetValue<PaymentReserve>;
-    getValues: UseFormGetValues<PaymentReserve>;
-    ordererInformation?: {
-        receiverName: string;
-        receiverContact1: string;
-    };
-    setIsSearchAddressModal: Dispatch<SetStateAction<boolean>>;
+    errors,
 }) => {
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
@@ -153,7 +160,7 @@ const OrdererInformation = ({
                         placeholder={sheet(
                             'shippingAddress.category.placeholder.name',
                         )}
-                        type={'text'}
+                        type='text'
                         {...register('shippingAddress.receiverName', {
                             required: {
                                 value: true,
@@ -161,8 +168,16 @@ const OrdererInformation = ({
                             },
                         })}
                     />
+                    <ErrorMessage
+                        errors={errors}
+                        name='shippingAddress.receiverName'
+                        render={({ message }) => (
+                            <StyledErrorMessage>{message}</StyledErrorMessage>
+                        )}
+                    />
                 </SheetInputBox>
             </SheetInputWrapper>
+
             <SheetInputWrapper>
                 <SheetInputTitleBox>
                     <p>{sheet('shippingAddress.category.phoneNumber')}</p>
@@ -185,8 +200,16 @@ const OrdererInformation = ({
                             },
                         })}
                     />
+                    <ErrorMessage
+                        errors={errors}
+                        name='shippingAddress.receiverContact1'
+                        render={({ message }) => (
+                            <StyledErrorMessage>{message}</StyledErrorMessage>
+                        )}
+                    />
                 </SheetInputBox>
             </SheetInputWrapper>
+
             <SheetInputWrapper>
                 <SheetInputTitleBox>
                     <p>{sheet('shippingAddress.category.searchAddress')}</p>
@@ -218,7 +241,7 @@ const OrdererInformation = ({
                         placeholder={sheet(
                             'shippingAddress.category.placeholder.detailAddress',
                         )}
-                        type={'text'}
+                        type='text'
                         {...register('shippingAddress.receiverDetailAddress', {
                             required: {
                                 value: true,
@@ -235,13 +258,35 @@ const OrdererInformation = ({
                         checked={defaultAddress}
                     />
                     {member && (
-                        <CheckBox htmlFor='defaultAddress'>
+                        <CheckBox
+                            htmlFor='defaultAddress'
+                            style={{ width: '100%' }}
+                        >
                             {defaultAddress ? <Checked /> : <UnChecked />}
                             <p>{sheet('shippingAddress.setDefaultAddress')}</p>
                         </CheckBox>
                     )}
+                    <ErrorMessage
+                        errors={errors}
+                        name='shippingAddress.receiverAddress'
+                        render={({ message }) => (
+                            <StyledErrorMessage style={{ width: '100%' }}>
+                                {message}
+                            </StyledErrorMessage>
+                        )}
+                    />
+                    <ErrorMessage
+                        errors={errors}
+                        name='shippingAddress.receiverDetailAddress'
+                        render={({ message }) => (
+                            <StyledErrorMessage style={{ width: '100%' }}>
+                                {message}
+                            </StyledErrorMessage>
+                        )}
+                    />
                 </SheetInputBox>
             </SheetInputWrapper>
+
             <SheetInputWrapper>
                 <SheetInputTitleBox>
                     <p>{sheet('shippingAddress.category.request')}</p>
@@ -252,7 +297,7 @@ const OrdererInformation = ({
                             placeholder={sheet(
                                 'shippingAddress.requestList.directInput',
                             )}
-                            type={'text'}
+                            type='text'
                             {...register('deliveryMemo')}
                         />
                     ) : (
@@ -334,4 +379,4 @@ const OrdererInformation = ({
     );
 };
 
-export default OrdererInformation;
+export default ShippingAddress;

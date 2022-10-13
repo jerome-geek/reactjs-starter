@@ -101,8 +101,9 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
                                 agreeAllHandler(e.currentTarget.checked)
                             }
                             checked={isAllOrderTermsChecked}
-                        />
-                        <CheckboxContent>전체동의</CheckboxContent>
+                        >
+                            <CheckboxContent>전체동의</CheckboxContent>
+                        </Checkbox>
                     </CheckboxContainer>
 
                     <CheckboxContainer>
@@ -112,11 +113,12 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
                             checked={
                                 isTermChecked('agreeOrderService')?.isChecked
                             }
-                        />
-                        <CheckboxContent>
-                            서비스 이용약관 동의 <span>(필수)</span>
-                            <StyledLink to='/'>자세히보기</StyledLink>
-                        </CheckboxContent>
+                        >
+                            <CheckboxContent>
+                                서비스 이용약관 동의 <span>(필수)</span>
+                            </CheckboxContent>
+                        </Checkbox>
+                        <StyledLink to='/'>자세히보기</StyledLink>
                     </CheckboxContainer>
                     <CheckboxContainer style={{ marginBottom: '0px' }}>
                         <Checkbox
@@ -128,11 +130,12 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
                                 isTermChecked('agreeOrderInformation')
                                     ?.isChecked
                             }
-                        />
-                        <CheckboxContent>
-                            개인정보 처리방침 <span>(필수)</span>
-                            <StyledLink to='/'>자세히보기</StyledLink>
-                        </CheckboxContent>
+                        >
+                            <CheckboxContent>
+                                개인정보 처리방침 <span>(필수)</span>
+                            </CheckboxContent>
+                        </Checkbox>
+                        <StyledLink to='/'>자세히보기</StyledLink>
                     </CheckboxContainer>
                 </div>
             )}
@@ -149,11 +152,12 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
                         shape='square'
                         onClick={() => agreeHandler('agreePurchase')}
                         checked={isTermChecked('agreePurchase')?.isChecked}
-                    />
-                    <CheckboxContent>
-                        주문할 제품의 거래조건을 확인 하였으며,
-                        <br /> 구매에 동의하시겠습니까 ? <span>(필수)</span>
-                    </CheckboxContent>
+                    >
+                        <CheckboxContent>
+                            주문할 제품의 거래조건을 확인 하였으며,
+                            <br /> 구매에 동의하시겠습니까 ? <span>(필수)</span>
+                        </CheckboxContent>
+                    </Checkbox>
                 </CheckboxContainer>
             </div>
         </StyledContainer>

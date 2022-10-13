@@ -189,9 +189,13 @@ export interface InquiryItem {
     issuerName: string;
 }
 
+// 1:1 문의 유형 목록
 export interface InquiryType {
+    // 1:1문의 유형 번호 (example: 6276)
     inquiryTypeNo: number;
+    // 1:1문의 유형 이름 (example: 네이버페이문의)
     inquiryTypeName: string;
+    // 1:1문의 유형 설명 (example: 네이버페이 사용 시 네이버페이를 통해서 접수되는 문의가 연동되는 유형입니다.)
     inquiryTypeDescription: string;
 }
 

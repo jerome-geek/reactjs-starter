@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
 import { useWindowSize } from 'usehooks-ts';
+import { useNavigate } from 'react-router-dom';
 
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
@@ -12,6 +13,9 @@ import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { isDesktop } from 'utils/styles/responsive';
 import { guestOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE } from 'models';
+import { tokenStorage } from 'utils/storage';
+import PATHS from 'const/paths';
+import HTTP_RESPONSE from 'const/http';
 
 interface GuestLoginFormData {
     guestOrderNo: string;
@@ -49,21 +53,29 @@ const GuestLogin = () => {
 
     const { width } = useWindowSize();
 
+    const navigate = useNavigate();
+
     const onSubmit = handleSubmit(async ({ guestOrderNo, guestPassword }) => {
-        await guestOrder
-            .issueOrderToken(guestOrderNo, {
+        try {
+            const response = await guestOrder.issueOrderToken(guestOrderNo, {
                 password: guestPassword,
                 orderRequestType: ORDER_REQUEST_TYPE.ALL,
-            })
-            .then((res) => {
-                console.log(res);
-            })
-            .catch((err) => {
-                console.log(
-                    '🚀 ~ file: GuestLogin.tsx ~ line 106 ~ .then ~ err',
-                    err,
-                );
             });
+
+            if (response.status === HTTP_RESPONSE.HTTP_OK) {
+                tokenStorage.setGuestToken(
+                    JSON.stringify({
+                        accessToken: response.data.guestToken,
+                    }),
+                );
+                navigate(`${PATHS.GUEST_ORDER_DETAIL}/${guestOrderNo}`);
+            }
+        } catch (error) {
+            console.log(
+                '🚀 ~ file: GuestLogin.tsx ~ line 76 ~ onSubmit ~ error',
+                error,
+            );
+        }
     });
 
     return (
@@ -105,7 +117,7 @@ const GuestLogin = () => {
                     </GuestLoginInputContainer>
                     <GuestLoginInputContainer>
                         <GuestLoginInput
-                            type='text'
+                            type='password'
                             placeholder='비밀번호를 입력해주세요.'
                             {...register('guestPassword', {
                                 required: {

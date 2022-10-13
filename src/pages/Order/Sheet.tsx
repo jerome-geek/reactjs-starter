@@ -666,22 +666,8 @@ const Sheet = () => {
                                     : undefined
                             }
                             setIsSearchAddressModal={setIsSearchAddressModal}
+                            errors={errors}
                         />
-
-                        {/* {member && (
-                            <>
-                                <SheetTitle>
-                                    <h3>{sheet('applyDiscount.title')}</h3>
-                                </SheetTitle>
-                                <DiscountApply
-                                    setIsCouponListModal={setIsCouponListModal}
-                                    paymentInfo={orderData?.data.paymentInfo}
-                                    setValue={setValue}
-                                    setOrderPriceData={setOrderPriceData}
-                                    getValues={getValues}
-                                />
-                            </>
-                        )} */}
 
                         <DiscountApply
                             paymentInfo={orderData?.paymentInfo}
