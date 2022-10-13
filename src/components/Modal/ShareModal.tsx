@@ -79,7 +79,6 @@ const ShareModal = ({
                 <Title>공유하기</Title>
                 <ShareButtonContainer>
                     <ShareButton
-                        id='kakaotalk-sharing-btn'
                         onClick={() =>
                             kakaoShare({
                                 title,
