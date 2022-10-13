@@ -29,6 +29,8 @@ const PATHS = {
     GOLF_COURSE_LIST: '/golf-course/list',
     GOLF_COURSE_DETAIL: '/golf-course/detail',
     GOLF_COURSE_REQUEST: '/golf-course/request',
+    MY_INQUIRY: '/support/my-inquiry',
+    INQUIRY: '/support/inquiry',
     FAQ: '/etc/faq',
     NOTICE: '/etc/notice',
     NOT_FOUND: '/not-found',
