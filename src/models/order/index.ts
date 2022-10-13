@@ -822,6 +822,31 @@ export interface CartCoupon {
     couponDiscountAmt: number;
 }
 
+export interface GuestOrderDetailResponse {
+    // deprecated(더 이상 제공하지 않는 개체항목입니다)
+    insurance: Insurance;
+    // 추가 정보 (nullable)
+    extraData: Nullable<string>;
+    // 구매확정 시 적립예정 적립금 (example: 0)
+    accumulationAmtWhenBuyConfirm: number;
+    // 기본 주문 상태 (example: DEPOSIT_WAIT)
+    defaultOrderStatusType: string;
+    // PG사 결제키 (example: testtest)
+    pgMallKey: string;
+    // 배송지 메모 (example: 배송지 메모 내용)
+    memo: string;
+    // 최초주문금액정보
+    firstOrderAmount: FirstOrderAmount;
+    // 주문메모 (nullable) (example: 선물포장 부탁드립니다)
+    orderMemo: Nullable<string>;
+    // 개인통관고유부호필요여부(true: 필요, false: 불필요) (example: false)
+    requireCustomsIdNumber: boolean;
+
+    // 환불(예상)방법(PG) (example: PG)
+    refundType: string;
+}
+
+// TODO: 회원 / 비회원(guestOrder.issueToken) 확인해볼것
 export interface OrderDetailResponse {
     orderNo: string;
     orderYmdt: string;
@@ -1216,19 +1241,32 @@ export interface BankAccount2 {
     bankName: string;
 }
 
+// 최초주문금액정보
 export interface FirstOrderAmount {
-    payAmt: number;
-    subPayAmt: number;
-    standardAmt: number;
-    deliveryAmt: number;
-    remoteDeliveryAmt: number;
-    immediateDiscountAmt: number;
-    additionalDiscountAmt: number;
-    cartCouponDiscountAmt: number;
-    productCouponDiscountAmt: number;
-    deliveryCouponDiscountAmt: number;
+    // 총 상품금액 (example: 10000)
     totalProductAmt: number;
+    // 총 추가할인 금액 (example: 0)
+    additionalDiscountAmt: number;
+    // 총 즉시할인 금액 (example: 0)
+    immediateDiscountAmt: number;
+    // 사용자 결제 금액 (example: 10000)
     chargeAmt: number;
+    // 총 배송비 (example: 2500)
+    deliveryAmt: number;
+    // 배송비쿠폰 할인 금액 (example: 0)
+    deliveryCouponDiscountAmt: number;
+    // 총 상품정상금액(즉시할인, 추가할인 제외) (example: 7500)
+    standardAmt: number;
+    // 총 지역추가배송비 (example: 0)
+    remoteDeliveryAmt: number;
+    // 주문쿠폰할인 금액 (example: 0)
+    cartCouponDiscountAmt: number;
+    // 총 상품쿠폰할인 금액 (example: 0)
+    productCouponDiscountAmt: number;
+    // 보조결제금액(적립금) (example: 2000)
+    subPayAmt: number;
+    // 결제금액 (example: 10000)
+    payAmt: number;
 }
 
 export interface LastOrderAmount {
@@ -1276,10 +1314,15 @@ export interface ClaimReasonType {
     label: string;
     responsibleObjectType: string;
 }
+
+// deprecated(더 이상 제공하지 않는 개체항목입니다)
 export interface Insurance {
-    no: any;
-    type: any;
-    url: any;
+    // deprecated(더 이상 제공하지 않는 개체항목입니다)
+    no: string;
+    // deprecated(더 이상 제공하지 않는 개체항목입니다)
+    type: string;
+    // deprecated(더 이상 제공하지 않는 개체항목입니다)
+    url: string;
 }
 
 export interface AvailableBank {

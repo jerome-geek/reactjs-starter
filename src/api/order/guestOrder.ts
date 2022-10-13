@@ -51,6 +51,7 @@ const guestOrder = {
         });
     },
 
+    // TODO 함수가 하는 역할과 함수 내용이 다름
     issueOrderToken: (
         orderNo: string,
         { password, name, mobileNo, email, orderRequestType }: TokenIssueBody,

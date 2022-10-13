@@ -324,12 +324,17 @@ export interface EventListResponse {
     eventYn: string;
 }
 
+// 카테고리
 export interface Category {
+    // 카테고리 목록(계층)
     multiLevelCategories: MultiLevelCategory[];
+    // 카테고리 목록
     flatCategories: FlatCategory[];
 }
 
+// 카테고리 목록
 export interface FlatCategory {
+    // 1~5차 카테고리 명 (example: 카테고리)
     fullCategoryName: string;
     depth1CategoryNo: number;
     depth1Label: string;
@@ -358,13 +363,20 @@ export interface FlatCategory {
     depth5Content: string;
 }
 
+// 카테고리 목록(계층)
 export interface MultiLevelCategory {
-    categoryNo: number;
-    label: string;
+    // 뎁스 (example: 1)
     depth: number;
-    icon: string;
-    content: string;
+    // 2차 카테고리
     children: MultiLevelCategory[];
+    // 아이콘 (example: //image.nhn-commerce.com/icon.png)
+    icon: string;
+    // 카테고리 번호 (example: 1)
+    categoryNo: number;
+    // 카테고리 이름 (example: 게임)
+    label: string;
+    // 카테고리 상세(HTML) (example: <div>아이콘</div>)
+    content: string;
 }
 
 export interface Brand {
