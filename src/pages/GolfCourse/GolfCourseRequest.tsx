@@ -24,6 +24,7 @@ import PATHS from 'const/paths';
 import { countries } from 'const/country';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
+import PersonalInformationModal from 'components/Modal/PersonalInformationModal';
 
 const CourseRequestContainer = styled(LayoutResponsive)`
     width: 840px;
@@ -295,11 +296,12 @@ interface CourseRequestBody {
 
 const GolfCourseRequest = () => {
     const [isAgreeTerm, setIsAgreeTerm] = useState(false);
-
     const [imageName, setImageName] = useState<{
         scoreImageName?: string;
         courseLayoutImageName?: string;
     }>({});
+    const [isPersonalInformationModal, setIsPersonalInformationModal] =
+        useState(false);
 
     const { member } = useTypedSelector(
         ({ member }) => ({
@@ -373,6 +375,16 @@ const GolfCourseRequest = () => {
 
     return (
         <>
+            {isPersonalInformationModal && (
+                <PersonalInformationModal
+                    onClickToggleModal={() =>
+                        setIsPersonalInformationModal(
+                            !isPersonalInformationModal,
+                        )
+                    }
+                    width={isDesktop(width) ? '1080px' : '82%'}
+                />
+            )}
             {isDesktop(width) ? (
                 <Header />
             ) : (
@@ -768,8 +780,11 @@ const GolfCourseRequest = () => {
                                 <p>{courseRequest('etc.agreePrivacyTerm')}</p>
                             </label>
                         </div>
-                        {/* TODO button 클릭시 모달창 띄우기 */}
-                        <button>{courseRequest('etc.detailTerm')}</button>
+                        <button
+                            onClick={() => setIsPersonalInformationModal(true)}
+                        >
+                            {courseRequest('etc.detailTerm')}
+                        </button>
                     </AgreeTermContainer>
                     <CourseRequestButton onClick={() => onSubmit()}>
                         {courseRequest('etc.requestGolfCourse')}
