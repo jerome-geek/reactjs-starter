@@ -4,7 +4,7 @@ type LocalStorage = typeof window.localStorage;
 
 enum TokenStorageKey {
     ACCESS_TOKEN = 'ACCESS_TOKEN',
-    GUEST_TOKEN = 'ACCESS_TOKEN',
+    GUEST_TOKEN = 'GUEST_TOKEN',
 }
 
 interface AccessTokenInfo extends IssueAccessTokenResponse {
@@ -62,7 +62,9 @@ class TokenStorage extends Storage<TokenStorageKey> {
     }
 
     getGuestToken() {
-        return this.get(TokenStorageKey.GUEST_TOKEN);
+        const data = this.get(TokenStorageKey.GUEST_TOKEN);
+
+        return data ? JSON.parse(data) : '';
     }
 
     setGuestToken(guestToken: string) {
