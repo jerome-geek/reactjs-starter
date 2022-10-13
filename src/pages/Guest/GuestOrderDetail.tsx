@@ -1,31 +1,110 @@
+import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useWindowSize } from 'usehooks-ts';
+import { useQuery } from 'react-query';
 import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 
 import Header from 'components/shared/Header';
-import Button from 'components/Common/Button';
+import MobileHeader from 'components/shared/MobileHeader';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
+import OrderInformationSection from 'components/Order/OrderInformationSection';
+import PrimaryButton from 'components/Button/PrimaryButton';
+import SecondaryButton from 'components/Button/SecondaryButton';
+import { guestOrder } from 'api/order';
+import { isDesktop } from 'utils/styles/responsive';
+import { tokenStorage } from 'utils/storage';
+import { KRW } from 'utils/currency';
+import media from 'utils/styles/media';
 import PATHS from 'const/paths';
 
-const DetailList = styled.ul``;
-const DetailListItem = styled.li`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 5px;
+const GuestOrderDetailContainer = styled(LayoutResponsive)`
+    max-width: 840px;
 `;
 
-const ButtonWrapper = styled.div`
+const OrderInformationList = styled.ul`
+    border-top: 2px solid #222943;
+    padding: 40px 10px;
+`;
+
+const OrderInformationListItem = styled.li`
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    font-size: 16px;
+    line-height: 24px;
+    color: #191919;
+
+    & > p:first-child {
+        letter-spacing: -0.64px;
+        text-align: left;
+    }
+
+    & > p:last-child {
+        letter-spacing: 0;
+        text-align: right;
+    }
+`;
+
+const ButtonContainer = styled.div`
     width: 100%;
+    max-width: 440px;
     margin-top: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    justify-content: space-between;
+
+    ${media.medium} {
+        max-width: 380px;
+    }
+`;
+
+const CancelOrderButton = styled(SecondaryButton)`
+    max-width: 200px;
+    border: 1px solid #dbdbdb;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.64px;
+    color: #000000;
+
+    ${media.medium} {
+        max-width: 186px;
+        height: 54px;
+    }
+`;
+
+const FaqButton = styled(PrimaryButton)`
+    max-width: 200px;
+
+    ${media.medium} {
+        max-width: 186px;
+        height: 54px;
+    }
 `;
 
 // TODO: 주문번호가 유효하지 않거나 잘못된 주문번호일 경우 처리 필요
 const GuestOrderDetail = () => {
-    const { guestOrderNo } = useParams();
+    const { guestOrderNo } = useParams() as { guestOrderNo: string };
     const navigate = useNavigate();
 
     if (!guestOrderNo) {
-        navigate('/');
+        navigate(PATHS.GUEST_LOGIN);
     }
+
+    const { width } = useWindowSize();
+
+    const guestToken = useMemo(
+        () =>
+            tokenStorage.getGuestToken()
+                ? tokenStorage.getGuestToken().accessToken
+                : '',
+        [],
+    );
+
+    const { t: orderComplete } = useTranslation('orderComplete');
 
     // TODO: 주문 취소 처리 추가
     const onCancelOrderClick = () => {
@@ -38,138 +117,261 @@ const GuestOrderDetail = () => {
         navigate(PATHS.FAQ);
     };
 
+    const guestOrderData = useQuery(
+        ['guestOrderCompleteData'],
+        async () => await guestOrder.getOrderDetail(guestToken, guestOrderNo),
+        {
+            enabled: !!guestToken && !!guestOrderNo,
+            select: ({ data }) => data,
+        },
+    );
+
     return (
         <>
-            <Header />
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'column',
-                    padding: '20px',
-                    width: '60%',
-                    margin: 'auto',
-                }}
-            >
-                <div
-                    style={{
-                        padding: '10px',
-                        border: '1px solid black',
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-                    <span style={{ fontWeight: 'bold' }}>{guestOrderNo}</span>
-                    <span>{'(20-10-12-10:10 주문)'}</span>
-                </div>
-                <div
-                    style={{
-                        padding: '10px',
-                        border: '1px solid black',
-                        width: '100%',
-                    }}
-                >
-                    <h2>이체정보111</h2>
-                    <DetailList>
-                        <DetailListItem>
-                            <span>이체금액</span>
-                            <span>18,000원</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>계좌정보</span>
-                            <span>기업은행 234314905467</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>입금기한</span>
-                            <span>2021.02.28 23:59까지</span>
-                        </DetailListItem>
-                    </DetailList>
-                </div>
+            {isDesktop(width) ? (
+                <Header />
+            ) : (
+                <MobileHeader title={'비회원 주문 조회'} />
+            )}
 
-                <div
-                    style={{
-                        padding: '10px',
-                        border: '1px solid black',
-                        width: '100%',
-                    }}
-                >
-                    <h2>결제정보</h2>
-                    <DetailList>
-                        <DetailListItem>
-                            <span>총 결제금액</span>
-                            <span>18,000원</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>상품 가격</span>
-                            <span>24,000원</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>배송비</span>
-                            <span>3,000원</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>할인 금액</span>
-                            <span>-2,000원</span>
-                        </DetailListItem>
-                    </DetailList>
-                </div>
-
-                <div
-                    style={{
-                        padding: '10px',
-                        border: '1px solid black',
-                        width: '100%',
-                    }}
-                >
-                    <h2>배송정보</h2>
-                    <DetailList>
-                        <DetailListItem>
-                            <span>받는 사람</span>
-                            <span>이순원</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>주소</span>
-                            <span>서울시 강서구 대지로82 22-3</span>
-                        </DetailListItem>
-                        <DetailListItem>
-                            <span>전화번호</span>
-                            <span>01073775819</span>
-                        </DetailListItem>
-                    </DetailList>
-
-                    <ButtonWrapper>
-                        <Button
-                            style={{
-                                color: 'black',
-                                backgroundColor: 'white',
-                                border: '1px solid black',
-                                width: '50%',
-                                padding: '10px',
-                                cursor: 'pointer',
-                            }}
-                            onClick={onCancelOrderClick}
+            <GuestOrderDetailContainer>
+                {guestOrderData.data && (
+                    <>
+                        <OrderInformationSection
+                            title={orderComplete('transferInformation.title')}
                         >
-                            주문취소
-                        </Button>
-                        <Button
-                            style={{
-                                color: 'white',
-                                backgroundColor: 'black',
-                                border: '1px solid black',
-                                width: '50%',
-                                padding: '10px',
-                                cursor: 'pointer',
-                            }}
-                            onClick={onFaqButtonClick}
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p style={{ fontWeight: 'bold' }}>
+                                        {orderComplete(
+                                            'transferInformation.category.price',
+                                        )}
+                                    </p>
+                                    <p
+                                        style={{
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            color: '#C00020',
+                                        }}
+                                    >
+                                        {KRW(
+                                            guestOrderData.data.payInfo.payAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'transferInformation.category.accountInformation',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {`${guestOrderData.data.payInfo.bankInfo.bankName} ${guestOrderData.data.payInfo.bankInfo.account}`}
+                                        <br />
+                                        <span
+                                            style={{
+                                                marginTop: '12px',
+                                                color: '#858585',
+                                            }}
+                                        >
+                                            {`${guestOrderData.data.payInfo.bankInfo.remitterName}`}
+                                        </span>
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'transferInformation.category.depositWait',
+                                        )}
+                                    </p>
+
+                                    <p>
+                                        {`${dayjs(
+                                            guestOrderData.data.payInfo.bankInfo
+                                                .paymentExpirationYmdt,
+                                        ).format(
+                                            'YY.MM.DD HH:mm:ss',
+                                        )} ${orderComplete('etc.until')}`}
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
+                        </OrderInformationSection>
+
+                        <OrderInformationSection
+                            title={orderComplete('paymentInformation.title')}
                         >
-                            FAQ 바로가기
-                        </Button>
-                    </ButtonWrapper>
-                </div>
-            </div>
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p style={{ fontWeight: 'bold' }}>
+                                        {orderComplete(
+                                            'paymentInformation.category.totalPrice',
+                                        )}
+                                    </p>
+                                    <p
+                                        style={{
+                                            fontSize: '20px',
+                                            fontWeight: 'bold',
+                                            color: '#C00020',
+                                        }}
+                                    >
+                                        {KRW(
+                                            guestOrderData.data.payInfo.payAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.productPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            guestOrderData.data.lastOrderAmount
+                                                .standardAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.deliverPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            guestOrderData.data.lastOrderAmount
+                                                .deliveryAmt,
+                                        ).format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.discountPrice',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            guestOrderData.data.lastOrderAmount
+                                                .immediateDiscountAmt,
+                                        )
+                                            .add(
+                                                guestOrderData.data
+                                                    .lastOrderAmount
+                                                    .additionalDiscountAmt,
+                                            )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.couponDiscount',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            guestOrderData.data.lastOrderAmount
+                                                .cartCouponDiscountAmt,
+                                        )
+                                            .add(
+                                                guestOrderData.data
+                                                    .lastOrderAmount
+                                                    .productCouponDiscountAmt,
+                                            )
+                                            .add(
+                                                guestOrderData.data
+                                                    .lastOrderAmount
+                                                    .deliveryCouponDiscountAmt,
+                                            )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'paymentInformation.category.useDeposit',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {KRW(
+                                            guestOrderData.data.lastOrderAmount
+                                                .subPayAmt,
+                                        )
+                                            .multiply(-1)
+                                            .format()}
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
+                        </OrderInformationSection>
+
+                        <OrderInformationSection
+                            title={orderComplete('deliveryInformation.title')}
+                            style={{ marginBottom: '80px' }}
+                        >
+                            <OrderInformationList>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.receiver',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {
+                                            guestOrderData.data.shippingAddress
+                                                .receiverName
+                                        }
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.address',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {
+                                            guestOrderData.data.shippingAddress
+                                                .receiverAddress
+                                        }
+                                        <br />
+                                        {
+                                            guestOrderData.data.shippingAddress
+                                                .receiverDetailAddress
+                                        }
+                                    </p>
+                                </OrderInformationListItem>
+                                <OrderInformationListItem>
+                                    <p>
+                                        {orderComplete(
+                                            'deliveryInformation.category.phoneNumber',
+                                        )}
+                                    </p>
+                                    <p>
+                                        {
+                                            guestOrderData.data.shippingAddress
+                                                .receiverContact1
+                                        }
+                                    </p>
+                                </OrderInformationListItem>
+                            </OrderInformationList>
+                        </OrderInformationSection>
+                    </>
+                )}
+
+                <ButtonContainer>
+                    <CancelOrderButton onClick={onCancelOrderClick}>
+                        주문취소
+                    </CancelOrderButton>
+
+                    <FaqButton onClick={onFaqButtonClick}>
+                        FAQ 바로가기
+                    </FaqButton>
+                </ButtonContainer>
+            </GuestOrderDetailContainer>
         </>
     );
 };

@@ -1,0 +1,501 @@
+{
+    "orderNo": "202210121120298699",
+    "orderYmdt": "2022-10-12 11:20:29",
+    "payType": "VIRTUAL_ACCOUNT",
+    "payInfo": {
+        "payType": "VIRTUAL_ACCOUNT",
+        "cardInfo": null,
+        "bankInfo": {
+            "bank": "IBK",
+            "bankCode": "003",
+            "bankName": "기업은행",
+            "account": "07503224397281",
+            "bankAmt": 4100,
+            "depositAmt": 0,
+            "depositYmdt": null,
+            "remitterName": "jeromTest",
+            "depositorName": "（주）케이지이니시",
+            "paymentExpirationYmdt": "2022-10-19 23:59:00"
+        },
+        "naverPayInfo": null,
+        "cashAuthNo": null,
+        "cashNo": "StdpayVBNKINIpayTest20221012112044999188",
+        "tradeNo": "StdpayVBNKINIpayTest20221012112044999188",
+        "escrowYn": "N",
+        "payAmt": 4100,
+        "sellerCouponAmt": 0,
+        "pgCouponAmt": 0,
+        "cardCouponAmt": 0,
+        "pointAmt": 0,
+        "taxType": null,
+        "mobileInfo": null,
+        "rentalInfo": null
+    },
+    "pgType": "INICIS",
+    "pgMallKey": "",
+    "pgOrderNo": "StdpayVBNKINIpayTest20221012112044999188",
+    "escrow": false,
+    "orderMemo": null,
+    "orderOptionsGroupByPartner": [
+        {
+            "partnerNo": 0,
+            "partnerName": "쇼핑몰배송",
+            "orderOptionsGroupByDelivery": [
+                {
+                    "deliveryNo": 259498,
+                    "deliveryAmt": 3000,
+                    "remoteDeliveryAmt": 0,
+                    "returnDeliveryAmt": 4000,
+                    "deliveryType": "PARCEL_DELIVERY",
+                    "deliveryCompanyType": "CJ",
+                    "invoiceNo": null,
+                    "deliveryPayType": "PREPAID_DELIVERY",
+                    "deliveryMemo": null,
+                    "retrieveInvoiceUrl": null,
+                    "orderOptions": [
+                        {
+                            "orderNo": "202210121120298699",
+                            "orderOptionNo": 342117,
+                            "productNo": 105356240,
+                            "partnerName": "쇼핑몰배송",
+                            "optionNo": 38912024,
+                            "additionalProductNo": 0,
+                            "imageUrl": "//rlyfaazj0.toastcdn.net/20220907/095117.331046000/t8_02.png",
+                            "brandNo": 402581,
+                            "brandName": "브랜드명",
+                            "brandNameEn": "",
+                            "productName": "결제_test",
+                            "productNameEn": "",
+                            "optionName": "테스트_옵션명",
+                            "optionValue": "옵션값_01",
+                            "optionUsed": true,
+                            "optionType": "NORMAL_OPTION",
+                            "orderCnt": 1,
+                            "orderStatusType": "DEPOSIT_WAIT",
+                            "claimStatusType": null,
+                            "orderStatusDate": {
+                                "registerYmdt": "2022-10-12 11:20:29",
+                                "buyConfirmYmdt": null,
+                                "reviewableYmdt": null,
+                                "payYmdt": null
+                            },
+                            "claimNo": null,
+                            "accumulationAmt": 0,
+                            "refundable": true,
+                            "deliveryInternationalYn": false,
+                            "reservationDeliveryYmdt": null,
+                            "exchangeYn": "N",
+                            "member": false,
+                            "deliverable": true,
+                            "inputs": [],
+                            "nextActions": [
+                                {
+                                    "nextActionType": "CANCEL_ALL",
+                                    "uri": "/profile/orders/202210121120298699/claim",
+                                    "actionGroupType": "CLAIM"
+                                }
+                            ],
+                            "optionManagementCd": "",
+                            "delivery": {
+                                "invoiceNo": null,
+                                "deliveryCompanyType": "CJ",
+                                "retrieveInvoiceUrl": null,
+                                "deliveryType": "PARCEL_DELIVERY",
+                                "usesShippingInfoLaterInput": false,
+                                "deliveryCompanyTypeLabel": "CJ대한통운"
+                            },
+                            "price": {
+                                "standardPrice": 1500,
+                                "immediateDiscountedPrice": 1100,
+                                "buyPrice": 1100,
+                                "standardAmt": 1500,
+                                "immediateDiscountedAmt": 1100,
+                                "buyAmt": 1100,
+                                "salePrice": 1500,
+                                "addPrice": 0,
+                                "immediateDiscountAmt": 400,
+                                "additionalDiscountAmt": 0,
+                                "accumulationRate": 0
+                            },
+                            "reservation": false,
+                            "isFreeGift": false,
+                            "setOptions": null,
+                            "isRecurringPayment": false,
+                            "holdDelivery": false,
+                            "optionTitle": "테스트_옵션명: 옵션값_01",
+                            "orderStatusTypeLabel": "입금대기",
+                            "claimStatusTypeLabel": null
+                        }
+                    ],
+                    "receiverName": "jeromTest",
+                    "receiverContact1": "010-5441-3129",
+                    "receiverContact2": "",
+                    "receiverAddress": "서울특별시 강서구 강서로 455",
+                    "receiverZipCd": "07792",
+                    "receiverDetailAddress": "12345",
+                    "receiverJibunAddress": null,
+                    "requestShippingDate": null,
+                    "usesShippingInfoLaterInput": false,
+                    "shippingAreaType": "MALL_SHIPPING_AREA",
+                    "partnerNo": 0,
+                    "partnerName": "쇼핑몰배송",
+                    "shippingMethodType": null,
+                    "shippingMethodLabel": null,
+                    "frontDisplayText": null,
+                    "deliveryCompanyTypeLabel": "CJ대한통운"
+                }
+            ]
+        }
+    ],
+    "guestToken": "ae62aaa8-53be-496a-9563-24000f682fec",
+    "refundInfos": null,
+    "additionalPayInfos": null,
+    "exchangePayInfos": null,
+    "member": false,
+    "firstOrderAmount": {
+        "payAmt": 4100,
+        "subPayAmt": 0,
+        "standardAmt": 1500,
+        "deliveryAmt": 3000,
+        "remoteDeliveryAmt": 0,
+        "immediateDiscountAmt": 400,
+        "additionalDiscountAmt": 0,
+        "cartCouponDiscountAmt": 0,
+        "productCouponDiscountAmt": 0,
+        "deliveryCouponDiscountAmt": 0,
+        "chargeAmt": 4100,
+        "totalProductAmt": 1100
+    },
+    "lastOrderAmount": {
+        "payAmt": 4100,
+        "subPayAmt": 0,
+        "standardAmt": 1500,
+        "deliveryAmt": 3000,
+        "remoteDeliveryAmt": 0,
+        "immediateDiscountAmt": 400,
+        "additionalDiscountAmt": 0,
+        "cartCouponDiscountAmt": 0,
+        "productCouponDiscountAmt": 0,
+        "deliveryCouponDiscountAmt": 0,
+        "chargeAmt": 4100,
+        "totalProductAmt": 1100
+    },
+    "shippingAddress": {
+        "addressNo": 0,
+        "receiverZipCd": "07792",
+        "receiverAddress": "서울특별시 강서구 강서로 455",
+        "receiverJibunAddress": "서울특별시 강서구 마곡동 784-2",
+        "receiverDetailAddress": "12345",
+        "receiverName": "jeromTest",
+        "addressName": null,
+        "receiverContact1": "010-5441-3129",
+        "receiverContact2": "",
+        "customsIdNumber": null,
+        "countryCd": "KR"
+    },
+    "orderer": {
+        "ordererName": "jeromTest",
+        "ordererContact1": "010-5441-3129",
+        "ordererContact2": "",
+        "ordererEmail": "jerome@geekstudio.co.kr"
+    },
+    "billingAddress": null,
+    "nextActions": [
+        {
+            "nextActionType": "CANCEL_ALL",
+            "uri": "/guest/orders/202210121120298699/claim",
+            "actionGroupType": "CLAIM"
+        },
+        {
+            "nextActionType": "CHANGE_ADDRESS",
+            "uri": "/guest/orders/202210121120298699/deliveries",
+            "actionGroupType": "NORMAL"
+        }
+    ],
+    "receiptInfos": [
+        {
+            "receiptType": "TRADE_STATEMENT",
+            "url": "https://iniweb.inicis.com/DefaultWebApp/mall/cr/cm/mCmReceipt_head.jsp?noTid=StdpayVBNKINIpayTest20221012112044999188&noMethod=1"
+        }
+    ],
+    "claimReasonTypes": [
+        {
+            "claimReasonType": "CHANGE_MIND",
+            "label": "단순변심(색상,사이즈 등)",
+            "responsibleObjectType": "BUYER"
+        }
+    ],
+    "refundType": "CANCEL_DEPOSIT",
+    "refundPayType": "ACCOUNT",
+    "refundTypeLabel": "현금환불",
+    "memo": "",
+    "deliveryMemo": null,
+    "extraData": {},
+    "insurance": {
+        "no": null,
+        "type": null,
+        "url": null
+    },
+    "availableBanks": [
+        {
+            "bank": "KDB",
+            "label": "산업은행"
+        },
+        {
+            "bank": "IBK",
+            "label": "기업은행"
+        },
+        {
+            "bank": "KB",
+            "label": "국민은행"
+        },
+        {
+            "bank": "SUHYUP",
+            "label": "수협"
+        },
+        {
+            "bank": "KEXIM",
+            "label": "수출입은행"
+        },
+        {
+            "bank": "NH",
+            "label": "NH농협은행"
+        },
+        {
+            "bank": "NHLOCAL",
+            "label": "지역농축협"
+        },
+        {
+            "bank": "WOORI",
+            "label": "우리은행"
+        },
+        {
+            "bank": "SC",
+            "label": "SC제일은행"
+        },
+        {
+            "bank": "CITY",
+            "label": "한국씨티은행"
+        },
+        {
+            "bank": "DAEGU",
+            "label": "대구은행"
+        },
+        {
+            "bank": "PUSAN",
+            "label": "부산은행"
+        },
+        {
+            "bank": "GWANGJU",
+            "label": "광주은행"
+        },
+        {
+            "bank": "JEJU",
+            "label": "제주은행"
+        },
+        {
+            "bank": "JEONBUK",
+            "label": "전북은행"
+        },
+        {
+            "bank": "GYEONGNAM",
+            "label": "경남은행"
+        },
+        {
+            "bank": "KFCC",
+            "label": "새마을금고"
+        },
+        {
+            "bank": "CU",
+            "label": "신협"
+        },
+        {
+            "bank": "SANGHO",
+            "label": "상호저축은행"
+        },
+        {
+            "bank": "HSBC",
+            "label": "HSBC은행"
+        },
+        {
+            "bank": "DEUTSCHE",
+            "label": "도이치은행"
+        },
+        {
+            "bank": "ABN",
+            "label": "ABN"
+        },
+        {
+            "bank": "JP_MORGAN",
+            "label": "JP모건"
+        },
+        {
+            "bank": "MIZUHO",
+            "label": "미즈호"
+        },
+        {
+            "bank": "UFJ",
+            "label": "엠유에프제이"
+        },
+        {
+            "bank": "BOA",
+            "label": "뱅크오브아메리카"
+        },
+        {
+            "bank": "NFCF",
+            "label": "산림조합중앙회"
+        },
+        {
+            "bank": "EPOST",
+            "label": "우체국"
+        },
+        {
+            "bank": "KEBHANA",
+            "label": "KEB하나은행"
+        },
+        {
+            "bank": "SHINHAN",
+            "label": "신한은행"
+        },
+        {
+            "bank": "KBANK",
+            "label": "케이뱅크"
+        },
+        {
+            "bank": "KAKAO",
+            "label": "카카오뱅크"
+        },
+        {
+            "bank": "TOSS",
+            "label": "토스뱅크"
+        },
+        {
+            "bank": "YUANTA",
+            "label": "유안타증권"
+        },
+        {
+            "bank": "KBSEC",
+            "label": "KB증권"
+        },
+        {
+            "bank": "MIRAEDAEWOO",
+            "label": "미래에셋대우증권"
+        },
+        {
+            "bank": "SAMSUNG",
+            "label": "삼성증권"
+        },
+        {
+            "bank": "HANKOOK",
+            "label": "한국투자증권"
+        },
+        {
+            "bank": "NH_INVEST",
+            "label": "NH투자증권"
+        },
+        {
+            "bank": "KYOBO",
+            "label": "교보증권"
+        },
+        {
+            "bank": "HI_INVEST",
+            "label": "하이투자증권"
+        },
+        {
+            "bank": "HMC_INVEST",
+            "label": "HMC투자증권"
+        },
+        {
+            "bank": "KIWOOM",
+            "label": "키움증권"
+        },
+        {
+            "bank": "EBEST",
+            "label": "이베스트투자증권"
+        },
+        {
+            "bank": "SK",
+            "label": "SK증권"
+        },
+        {
+            "bank": "DAISHIN",
+            "label": "대신증권"
+        },
+        {
+            "bank": "HANHWA",
+            "label": "한화투자증권"
+        },
+        {
+            "bank": "HANA_INVEST",
+            "label": "하나금융투자"
+        },
+        {
+            "bank": "SHINHAN_INVEST",
+            "label": "신한금융투자"
+        },
+        {
+            "bank": "DONGBU",
+            "label": "DB금융투자"
+        },
+        {
+            "bank": "EUGENE_INVEST",
+            "label": "유진투자증권"
+        },
+        {
+            "bank": "MERITZ_COMPREHENSIVE",
+            "label": "메리츠종합금융증권"
+        },
+        {
+            "bank": "BOOKOOK",
+            "label": "부국증권"
+        },
+        {
+            "bank": "SHINYOUNG",
+            "label": "신영증권"
+        },
+        {
+            "bank": "CAPE",
+            "label": "케이프투자증권"
+        },
+        {
+            "bank": "SMBC",
+            "label": "미쓰이스미토모은행"
+        },
+        {
+            "bank": "RESONA",
+            "label": "리소나은행"
+        },
+        {
+            "bank": "NAVER_POINT",
+            "label": "네이버포인트"
+        },
+        {
+            "bank": "TOSS_MONEY",
+            "label": "토스머니"
+        },
+        {
+            "bank": "SSG_MONEY",
+            "label": "신세계포인트"
+        },
+        {
+            "bank": "L_POINT",
+            "label": "엘포인트"
+        },
+        {
+            "bank": "KAKAO_MONEY",
+            "label": "카카오머니"
+        },
+        {
+            "bank": "PAYCO",
+            "label": "페이코포인트"
+        },
+        {
+            "bank": "BW",
+            "label": "뱅크월렛"
+        }
+    ],
+    "requireCustomsIdNumber": false,
+    "payTypeLabel": "가상계좌",
+    "defaultOrderStatusType": "DEPOSIT_WAIT",
+    "accumulationAmtWhenBuyConfirm": 0
+}
