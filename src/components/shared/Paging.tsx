@@ -35,8 +35,8 @@ const PagingNumber = styled.p`
 `;
 
 const Paging: FC<PagingProps> = ({
-    currentPage,
-    totalPage = 0,
+    currentPage = 1,
+    totalPage = 1,
     onFirstClick,
     onBeforeClick,
     onNextClick,
@@ -57,9 +57,7 @@ const Paging: FC<PagingProps> = ({
             </Button>
 
             <PagingNumber>
-                {totalPage <= 1
-                    ? `${padNumber(currentPage)}`
-                    : `${padNumber(currentPage)} / ${padNumber(totalPage)}`}
+                {`${padNumber(currentPage)} / ${padNumber(totalPage)}`}
             </PagingNumber>
 
             <Button onClick={onNextClick}>
