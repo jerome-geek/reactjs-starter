@@ -7,6 +7,7 @@ import OrderDetail from 'pages/MyPage/OrderDetail';
 import Products from 'pages/MyPage/Products';
 import Coupons from 'pages/MyPage/Coupons';
 import Accumulation from 'pages/MyPage/Accumulation';
+import RoundAnalysis from 'pages/MyPage/RoundAnalysis';
 import NotFound from 'pages/NotFound';
 
 const MyPageRouter = () => (
@@ -18,6 +19,7 @@ const MyPageRouter = () => (
         <Route path='products' element={<Products />} />
         <Route path='coupons' element={<Coupons />} />
         <Route path='accumulation' element={<Accumulation />} />
+        <Route path='round-analysis' element={<RoundAnalysis />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
 );
