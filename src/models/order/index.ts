@@ -7,7 +7,7 @@ import {
     ADDRESS_TYPE,
     PAY_TYPE,
     PG_TYPE,
-    OPEN_ID_PROVIDER,
+    NCP_OPEN_ID_PROVIDER,
 } from 'models';
 
 // 상품쿠폰
@@ -308,7 +308,7 @@ export interface NaverPayOrderSheet {
 
 export interface OAuthBegin {
     clientId: string;
-    provider: OPEN_ID_PROVIDER;
+    provider: NCP_OPEN_ID_PROVIDER;
     nextUrl: string;
     state?: string;
     code: string;
