@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import useScript from 'react-script-hook';
+import { useScript } from 'usehooks-ts';
 
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
 import { ReactComponent as Kakao } from 'assets/icons/sns_kakao.svg';
@@ -49,6 +50,9 @@ const ShareButton = styled.li`
         width: 43.3px;
         height: 43.4px;
     }
+    &:last-child {
+        margin-right: 0;
+    }
 `;
 
 const ShareModal = ({
@@ -64,10 +68,8 @@ const ShareModal = ({
     copiedLink,
     copySuccessMessage,
 }: ModalDefaultType & KakaoShareParams & CopyLinkParams) => {
-    useScript({
-        src: 'https://developers.kakao.com/sdk/js/kakao.js',
-        checkForExisting: true,
-    });
+    useScript('https://developers.kakao.com/sdk/js/kakao.js');
+    const { t: serviceCenter } = useTranslation('serviceCenter');
 
     return (
         <Modal
@@ -76,10 +78,9 @@ const ShareModal = ({
             height={height}
         >
             <ModalContainer>
-                <Title>공유하기</Title>
+                <Title>{serviceCenter('share')}</Title>
                 <ShareButtonContainer>
                     <ShareButton
-                        id='kakaotalk-sharing-btn'
                         onClick={() =>
                             kakaoShare({
                                 title,
@@ -107,7 +108,7 @@ const ShareModal = ({
                             })
                         }
                     >
-                        <img src={CopyUrl} alt='복사하기 버튼' />
+                        <img src={CopyUrl} alt={serviceCenter('copy')} />
                     </ShareButton>
                 </ShareButtonContainer>
             </ModalContainer>

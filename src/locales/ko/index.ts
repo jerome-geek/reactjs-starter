@@ -8,6 +8,7 @@ import inquiry from 'locales/ko/inquiry.json';
 import myInquiry from 'locales/ko/myInquiry.json';
 import courseDetail from 'locales/ko/courseDetail.json';
 import courseRequest from 'locales/ko/courseRequest.json';
+import serviceCenter from 'locales/ko/serviceCenter.json';
 
 export {
     main,
@@ -20,4 +21,5 @@ export {
     myInquiry,
     courseDetail,
     courseRequest,
+    serviceCenter,
 };
