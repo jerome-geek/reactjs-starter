@@ -7,6 +7,7 @@ import inquiry from 'locales/jp/inquiry.json';
 import myInquiry from 'locales/jp/myInquiry.json';
 import courseDetail from 'locales/jp/courseDetail.json';
 import courseRequest from 'locales/jp/courseRequest.json';
+import courseList from 'locales/jp/courseList.json';
 
 export {
     main,
@@ -18,4 +19,5 @@ export {
     myInquiry,
     courseDetail,
     courseRequest,
+    courseList,
 };
