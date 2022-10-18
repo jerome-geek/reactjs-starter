@@ -57,12 +57,12 @@ export interface CopyLinkParams {
 }
 
 export const kakaoShare = ({
-    title,
-    imageUrl,
-    description,
-    mobileWebUrl,
-    webUrl,
-    itemContent,
+    title = document.title,
+    imageUrl = '',
+    description = '',
+    mobileWebUrl = window.location.href,
+    webUrl = window.location.href,
+    itemContent = {},
 }: KakaoShareParams) => {
     const kakao = window.Kakao;
 
@@ -74,30 +74,21 @@ export const kakaoShare = ({
         content: {
             title: title ? title : document.title,
             imageUrl: imageUrl ? imageUrl : '',
-            description: description,
+            description: description ? description : '',
             link: {
-                mobileWebUrl: mobileWebUrl
-                    ? mobileWebUrl
-                    : window.location.href,
-                webUrl: webUrl ? webUrl : window.location.href,
+                mobileWebUrl,
+                webUrl,
             },
         },
-        itemContent: itemContent ? itemContent : {},
+        itemContent,
     });
 };
 
-export const copyLink = (copyLinkParams?: CopyLinkParams) =>
+export const copyLink = ({
+    copiedLink = window.location.href,
+    copySuccessMessage = '주소가 복사됐습니다.',
+}: CopyLinkParams) =>
     navigator.clipboard
-        .writeText(
-            copyLinkParams?.copiedLink
-                ? copyLinkParams.copiedLink
-                : window.location.href,
-        )
-        .then(() =>
-            alert(
-                copyLinkParams?.copySuccessMessage
-                    ? copyLinkParams?.copySuccessMessage
-                    : '주소가 복사됐습니다.',
-            ),
-        )
+        .writeText(copiedLink)
+        .then(() => alert(copySuccessMessage))
         .catch(() => alert('주소 복사에 실패했습니다.'));

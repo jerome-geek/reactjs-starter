@@ -20,6 +20,7 @@ declare global {
         NCPPay: any;
         INIStdPay: any;
         Kakao: any;
+        kakao: any;
     }
 }
 

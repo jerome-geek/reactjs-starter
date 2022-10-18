@@ -378,9 +378,7 @@ const GolfCourseRequest = () => {
             {isPersonalInformationModal && (
                 <PersonalInformationModal
                     onClickToggleModal={() =>
-                        setIsPersonalInformationModal(
-                            !isPersonalInformationModal,
-                        )
+                        setIsPersonalInformationModal(false)
                     }
                     width={isDesktop(width) ? '1080px' : '82%'}
                 />
@@ -772,7 +770,7 @@ const GolfCourseRequest = () => {
                             <input
                                 type='checkbox'
                                 id='agreeRequestTerm'
-                                onChange={() => setIsAgreeTerm(!isAgreeTerm)}
+                                onChange={() => setIsAgreeTerm((prev) => !prev)}
                                 checked={isAgreeTerm}
                             />
                             <label htmlFor='agreeRequestTerm'>
