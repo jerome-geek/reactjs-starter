@@ -37,13 +37,13 @@ const RequestResultCount = styled.p`
     font-weight: 500;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
     ${media.medium} {
         font-size: 1.666rem;
     }
-    > span {
+    > sub {
         font-weight: 400;
-        margin-left: 8px;
+        margin: 0 0 3px 8px;
         color: ${(props) => props.theme.text3};
         font-size: 0.75rem;
         ${media.xlarge} {
@@ -73,7 +73,7 @@ const RequestResult = ({
                         <RequestResultStatus>{status}</RequestResultStatus>
                         <RequestResultCount>
                             {count}
-                            <span>건</span>
+                            <sub>건</sub>
                         </RequestResultCount>
                     </RequestResultProgress>
                 );

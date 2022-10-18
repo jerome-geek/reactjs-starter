@@ -20,6 +20,7 @@ declare module 'react-i18next' {
             myInquiry: typeof ko.myInquiry;
             courseDetail: typeof ko.courseDetail;
             courseRequest: typeof ko.courseRequest;
+            courseList: typeof ko.courseList;
             serviceCenter: typeof ko.serviceCenter;
             // about: typeof ko.about;
             //   about: typeof ko
