@@ -74,7 +74,7 @@ export const kakaoShare = ({
         content: {
             title: title ? title : document.title,
             imageUrl: imageUrl ? imageUrl : '',
-            description: description,
+            description: description ? description : '',
             link: {
                 mobileWebUrl: mobileWebUrl
                     ? mobileWebUrl

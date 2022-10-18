@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import useScript from 'react-script-hook';
+import { useScript } from 'usehooks-ts';
 
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
 import { ReactComponent as Kakao } from 'assets/icons/sns_kakao.svg';
@@ -64,10 +64,12 @@ const ShareModal = ({
     copiedLink,
     copySuccessMessage,
 }: ModalDefaultType & KakaoShareParams & CopyLinkParams) => {
-    useScript({
-        src: 'https://developers.kakao.com/sdk/js/kakao.js',
-        checkForExisting: true,
-    });
+    // useScript({
+    //     src: 'https://developers.kakao.com/sdk/js/kakao.js',
+    //     checkForExisting: true,
+    // });
+
+    useScript('https://developers.kakao.com/sdk/js/kakao.js');
 
     return (
         <Modal
@@ -79,7 +81,6 @@ const ShareModal = ({
                 <Title>공유하기</Title>
                 <ShareButtonContainer>
                     <ShareButton
-                        id='kakaotalk-sharing-btn'
                         onClick={() =>
                             kakaoShare({
                                 title,
