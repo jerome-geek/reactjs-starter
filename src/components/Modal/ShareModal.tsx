@@ -68,8 +68,9 @@ const ShareModal = ({
     copiedLink,
     copySuccessMessage,
 }: ModalDefaultType & KakaoShareParams & CopyLinkParams) => {
-    useScript('https://developers.kakao.com/sdk/js/kakao.js');
     const { t: serviceCenter } = useTranslation('serviceCenter');
+
+    useScript('https://developers.kakao.com/sdk/js/kakao.js');
 
     return (
         <Modal

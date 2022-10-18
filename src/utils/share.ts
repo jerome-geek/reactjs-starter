@@ -72,9 +72,9 @@ export const kakaoShare = ({
     kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-            title,
-            imageUrl,
-            description,
+            title: title ? title : document.title,
+            imageUrl: imageUrl ? imageUrl : '',
+            description: description ? description : '',
             link: {
                 mobileWebUrl,
                 webUrl,
