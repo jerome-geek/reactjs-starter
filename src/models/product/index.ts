@@ -2,6 +2,7 @@ import {
     CRITERION,
     DELIVERY_CONDITION_TYPE,
     DISCOUNTED_COMPARISON,
+    DISCOUNT_UNIT_TYPE,
     ORDER_DIRECTION,
     PRODUCT_BY,
     PRODUCT_DIRECTION,
@@ -182,7 +183,9 @@ export interface HasCoupons {
 }
 
 export interface OptionValue {
+    /** @type {number} 1 (example: 1000) */
     mallProductNo: number;
+    /** @type {string} 1 (example: 1000) */
     optionValue: string;
     stockCnt: number;
 }
@@ -191,6 +194,7 @@ export interface ProductDetailResponse {
     baseInfo: BaseInfo;
     deliveryDate: DeliveryDate;
     stock: Stock;
+    // 가격정보
     price: Price;
     deliveryFee: DeliveryFee;
     limitations: Limitations;
@@ -290,25 +294,48 @@ export interface Stock {
     mainStockCnt: number;
 }
 
+// 가격 정보
 export interface Price {
-    salePrice: number;
-    immediateDiscountAmt: number;
-    immediateDiscountUnitType: string;
-    additionDiscountAmt: number;
-    additionDiscountUnitType: string;
-    additionDiscountValue: number;
-    minSalePrice: number;
-    maxSalePrice: number;
-    maxAdditionDiscountAmt: number;
-    maxDiscountAmount: number;
-    unitName: string;
-    unitNameType: string;
+    /** @type {number} 단위가격 (example: 1000) */
     unitPrice: number;
-    maxCouponAmt: number;
-    couponDiscountAmt: number;
+    // 즉시할인가 (example: 1000)
+    immediateDiscountAmt: number;
+    // 단위명 (example: "단위명")
+    unitName: string;
+    // 구매 확정시 예상 적립금 (example: 0)
     accumulationAmtWhenBuyConfirm: number;
-    accumulationRate: number;
+    // 상품판매가 (example: 10000)
+    salePrice: number;
+    // 추가할인 최소 기준금액 (example: 1000)
+    minSalePrice: number;
+    // 즉시할인 타입 (example: "WON")
+    immediateDiscountUnitType: DISCOUNT_UNIT_TYPE;
+    // 판매중지 시 가격대체문구 (example: "잠시 판매중지 중입니다.")
     contentsIfPausing: string;
+    // 적립률(%) (example: 0)
+    accumulationRate: number;
+    // 추가상품할인 타입 (example: "WON")
+    additionDiscountUnitType: DISCOUNT_UNIT_TYPE;
+    // 추가상품 할인( 원 / % ) additionDiscountUnitType 에따라 달라진다. (example: 1000)
+    additionDiscountValue: number;
+    // 회원등급에 따른 적립률(%) (example: 0)
+    accumulationRateOfMember: number;
+    // 단위유형 (example: "개")
+    unitNameType: string;
+    // 최대 추가할인 금액 (example: 0)
+    maxAdditionDiscountAmt: number;
+    // 추가할인 최대 기준금액 (example: 100000)
+    maxSalePrice: number;
+    // 해당 상품의 옵션을 여러개 구매할 경우 받을 수 있는 최대한의 쿠폰할인 금액 (example: 5000)
+    maxCouponAmt: number;
+    // 상품 기본옵션 가격기준으로 적용 가능한 최대 쿠폰 할인가 (example: 1000)
+    couponDiscountAmt: number;
+    // 추가할인 정률 최대 할인 금액 (example: 0)
+    maxDiscountAmount: number;
+    // 추가상품할인가 (example: 1000)
+    additionDiscountAmt: number;
+    // 포토리뷰적립금 (example: 0)
+    photoReviewAccumulationAmt: number;
 }
 
 export interface DeliveryFee {
@@ -513,10 +540,10 @@ export interface Input {
 }
 
 export interface ProductOption {
-    label?: string;
-    price?: number;
+    label: string;
+    price: number;
     count: number;
     optionNo: number;
     productNo: string;
-    amountPrice?: number;
+    amountPrice: number;
 }
