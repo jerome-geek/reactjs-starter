@@ -52,13 +52,13 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
             accumulationAmtWhenBuyConfirm === 0
                 ? ''
                 : `구매확정시 ${KRW(accumulationAmtWhenBuyConfirm, {
-                      symbol: mallInfo.accumulationConfig.accumulationUnit,
+                      symbol: mallInfo?.accumulationConfig.accumulationUnit,
                       precision: 0,
                       pattern: `<b># !</b>`,
                   }).format()} 즉시 지급`,
         [
             accumulationAmtWhenBuyConfirm,
-            mallInfo.accumulationConfig.accumulationUnit,
+            mallInfo?.accumulationConfig.accumulationUnit,
         ],
     );
 
