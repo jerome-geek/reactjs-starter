@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useScript } from 'usehooks-ts';
 
-const KaKaoMap = () => {
+const KaKaoMap = ({ address }: { address?: string }) => {
     const container = useRef(null);
     const scriptStatus = useScript(
-        `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_KEY}&autoload=false`,
+        `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_KEY}&autoload=false&libraries=services`,
     );
 
     useEffect(() => {
@@ -16,40 +16,54 @@ const KaKaoMap = () => {
                     center: new kakao.maps.LatLng(37.4825, 127.0424),
                     level: 1,
                 };
+
                 const map = new kakao.maps.Map(mapContainer, mapOption);
+                const geocoder = new kakao.maps.services.Geocoder();
 
-                const markerPosition = new kakao.maps.LatLng(
-                    37.482631,
-                    127.0424,
-                );
+                if (address) {
+                    geocoder.addressSearch(
+                        address,
+                        (result: any, status: any) => {
+                            if (status === kakao.maps.services.Status.OK) {
+                                const coords = new kakao.maps.LatLng(
+                                    result[0].y,
+                                    result[0].x,
+                                );
+                                const marker = new kakao.maps.Marker({
+                                    map: map,
+                                    position: coords,
+                                });
+                                map.setCenter(coords);
+                                marker.setMap(map);
+                            }
+                        },
+                    );
+                } else {
+                    const polygonPath = [
+                        new kakao.maps.LatLng(37.482441, 127.0424808),
+                        new kakao.maps.LatLng(37.482739, 127.042359),
+                        new kakao.maps.LatLng(37.48261, 127.041961),
+                        new kakao.maps.LatLng(37.482509, 127.04201),
+                        new kakao.maps.LatLng(37.48259, 127.04224),
+                        new kakao.maps.LatLng(37.482326, 127.04236),
+                    ];
 
-                const marker = new kakao.maps.Marker({
-                    position: markerPosition,
-                });
+                    const polygon = new kakao.maps.Polygon({
+                        path: polygonPath,
+                        strokeWeight: 3,
+                        strokeColor: '#E15F42',
+                        strokeOpacity: 1,
+                        strokeStyle: 'solid',
+                        fillColor: '#E15F42',
+                        fillOpacity: 0.5,
+                    });
 
-                const polygonPath = [
-                    new kakao.maps.LatLng(37.482441, 127.0424808),
-                    new kakao.maps.LatLng(37.482639, 127.042399),
-                    new kakao.maps.LatLng(37.482632, 127.042243),
-                    new kakao.maps.LatLng(37.482326, 127.042366),
-                ];
+                    kakao.maps.event.addListener(map, 'click', () => {
+                        window.open('http://kko.to/bZadVZhX1d');
+                    });
 
-                const polygon = new kakao.maps.Polygon({
-                    path: polygonPath,
-                    strokeWeight: 3,
-                    strokeColor: '#E15F42',
-                    strokeOpacity: 1,
-                    strokeStyle: 'solid',
-                    fillColor: '#E15F42',
-                    fillOpacity: 0.5,
-                });
-
-                kakao.maps.event.addListener(map, 'click', () => {
-                    window.open('http://kko.to/bZadVZhX1d');
-                });
-
-                marker.setMap(map);
-                polygon.setMap(map);
+                    polygon.setMap(map);
+                }
             });
         }
     }, [scriptStatus]);

@@ -26,6 +26,7 @@ const ServiceCenterContainer = styled.main`
     ${media.medium} {
         margin: 26px auto 88px;
     }
+    overflow-x: hidden;
 `;
 
 const Title = styled.h2`
@@ -290,9 +291,9 @@ const ServiceCenter = () => {
                         <ASNoticeListContainer>
                             {serviceCenter('checkList', {
                                 returnObjects: true,
-                            }).map((text) => {
+                            }).map((text, index) => {
                                 return (
-                                    <ASNoticeList>
+                                    <ASNoticeList key={text + index}>
                                         <ASNoticeText>
                                             <span>&#183;</span>
                                             {text}
