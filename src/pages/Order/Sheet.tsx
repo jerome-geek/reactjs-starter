@@ -373,9 +373,9 @@ const Sheet = () => {
             // paymentAmt: 0, // TODO: schema 확인 필요
             // paymentAmt: orderData?.data.paymentInfo.paymentAmt,
             bankAccountToDeposit: {
-                bankAccount: mallInfo.bankAccountInfo.bankAccount,
-                bankCode: mallInfo.bankAccountInfo.bankName,
-                bankDepositorName: mallInfo.bankAccountInfo.bankDepositorName,
+                bankAccount: mallInfo?.bankAccountInfo.bankAccount,
+                bankCode: mallInfo?.bankAccountInfo.bankName,
+                bankDepositorName: mallInfo?.bankAccountInfo.bankDepositorName,
             },
         },
     });

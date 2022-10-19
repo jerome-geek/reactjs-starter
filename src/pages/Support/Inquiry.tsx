@@ -20,7 +20,6 @@ import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
 import upload from 'api/etc/upload';
-import Group from 'react-select/dist/declarations/src/components/Group';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -443,7 +442,7 @@ const Inquiry = () => {
                     {isDefaultValue && (
                         <SelectBox<InquiryType, false, GroupBase<InquiryType>>
                             options={pipe(
-                                mallInfo.inquiryType as InquiryType[],
+                                mallInfo?.inquiryType as InquiryType[],
                                 map((a) => {
                                     return {
                                         label: a.inquiryTypeName,

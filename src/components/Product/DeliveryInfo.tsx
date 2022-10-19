@@ -11,7 +11,7 @@ interface DeliveryInfoProps {
 
 const DeliveryInfoContainer = styled.div`
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start;
     padding-bottom: 26px;
     border-bottom: 2px solid #ededed;
     margin-bottom: 26px;

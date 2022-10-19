@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
@@ -10,9 +10,9 @@ import ProductSort from 'components/Product/ProductSort';
 import ProductCard from 'components/Search/ProductCard';
 import Loader from 'components/shared/Loader';
 import { product } from 'api/product';
+import { category } from 'api/display';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
-import { useMall } from 'hooks';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import { MultiLevelCategory } from 'models/display';
 import { ProductItem } from 'models/product';
@@ -108,21 +108,9 @@ const ProductCategoryListItem = styled.li<{ isActive?: boolean }>`
 
 const ProductList = () => {
     const { categoryNo } = useParams() as { categoryNo: string };
+    const [categoryInfo, setCategoryInfo] = useState<MultiLevelCategory>();
 
     const navigate = useNavigate();
-
-    const { mallInfo } = useMall();
-
-    const categoryInfo = useMemo<any>(
-        () =>
-            pipe(
-                mallInfo.categories.multiLevelCategories,
-                filter((a: any) => a.categoryNo.toString() === categoryNo),
-                toArray,
-                head,
-            ),
-        [categoryNo, mallInfo.categories.multiLevelCategories],
-    );
 
     const [productCategory, setProductCategory] = useState<ProductCategory[]>([
         {
@@ -132,24 +120,41 @@ const ProductList = () => {
         },
     ]);
 
-    useEffect(() => {
-        setProductCategory((prev) =>
-            pipe<
-                MultiLevelCategory[],
-                Iterable<ProductCategory>,
-                Iterable<ProductCategory>,
-                ProductCategory[]
-            >(
-                categoryInfo.children,
-                map((a) => ({
-                    categoryNo: a.categoryNo.toString(),
-                    title: a.label,
-                    isActive: false,
-                })),
-                concat(prev),
-                toArray,
-            ),
-        );
+    useQuery(
+        ['categoryInfo', { categoryNo }],
+        async () => await category.getCategory(categoryNo),
+        {
+            enabled: !!categoryNo,
+            select: ({ data }) => data,
+            onSuccess: (data) => {
+                setCategoryInfo(
+                    pipe(
+                        data.multiLevelCategories,
+                        filter((a) => a.categoryNo.toString() === categoryNo),
+                        head,
+                    ),
+                );
+            },
+        },
+    );
+
+    useLayoutEffect(() => {
+        const multiLevelCategories = categoryInfo?.children ?? [];
+
+        if (multiLevelCategories?.length >= 1) {
+            setProductCategory((prev) =>
+                pipe(
+                    multiLevelCategories,
+                    map((a) => ({
+                        categoryNo: a.categoryNo.toString(),
+                        title: a.label,
+                        isActive: false,
+                    })),
+                    concat(prev),
+                    toArray,
+                ),
+            );
+        }
 
         return () => {
             setProductCategory([
@@ -160,7 +165,7 @@ const ProductList = () => {
                 },
             ]);
         };
-    }, [categoryNo, categoryInfo.children]);
+    }, [categoryNo, categoryInfo?.children]);
 
     const [productSort, setProductSort] = useState([
         {

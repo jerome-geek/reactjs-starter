@@ -7,7 +7,7 @@ import mall from 'api/mall';
 
 const useMall = () => {
     const { mallInfo } = useTypedSelector(({ mall }) => ({
-        mallInfo: mall,
+        mallInfo: mall.data,
     }));
 
     const dispatch = useDispatch();

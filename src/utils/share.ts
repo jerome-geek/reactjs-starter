@@ -67,7 +67,7 @@ export const kakaoShare = ({
     const kakao = window.Kakao;
 
     if (!kakao.isInitialized()) {
-        kakao.init(process.env.REACT_APP_KAKO_KEY);
+        kakao.init(process.env.REACT_APP_KAKAO_KEY);
     }
     kakao.Share.sendDefault({
         objectType: 'feed',

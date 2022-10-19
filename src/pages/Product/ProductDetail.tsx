@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import { isNil, pipe, map, sum, toArray } from '@fxts/core';
+import { useWindowSize } from 'usehooks-ts';
 
 import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
@@ -17,6 +18,7 @@ import AccumulationInfo from 'components/Product/AccumulationInfo';
 import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
+import ShareModal from 'components/Modal/ShareModal';
 import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
@@ -24,6 +26,7 @@ import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { useMember } from 'hooks';
+import { isMobile } from 'utils/styles/responsive';
 import { sortBanners } from 'utils/banners';
 import media from 'utils/styles/media';
 import { KRW } from 'utils/currency';
@@ -201,6 +204,8 @@ const ProductDetail = () => {
         navigate(PATHS.MAIN);
     }
 
+    const { width } = useWindowSize();
+
     const [productImageData, setProductImageData] = useState<{
         [id: string]: string[];
     }>({ represent: [] });
@@ -212,6 +217,8 @@ const ProductDetail = () => {
         ProductOption[]
     >([]);
     const [selectedTab, setSelectedTab] = useState('productSummary');
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const { data: productData } = useQuery(
         ['productDetailData', { productNo }],
@@ -360,7 +367,7 @@ const ProductDetail = () => {
     );
 
     const onShareButtonClick = () => {
-        console.log('onShareButtonClick');
+        setIsModalVisible(true);
     };
 
     const totalAmount = useMemo(
@@ -386,6 +393,13 @@ const ProductDetail = () => {
     return (
         <>
             <Header />
+
+            {isModalVisible && (
+                <ShareModal
+                    width={isMobile(width) ? 'calc(100% - 48px)' : '700px'}
+                    onClickToggleModal={() => setIsModalVisible(false)}
+                />
+            )}
 
             {mainBannerData?.[0]?.accounts && (
                 <MainCategoryBanners
