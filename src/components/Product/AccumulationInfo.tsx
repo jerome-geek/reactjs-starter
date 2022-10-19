@@ -64,13 +64,13 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
 
     const reviewsAccumulation = useMemo(
         () =>
-            mallInfo?.accumulationConfig?.reviewsAccumulationDetail
-                ?.reviewsAccumulation === 0
+            mallInfo?.accumulationConfig.reviewsAccumulationDetail
+                .reviewsAccumulation === 0
                 ? ''
                 : `
     리뷰작성시 ${KRW(
-        mallInfo?.accumulationConfig?.reviewsAccumulationDetail
-            ?.reviewsAccumulation,
+        mallInfo?.accumulationConfig.reviewsAccumulationDetail
+            .reviewsAccumulation || 0,
         {
             symbol: mallInfo?.accumulationConfig?.accumulationUnit,
             precision: 0,
@@ -91,8 +91,8 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
                 ? ''
                 : `
         포토리뷰작성시 ${KRW(
-            mallInfo?.accumulationConfig?.reviewsAccumulationDetail
-                ?.photoReviewsAccumulation,
+            mallInfo?.accumulationConfig.reviewsAccumulationDetail
+                ?.photoReviewsAccumulation || 0,
             {
                 symbol: mallInfo?.accumulationConfig?.accumulationUnit,
                 precision: 0,

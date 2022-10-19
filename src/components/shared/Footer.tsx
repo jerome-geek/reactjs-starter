@@ -251,14 +251,14 @@ const Footer = () => {
                 <div style={{ maxWidth: '840px', margin: '0 auto' }}>
                     <div style={{ marginBottom: '20px' }}>
                         <FooterContents>
-                            {`상호 ${mallInfo.serviceBasicInfo.companyName} 대표 ${mallInfo.serviceBasicInfo.representativeName} | Tel ${mallInfo.serviceBasicInfo.representPhoneNo} FAX ${mallInfo.serviceBasicInfo.faxNo}`}
+                            {`상호 ${mallInfo?.serviceBasicInfo.companyName} 대표 ${mallInfo?.serviceBasicInfo.representativeName} | Tel ${mallInfo?.serviceBasicInfo.representPhoneNo} FAX ${mallInfo?.serviceBasicInfo.faxNo}`}
                         </FooterContents>
                         {gt(width, BREAKPOINTS.SMALL) ? (
                             <>
                                 <FooterContents>
-                                    {`통신판매업신고 ${mallInfo.serviceBasicInfo.onlineMarketingBusinessDeclarationNo} | 사업자등록번호 ${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                    {`통신판매업신고 ${mallInfo?.serviceBasicInfo.onlineMarketingBusinessDeclarationNo} | 사업자등록번호 ${mallInfo?.serviceBasicInfo.businessRegistrationNo}`}
                                     <StyledAnchor
-                                        href={`https://bizno.net/?query=${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                        href={`https://bizno.net/?query=${mallInfo?.serviceBasicInfo.businessRegistrationNo}`}
                                         target='_blank'
                                         rel='noopener noreferrer'
                                     >
@@ -271,18 +271,18 @@ const Footer = () => {
                                         고객센터 바로가기
                                     </StyledLink>
                                     &nbsp;|&nbsp;
-                                    {`보이스캐디 고객센터 ${mallInfo.mall.serviceCenter.phoneNo} (내선2번)`}
+                                    {`보이스캐디 고객센터 ${mallInfo?.mall.serviceCenter.phoneNo} (내선2번)`}
                                 </FooterContents>
                             </>
                         ) : (
                             <>
                                 <FooterContents>
-                                    {`통신판매업신고 ${mallInfo.serviceBasicInfo.onlineMarketingBusinessDeclarationNo}`}
+                                    {`통신판매업신고 ${mallInfo?.serviceBasicInfo.onlineMarketingBusinessDeclarationNo}`}
                                     <br />
-                                    {`사업자등록번호 ${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                    {`사업자등록번호 ${mallInfo?.serviceBasicInfo.businessRegistrationNo}`}
                                     &nbsp;
                                     <StyledAnchor
-                                        href={`https://bizno.net/?query=${mallInfo.serviceBasicInfo.businessRegistrationNo}`}
+                                        href={`https://bizno.net/?query=${mallInfo?.serviceBasicInfo.businessRegistrationNo}`}
                                         target='_blank'
                                         rel='noopener noreferrer'
                                     >
@@ -317,11 +317,10 @@ const Footer = () => {
                         <StyledPinIcon />
                         {/* TODO: countryCode가 KR이 아닐경우 처리 필요 */}
                         <span>
-                            {mallInfo.mall.countryCode === 'KR' && '대한민국'}
+                            {mallInfo?.mall.countryCode === 'KR' && '대한민국'}
                         </span>
                         <span>
-                            {mallInfo.serviceBasicInfo.address +
-                                mallInfo.serviceBasicInfo.addressDetail}
+                            {`${mallInfo?.serviceBasicInfo.address} ${mallInfo?.serviceBasicInfo.addressDetail}`}
                         </span>
                     </Location>
                     <CopyRight>
