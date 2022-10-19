@@ -9,6 +9,7 @@ import courseDetail from 'locales/jp/courseDetail.json';
 import courseRequest from 'locales/jp/courseRequest.json';
 import courseList from 'locales/jp/courseList.json';
 import serviceCenter from 'locales/jp/serviceCenter.json';
+import agency from 'locales/jp/agency.json';
 
 export {
     main,
@@ -22,4 +23,5 @@ export {
     courseRequest,
     courseList,
     serviceCenter,
+    agency,
 };
