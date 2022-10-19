@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 import { KRW } from 'utils/currency';
+import media from 'utils/styles/media';
 
 interface DeliveryInfoProps {
     deliveryFee: number;
@@ -14,6 +15,13 @@ const DeliveryInfoContainer = styled.div`
     padding-bottom: 26px;
     border-bottom: 2px solid #ededed;
     margin-bottom: 26px;
+
+    ${media.medium} {
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
 `;
 
 const DeliveryInfoTitle = styled.p`
@@ -29,8 +37,26 @@ const DeliveryFee = styled.span`
     letter-spacing: 0;
     margin-right: 10px;
 
-    > sub {
+    & sub {
         font-size: 12px;
+    }
+
+    ${media.medium} {
+        margin-right: 0;
+        margin-bottom: 4px;
+        display: block;
+
+        & sub {
+            font-size: 14px;
+        }
+    }
+`;
+
+const ContentContainer = styled.div`
+    ${media.medium} {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
     }
 `;
 
@@ -51,22 +77,25 @@ const DeliveryInfo: FC<DeliveryInfoProps> = ({ deliveryFee }) => {
             <DeliveryInfoTitle>
                 {productDetail('shippingInformation')}
             </DeliveryInfoTitle>
-            <DeliveryFee
-                dangerouslySetInnerHTML={{
-                    __html: KRW(deliveryFee, {
-                        symbol: '<sub>원</sub>',
-                        precision: 0,
-                        pattern: `<sub>${productDetail(
-                            'shippingCost',
-                        )}</sub> # !`,
-                        negativePattern: `- # !`,
-                    }).format(),
-                }}
-            />
-            {/* TODO: 추가배송비 확인 필요 */}
-            <DeliveryDesc>
-                <sub>도서산간지역 / 제주도</sub> 7,500 <sub>원</sub>
-            </DeliveryDesc>
+
+            <ContentContainer>
+                <DeliveryFee
+                    dangerouslySetInnerHTML={{
+                        __html: KRW(deliveryFee, {
+                            symbol: '<sub>원</sub>',
+                            precision: 0,
+                            pattern: `<sub>${productDetail(
+                                'shippingCost',
+                            )}</sub> # !`,
+                            negativePattern: `- # !`,
+                        }).format(),
+                    }}
+                />
+                {/* TODO: 추가배송비 확인 필요 */}
+                <DeliveryDesc>
+                    <sub>도서산간지역 / 제주도</sub> 7,500 <sub>원</sub>
+                </DeliveryDesc>
+            </ContentContainer>
         </DeliveryInfoContainer>
     );
 };
