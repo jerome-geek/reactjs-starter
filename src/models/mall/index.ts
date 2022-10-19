@@ -4,13 +4,19 @@ import {
     AUTHENTICATION_TIME_TYPE,
     AUTHENTICATION_TYPE,
     BOARD_DISPLAY_TYPE,
+    CLAIM_STATUS_TYPE,
+    CLAIM_REASON_TYPE,
     COUNTRY_CD,
     IMAGE_DISPLAY_TYPE,
+    INQUIRY_TYPE,
     INTRO_REDIRECTION_TYPE,
+    OPEN_ID_PROVIDER,
     ORDER_STATUS_TYPE,
     PRODUCT_ACCUMULATION_BASIS_TYPE,
+    CART_EQUIVALENT_OPTION_UNIT_TYPE,
+    PRODUCT_REVIEW_REPORT_TYPE,
 } from 'models';
-import { Category, MultiLevelCategory } from 'models/display';
+import { Category } from 'models/display';
 import { InquiryType } from 'models/manage';
 
 // 접속 URL
@@ -101,24 +107,36 @@ export interface Mall {
     url: Url;
 }
 
+// 상품문의 유형 목록
 export interface ProductInquiryType {
+    // 상품문의 유형 명칭 (example: 상품)
     label: string;
-    value: string;
+    // 상품문의 유형 (example: PRODUCT)
+    value: INQUIRY_TYPE;
 }
 
+// 상품평 신고 유형 목록
 export interface ProductReviewReportType {
+    // 상품평 신고 유형 명칭 (example: 저작권 침해 및 기타사유)
     label: string;
-    value: string;
+    // 상품평 신고 유형 값 (example: COPYRIGHT)
+    value: PRODUCT_REVIEW_REPORT_TYPE;
 }
 
+// 클레임 사유 목록
 export interface ClaimReasonType {
+    // 클레임 사유 명칭 (example: 입금전취소)
     label: string;
-    value: string;
+    // 클레임 사유 값 (example: CANCEL_BEFORE_PAY)
+    value: CLAIM_REASON_TYPE;
 }
 
+// 클레임상태 목록
 export interface ClaimStatusType {
+    // 클레임상태 명칭 (example: 취소완료[환불없음])
     label: string;
-    value: string;
+    // 클레임상태 값 (example: CANCEL_NO_REFUND)
+    value: CLAIM_STATUS_TYPE;
 }
 
 // 주문상태 목록
@@ -185,24 +203,42 @@ export interface BoardsCategory {
     boardNo: number;
 }
 
+// 쇼핑몰 기본 정보
 export interface ServiceBasicInfo {
-    companyName: string;
-    businessRegistrationNo: string;
-    representativeName: string;
-    businessType: string;
-    businessCondition: string;
-    representPhoneNo: string;
-    representEmail: string;
-    faxNo: string;
-    onlineMarketingBusinessDeclarationNo: string;
-    zipCd: string;
+    // 주소 (example: 서울특별시 구로구 구로동 디지털로26길 72)
     address: string;
-    addressDetail: string;
-    jibunAddress: string;
-    jibunAddressDetail: string;
+    // 대표 이메일 (example: cs@nhn-commerce.com)
+    representEmail: string;
+    // 회사명 (example: 엔에이치엔커머스)
+    companyName: string;
+    // 개인정보보호 책임자명 (example: 김종승)
     privacyManagerName: string;
+    // 지번 주소 (example: 서울특별시 구로구 구로동 222-22)
+    jibunAddress: string;
+    // 통신판매업신고 번호 (example: 2015-서울구로-0049)
+    onlineMarketingBusinessDeclarationNo: string;
+    // 업태 (example: 정보통신업)
+    businessCondition: string;
+    // 우편번호 (example: 08393)
+    zipCd: string;
+    // 상세주소 (example: 3층)
+    addressDetail: string;
+    // 팩스번호 (example: 02-567-3744)
+    faxNo: string;
+    // 개인정보보호 책임자 전화번호 (example: 1688-7662)
     privacyManagerPhoneNo: string;
+    // 사업자등록번호 (example: 120-86-46911)
+    businessRegistrationNo: string;
+    // 대표 전화번호 (example: 1688-7662)
+    representPhoneNo: string;
+    // 업종 (example: 통신판매업)
+    businessType: string;
+    // 샵바이 서비스 플랜명 (example: PREMIUM)
     plan: string;
+    // 지번 상세주소 (example: 3층)
+    jibunAddressDetail: string;
+    // 대표자명 (example: 이식)
+    representativeName: string;
 }
 
 // 쇼핑몰 계좌 정보
@@ -305,11 +341,16 @@ export interface AccumulationConfig {
     useMemberAccumulation: boolean;
 }
 
+// 장바구니 설정
 export interface CartConfig {
-    cartEquivalentOptionUnitType: string;
-    storageMaxQuantity: number;
+    // 최대 보관 일수 (example: 7)
     storagePeriod: number;
+    // 장바구니 상품 추가 타입 (example: QUANTITY)
+    cartEquivalentOptionUnitType: CART_EQUIVALENT_OPTION_UNIT_TYPE;
+    // 무제한 보관 설정 (example: false)
     storagePeriodNoLimit: boolean;
+    // 장바구니 보관 최대 수량 (example: 100)
+    storageMaxQuantity: number;
 }
 
 // 	쇼핑몰 회원 인증 수단
@@ -320,15 +361,40 @@ export interface MallJoinConfig {
     authenticationTimeType: AUTHENTICATION_TIME_TYPE;
 }
 
+// 오픈아이디 설정 정보
 export interface OpenIdJoinConfig {
-    authenticationType: string;
-    authenticationTimeType: string;
-    providers: any[];
+    // 오픈아이디 회원인증 수단 (example: SMS_OCCUPANCY_AUTHENTICATION)
+    authenticationType: AUTHENTICATION_TYPE;
+    // 오픈아이디 회원인증 시점 (example: JOIN_TIME)
+    authenticationTimeType: AUTHENTICATION_TIME_TYPE;
+    // 지원하는 오픈아이디 (example: ["payco","kakao"])
+    providers: OPEN_ID_PROVIDER[];
 }
 
+// 공정거래 로고 정보
 export interface TermsConfig {
-    fairLogoUrl?: any;
+    // 공정거래 로고 이미지 URL (example: http://test.com)
+    fairLogoUrl: string;
+    // 공정거래 로고 사용 여부 (example: false)
     fairLogoUsed: boolean;
+}
+
+// 외부 서비스 설정
+export interface ExterServiceConfig {
+    kakaoMap: {
+        // 카카오맵 경도 (example: 70)
+        kakaoMapLongitude: string;
+        // 카카오맵 위도 (example: 30)
+        kakaoMapLatitude: string;
+        // 카카오맵 Appkey (example: kakaoMapKey)
+        kakaoMapKey: string;
+    };
+    // 구글 통계 추적 ID (example: googleAnalytics-value)
+    googleAnalytics: string;
+    // 외부스크립트 사용여부 (example: false)
+    useScript: boolean;
+    // 네이버 웹마스터 Appkey (example: naverWebmaster-value)
+    naverWebmaster: string;
 }
 
 export interface MallResponse {
@@ -344,17 +410,24 @@ export interface MallResponse {
     orderStatusType: OrderStatusType[];
     // 쇼핑몰 정보
     mall: Mall;
-
-    productInquiryType: ProductInquiryType[];
-    productReviewReportType: ProductReviewReportType[];
+    // 클레임 사유 목록
     claimReasonType: ClaimReasonType[];
-    claimStatusType: ClaimStatusType[];
+    // 쇼핑몰 기본정보
     serviceBasicInfo: ServiceBasicInfo;
-    cartConfig: CartConfig;
-    openIdJoinConfig: OpenIdJoinConfig;
-    externalServiceConfig?: any;
+    // 공정거래 로고 정보
     termsConfig: TermsConfig;
-
+    // 오픈아이디 설정 정보
+    openIdJoinConfig: OpenIdJoinConfig;
+    // 외부 서비스 설정
+    externalServiceConfig: ExterServiceConfig;
+    // 클레임상태 목록
+    claimStatusType: ClaimStatusType[];
+    // 장바구니 설정
+    cartConfig: CartConfig;
+    // 상품평 신고 유형 목록
+    productReviewReportType: ProductReviewReportType[];
+    // 상품문의 유형 목록
+    productInquiryType: ProductInquiryType[];
     // 쇼핑몰 회원 인증 수단
     mallJoinConfig: MallJoinConfig;
     // 적립금 설정 정보

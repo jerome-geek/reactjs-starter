@@ -288,7 +288,6 @@ const product = {
             }),
         }),
 
-    // TODO productNo을 모름 404 error 발생 추후 테스트 필요
     getProductOption: (
         productNo: string,
     ): Promise<AxiosResponse<OptionResponse>> =>

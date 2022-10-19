@@ -1,12 +1,21 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
+import { FC, Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
-import { useQuery } from 'react-query';
+import { head, pipe, filter, map, toArray, some } from '@fxts/core';
 
-import { FlatOption, ProductOption } from 'models/product';
-import { product } from 'api/product';
 import SelectBox from 'components/Common/SelectBox';
+import ProductOptionListItem from 'components/Product/ProductOptionListItem';
+import SelectedOptionListItem from 'components/Product/SelectedOptionListItem';
+import { FlatOption, ProductOption } from 'models/product';
+import media from 'utils/styles/media';
+
+interface ProductOptionListProps {
+    productNo: string;
+    productOptionList: FlatOption[];
+    selectedOptionList: ProductOption[];
+    setSelectedOptionList: Dispatch<SetStateAction<ProductOption[]>>;
+}
 
 const ProductOptionBox = styled.div`
     margin: 26px 0;
@@ -26,189 +35,148 @@ const ProductOptionBox = styled.div`
     }
 `;
 
-const ProductOptionCountBox = styled.div`
-    background: #f9f7f7;
-    padding: 10px 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    > div {
-        display: flex;
-        justify-content: space-between;
-    }
-    div:last-child {
-        align-items: flex-end;
-    }
-`;
-
-const ProductCountMinus = styled.div``;
-
-const ProductCountPlus = styled.div``;
-
-const ProductCount = styled.div`
-    color: #191919;
-`;
-
-const ProductOptionTitle = styled.div`
+const ProductOptionDesc = styled.p`
     font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0;
     color: #191919;
-`;
+    font-weight: bold;
 
-const ProductOptionClose = styled.div`
-    cursor: pointer;
-    color: #bdbdbd;
-`;
-
-const ProductCountBox = styled.div`
-    color: #bdbdbd;
-    background: #fff;
-    display: flex;
-    > div {
-        padding: 10px;
+    ${media.medium} {
+        font-weight: normal;
+        letter-spacing: -0.64px;
     }
 `;
 
-const ProductOptionList = ({
+const SelectedOptionList = styled.ul``;
+
+const ProductOptionList: FC<ProductOptionListProps> = ({
     productNo,
-    selectOptionProducts,
-    setSelectOptionProducts,
-    setCurrentOptionNo,
-    setProductImageData,
-}: {
-    productNo: string;
-    selectOptionProducts: Map<number, ProductOption>;
-    setSelectOptionProducts: Dispatch<
-        SetStateAction<Map<number, ProductOption>>
-    >;
-    setCurrentOptionNo: Dispatch<SetStateAction<number | string>>;
-    setProductImageData: Dispatch<SetStateAction<{ [id: number]: string[] }>>;
+    productOptionList,
+    setSelectedOptionList,
+    selectedOptionList,
 }) => {
     const { t: productDetail } = useTranslation('productDetail');
-
-    useEffect(() => {
-        setSelectOptionProducts(new Map());
-        setCurrentOptionNo('represent');
-    }, [productNo]);
-
-    const { data: productOptions } = useQuery(
-        ['productOptionDetail', { productNo }],
-        async () => await product.getProductOption(productNo),
-        {
-            select: ({ data }) => {
-                return data?.flatOptions;
-            },
-            onSuccess: (res) => {
-                setProductImageData((prev) => {
-                    res.forEach(({ optionNo, images }) => {
-                        prev[optionNo] = images.map(({ url }) => {
-                            return url;
-                        });
-                    });
-                    return { ...prev };
-                });
-            },
-            refetchOnWindowFocus: false,
-        },
-    );
 
     const optionSelectHandler = (
         optionValue: SingleValue<Partial<FlatOption>>,
     ) => {
-        if (selectOptionProducts.has(optionValue?.optionNo!)) {
-            return;
-        }
-        setCurrentOptionNo(optionValue?.optionNo!);
+        const isSelected = some(
+            (a) => a.optionNo === optionValue?.optionNo,
+            selectedOptionList,
+        );
 
-        setSelectOptionProducts((prev) => {
-            prev.set(optionValue?.optionNo!, {
-                label: optionValue?.label,
-                price: optionValue?.buyPrice,
-                count: 1,
-                optionNo: optionValue?.optionNo!,
-                productNo,
-                amountPrice: optionValue?.buyPrice,
-            });
-            return new Map(prev);
-        });
+        if (!isSelected) {
+            setSelectedOptionList((prev: any) => [
+                ...prev,
+                {
+                    label: optionValue?.label,
+                    price: optionValue?.buyPrice,
+                    count: 1,
+                    optionNo: optionValue?.optionNo,
+                    productNo,
+                    amountPrice: optionValue?.buyPrice,
+                },
+            ]);
+        }
     };
 
     const productCountHandler =
         (updateCount: number, optionNo: number) => () => {
-            if (selectOptionProducts.get(optionNo)?.count! + updateCount <= 0) {
-                alert(productDetail('countAlert'));
-                return;
+            const selectedOption = pipe(
+                selectedOptionList,
+                filter((a) => a.optionNo === optionNo),
+                head,
+            );
+
+            if (selectedOption) {
+                if (selectedOption.count + updateCount <= 0) {
+                    alert(productDetail('countAlert'));
+                    return;
+                }
+
+                setSelectedOptionList((prev) =>
+                    pipe(
+                        prev,
+                        map((a) =>
+                            a.optionNo === optionNo
+                                ? {
+                                      ...a,
+                                      count: selectedOption.count + updateCount,
+                                      amountPrice:
+                                          selectedOption.price *
+                                          (selectedOption.count + updateCount),
+                                  }
+                                : { ...a },
+                        ),
+                        toArray,
+                    ),
+                );
             }
-            setSelectOptionProducts((prev) => {
-                prev.set(optionNo, {
-                    label: prev.get(optionNo)?.label!,
-                    price: prev.get(optionNo)?.price!,
-                    count: prev.get(optionNo)?.count! + updateCount,
-                    optionNo,
-                    productNo,
-                    amountPrice:
-                        prev.get(optionNo)?.price! *
-                        (prev.get(optionNo)?.count! + updateCount),
-                });
-                return new Map(prev);
-            });
         };
+
+    const onDeleteClick = (optionNo: number) => {
+        setSelectedOptionList((prev) =>
+            pipe(
+                prev,
+                filter((a) => a.optionNo !== optionNo),
+                toArray,
+            ),
+        );
+    };
 
     return (
         <ProductOptionBox>
-            <p>{productDetail('chooseOption')}</p>
+            <ProductOptionDesc>
+                {productDetail('chooseOption')}
+            </ProductOptionDesc>
+
             <SelectBox<FlatOption>
-                options={productOptions}
+                options={productOptionList}
                 onChange={optionSelectHandler}
                 placeholder={'제품을 선택해주세요'}
+                formatOptionLabel={(productOption) => {
+                    return (
+                        <ProductOptionListItem
+                            imgUrl={
+                                pipe(
+                                    productOption.images,
+                                    filter((a) => a.main),
+                                    head,
+                                )?.url
+                            }
+                            label={productOption.label}
+                        />
+                    );
+                }}
             />
-            <div>
-                {Array.from(selectOptionProducts.values()).map(
-                    ({ count, label, amountPrice, optionNo }) => {
-                        return (
-                            <ProductOptionCountBox key={optionNo}>
-                                <div>
-                                    <ProductOptionTitle>
-                                        {label}
-                                    </ProductOptionTitle>
-                                    <ProductOptionClose
-                                        onClick={() =>
-                                            setSelectOptionProducts((prev) => {
-                                                prev.delete(optionNo);
-                                                return new Map(prev);
-                                            })
-                                        }
-                                    >
-                                        X
-                                    </ProductOptionClose>
-                                </div>
-                                <div>
-                                    <ProductCountBox>
-                                        <ProductCountMinus
-                                            onClick={productCountHandler(
-                                                -1,
-                                                optionNo,
-                                            )}
-                                        >
-                                            -
-                                        </ProductCountMinus>
-                                        <ProductCount>{count}</ProductCount>
-                                        <ProductCountPlus
-                                            onClick={productCountHandler(
-                                                1,
-                                                optionNo,
-                                            )}
-                                        >
-                                            +
-                                        </ProductCountPlus>
-                                    </ProductCountBox>
-                                    <p>{amountPrice}</p>
-                                </div>
-                            </ProductOptionCountBox>
-                        );
-                    },
-                )}
-            </div>
+
+            <SelectedOptionList>
+                {selectedOptionList.length > 0 &&
+                    selectedOptionList.map(
+                        ({ optionNo, label, amountPrice, count }) => {
+                            return (
+                                <SelectedOptionListItem
+                                    key={optionNo}
+                                    title={label}
+                                    price={amountPrice || 0}
+                                    count={count}
+                                    onMinusButtonClick={productCountHandler(
+                                        -1,
+                                        optionNo,
+                                    )}
+                                    onPlusButtonClick={productCountHandler(
+                                        +1,
+                                        optionNo,
+                                    )}
+                                    onDeleteButtonClick={() =>
+                                        onDeleteClick(optionNo)
+                                    }
+                                />
+                            );
+                        },
+                    )}
+            </SelectedOptionList>
         </ProductOptionBox>
     );
 };

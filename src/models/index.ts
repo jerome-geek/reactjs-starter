@@ -143,12 +143,29 @@ enum PLATFORM_TYPE {
     IOS = 'IOS',
 }
 
-enum OPEN_ID_PROVIDER {
+// 오픈아이디 Provider
+enum NCP_OPEN_ID_PROVIDER {
     NCP_NAVER = 'ncp_naver',
     NCP_KAKAO = 'ncp_kakao',
     NCP_LINE = 'ncp_line',
     NCP_FACEBOOK = 'ncp_facebook',
     NCP_PAYCO = 'ncp_payco',
+}
+
+// 지원하는 오픈 아이디
+enum OPEN_ID_PROVIDER {
+    // 페이코
+    PAYCO = 'PAYCO',
+    // 네이버
+    NAVER = 'NAVER',
+    // 카카오
+    KAKAO = 'KAKAO',
+    // 카카오 싱크
+    KAKAO_SYNC = 'KAKAO_SYNC',
+    // 페이스북
+    FACEBOOK = 'FACEBOOK',
+    // 라인
+    LINE = 'LINE',
 }
 
 enum ORDER_DIRECTION {
@@ -192,13 +209,21 @@ enum PRODUCT_SALE_STATUS {
     RESERVATION_AND_ONSALE = 'RESERVATION_AND_ONSALE', // 예약판매중인 상품과 판매중인 상품만 조회
 }
 
+// 상품문의 유형 값
 enum INQUIRY_TYPE {
+    // 상품
     PRODUCT = 'PRODUCT',
+    // 배송
     DELIVERY = 'DELIVERY',
+    // 취소
     CANCEL = 'CANCEL',
+    // 반품
     RETURN = 'RETURN',
+    // 교환
     EXCHANGE = 'EXCHANGE',
+    // 환불
     REFUND = 'REFUND',
+    // 기타
     OTHER = 'OTHER',
 }
 
@@ -470,17 +495,94 @@ enum RESPONSIBLE_OBJECT_TYPE {
     SELLER = 'SELLER',
 }
 
+// 클레임 사유 값
 enum CLAIM_REASON_TYPE {
+    // 단순변심(색상,사이즈)
     CHANGE_MIND = 'CHANGE_MIND',
+    // 상품불량/파손
     DEFECTIVE_PRODUCT = 'DEFECTIVE_PRODUCT',
+    // 배송누락/오배송
     WRONG_DELIVERY = 'WRONG_DELIVERY',
+    // 재고부족(시스템)
     OUT_OF_STOCK_SYSTEM = 'OUT_OF_STOCK_SYSTEM',
+    // 입금전취소
     CANCEL_BEFORE_PAY = 'CANCEL_BEFORE_PAY',
+    // 상품상세 정보와 다름
     WRONG_PRODUCT_DETAIL = 'WRONG_PRODUCT_DETAIL',
+    // 판매자 배송 지연
     DELAY_DELIVERY = 'DELAY_DELIVERY',
+    // 기타(판매자 귀책)
     OTHERS_SELLER = 'OTHERS_SELLER',
+    // 기타(구매자 귀책)
     OTHERS_BUYER = 'OTHERS_BUYER',
+    // 상품 품절/재고 없음
     OUT_OF_STOCK = 'OUT_OF_STOCK',
+}
+
+// 클레임 상태 값
+enum CLAIM_STATUS_TYPE {
+    // 취소완료[환불없음]
+    CANCEL_NO_REFUND = 'CANCEL_NO_REFUND',
+    // 취소신청[승인대기]
+    CANCEL_REQUEST = 'CANCEL_REQUEST',
+    // 취소처리[환불보류]
+    CANCEL_PROC_REQUEST_REFUND = 'CANCEL_PROC_REQUEST_REFUND',
+    // 취소처리[환불대기]
+    CANCEL_PROC_WAITING_REFUND = 'CANCEL_PROC_WAITING_REFUND',
+    // 취소완료[환불완료]
+    CANCEL_DONE = 'CANCEL_DONE',
+    // 반품신청[승인대기]
+    RETURN_REQUEST = 'RETURN_REQUEST',
+    // 반품신청[철회대기]
+    RETURN_REJECT_REQUEST = 'RETURN_REJECT_REQUEST',
+    // 반품처리[수거진행]
+    RETURN_PROC_BEFORE_RECEIVE = 'RETURN_PROC_BEFORE_RECEIVE',
+    // 반품처리[환불보류]
+    RETURN_PROC_REQUEST_REFUND = 'RETURN_PROC_REQUEST_REFUND',
+    // 반품처리[환불대기]
+    RETURN_PROC_WAITING_REFUND = 'RETURN_PROC_WAITING_REFUND',
+    // 반품완료[환불완료]
+    RETURN_DONE = 'RETURN_DONE',
+    // 교환처리[조정요청]
+    RETURN_REFUND_AMT_ADJUST_REQUESTED = 'RETURN_REFUND_AMT_ADJUST_REQUESTED',
+    // 교환신청[승인대기]
+    EXCHANGE_REQUEST = 'EXCHANGE_REQUEST',
+    // 교환처리[철회대기]
+    EXCHANGE_REJECT_REQUEST = 'EXCHANGE_REJECT_REQUEST',
+    // 교환처리[수거진행]
+    EXCHANGE_PROC_BEFORE_RECEIVE = 'EXCHANGE_PROC_BEFORE_RECEIVE',
+    // 교환처리[결제대기]
+    EXCHANGE_PROC_REQUEST_PAY = 'EXCHANGE_PROC_REQUEST_PAY',
+    // 교환처리[환불보류]
+    EXCHANGE_PROC_REQUEST_REFUND = 'EXCHANGE_PROC_REQUEST_REFUND',
+    // 교환처리[처리대기]
+    EXCHANGE_PROC_WAITING = 'EXCHANGE_PROC_WAITING',
+    // 교환완료
+    EXCHANGE_DONE = 'EXCHANGE_DONE',
+    // 교환처리[입금처리대기]
+    EXCHANGE_PROC_WAITING_PAY = 'EXCHANGE_PROC_WAITING_PAY',
+    // 교환처리[환불대기]
+    EXCHANGE_PROC_WAITING_REFUND = 'EXCHANGE_PROC_WAITING_REFUND',
+    // 교환완료[결제완료]
+    EXCHANGE_DONE_PAY_DONE = 'EXCHANGE_DONE_PAY_DONE',
+    // 교환완료[환불완료]
+    EXCHANGE_DONE_REFUND_DONE = 'EXCHANGE_DONE_REFUND_DONE',
+}
+
+// 장바구니 상품 추가 타입
+enum CART_EQUIVALENT_OPTION_UNIT_TYPE {
+    // 수량 추가
+    QUANTITY = 'QUANTITY',
+    // 행 추가
+    ROW = 'ROW',
+}
+
+// 상품평 신고 유형 목록
+enum PRODUCT_REVIEW_REPORT_TYPE {
+    // 저작권 침해 및 기타사유
+    COPYRIGHT = 'COPYRIGHT',
+    // 욕설 또는 비방
+    SLANDER = 'SLANDER',
 }
 
 enum RETURN_WAY_TYPE {
@@ -805,6 +907,14 @@ enum REFUND_TYPE {
     DUMMY = 'DUMMY',
 }
 
+// 할인 타입
+enum DISCOUNT_UNIT_TYPE {
+    // 정액
+    WON = 'WON',
+    // 정률
+    RATE = 'RATE',
+}
+
 export {
     REQUIRED_TYPE,
     IMAGE_DISPLAY_TYPE,
@@ -818,6 +928,7 @@ export {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
     PLATFORM_TYPE,
+    NCP_OPEN_ID_PROVIDER,
     OPEN_ID_PROVIDER,
     ORDER_DIRECTION,
     PRODUCT_DIRECTION,
@@ -849,6 +960,9 @@ export {
     INQUIRY_SEARCH_TYPE,
     RESPONSIBLE_OBJECT_TYPE,
     CLAIM_REASON_TYPE,
+    CLAIM_STATUS_TYPE,
+    CART_EQUIVALENT_OPTION_UNIT_TYPE,
+    PRODUCT_REVIEW_REPORT_TYPE,
     RETURN_WAY_TYPE,
     DELIVERY_COMPANY_TYPE,
     BANK,
@@ -864,4 +978,5 @@ export {
     COUPON_TARGET_TYPES,
     USABLE_PLATFORMS,
     REFUND_TYPE,
+    DISCOUNT_UNIT_TYPE,
 };

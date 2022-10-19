@@ -1,7 +1,7 @@
 import {
     AUTH_TYPE,
     CERTIFICATED_USAGE,
-    OPEN_ID_PROVIDER,
+    NCP_OPEN_ID_PROVIDER,
     PLATFORM_TYPE,
 } from 'models';
 
@@ -36,7 +36,7 @@ export interface CertificatedNumberViaSMS<T> {
 }
 
 export interface OpenIdAccessToken {
-    provider: OPEN_ID_PROVIDER;
+    provider: NCP_OPEN_ID_PROVIDER;
     code: string;
     openAccessToken: string;
     redirectUri: string;

@@ -257,6 +257,12 @@ const ProductList = () => {
             select: (res) => {
                 return res.data.items;
             },
+            onError: (error) => {
+                console.log(
+                    '🚀 ~ file: ProductList.tsx ~ line 261 ~ ProductList ~ error',
+                    error,
+                );
+            },
         },
     );
 
@@ -307,7 +313,7 @@ const ProductList = () => {
                     {isProductListFetching ? (
                         <Loader type='oval' />
                     ) : (
-                        productList.map(
+                        productList?.map(
                             ({
                                 productNo,
                                 productName,
