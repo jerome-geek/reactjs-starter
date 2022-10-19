@@ -10,7 +10,7 @@ import { ReactComponent as Minus } from 'assets/icons/minus_button.svg';
 import { ReactComponent as CloseButton } from 'assets/icons/close_gray.svg';
 
 interface SelectedOptionListItemProps {
-    title: string;
+    title?: string;
     price: number;
     count: number;
     onMinusButtonClick?: () => void;
@@ -82,7 +82,7 @@ const StyledButton = styled(Button)`
 `;
 
 const SelectedOptionListItem: FC<SelectedOptionListItemProps> = ({
-    title,
+    title = '',
     price,
     count,
     onMinusButtonClick,
