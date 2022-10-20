@@ -33,7 +33,7 @@ import { KRW } from 'utils/currency';
 import BANNER from 'const/banner';
 import PATHS from 'const/paths';
 import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
-import { ReactComponent as CartIcon } from 'assets/icons/cart.svg';
+import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 
 const ProductContainer = styled(LayoutResponsive)`
@@ -66,6 +66,7 @@ const ProductInfoIconContainer = styled.div<{ isNew?: boolean }>`
     display: flex;
     justify-content: ${(props) => (props.isNew ? 'space-between' : 'flex-end')};
     align-items: center;
+    margin-bottom: 10px;
 `;
 
 const ProductTitleBox = styled.div`
@@ -134,6 +135,12 @@ const ButtonContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
+    max-height: 68px;
+
+    ${media.medium} {
+        max-height: 54px;
+    }
 `;
 
 const CartButton = styled.div`
@@ -142,19 +149,37 @@ const CartButton = styled.div`
     align-items: center;
     border: 1px solid #191919;
     padding: 14px;
+    height: 100%;
+    margin-right: 20px;
 
-    > svg {
-        color: #222943;
+    ${media.medium} {
+        margin-right: 6px;
+    }
+`;
+
+const StyledAddCartIcon = styled(AddCartIcon)`
+    width: 40px;
+    height: 40px;
+
+    ${media.medium} {
+        width: 24px;
+        height: 24px;
     }
 `;
 
 const BuyNowButton = styled(PrimaryButton)`
     width: 100%;
-    max-width: 420px;
+    height: 100%;
     font-weight: bold;
     font-size: 24px;
-    line-height: 36px;
+    line-height: 68px;
     letter-spacing: 0;
+    padding: 0;
+
+    ${media.medium} {
+        font-size: 14px;
+        line-height: 54px;
+    }
 `;
 
 const ProductContainerBottom = styled.div``;
@@ -245,11 +270,15 @@ const ProductDetail = () => {
         },
     );
 
-    const { mutate: cartMutate, isLoading: isCartLoading } = useMutation(
+    const cartMutate = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
             await cart.registerCart(cartList),
         {
             onSuccess: (res) => {
+                console.log(
+                    '🚀 ~ file: ProductDetail.tsx ~ line 277 ~ ProductDetail ~ res',
+                    res,
+                );
                 alert(productDetail('successCartAlert'));
             },
             onError: () => {
@@ -265,7 +294,7 @@ const ProductDetail = () => {
         }
 
         if (isLogin) {
-            cartMutate(
+            cartMutate.mutate(
                 pipe(
                     selectedOptionList,
                     map((a) => ({
@@ -298,7 +327,7 @@ const ProductDetail = () => {
         }
     };
 
-    const { mutate: purchaseMutate } = useMutation(
+    const purchaseMutate = useMutation(
         async (orderSheetList: OrderSheetBody) =>
             await orderSheet.writeOrderSheet(orderSheetList),
         {
@@ -317,22 +346,20 @@ const ProductDetail = () => {
             return;
         }
 
-        const orderSheet: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        selectedOptionList.forEach((product) => {
-            const currentCart = {
-                orderCnt: product.count,
-                channelType: CHANNEL_TYPE.NAVER_EP,
-                optionInputs: [],
-                optionNo: product.optionNo,
-                productNo: parseFloat(product.productNo),
-            };
-            orderSheet.push(currentCart);
-        });
-
-        purchaseMutate({
+        purchaseMutate.mutate({
             trackingKey: '',
             channelType: CHANNEL_TYPE.NAVER_EP,
-            products: orderSheet,
+            products: pipe(
+                selectedOptionList,
+                map((a) => ({
+                    orderCnt: a.count,
+                    channelType: CHANNEL_TYPE.NAVER_EP,
+                    optionInputs: [],
+                    optionNo: a.optionNo,
+                    productNo: parseFloat(a.productNo),
+                })),
+                toArray,
+            ),
         });
     };
 
@@ -490,10 +517,15 @@ const ProductDetail = () => {
 
                         <ButtonContainer>
                             <CartButton onClick={addCartHandler}>
-                                <CartIcon />
+                                <StyledAddCartIcon />
                             </CartButton>
-                            <BuyNowButton onClick={purchaseHandler}>
-                                {productDetail('buyNow')}
+                            <BuyNowButton
+                                disabled={purchaseMutate.isLoading}
+                                onClick={purchaseHandler}
+                            >
+                                {purchaseMutate.isLoading
+                                    ? 'loading...'
+                                    : productDetail('buyNow')}
                             </BuyNowButton>
                         </ButtonContainer>
                     </ProductInfoContainer>

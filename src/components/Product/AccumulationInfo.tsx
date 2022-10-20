@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { useMall } from 'hooks';
 import { KRW } from 'utils/currency';
+import media from 'utils/styles/media';
 
 interface AccumulationInfoProps {
     accumulationAmtWhenBuyConfirm?: number;
@@ -15,6 +16,13 @@ const AccumulationInfoContainer = styled.div`
     padding-bottom: 26px;
     border-bottom: 2px solid #ededed;
     margin-bottom: 26px;
+
+    ${media.medium} {
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
 `;
 
 const AccumulationInfoTitle = styled.p`
@@ -28,6 +36,10 @@ const AccumulationInfoTitle = styled.p`
 const AccumulationInfoContent = styled.div`
     display: flex;
     flex-direction: column;
+
+    ${media.medium} {
+        align-items: flex-end;
+    }
 `;
 
 const AccumulationBenefits = styled.span`
@@ -52,7 +64,8 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
             accumulationAmtWhenBuyConfirm === 0
                 ? ''
                 : `구매확정시 ${KRW(accumulationAmtWhenBuyConfirm, {
-                      symbol: mallInfo?.accumulationConfig.accumulationUnit,
+                      symbol:
+                          mallInfo?.accumulationConfig.accumulationUnit || '',
                       precision: 0,
                       pattern: `<b># !</b>`,
                   }).format()} 즉시 지급`,
@@ -72,7 +85,7 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
         mallInfo?.accumulationConfig.reviewsAccumulationDetail
             .reviewsAccumulation || 0,
         {
-            symbol: mallInfo?.accumulationConfig?.accumulationUnit,
+            symbol: mallInfo?.accumulationConfig?.accumulationUnit || '',
             precision: 0,
             pattern: `<b># !</b>`,
         },
@@ -94,7 +107,7 @@ const AccumulationInfo: FC<AccumulationInfoProps> = ({
             mallInfo?.accumulationConfig.reviewsAccumulationDetail
                 ?.photoReviewsAccumulation || 0,
             {
-                symbol: mallInfo?.accumulationConfig?.accumulationUnit,
+                symbol: mallInfo?.accumulationConfig?.accumulationUnit || '',
                 precision: 0,
                 pattern: `<b># !</b>`,
             },
