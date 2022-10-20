@@ -44,6 +44,10 @@ const ProductListTopContainer = styled.div`
     justify-content: space-between;
     align-items: end;
     margin-bottom: 50px;
+
+    ${media.medium} {
+        margin: 24px 0;
+    }
 `;
 
 const ProductListBannerContainer = styled.div`
@@ -62,6 +66,24 @@ const ProductListDownContainer = styled.section`
     flex-wrap: wrap;
     height: auto;
     overflow: auto;
+    min-height: 400px;
+`;
+
+const EmptyProductListContainer = styled.div`
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    p {
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    ${media.medium} {
+        min-height: 200px;
+    }
 `;
 
 const ProductListTitle = styled.h2`
@@ -77,7 +99,9 @@ const ProductListTitle = styled.h2`
     }
 `;
 
-const ProductCategoryListContainer = styled.div``;
+const ProductCategoryListContainer = styled.div`
+    overflow: scroll;
+`;
 
 const ProductCategoryList = styled.ul`
     display: flex;
@@ -90,7 +114,6 @@ const ProductCategoryListItem = styled.li<{ isActive?: boolean }>`
     margin: 0 1%;
     text-align: center;
     white-space: nowrap;
-
     padding-top: 10px;
     padding-bottom: 10px;
     font-size: 16px;
@@ -103,6 +126,11 @@ const ProductCategoryListItem = styled.li<{ isActive?: boolean }>`
     }
     &:last-child {
         margin-right: 0;
+    }
+
+    ${media.medium} {
+        line-height: 24px;
+        padding: 14px;
     }
 `;
 
@@ -259,9 +287,7 @@ const ProductList = () => {
         ['productList', searchParams],
         async () => await product.searchProducts(searchParams),
         {
-            select: (res) => {
-                return res.data.items;
-            },
+            select: (res) => res?.data,
             onError: (error) => {
                 console.log(
                     '🚀 ~ file: ProductList.tsx ~ line 261 ~ ProductList ~ error',
@@ -317,31 +343,39 @@ const ProductList = () => {
                 <ProductListDownContainer>
                     {isProductListFetching ? (
                         <Loader type='oval' />
+                    ) : productList?.totalCount === 0 ? (
+                        <EmptyProductListContainer>
+                            <p>등록된 상품이 없습니다.</p>
+                        </EmptyProductListContainer>
                     ) : (
-                        productList?.map(
-                            ({
-                                productNo,
-                                productName,
-                                salePrice,
-                                listImageUrls,
-                                promotionText,
-                                immediateDiscountAmt,
-                            }: ProductItem) => (
-                                <ProductCard
-                                    onClick={() =>
-                                        navigate(
-                                            `${PATHS.PRODUCT_DETAIL}/${productNo}`,
-                                        )
-                                    }
-                                    key={productNo}
-                                    imgUrl={head<string[]>(listImageUrls) || ''}
-                                    productName={productName}
-                                    promotionText={promotionText || ''}
-                                    salePrice={salePrice}
-                                    immediateDiscountAmt={immediateDiscountAmt}
-                                />
-                            ),
-                        )
+                        <>
+                            {productList?.items.map(
+                                ({
+                                    productNo,
+                                    productName,
+                                    salePrice,
+                                    listImageUrls,
+                                    promotionText,
+                                    immediateDiscountAmt,
+                                }: ProductItem) => (
+                                    <ProductCard
+                                        onClick={() =>
+                                            navigate(
+                                                `${PATHS.PRODUCT_DETAIL}/${productNo}`,
+                                            )
+                                        }
+                                        key={productNo}
+                                        imgUrl={head(listImageUrls) || ''}
+                                        productName={productName}
+                                        promotionText={promotionText || ''}
+                                        salePrice={salePrice}
+                                        immediateDiscountAmt={
+                                            immediateDiscountAmt
+                                        }
+                                    />
+                                ),
+                            )}
+                        </>
                     )}
                 </ProductListDownContainer>
             </ProductListContainer>
