@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { every, pipe, toArray, map } from '@fxts/core';
 import { DevTool } from '@hookform/devtools';
 
-import orderPayment from 'pages/Order/orderPayment';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
@@ -40,6 +39,7 @@ import { isDesktop, isMobile } from 'utils/styles/responsive';
 import { useMall, useMember } from 'hooks';
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
+import payment from 'utils/payment';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -479,8 +479,8 @@ const Sheet = () => {
 
     const onOrderFormSubmit = handleSubmit(async (data) => {
         if (isAllOrderTermsChecked) {
-            await orderPayment.setConfiguration();
-            await orderPayment.reservation(data);
+            await payment.setConfiguration();
+            await payment.reservation(data);
         } else {
             alert('필수약관에 동의해주세요.');
             return;
