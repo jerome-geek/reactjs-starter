@@ -5,6 +5,7 @@ import { useQuery, useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import { isNil, pipe, map, sum, toArray } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
+import { AxiosError } from 'axios';
 
 import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
@@ -19,6 +20,7 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
+import ErrorBoundary from 'components/ErrorBoundary';
 import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
@@ -35,6 +37,19 @@ import PATHS from 'const/paths';
 import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
+import HTTP_RESPONSE from 'const/http';
+
+interface ShopByErrorResponse {
+    code: string;
+    detail: {
+        time: string;
+        extra: Nullable<string>;
+    };
+    error: string;
+    message: string;
+    path: string;
+    status: number;
+}
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -275,10 +290,6 @@ const ProductDetail = () => {
             await cart.registerCart(cartList),
         {
             onSuccess: (res) => {
-                console.log(
-                    '🚀 ~ file: ProductDetail.tsx ~ line 277 ~ ProductDetail ~ res',
-                    res,
-                );
                 alert(productDetail('successCartAlert'));
             },
             onError: () => {
@@ -332,21 +343,26 @@ const ProductDetail = () => {
             await orderSheet.writeOrderSheet(orderSheetList),
         {
             onSuccess: (res) => {
-                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
+                if (res.status === HTTP_RESPONSE.HTTP_OK) {
+                    navigate({
+                        pathname: `/order/sheet/${res.data.orderSheetNo}`,
+                    });
+                }
             },
-            onError: () => {
-                alert(productDetail('failBuyAlert'));
+            onError: (error) => {
+                const err = error as AxiosError<ShopByErrorResponse>;
+                alert(err?.response?.data?.message);
             },
         },
     );
 
-    const purchaseHandler = () => {
+    const purchaseHandler = async () => {
         if (selectedOptionList.length <= 0) {
             alert('옵션을 선택해주세요.');
             return;
         }
 
-        purchaseMutate.mutate({
+        purchaseMutate.mutateAsync({
             trackingKey: '',
             channelType: CHANNEL_TYPE.NAVER_EP,
             products: pipe(
@@ -434,156 +450,163 @@ const ProductDetail = () => {
                 />
             )}
 
-            <ProductContainer>
-                <ProductContainerTop>
-                    <ProductImageSlider
-                        imageList={productData?.baseInfo.imageUrls}
-                    />
-                    <ProductInfoContainer>
-                        <ProductInfoIconContainer isNew>
-                            {/* TODO: NewIcon은 conditional */}
-                            <NewIcon />
-                            <ShareIcon onClick={() => onShareButtonClick()} />
-                        </ProductInfoIconContainer>
-
-                        <ProductTitleBox>
-                            <ProductTitle>
-                                {productData?.baseInfo.productName}
-                            </ProductTitle>
-                            <ProductText>
-                                {productData?.baseInfo.promotionText}
-                            </ProductText>
-                        </ProductTitleBox>
-
-                        {productData && (
-                            <ProductPriceContainer>
-                                <SalePrice
-                                    dangerouslySetInnerHTML={{
-                                        __html: KRW(
-                                            productData.price.salePrice -
-                                                productData.price
-                                                    .immediateDiscountAmt,
-                                            {
-                                                symbol: '<sub>원</sub>',
-                                                precision: 0,
-                                                pattern: `# !`,
-                                                negativePattern: `- # !`,
-                                            },
-                                        ).format(),
-                                    }}
+            <ErrorBoundary>
+                <ProductContainer>
+                    <ProductContainerTop>
+                        <ProductImageSlider
+                            imageList={productData?.baseInfo.imageUrls}
+                        />
+                        <ProductInfoContainer>
+                            <ProductInfoIconContainer isNew>
+                                {/* TODO: NewIcon은 conditional */}
+                                <NewIcon />
+                                <ShareIcon
+                                    onClick={() => onShareButtonClick()}
                                 />
+                            </ProductInfoIconContainer>
 
-                                <ProductPrice
-                                    dangerouslySetInnerHTML={{
-                                        __html: KRW(
-                                            productData.price.salePrice,
-                                            {
-                                                symbol: '<sub>원</sub>',
-                                                precision: 0,
-                                                pattern: `# !`,
-                                                negativePattern: `- # !`,
-                                            },
-                                        ).format(),
-                                    }}
+                            <ProductTitleBox>
+                                <ProductTitle>
+                                    {productData?.baseInfo.productName}
+                                </ProductTitle>
+                                <ProductText>
+                                    {productData?.baseInfo.promotionText}
+                                </ProductText>
+                            </ProductTitleBox>
+
+                            {productData && (
+                                <ProductPriceContainer>
+                                    <SalePrice
+                                        dangerouslySetInnerHTML={{
+                                            __html: KRW(
+                                                productData.price.salePrice -
+                                                    productData.price
+                                                        .immediateDiscountAmt,
+                                                {
+                                                    symbol: '<sub>원</sub>',
+                                                    precision: 0,
+                                                    pattern: `# !`,
+                                                    negativePattern: `- # !`,
+                                                },
+                                            ).format(),
+                                        }}
+                                    />
+
+                                    <ProductPrice
+                                        dangerouslySetInnerHTML={{
+                                            __html: KRW(
+                                                productData.price.salePrice,
+                                                {
+                                                    symbol: '<sub>원</sub>',
+                                                    precision: 0,
+                                                    pattern: `# !`,
+                                                    negativePattern: `- # !`,
+                                                },
+                                            ).format(),
+                                        }}
+                                    />
+                                </ProductPriceContainer>
+                            )}
+
+                            {productData?.deliveryFee && (
+                                <DeliveryInfo
+                                    deliveryFee={
+                                        productData.deliveryFee.deliveryAmt
+                                    }
                                 />
-                            </ProductPriceContainer>
-                        )}
+                            )}
 
-                        {productData?.deliveryFee && (
-                            <DeliveryInfo
-                                deliveryFee={
-                                    productData.deliveryFee.deliveryAmt
+                            <AccumulationInfo
+                                accumulationAmtWhenBuyConfirm={
+                                    productData?.price
+                                        .accumulationAmtWhenBuyConfirm
                                 }
+                            />
+
+                            <ProductOptionList
+                                productNo={productNo}
+                                productOptionList={productOptionList}
+                                selectedOptionList={selectedOptionList}
+                                setSelectedOptionList={setSelectedOptionList}
+                            />
+
+                            <TotalPriceInfo
+                                totalAmount={totalAmount}
+                                totalPrice={totalPrice}
+                            />
+
+                            <ButtonContainer>
+                                <CartButton onClick={addCartHandler}>
+                                    <StyledAddCartIcon />
+                                </CartButton>
+                                <BuyNowButton
+                                    disabled={purchaseMutate.isLoading}
+                                    onClick={purchaseHandler}
+                                >
+                                    {purchaseMutate.isLoading
+                                        ? 'loading...'
+                                        : productDetail('buyNow')}
+                                </BuyNowButton>
+                            </ButtonContainer>
+                        </ProductInfoContainer>
+                    </ProductContainerTop>
+
+                    <ProductContainerBottom>
+                        <ProductDetailTabList>
+                            {productDetailTab.map(({ title, name }) => (
+                                <ProductDetailTabListItem
+                                    key={title}
+                                    selected={selectedTab === title}
+                                    onClick={() => setSelectedTab(title)}
+                                >
+                                    {name}
+                                </ProductDetailTabListItem>
+                            ))}
+                        </ProductDetailTabList>
+
+                        {selectedTab === 'productSummary' && (
+                            <ProductContentContainer
+                                id='productSummary'
+                                dangerouslySetInnerHTML={{
+                                    __html: productData?.baseInfo.content ?? '',
+                                }}
                             />
                         )}
 
-                        <AccumulationInfo
-                            accumulationAmtWhenBuyConfirm={
-                                productData?.price.accumulationAmtWhenBuyConfirm
+                        {selectedTab === 'productSpecification' && (
+                            <ProductContentContainer
+                                id='productSpecifications'
+                                dangerouslySetInnerHTML={{
+                                    __html: productData?.baseInfo.content ?? '',
+                                }}
+                            />
+                        )}
+
+                        {selectedTab === 'productComparison' && (
+                            <ProductContentContainer
+                                id='productComparison'
+                                dangerouslySetInnerHTML={{
+                                    __html: productData?.baseInfo.content ?? '',
+                                }}
+                            />
+                        )}
+                        {selectedTab === 'productPolicy' && (
+                            <ProductContentContainer
+                                id='productPolicy'
+                                dangerouslySetInnerHTML={{
+                                    __html: productData?.baseInfo.content ?? '',
+                                }}
+                            />
+                        )}
+
+                        <RelatedProduct
+                            relatedProductNos={
+                                productData?.relatedProductNos || []
                             }
                         />
-
-                        <ProductOptionList
-                            productNo={productNo}
-                            productOptionList={productOptionList}
-                            selectedOptionList={selectedOptionList}
-                            setSelectedOptionList={setSelectedOptionList}
-                        />
-
-                        <TotalPriceInfo
-                            totalAmount={totalAmount}
-                            totalPrice={totalPrice}
-                        />
-
-                        <ButtonContainer>
-                            <CartButton onClick={addCartHandler}>
-                                <StyledAddCartIcon />
-                            </CartButton>
-                            <BuyNowButton
-                                disabled={purchaseMutate.isLoading}
-                                onClick={purchaseHandler}
-                            >
-                                {purchaseMutate.isLoading
-                                    ? 'loading...'
-                                    : productDetail('buyNow')}
-                            </BuyNowButton>
-                        </ButtonContainer>
-                    </ProductInfoContainer>
-                </ProductContainerTop>
-
-                <ProductContainerBottom>
-                    <ProductDetailTabList>
-                        {productDetailTab.map(({ title, name }) => (
-                            <ProductDetailTabListItem
-                                key={title}
-                                selected={selectedTab === title}
-                                onClick={() => setSelectedTab(title)}
-                            >
-                                {name}
-                            </ProductDetailTabListItem>
-                        ))}
-                    </ProductDetailTabList>
-
-                    {selectedTab === 'productSummary' && (
-                        <ProductContentContainer
-                            id='productSummary'
-                            dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
-                            }}
-                        />
-                    )}
-
-                    {selectedTab === 'productSpecification' && (
-                        <ProductContentContainer
-                            id='productSpecifications'
-                            dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
-                            }}
-                        />
-                    )}
-
-                    {selectedTab === 'productComparison' && (
-                        <ProductContentContainer
-                            id='productComparison'
-                            dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
-                            }}
-                        />
-                    )}
-                    {selectedTab === 'productPolicy' && (
-                        <ProductContentContainer
-                            id='productPolicy'
-                            dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
-                            }}
-                        />
-                    )}
-
-                    <RelatedProduct
-                        relatedProductNos={productData?.relatedProductNos || []}
-                    />
-                </ProductContainerBottom>
-            </ProductContainer>
+                    </ProductContainerBottom>
+                </ProductContainer>
+            </ErrorBoundary>
         </>
     );
 };
