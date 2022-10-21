@@ -6,6 +6,8 @@ import InputWithIcon from 'components/Input/InputWithIcon';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { ReactComponent as ArrowRightIcon } from 'assets/icons/arrow_right.svg';
 import { fadeIn, fadeOut } from 'utils/styles/transitions';
+import { useQuery } from 'react-query';
+import { category } from 'api/display';
 
 interface SideNavigationProps {
     sideNavigationToggle: boolean;
@@ -22,9 +24,9 @@ const DimmedContainer = styled.div<{ sideNavigationToggle: boolean }>`
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
-    z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+    /* Specify a stack order in case you're using a different order for other elements */
+    z-index: ${(props) => (props.sideNavigationToggle ? 100 : 2)};
     cursor: pointer; /* Add a pointer on hover */
-    z-index: 100;
     visibility: ${(props) =>
         props.sideNavigationToggle ? 'visible' : 'hidden'};
     animation: ${(props) => (props.sideNavigationToggle ? fadeIn : fadeOut)}

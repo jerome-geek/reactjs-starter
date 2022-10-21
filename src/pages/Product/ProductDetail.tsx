@@ -5,6 +5,7 @@ import { useQuery, useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import { isNil, pipe, map, sum, toArray } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
+import { AxiosError } from 'axios';
 
 import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
@@ -19,6 +20,7 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
+import ErrorBoundary from 'components/ErrorBoundary';
 import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
@@ -33,8 +35,21 @@ import { KRW } from 'utils/currency';
 import BANNER from 'const/banner';
 import PATHS from 'const/paths';
 import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
-import { ReactComponent as CartIcon } from 'assets/icons/cart.svg';
+import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
+import HTTP_RESPONSE from 'const/http';
+
+interface ShopByErrorResponse {
+    code: string;
+    detail: {
+        time: string;
+        extra: Nullable<string>;
+    };
+    error: string;
+    message: string;
+    path: string;
+    status: number;
+}
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -66,6 +81,7 @@ const ProductInfoIconContainer = styled.div<{ isNew?: boolean }>`
     display: flex;
     justify-content: ${(props) => (props.isNew ? 'space-between' : 'flex-end')};
     align-items: center;
+    margin-bottom: 10px;
 `;
 
 const ProductTitleBox = styled.div`
@@ -134,6 +150,12 @@ const ButtonContainer = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
+    max-height: 68px;
+
+    ${media.medium} {
+        max-height: 54px;
+    }
 `;
 
 const CartButton = styled.div`
@@ -142,19 +164,37 @@ const CartButton = styled.div`
     align-items: center;
     border: 1px solid #191919;
     padding: 14px;
+    height: 100%;
+    margin-right: 20px;
 
-    > svg {
-        color: #222943;
+    ${media.medium} {
+        margin-right: 6px;
+    }
+`;
+
+const StyledAddCartIcon = styled(AddCartIcon)`
+    width: 40px;
+    height: 40px;
+
+    ${media.medium} {
+        width: 24px;
+        height: 24px;
     }
 `;
 
 const BuyNowButton = styled(PrimaryButton)`
     width: 100%;
-    max-width: 420px;
+    height: 100%;
     font-weight: bold;
     font-size: 24px;
-    line-height: 36px;
+    line-height: 68px;
     letter-spacing: 0;
+    padding: 0;
+
+    ${media.medium} {
+        font-size: 14px;
+        line-height: 54px;
+    }
 `;
 
 const ProductContainerBottom = styled.div``;
@@ -245,7 +285,7 @@ const ProductDetail = () => {
         },
     );
 
-    const { mutate: cartMutate, isLoading: isCartLoading } = useMutation(
+    const cartMutate = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
             await cart.registerCart(cartList),
         {
@@ -265,7 +305,7 @@ const ProductDetail = () => {
         }
 
         if (isLogin) {
-            cartMutate(
+            cartMutate.mutate(
                 pipe(
                     selectedOptionList,
                     map((a) => ({
@@ -298,41 +338,44 @@ const ProductDetail = () => {
         }
     };
 
-    const { mutate: purchaseMutate } = useMutation(
+    const purchaseMutate = useMutation(
         async (orderSheetList: OrderSheetBody) =>
             await orderSheet.writeOrderSheet(orderSheetList),
         {
             onSuccess: (res) => {
-                navigate({ pathname: `/order/sheet/${res.data.orderSheetNo}` }); // TODO orderSheetNo 파라미터 주문서 페이지로 이동
+                if (res.status === HTTP_RESPONSE.HTTP_OK) {
+                    navigate({
+                        pathname: `/order/sheet/${res.data.orderSheetNo}`,
+                    });
+                }
             },
-            onError: () => {
-                alert(productDetail('failBuyAlert'));
+            onError: (error) => {
+                const err = error as AxiosError<ShopByErrorResponse>;
+                alert(err?.response?.data?.message);
             },
         },
     );
 
-    const purchaseHandler = () => {
+    const purchaseHandler = async () => {
         if (selectedOptionList.length <= 0) {
             alert('옵션을 선택해주세요.');
             return;
         }
 
-        const orderSheet: Omit<ShoppingCartBody, 'cartNo'>[] = [];
-        selectedOptionList.forEach((product) => {
-            const currentCart = {
-                orderCnt: product.count,
-                channelType: CHANNEL_TYPE.NAVER_EP,
-                optionInputs: [],
-                optionNo: product.optionNo,
-                productNo: parseFloat(product.productNo),
-            };
-            orderSheet.push(currentCart);
-        });
-
-        purchaseMutate({
+        purchaseMutate.mutateAsync({
             trackingKey: '',
             channelType: CHANNEL_TYPE.NAVER_EP,
-            products: orderSheet,
+            products: pipe(
+                selectedOptionList,
+                map((a) => ({
+                    orderCnt: a.count,
+                    channelType: CHANNEL_TYPE.NAVER_EP,
+                    optionInputs: [],
+                    optionNo: a.optionNo,
+                    productNo: parseFloat(a.productNo),
+                })),
+                toArray,
+            ),
         });
     };
 
@@ -490,10 +533,15 @@ const ProductDetail = () => {
 
                         <ButtonContainer>
                             <CartButton onClick={addCartHandler}>
-                                <CartIcon />
+                                <StyledAddCartIcon />
                             </CartButton>
-                            <BuyNowButton onClick={purchaseHandler}>
-                                {productDetail('buyNow')}
+                            <BuyNowButton
+                                disabled={purchaseMutate.isLoading}
+                                onClick={purchaseHandler}
+                            >
+                                {purchaseMutate.isLoading
+                                    ? 'loading...'
+                                    : productDetail('buyNow')}
                             </BuyNowButton>
                         </ButtonContainer>
                     </ProductInfoContainer>
@@ -538,6 +586,7 @@ const ProductDetail = () => {
                             }}
                         />
                     )}
+
                     {selectedTab === 'productPolicy' && (
                         <ProductContentContainer
                             id='productPolicy'

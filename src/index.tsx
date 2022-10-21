@@ -5,8 +5,11 @@ import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ThemeProvider } from 'styled-components';
+import * as Sentry from '@sentry/react';
+import { BrowserTracing } from '@sentry/tracing';
 
 import App from 'App';
+import ErrorBoundary from 'components/ErrorBoundary';
 import { lightTheme } from 'styles/theme';
 import GlobalStyle from 'styles/global-styles';
 import reportWebVitals from './reportWebVitals';
@@ -33,6 +36,16 @@ const queryClient = new QueryClient({
     },
 });
 
+Sentry.init({
+    dsn: process.env.REACT_APP_SENTRY_DSN,
+    integrations: [new BrowserTracing()],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+});
+
 root.render(
     <React.StrictMode>
         <Provider store={store}>
@@ -40,7 +53,9 @@ root.render(
                 <QueryClientProvider client={queryClient}>
                     <ThemeProvider theme={lightTheme}>
                         <GlobalStyle />
-                        <App />
+                        <ErrorBoundary>
+                            <App />
+                        </ErrorBoundary>
                     </ThemeProvider>
                 </QueryClientProvider>
             </PersistGate>

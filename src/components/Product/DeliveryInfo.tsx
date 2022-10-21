@@ -53,8 +53,8 @@ const DeliveryFee = styled.span`
 `;
 
 const ContentContainer = styled.div`
+    display: flex;
     ${media.medium} {
-        display: flex;
         flex-direction: column;
         align-items: flex-end;
     }

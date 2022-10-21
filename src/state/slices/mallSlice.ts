@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+
 import { MallResponse } from 'models/mall';
 
 const initialState: {
@@ -16,7 +17,10 @@ export const mallSlice = createSlice({
     initialState,
     reducers: {
         setMall: (state, action) => {
-            return { ...action.payload };
+            return {
+                ...state,
+                data: action.payload,
+            };
         },
     },
 });

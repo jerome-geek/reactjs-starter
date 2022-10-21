@@ -11,7 +11,8 @@ interface AccessTokenInfo extends IssueAccessTokenResponse {
     expiry: number;
 }
 
-const PREFIX_LOCAL_STORAGE = 'VC_';
+// TODO: SHOPBY TOKEN, VC TOKEN 분리
+const PREFIX_LOCAL_STORAGE = 'SHOPBY_';
 
 abstract class Storage<T extends string> {
     private readonly storage: LocalStorage;
@@ -51,10 +52,8 @@ class TokenStorage extends Storage<TokenStorageKey> {
 
     getAccessToken(): Nullable<AccessTokenInfo> {
         const data = this.get(TokenStorageKey.ACCESS_TOKEN);
-        if (data) {
-            return JSON.parse(data);
-        }
-        return null;
+
+        return data ? JSON.parse(data) : null;
     }
 
     setAccessToken(accessToken: string) {

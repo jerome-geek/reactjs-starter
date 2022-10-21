@@ -3,7 +3,7 @@ import { tokenStorage } from 'utils/storage';
 
 const accessTokenInfo = tokenStorage.getAccessToken();
 
-const orderPayment = {
+const payment = {
     setConfiguration: () =>
         window.NCPPay.setConfiguration({
             clientId: process.env.REACT_APP_CLIENT_ID,
@@ -21,4 +21,4 @@ const orderPayment = {
     },
 };
 
-export default orderPayment;
+export default payment;

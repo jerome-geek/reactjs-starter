@@ -7,6 +7,7 @@ import { isBoolean } from '@fxts/core';
 import { A11y, Navigation, Pagination } from 'swiper';
 
 import 'swiper/css';
+import media from 'utils/styles/media';
 
 interface ProductImageSliderProps {
     imageList?: string[];
@@ -17,6 +18,10 @@ const Container = styled.div`
     max-width: 661px;
     background-color: #f8f8fa;
     position: relative;
+
+    ${media.medium} {
+        margin-bottom: 60px;
+    }
 `;
 
 const PaginationContainer = styled.div`
