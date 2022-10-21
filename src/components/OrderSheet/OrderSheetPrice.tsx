@@ -99,6 +99,7 @@ const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
     totalDeliveryAmt = 0,
     totalDiscountAmt = 0,
     totalCouponAmt = 0,
+    usedAccumulationAmt = 0,
     totalPaymentAmt = 0,
 }) => {
     const { t: orderSheet } = useTranslation('orderSheet');
@@ -144,7 +145,7 @@ const OrderSheetPrice: FC<OrderSheetPriceProps> = ({
                         {orderSheet('price.usedAccumulationAmt')}
                     </CartOrderSubTitle>
                     <CartOrderPrice>
-                        {KRW(Math.abs(totalCouponAmt) * -1).format()}
+                        {KRW(Math.abs(usedAccumulationAmt) * -1).format()}
                     </CartOrderPrice>
                 </OrderPriceWrapper>
             </CartOrderPriceBox>

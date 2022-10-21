@@ -83,7 +83,7 @@ export interface AddressRequest {
     // 연락처1( example: 010-0000-0000)
     receiverContact1: string;
     // 연락처2( example: 010-0000-0000)
-    receiverContact2: string;
+    receiverContact2?: string;
 }
 
 interface ClientParams {
@@ -220,12 +220,14 @@ export interface OrderSheetBody {
 }
 
 export interface GetCalculatedOrderSheet {
+    // 주소
     addressRequest: AddressRequest;
-    couponRequest: CouponRequest;
+    // 쿠폰
+    couponRequest?: CouponRequest;
     // 적립금 사용액(example: 0)
     accumulationUseAmt: number;
     // 복수 배송지 정보
-    shippingAddress: ShippingAddresses[];
+    shippingAddress?: ShippingAddresses[];
 }
 
 export interface PaymentReserve {

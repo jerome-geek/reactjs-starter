@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
+import { useMall } from 'hooks';
 import { PaymentInfo, PaymentReserve } from 'models/order';
 import media from 'utils/styles/media';
+import { KRW } from 'utils/currency';
 
 interface DiscounApplyProps {
     paymentInfo?: PaymentInfo;
@@ -131,12 +133,14 @@ const AccumulationDescription = styled.p`
 
 const DiscountApply: FC<DiscounApplyProps> = ({
     paymentInfo,
-    subPayAmt,
+    subPayAmt = 0,
     setValue,
     onCouponModalClick,
     onAccumulationButtonClick,
 }) => {
     const { t: orderSheet } = useTranslation('orderSheet');
+
+    const { mallInfo } = useMall();
 
     const onDiscountChange = (value: string | number) => {
         if (setValue) {
@@ -178,7 +182,7 @@ const DiscountApply: FC<DiscounApplyProps> = ({
                                 onChange={(e) =>
                                     onDiscountChange(e.currentTarget.value)
                                 }
-                                value={subPayAmt || 0}
+                                value={subPayAmt}
                             />
                             <ApplyButton
                                 onClick={() => onAccumulationButtonClick()}
@@ -186,11 +190,28 @@ const DiscountApply: FC<DiscounApplyProps> = ({
                                 {orderSheet('applyDiscount.useAccumulation')}
                             </ApplyButton>
                         </AccumulationAmountBox>
-                        <AccumulationDescription>
-                            {`${orderSheet(
-                                'applyDiscount.availableAccumulation',
-                            )} : ${paymentInfo?.availableMaxAccumulationAmt} `}
-                        </AccumulationDescription>
+                        {paymentInfo && mallInfo && (
+                            <AccumulationDescription
+                                dangerouslySetInnerHTML={{
+                                    __html: `${orderSheet(
+                                        'applyDiscount.availableAccumulation',
+                                    )} : ${KRW(
+                                        paymentInfo.availableMaxAccumulationAmt,
+                                        {
+                                            symbol:
+                                                mallInfo?.accumulationConfig
+                                                    .accumulationUnit || '',
+                                            precision: 0,
+                                            pattern: `<b># !</b>`,
+                                        },
+                                    )
+                                        .subtract(
+                                            paymentInfo.usedAccumulationAmt,
+                                        )
+                                        .format()} `,
+                                }}
+                            />
+                        )}
                     </DiscountInputContainer>
                 </DiscountContentContainer>
             </DiscountContainer>
