@@ -7,6 +7,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import { PaymentReserve } from 'models/order';
 import { sheetInputStyle } from 'styles/componentStyle';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
+import { onlyNumberFilter } from 'utils/validation';
 
 interface OrdererInformationProps {
     register: UseFormRegister<PaymentReserve>;
@@ -86,11 +87,7 @@ const OrdererInformation: FC<OrdererInformationProps> = ({
                                 message: sheet('alert.inputPhoneNumber'),
                             },
                         })}
-                        onInput={(e) => {
-                            e.currentTarget.value = e.currentTarget.value
-                                .replace(/[^0-9.]/g, '')
-                                .replace(/(\..*)\./g, '$1');
-                        }}
+                        onKeyDown={(e) => onlyNumberFilter(e)}
                     />
                     <ErrorMessage
                         errors={errors}
