@@ -42,11 +42,9 @@ request.interceptors.response.use(
             case HTTP_RESPONSE.HTTP_INTERNAL_SERVER_ERROR:
                 return window.location.replace(PATHS.ERROR);
 
-            case HTTP_RESPONSE.HTTP_BAD_REQUEST:
-                return error.response;
-
             default:
-                return error;
+                throw error;
+            // return Promise.reject(error);
         }
     },
 );
