@@ -20,7 +20,7 @@ import { fetchProfile } from 'state/slices/memberSlice';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
-import { onlyNumberFilter } from 'utils/validation';
+import { onlyNumberFormatter } from 'utils/validation';
 
 const InfoContainer = styled.main`
     width: 440px;
@@ -356,6 +356,7 @@ const Info = () => {
         },
     });
 
+    const mobileNumber = watch('mobileNo');
     const selectedSex = watch('sex');
     const disclosureChecked = watch('disclosure');
     const smsAgreement = watch('smsAgreed');
@@ -512,7 +513,14 @@ const Info = () => {
                                 placeholder={"'-' 없이 입력해주세요"}
                                 onKeyDown={(
                                     e: KeyboardEvent<HTMLInputElement>,
-                                ) => onlyNumberFilter(e)}
+                                ) => {
+                                    setValue(
+                                        'mobileNo',
+                                        onlyNumberFormatter(
+                                            e.currentTarget.value,
+                                        ),
+                                    );
+                                }}
                                 {...register('mobileNo', {
                                     valueAsNumber: true,
                                 })}

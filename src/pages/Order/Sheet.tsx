@@ -612,6 +612,7 @@ const Sheet = () => {
 
                         <OrdererInformation
                             register={register}
+                            setValue={setValue}
                             errors={errors}
                         />
 

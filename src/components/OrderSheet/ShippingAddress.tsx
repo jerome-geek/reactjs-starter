@@ -21,7 +21,7 @@ import { useTypedSelector } from 'state/reducers';
 import { sheetInputStyle } from 'styles/componentStyle';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
-import { onlyNumberFilter } from 'utils/validation';
+import { onlyNumberFormatter } from 'utils/validation';
 
 interface ShippingAddressProps {
     register: UseFormRegister<PaymentReserve>;
@@ -189,7 +189,12 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
                             'shippingAddress.category.placeholder.phoneNumber',
                         )}
                         type={'text'}
-                        onKeyDown={(e) => onlyNumberFilter(e)}
+                        onInput={(e) => {
+                            setValue(
+                                'shippingAddress.receiverContact1',
+                                onlyNumberFormatter(e.currentTarget.value),
+                            );
+                        }}
                         {...register('shippingAddress.receiverContact1', {
                             required: {
                                 value: true,
