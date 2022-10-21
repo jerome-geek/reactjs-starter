@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { useQuery } from 'react-query';
 import { flatMap, pipe, pluck, size } from '@fxts/core';
@@ -54,7 +54,7 @@ const useCart = () => {
         },
     );
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (cartInfo) {
             setTotalCount(
                 pipe(

@@ -27,10 +27,18 @@ import PrimaryButton from 'components/Button/PrimaryButton';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
-import { CHANNEL_TYPE, COUNTRY_CD, PAY_TYPE, PG_TYPE } from 'models';
+import {
+    ADDRESS_TYPE,
+    CHANNEL_TYPE,
+    COUNTRY_CD,
+    PAY_TYPE,
+    PG_TYPE,
+} from 'models';
 import {
     CouponRequest,
+    GetCalculatedOrderSheet,
     OrderProductOption,
+    PaymentInfo,
     PaymentReserve,
 } from 'models/order';
 import { orderSheet } from 'api/order';
@@ -40,6 +48,7 @@ import { useMall, useMember } from 'hooks';
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
+import HTTP_RESPONSE from 'const/http';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -287,14 +296,6 @@ const Sheet = () => {
         >
     >([]);
     const [ordererInformation, setOrdererInformation] = useState(false);
-    const [orderPriceData, setOrderPriceData] = useState({
-        totalStandardAmt: 0, // 총 상품금액
-        totalDeliveryAmt: 0, // 총 배송비
-        totalDiscountAmt: 0, // 총 할인금액
-        totalCouponAmt: 0, // 쿠폰 할인
-        usedAccumulationAmt: 0, // 적립금 결제
-        paymentAmt: 0, // 총 결제금액
-    });
     const [orderTerms, setOrderTerms] = useState<
         { id: string; url: ''; isChecked: boolean }[]
     >(
@@ -311,6 +312,30 @@ const Sheet = () => {
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
     const [isCouponListModal, setIsCouponListModal] = useState(false);
     const [selectCoupon, setSelectCoupon] = useState<CouponRequest>();
+    const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
+        accumulationAmt: 0,
+        accumulationAmtWhenBuyConfirm: 0,
+        availableMaxAccumulationAmt: 0,
+        cartAmt: 0,
+        cartCouponAmt: 0,
+        customsDuty: 0,
+        deliveryAmt: 0,
+        deliveryAmtOnDelivery: 0,
+        deliveryCouponAmt: 0,
+        isAvailableAccumulation: true,
+        minAccumulationLimit: 0,
+        minPriceLimit: 0,
+        paymentAmt: 0,
+        productAmt: 0,
+        productCouponAmt: 0,
+        remoteDeliveryAmt: 0,
+        remoteDeliveryAmtOnDelivery: 0,
+        salesTaxAmt: 0,
+        totalAdditionalDiscountAmt: 0,
+        totalImmediateDiscountAmt: 0,
+        totalStandardAmt: 0,
+        usedAccumulationAmt: 0,
+    });
 
     const { width } = useWindowSize();
 
@@ -350,7 +375,7 @@ const Sheet = () => {
                 requestShippingDate: '',
                 receiverContact1: '',
                 receiverContact2: '',
-                customsIdNumber: '', // TODO: 해외배송 상품인 경우 처리 필요
+                // customsIdNumber: null, // TODO: 해외배송 상품인 경우 처리 필요
                 countryCd: COUNTRY_CD.KR,
                 shippingInfoLaterInputContact: '',
             },
@@ -411,24 +436,34 @@ const Sheet = () => {
                     });
                     return [...newOrderList];
                 });
-
-                setOrderPriceData({
-                    totalStandardAmt: data.paymentInfo.totalStandardAmt,
-                    totalDeliveryAmt:
-                        data.paymentInfo.deliveryAmt +
-                        data.paymentInfo.remoteDeliveryAmt,
-                    totalDiscountAmt:
-                        data.paymentInfo.totalImmediateDiscountAmt +
-                        data.paymentInfo.totalAdditionalDiscountAmt,
-                    usedAccumulationAmt: data.paymentInfo.usedAccumulationAmt,
-                    totalCouponAmt:
-                        data.paymentInfo.cartCouponAmt +
-                        data.paymentInfo.productCouponAmt +
-                        data.paymentInfo.deliveryCouponAmt,
-                    paymentAmt: data.paymentInfo.paymentAmt,
-                });
+                setPaymentInfo(data?.paymentInfo);
             },
         },
+    );
+
+    const totalDeliveryAmt = useMemo(
+        () => paymentInfo?.deliveryAmt + paymentInfo?.remoteDeliveryAmt,
+        [paymentInfo?.deliveryAmt, paymentInfo?.remoteDeliveryAmt],
+    );
+    const totalDiscountAmt = useMemo(
+        () =>
+            paymentInfo?.totalImmediateDiscountAmt +
+            paymentInfo?.totalAdditionalDiscountAmt,
+        [
+            paymentInfo?.totalImmediateDiscountAmt,
+            paymentInfo?.totalAdditionalDiscountAmt,
+        ],
+    );
+    const totalCouponAmt = useMemo(
+        () =>
+            paymentInfo?.cartCouponAmt +
+            paymentInfo?.productCouponAmt +
+            paymentInfo?.deliveryCouponAmt,
+        [
+            paymentInfo?.cartCouponAmt,
+            paymentInfo?.productCouponAmt,
+            paymentInfo?.deliveryCouponAmt,
+        ],
     );
 
     const { mutate: couponApplyMutate } = useMutation(
@@ -491,8 +526,42 @@ const Sheet = () => {
         setIsCouponListModal((prev) => !prev);
     };
 
-    const onAccumulationButtonClick = () => {
-        // TODO: 적립금 사용 버튼을 눌렀을 경우 getCalculatedOrderSheet API 호출 후 계산값을 다시 세팅해준다
+    const accumulationMutate = useMutation(
+        async (data: GetCalculatedOrderSheet) =>
+            await orderSheet.getCalculatedOrderSheet(orderSheetNo, data),
+        {
+            onSuccess: (response) => {
+                if (response.status === HTTP_RESPONSE.HTTP_OK) {
+                    setPaymentInfo(response.data.paymentInfo);
+                }
+            },
+        },
+    );
+
+    const onAccumulationButtonClick = async () => {
+        const data = {
+            addressRequest: {
+                receiverAddress: getValues('shippingAddress.receiverAddress'),
+                receiverJibunAddress: getValues(
+                    'shippingAddress.receiverJibunAddress',
+                ),
+                defaultYn: 'Y', // TODO: check
+                addressType: ADDRESS_TYPE.BOOK,
+                receiverName: getValues('shippingAddress.receiverName'),
+                countryCd: getValues('shippingAddress.countryCd'),
+                receiverZipCd: getValues('shippingAddress.receiverZipCd'),
+                addressName: getValues('shippingAddress.addressName'),
+                receiverDetailAddress: getValues(
+                    'shippingAddress.receiverDetailAddress',
+                ),
+                receiverContact1: getValues('shippingAddress.receiverContact1'),
+                receiverContact2: getValues('shippingAddress.receiverContact2'),
+            },
+            accumulationUseAmt: getValues('subPayAmt'),
+            // shippingAddress,
+        };
+
+        accumulationMutate.mutateAsync(data);
     };
 
     return (
@@ -670,15 +739,17 @@ const Sheet = () => {
                             errors={errors}
                         />
 
-                        <DiscountApply
-                            paymentInfo={orderData?.paymentInfo}
-                            setValue={setValue}
-                            subPayAmt={watch('subPayAmt')}
-                            onAccumulationButtonClick={
-                                onAccumulationButtonClick
-                            }
-                            onCouponModalClick={onCouponModalClick}
-                        />
+                        {isLogin ? (
+                            <DiscountApply
+                                paymentInfo={paymentInfo}
+                                setValue={setValue}
+                                subPayAmt={watch('subPayAmt')}
+                                onAccumulationButtonClick={
+                                    onAccumulationButtonClick
+                                }
+                                onCouponModalClick={onCouponModalClick}
+                            />
+                        ) : null}
 
                         {orderData?.availablePayTypes && (
                             <CommonPayment
@@ -697,22 +768,17 @@ const Sheet = () => {
                     </SheetOrderWrapper>
 
                     <SheetOrderPriceWrapper>
-                        {orderData?.paymentInfo && (
+                        {paymentInfo && (
                             <OrderSheetPrice
                                 title={sheet('paymentInformation.title')}
-                                totalStandardAmt={
-                                    orderPriceData.totalStandardAmt
+                                totalStandardAmt={paymentInfo.totalStandardAmt}
+                                totalDeliveryAmt={totalDeliveryAmt}
+                                totalDiscountAmt={totalDiscountAmt}
+                                totalCouponAmt={totalCouponAmt}
+                                usedAccumulationAmt={
+                                    paymentInfo.usedAccumulationAmt
                                 }
-                                totalDeliveryAmt={
-                                    orderPriceData.totalDeliveryAmt
-                                }
-                                totalDiscountAmt={
-                                    orderPriceData.totalDiscountAmt
-                                }
-                                totalCouponAmt={orderPriceData.totalCouponAmt}
-                                totalPaymentAmt={
-                                    orderData.paymentInfo.paymentAmt
-                                }
+                                totalPaymentAmt={paymentInfo.paymentAmt}
                             />
                         )}
 
@@ -727,7 +793,7 @@ const Sheet = () => {
                         <PaymentButton type='submit'>
                             {isMobile(width)
                                 ? `${KRW(
-                                      orderPriceData.paymentAmt,
+                                      paymentInfo.paymentAmt,
                                   ).format()} ${sheet('etc.payment')}`
                                 : sheet('etc.payment')}
                         </PaymentButton>

@@ -1,7 +1,6 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { GroupBase, SingleValue, StylesConfig } from 'react-select';
-import { shallowEqual } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import {
     FieldErrors,
@@ -17,11 +16,11 @@ import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { PaymentReserve } from 'models/order';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
-import { useTypedSelector } from 'state/reducers';
 import { sheetInputStyle } from 'styles/componentStyle';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
 import { onlyNumberFormatter } from 'utils/validation';
+import { useMember } from 'hooks';
 
 interface ShippingAddressProps {
     register: UseFormRegister<PaymentReserve>;
@@ -42,6 +41,7 @@ interface SelectRequestOption {
 
 const OrdererInformationContainer = styled.div`
     ${sheetInputStyle.informationContainer}
+    margin-bottom: 60px;
 `;
 
 const SheetInputWrapper = styled.div`
@@ -112,12 +112,7 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
 
     const { width } = useWindowSize();
 
-    const { member } = useTypedSelector(
-        ({ member }) => ({
-            member: member.data,
-        }),
-        shallowEqual,
-    );
+    const { member } = useMember();
 
     const { t: sheet } = useTranslation('orderSheet');
 
