@@ -1,16 +1,18 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { UseFormRegister, FieldErrors, UseFormSetValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ErrorMessage } from '@hookform/error-message';
 
 import { PaymentReserve } from 'models/order';
 import { sheetInputStyle } from 'styles/componentStyle';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
+import { onlyNumberFormatter } from 'utils/validation';
 
 interface OrdererInformationProps {
     register: UseFormRegister<PaymentReserve>;
     errors: FieldErrors<PaymentReserve>;
+    setValue: UseFormSetValue<PaymentReserve>;
 }
 
 const OrdererInputContainer = styled.div`
@@ -38,6 +40,7 @@ const OrdererInformationContainer = styled.div`
 const OrdererInformation: FC<OrdererInformationProps> = ({
     register,
     errors,
+    setValue,
 }) => {
     const { t: sheet } = useTranslation('orderSheet');
 
@@ -87,9 +90,10 @@ const OrdererInformation: FC<OrdererInformationProps> = ({
                             },
                         })}
                         onInput={(e) => {
-                            e.currentTarget.value = e.currentTarget.value
-                                .replace(/[^0-9.]/g, '')
-                                .replace(/(\..*)\./g, '$1');
+                            setValue(
+                                'orderer.ordererContact1',
+                                onlyNumberFormatter(e.currentTarget.value),
+                            );
                         }}
                     />
                     <ErrorMessage

@@ -265,6 +265,7 @@ enum REPORT_REASON_CODE {
 enum SEX {
     MALE = 'M',
     FEMALE = 'F',
+    NONE = 'X',
 }
 
 enum OPEN_ID_TERM {

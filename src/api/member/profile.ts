@@ -30,75 +30,30 @@ const profile = {
         });
     },
 
-    updateProfile: ({
-        birthday,
-        address,
-        certificated,
-        smsAgreed,
-        sex,
-        smsAuthKey,
-        memberName,
-        jibunAddress,
-        zipCd,
-        mobileNo,
-        pushNotificationAgreed,
-        refundBank,
-        currentPassword,
-        refundBankDepositorName,
-        password,
-        telephoneNo,
-        directMailAgreed,
-        joinTermsAgreements,
-        additionalInfo,
-        nickname,
-        detailAddress,
-        refundBankAccount,
-        email,
-        jibunDetailAddress,
-    }: Omit<
-        ProfileBody,
-        | 'firstName'
-        | 'lastName'
-        | 'openIdAccessToken'
-        | 'ci'
-        | 'recommenderId'
-        | 'countryCd'
-        | 'groupNo'
-        | 'memberId'
-    >): Promise<AxiosResponse> =>
-        request({
+    updateProfile: (
+        data: Omit<
+            ProfileBody,
+            | 'firstName'
+            | 'lastName'
+            | 'openIdAccessToken'
+            | 'ci'
+            | 'recommenderId'
+            | 'countryCd'
+            | 'groupNo'
+            | 'memberId'
+            | 'currentPassword'
+        >,
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/profile',
-            data: {
-                birthday,
-                address,
-                certificated,
-                smsAgreed,
-                sex,
-                smsAuthKey,
-                memberName,
-                jibunAddress,
-                zipCd,
-                mobileNo,
-                pushNotificationAgreed,
-                refundBank,
-                currentPassword,
-                refundBankDepositorName,
-                password,
-                telephoneNo,
-                directMailAgreed,
-                joinTermsAgreements,
-                additionalInfo,
-                nickname,
-                detailAddress,
-                refundBankAccount,
-                email,
-                jibunDetailAddress,
-            },
+            data,
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 400 error "API 호출 중복 오류."
     createProfile: ({
@@ -170,15 +125,21 @@ const profile = {
             },
         }),
 
-    deleteProfile: ({ reason }: { reason?: string }): Promise<AxiosResponse> =>
-        request({
+    deleteProfile: ({
+        reason,
+    }: {
+        reason?: string;
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/profile',
             params: { reason },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     updateProfileAddress: ({
         zipCd,
@@ -186,8 +147,9 @@ const profile = {
         streetAddressDetail,
         jibunAddress,
         jibunAddressDetail,
-    }: AddressBody): Promise<AxiosResponse> =>
-        request({
+    }: AddressBody): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/profile/address',
             data: {
@@ -198,9 +160,10 @@ const profile = {
                 jibunAddressDetail,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO certificationNumber, key 모름 400 error
     updatePasswordByCertificationNo: ({
@@ -211,8 +174,9 @@ const profile = {
         memberId,
     }: UpdatePasswordParams & {
         findMethod: AUTH_TYPE;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/change-password-after-cert',
             data: {
@@ -223,32 +187,37 @@ const profile = {
                 memberId,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 400 error
     checkPassword: ({
         password,
-    }: Pick<ProfileBody, 'password'>): Promise<AxiosResponse> =>
-        request({
+    }: Pick<ProfileBody, 'password'>): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/check-password',
             data: { password },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 휴면 회원이 아니라 확인 불가 message: "회원의 상태값을 확인 바랍니다."
-    getDormantAccount: (): Promise<AxiosResponse> =>
-        request({
+    getDormantAccount: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/profile/dormancy',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 휴면 회원이 아니라 확인 불가 message: "회원의 상태값을 확인 바랍니다."
     releaseDormancyAccount: ({
@@ -256,8 +225,9 @@ const profile = {
         mobileNo,
         authType,
         email,
-    }: DormancyBody): Promise<AxiosResponse> =>
-        request({
+    }: DormancyBody): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/profile/dormancy',
             data: {
@@ -267,9 +237,10 @@ const profile = {
                 email,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 비밀번호를 맞게 입력했음에도 불구하고 400 error 와 message: 비밀번호가 올바르지 않습니다. 라고 나옴
     withDrawByPassword: ({
@@ -278,8 +249,9 @@ const profile = {
     }: {
         reason?: string;
         password?: string;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/profile/expel',
             data: {
@@ -287,9 +259,10 @@ const profile = {
                 password,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 200은 뜨지만 data가 빈 배열로 옴
     findId: ({
@@ -335,14 +308,16 @@ const profile = {
             },
         }),
 
-    getGrade: (): Promise<AxiosResponse> =>
-        request({
+    getGrade: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/profile/grade',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO certificationNumber 모름
     findIdByCertification: ({
@@ -384,27 +359,31 @@ const profile = {
             },
         }),
 
-    getLeakageStatus: (): Promise<AxiosResponse> =>
-        request({
+    getLeakageStatus: (): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/profile/leakage',
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 400 error message: 비밀번호가 일치하지 않습니다.
     getNonMaskingMember: ({
         password,
-    }: Pick<ProfileBody, 'password'>): Promise<AxiosResponse> =>
-        request({
+    }: Pick<ProfileBody, 'password'>): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/non-masking',
             data: { password },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO certificated 모름
     signUpByOpenId: ({
@@ -425,8 +404,9 @@ const profile = {
         detailAddress,
         email,
         jibunDetailAddress,
-    }: SignUpByOpenIdBody): Promise<AxiosResponse> =>
-        request({
+    }: SignUpByOpenIdBody): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/openid',
             data: {
@@ -449,17 +429,19 @@ const profile = {
                 jibunDetailAddress,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO 400 error message: 비밀번호를 입력해주세요.
     updatePassword: ({
         currentPassword,
         newPassword,
         willChangeNextTime,
-    }: PasswordBody): Promise<AxiosResponse> =>
-        request({
+    }: PasswordBody): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'PUT',
             url: '/profile/password',
             data: {
@@ -468,35 +450,40 @@ const profile = {
                 willChangeNextTime,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO key 모름
     updateProfileByCertification: ({
         key,
     }: {
         key: string;
-    }): Promise<AxiosResponse> =>
-        request({
+    }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/rename',
             data: { key },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO CI 모름 400 error message: 파라미터 [ci] 이 누락되었습니다.
-    checkDuplicateCI: ({ ci }: { ci: string }): Promise<AxiosResponse> =>
-        request({
+    checkDuplicateCI: ({ ci }: { ci: string }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'GET',
             url: '/profile/ci/exists',
             params: { ci },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     checkDuplicateEmail: ({
         email,
@@ -509,15 +496,17 @@ const profile = {
             params: { email },
         }),
 
-    sendUpdateIdEmail: ({ url }: { url: string }): Promise<AxiosResponse> =>
-        request({
+    sendUpdateIdEmail: ({ url }: { url: string }): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+        return request({
             method: 'POST',
             url: '/profile/id/email',
             data: { url },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     checkDuplicateId: ({
         memberId,
