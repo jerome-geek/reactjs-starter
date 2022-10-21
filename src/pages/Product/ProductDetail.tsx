@@ -450,163 +450,157 @@ const ProductDetail = () => {
                 />
             )}
 
-            <ErrorBoundary>
-                <ProductContainer>
-                    <ProductContainerTop>
-                        <ProductImageSlider
-                            imageList={productData?.baseInfo.imageUrls}
-                        />
-                        <ProductInfoContainer>
-                            <ProductInfoIconContainer isNew>
-                                {/* TODO: NewIcon은 conditional */}
-                                <NewIcon />
-                                <ShareIcon
-                                    onClick={() => onShareButtonClick()}
+            <ProductContainer>
+                <ProductContainerTop>
+                    <ProductImageSlider
+                        imageList={productData?.baseInfo.imageUrls}
+                    />
+                    <ProductInfoContainer>
+                        <ProductInfoIconContainer isNew>
+                            {/* TODO: NewIcon은 conditional */}
+                            <NewIcon />
+                            <ShareIcon onClick={() => onShareButtonClick()} />
+                        </ProductInfoIconContainer>
+
+                        <ProductTitleBox>
+                            <ProductTitle>
+                                {productData?.baseInfo.productName}
+                            </ProductTitle>
+                            <ProductText>
+                                {productData?.baseInfo.promotionText}
+                            </ProductText>
+                        </ProductTitleBox>
+
+                        {productData && (
+                            <ProductPriceContainer>
+                                <SalePrice
+                                    dangerouslySetInnerHTML={{
+                                        __html: KRW(
+                                            productData.price.salePrice -
+                                                productData.price
+                                                    .immediateDiscountAmt,
+                                            {
+                                                symbol: '<sub>원</sub>',
+                                                precision: 0,
+                                                pattern: `# !`,
+                                                negativePattern: `- # !`,
+                                            },
+                                        ).format(),
+                                    }}
                                 />
-                            </ProductInfoIconContainer>
 
-                            <ProductTitleBox>
-                                <ProductTitle>
-                                    {productData?.baseInfo.productName}
-                                </ProductTitle>
-                                <ProductText>
-                                    {productData?.baseInfo.promotionText}
-                                </ProductText>
-                            </ProductTitleBox>
-
-                            {productData && (
-                                <ProductPriceContainer>
-                                    <SalePrice
-                                        dangerouslySetInnerHTML={{
-                                            __html: KRW(
-                                                productData.price.salePrice -
-                                                    productData.price
-                                                        .immediateDiscountAmt,
-                                                {
-                                                    symbol: '<sub>원</sub>',
-                                                    precision: 0,
-                                                    pattern: `# !`,
-                                                    negativePattern: `- # !`,
-                                                },
-                                            ).format(),
-                                        }}
-                                    />
-
-                                    <ProductPrice
-                                        dangerouslySetInnerHTML={{
-                                            __html: KRW(
-                                                productData.price.salePrice,
-                                                {
-                                                    symbol: '<sub>원</sub>',
-                                                    precision: 0,
-                                                    pattern: `# !`,
-                                                    negativePattern: `- # !`,
-                                                },
-                                            ).format(),
-                                        }}
-                                    />
-                                </ProductPriceContainer>
-                            )}
-
-                            {productData?.deliveryFee && (
-                                <DeliveryInfo
-                                    deliveryFee={
-                                        productData.deliveryFee.deliveryAmt
-                                    }
+                                <ProductPrice
+                                    dangerouslySetInnerHTML={{
+                                        __html: KRW(
+                                            productData.price.salePrice,
+                                            {
+                                                symbol: '<sub>원</sub>',
+                                                precision: 0,
+                                                pattern: `# !`,
+                                                negativePattern: `- # !`,
+                                            },
+                                        ).format(),
+                                    }}
                                 />
-                            )}
+                            </ProductPriceContainer>
+                        )}
 
-                            <AccumulationInfo
-                                accumulationAmtWhenBuyConfirm={
-                                    productData?.price
-                                        .accumulationAmtWhenBuyConfirm
+                        {productData?.deliveryFee && (
+                            <DeliveryInfo
+                                deliveryFee={
+                                    productData.deliveryFee.deliveryAmt
                                 }
                             />
-
-                            <ProductOptionList
-                                productNo={productNo}
-                                productOptionList={productOptionList}
-                                selectedOptionList={selectedOptionList}
-                                setSelectedOptionList={setSelectedOptionList}
-                            />
-
-                            <TotalPriceInfo
-                                totalAmount={totalAmount}
-                                totalPrice={totalPrice}
-                            />
-
-                            <ButtonContainer>
-                                <CartButton onClick={addCartHandler}>
-                                    <StyledAddCartIcon />
-                                </CartButton>
-                                <BuyNowButton
-                                    disabled={purchaseMutate.isLoading}
-                                    onClick={purchaseHandler}
-                                >
-                                    {purchaseMutate.isLoading
-                                        ? 'loading...'
-                                        : productDetail('buyNow')}
-                                </BuyNowButton>
-                            </ButtonContainer>
-                        </ProductInfoContainer>
-                    </ProductContainerTop>
-
-                    <ProductContainerBottom>
-                        <ProductDetailTabList>
-                            {productDetailTab.map(({ title, name }) => (
-                                <ProductDetailTabListItem
-                                    key={title}
-                                    selected={selectedTab === title}
-                                    onClick={() => setSelectedTab(title)}
-                                >
-                                    {name}
-                                </ProductDetailTabListItem>
-                            ))}
-                        </ProductDetailTabList>
-
-                        {selectedTab === 'productSummary' && (
-                            <ProductContentContainer
-                                id='productSummary'
-                                dangerouslySetInnerHTML={{
-                                    __html: productData?.baseInfo.content ?? '',
-                                }}
-                            />
                         )}
 
-                        {selectedTab === 'productSpecification' && (
-                            <ProductContentContainer
-                                id='productSpecifications'
-                                dangerouslySetInnerHTML={{
-                                    __html: productData?.baseInfo.content ?? '',
-                                }}
-                            />
-                        )}
-
-                        {selectedTab === 'productComparison' && (
-                            <ProductContentContainer
-                                id='productComparison'
-                                dangerouslySetInnerHTML={{
-                                    __html: productData?.baseInfo.content ?? '',
-                                }}
-                            />
-                        )}
-                        {selectedTab === 'productPolicy' && (
-                            <ProductContentContainer
-                                id='productPolicy'
-                                dangerouslySetInnerHTML={{
-                                    __html: productData?.baseInfo.content ?? '',
-                                }}
-                            />
-                        )}
-
-                        <RelatedProduct
-                            relatedProductNos={
-                                productData?.relatedProductNos || []
+                        <AccumulationInfo
+                            accumulationAmtWhenBuyConfirm={
+                                productData?.price.accumulationAmtWhenBuyConfirm
                             }
                         />
-                    </ProductContainerBottom>
-                </ProductContainer>
-            </ErrorBoundary>
+
+                        <ProductOptionList
+                            productNo={productNo}
+                            productOptionList={productOptionList}
+                            selectedOptionList={selectedOptionList}
+                            setSelectedOptionList={setSelectedOptionList}
+                        />
+
+                        <TotalPriceInfo
+                            totalAmount={totalAmount}
+                            totalPrice={totalPrice}
+                        />
+
+                        <ButtonContainer>
+                            <CartButton onClick={addCartHandler}>
+                                <StyledAddCartIcon />
+                            </CartButton>
+                            <BuyNowButton
+                                disabled={purchaseMutate.isLoading}
+                                onClick={purchaseHandler}
+                            >
+                                {purchaseMutate.isLoading
+                                    ? 'loading...'
+                                    : productDetail('buyNow')}
+                            </BuyNowButton>
+                        </ButtonContainer>
+                    </ProductInfoContainer>
+                </ProductContainerTop>
+
+                <ProductContainerBottom>
+                    <ProductDetailTabList>
+                        {productDetailTab.map(({ title, name }) => (
+                            <ProductDetailTabListItem
+                                key={title}
+                                selected={selectedTab === title}
+                                onClick={() => setSelectedTab(title)}
+                            >
+                                {name}
+                            </ProductDetailTabListItem>
+                        ))}
+                    </ProductDetailTabList>
+
+                    {selectedTab === 'productSummary' && (
+                        <ProductContentContainer
+                            id='productSummary'
+                            dangerouslySetInnerHTML={{
+                                __html: productData?.baseInfo.content ?? '',
+                            }}
+                        />
+                    )}
+
+                    {selectedTab === 'productSpecification' && (
+                        <ProductContentContainer
+                            id='productSpecifications'
+                            dangerouslySetInnerHTML={{
+                                __html: productData?.baseInfo.content ?? '',
+                            }}
+                        />
+                    )}
+
+                    {selectedTab === 'productComparison' && (
+                        <ProductContentContainer
+                            id='productComparison'
+                            dangerouslySetInnerHTML={{
+                                __html: productData?.baseInfo.content ?? '',
+                            }}
+                        />
+                    )}
+
+                    {selectedTab === 'productPolicy' && (
+                        <ProductContentContainer
+                            id='productPolicy'
+                            dangerouslySetInnerHTML={{
+                                __html: productData?.baseInfo.content ?? '',
+                            }}
+                        />
+                    )}
+
+                    <RelatedProduct
+                        relatedProductNos={productData?.relatedProductNos || []}
+                    />
+                </ProductContainerBottom>
+            </ProductContainer>
         </>
     );
 };
