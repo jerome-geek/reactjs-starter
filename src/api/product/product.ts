@@ -14,6 +14,7 @@ import {
     ProductDetailResponse,
     ProductSearchParams,
     ProductsParams,
+    ProductsSearchResponse,
     RestockParams,
 } from 'models/product';
 import { tokenStorage } from 'utils/storage';
@@ -120,7 +121,7 @@ const product = {
             hasOptionValues: false,
             includeSummaryInfo: true,
         },
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<ProductsSearchResponse>> =>
         request({
             method: 'GET',
             url: '/products/search',

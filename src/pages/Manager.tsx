@@ -165,7 +165,7 @@ const Manager = () => {
                                     margin: '-1rem',
                                 }}
                             >
-                                {productList?.length > 0 ? (
+                                {productList && productList?.length > 0 ? (
                                     productList?.map(
                                         ({
                                             productNo,

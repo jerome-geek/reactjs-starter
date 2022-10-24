@@ -23,7 +23,7 @@ import {
     ArticleParams,
     BoardListItem as BoardListItemModel,
 } from 'models/manage';
-import { ProductSearchParams } from 'models/product';
+import { ProductItem, ProductSearchParams } from 'models/product';
 import { ORDER_DIRECTION } from 'models';
 
 interface tab {
@@ -44,6 +44,7 @@ const SearchResultSummary = styled.form`
         background-color: #fff;
     }
 `;
+
 const SearchResultTitle = styled.p`
     font-size: 32px;
     line-height: 48px;
@@ -97,7 +98,7 @@ const Search = () => {
     }: ChangeEvent<HTMLInputElement>) => setQuery(value);
 
     const [productListTotalCount, setProductListTotalCount] = useState(0);
-    const [productList, setProductList] = useState([]);
+    const [productList, setProductList] = useState<ProductItem[]>([]);
     const [productListSearchCondition, setProductListSearchCondition] =
         useState<ProductSearchParams>({
             filter: {
@@ -184,7 +185,7 @@ const Search = () => {
         );
     };
 
-    const onOrderTabClick = (key: string) => {
+    const onOrderTabClick = (key: ORDER_DIRECTION) => {
         setOrderTab((prev) =>
             pipe(
                 prev,
@@ -193,28 +194,26 @@ const Search = () => {
             ),
         );
 
-        // TODO: activeTab의 검색결과 조건을 바꿔준다
-        // if (key === 'product') {
-        //     setProductListSearchCondition((prev: ProductSearchParams) => ({
-        //         ...prev,
-        //         order: { direction: key },
-        //     }));
-        // }
-        // if (key === 'manual') {
-        //     setManualListSearchCondition((prev: ArticleParams) => ({
-        //         ...prev,
-        //         direction: key,
-        //     }));
-        // }
-        // if (key === 'notice') {
-        //     setNoticeSearchListCondition((prev: ArticleParams) => ({
-        //         ...prev,
-        //         direction: key,
-        //     }));
-        // }
+        if (activeTab?.key === 'product') {
+            setProductListSearchCondition((prev) => ({
+                ...prev,
+                order: { direction: key },
+            }));
+        }
+        if (activeTab?.key === 'manual') {
+            setManualListSearchCondition((prev) => ({
+                ...prev,
+                direction: key,
+            }));
+        }
+        if (activeTab?.key === 'notice') {
+            setNoticeSearchListCondition((prev) => ({
+                ...prev,
+                direction: key,
+            }));
+        }
     };
 
-    // TODO 검색결과는 페이징여부와 상관없이 모든 카운트를 알고 있어야 한다
     const results = useQueries([
         {
             queryKey: [
@@ -223,6 +222,7 @@ const Search = () => {
                     ...noticeSearchListCondition,
                 },
             ],
+            keepPreviousData: true,
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.NOTICE, {
                     ...noticeSearchListCondition,
@@ -239,6 +239,7 @@ const Search = () => {
                     ...manualListSearchCondition,
                 },
             ],
+            keepPreviousData: true,
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.MANUAL, {
                     ...manualListSearchCondition,
@@ -254,7 +255,9 @@ const Search = () => {
                 await product.searchProducts({
                     ...productListSearchCondition,
                 }),
+            keepPreviousData: true,
             onSuccess: (response: any) => {
+                setProductListTotalCount(response.data.totalCount);
                 setProductList(response.data.items);
             },
         },
@@ -365,7 +368,11 @@ const Search = () => {
                                 return (
                                     <SearchFilterItem
                                         key={key}
-                                        onClick={() => onOrderTabClick(key)}
+                                        onClick={() =>
+                                            onOrderTabClick(
+                                                key as ORDER_DIRECTION,
+                                            )
+                                        }
                                         isActive={isActive}
                                     >
                                         {name}
@@ -411,7 +418,9 @@ const Search = () => {
                                                 <SearchFilterItem
                                                     key={key}
                                                     onClick={() =>
-                                                        onOrderTabClick(key)
+                                                        onOrderTabClick(
+                                                            key as ORDER_DIRECTION,
+                                                        )
                                                     }
                                                     isActive={isActive}
                                                 >
@@ -424,26 +433,50 @@ const Search = () => {
                             </div>
 
                             {activeTab?.key === 'product' && (
-                                <ProductSearchResult />
+                                <ProductSearchResult
+                                    productListTotalCount={
+                                        productListTotalCount
+                                    }
+                                    productList={productList}
+                                    productListSearchCondition={
+                                        productListSearchCondition
+                                    }
+                                    setProductListSearchCondition={
+                                        setProductListSearchCondition
+                                    }
+                                />
                             )}
                             {activeTab?.key === 'manual' && (
-                                <ManualSearchResult />
+                                <ManualSearchResult
+                                    manualListTotalCount={manualListTotalCount}
+                                    manualList={manualList}
+                                    manualListSearchCondition={
+                                        manualListSearchCondition
+                                    }
+                                    setManualListSearchCondition={
+                                        setManualListSearchCondition
+                                    }
+                                />
                             )}
                             {activeTab?.key === 'notice' && (
                                 <NoticeSearchResult
                                     noticeListTotalCount={noticeListTotalCount}
+                                    noticeList={noticeList}
                                     noticeSearchListCondition={
                                         noticeSearchListCondition
                                     }
-                                    noticeList={noticeList}
-                                    setNoticeList={setNoticeList}
                                     setNoticeSearchListCondition={
                                         setNoticeSearchListCondition
                                     }
                                 />
                             )}
                             {activeTab?.key === 'golfCourse' && (
-                                <GolfCourseSearchResult />
+                                <GolfCourseSearchResult
+                                    golfCourseListTotalCount={
+                                        golfCourseListTotalCount
+                                    }
+                                    golfCourseList={golfCourseList}
+                                />
                             )}
                         </>
                     )}
