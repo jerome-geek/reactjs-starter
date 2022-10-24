@@ -248,6 +248,9 @@ const Faq = () => {
         ['faqList'],
         async () =>
             await board.getArticlesByBoardNo(BOARD.FAQ, {
+                pageNumber: 1,
+                pageSize: 10,
+                hasTotalCount: true,
                 keyword,
             }),
         {

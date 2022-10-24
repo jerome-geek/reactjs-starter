@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueries } from 'react-query';
 import { filter, head, map, pipe, some, toArray } from '@fxts/core';
@@ -6,6 +6,7 @@ import styled, { css } from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 
 import Header from 'components/shared/Header';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 import FlexContainer from 'components/shared/FlexContainer';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import ProductSearchResult from 'components/Search/ProductSearchResult';
@@ -31,10 +32,7 @@ interface tab {
     isActive: boolean;
 }
 
-const SearchContainer = styled.div`
-    margin-left: 24px;
-    margin-right: 24px;
-`;
+const SearchContainer = styled(LayoutResponsive)``;
 
 const SearchResultSummary = styled.form`
     width: 100%;
@@ -51,6 +49,7 @@ const SearchResultTitle = styled.p`
     line-height: 48px;
     text-align: center;
     letter-spacing: 0px;
+    margin-bottom: 40px;
 
     ${media.small} {
         font-size: 20px;
@@ -90,14 +89,19 @@ const SearchFilterItem = styled.li<{ isActive: boolean }>`
 const SearchResultContainer = styled.div``;
 
 const Search = () => {
-    const { keywords } = useQueryString();
+    const { keywords } = useQueryString() as { keywords: string };
 
     const [query, setQuery] = useState('');
+    const onInputChange = ({
+        target: { value },
+    }: ChangeEvent<HTMLInputElement>) => setQuery(value);
+
+    const [productListTotalCount, setProductListTotalCount] = useState(0);
     const [productList, setProductList] = useState([]);
     const [productListSearchCondition, setProductListSearchCondition] =
         useState<ProductSearchParams>({
             filter: {
-                keywords: keywords as string,
+                keywords: keywords,
             },
             order: {
                 direction: ORDER_DIRECTION.DESC,
@@ -106,22 +110,30 @@ const Search = () => {
             pageNumber: 1,
             pageSize: 10,
         });
+
+    const [manualListTotalCount, setManualListTotalCount] = useState(0);
     const [manualList, setManualList] = useState<BoardListItemModel[]>([]);
     const [manualListSearchCondition, setManualListSearchCondition] =
         useState<ArticleParams>({
-            keyword: keywords as string,
+            keyword: keywords,
             direction: ORDER_DIRECTION.DESC,
             pageNumber: 1,
             pageSize: 10,
+            hasTotalCount: true,
         });
+
+    const [noticeListTotalCount, setNoticeListTotalCount] = useState(0);
     const [noticeList, setNoticeList] = useState<BoardListItemModel[]>([]);
     const [noticeSearchListCondition, setNoticeSearchListCondition] =
         useState<ArticleParams>({
-            keyword: keywords as string,
+            keyword: keywords,
             direction: ORDER_DIRECTION.DESC,
             pageNumber: 1,
             pageSize: 10,
+            hasTotalCount: true,
         });
+
+    const [golfCourseListTotalCount, setGolfCourseListTotalCount] = useState(0);
     const [golfCourseList, setGolfCourseList] = useState([]);
 
     const [searchTab, setSearchTab] = useState<tab[]>([
@@ -136,60 +148,73 @@ const Search = () => {
         { key: ORDER_DIRECTION.ASC, name: '오래된 순', isActive: false },
     ]);
 
+    useEffect(() => {
+        setProductListSearchCondition((prev) => ({
+            ...prev,
+            filter: {
+                keywords,
+            },
+        }));
+        setManualListSearchCondition((prev) => ({
+            ...prev,
+            keyword: keywords,
+        }));
+        setNoticeSearchListCondition((prev) => ({
+            ...prev,
+            keyword: keywords,
+        }));
+    }, [keywords]);
+
     const activeTab = useMemo(() => {
         return pipe(
             searchTab,
-            filter((a: tab) => a.isActive),
+            filter((a) => a.isActive),
             toArray,
             head,
         );
     }, [searchTab]);
 
-    const onSearchTabClick = (
-        e: React.MouseEvent<HTMLLIElement>,
-        key: string,
-    ) => {
-        setSearchTab((prev: tab[]) =>
+    const onSearchTabClick = (key: string) => {
+        setSearchTab((prev) =>
             pipe(
                 prev,
-                map((a: tab) => ({ ...a, isActive: a.key === key })),
+                map((a) => ({ ...a, isActive: a.key === key })),
                 toArray,
             ),
         );
     };
 
-    const onOrderTabClick = (
-        e: React.MouseEvent<HTMLLIElement>,
-        key: string,
-    ) => {
-        setOrderTab((prev: tab[]) =>
+    const onOrderTabClick = (key: string) => {
+        setOrderTab((prev) =>
             pipe(
                 prev,
-                map((a: tab) => ({ ...a, isActive: a.key === key })),
+                map((a) => ({ ...a, isActive: a.key === key })),
                 toArray,
             ),
         );
 
-        if (key === 'product') {
-            setProductListSearchCondition((prev: any) => ({
-                ...prev,
-                order: { direction: key },
-            }));
-        }
-        if (key === 'manual') {
-            setManualListSearchCondition((prev: any) => ({
-                ...prev,
-                direction: key,
-            }));
-        }
-        if (key === 'notice') {
-            setNoticeSearchListCondition((prev: any) => ({
-                ...prev,
-                direction: key,
-            }));
-        }
+        // TODO: activeTab의 검색결과 조건을 바꿔준다
+        // if (key === 'product') {
+        //     setProductListSearchCondition((prev: ProductSearchParams) => ({
+        //         ...prev,
+        //         order: { direction: key },
+        //     }));
+        // }
+        // if (key === 'manual') {
+        //     setManualListSearchCondition((prev: ArticleParams) => ({
+        //         ...prev,
+        //         direction: key,
+        //     }));
+        // }
+        // if (key === 'notice') {
+        //     setNoticeSearchListCondition((prev: ArticleParams) => ({
+        //         ...prev,
+        //         direction: key,
+        //     }));
+        // }
     };
 
+    // TODO 검색결과는 페이징여부와 상관없이 모든 카운트를 알고 있어야 한다
     const results = useQueries([
         {
             queryKey: [
@@ -201,9 +226,9 @@ const Search = () => {
             queryFn: async () =>
                 await board.getArticlesByBoardNo(BOARD.NOTICE, {
                     ...noticeSearchListCondition,
-                    hasTotalCount: true,
                 }),
             onSuccess: (response: any) => {
+                setNoticeListTotalCount(response.data.totalCount);
                 setNoticeList(response.data.items);
             },
         },
@@ -219,6 +244,7 @@ const Search = () => {
                     ...manualListSearchCondition,
                 }),
             onSuccess: (response: any) => {
+                setManualListTotalCount(response.data.totalCount);
                 setManualList(response.data.items);
             },
         },
@@ -234,45 +260,44 @@ const Search = () => {
         },
     ]);
 
-    const isLoading = some((result) => result.isLoading, results);
+    const isLoading = useMemo(
+        () => some((result) => result.isLoading, results),
+        [results],
+    );
 
     const getSearchListLength = (key?: string) => {
         switch (key) {
             case 'product':
-                return productList.length;
+                return productListTotalCount;
             case 'manual':
-                return manualList.length;
+                return manualListTotalCount;
             case 'notice':
-                return noticeList.length;
+                return noticeListTotalCount;
             case 'golfCourse':
-                return golfCourseList.length;
+                return golfCourseListTotalCount;
             default:
                 return (
-                    productList.length +
-                    manualList.length +
-                    noticeList.length +
-                    golfCourseList.length
+                    productListTotalCount +
+                    manualListTotalCount +
+                    noticeListTotalCount +
+                    golfCourseListTotalCount
                 );
         }
     };
 
-    const onInputChange = ({
-        target: { value },
-    }: React.ChangeEvent<HTMLInputElement>) => setQuery(value);
-
     const navigate = useNavigate();
-    const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmitHandler = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         setProductListSearchCondition((prev: ProductSearchParams) => ({
             ...prev,
             filter: { keywords: query },
         }));
-        setManualListSearchCondition((prev: ArticleParams) => ({
+        setManualListSearchCondition((prev) => ({
             ...prev,
             keyword: query,
         }));
-        setNoticeSearchListCondition((prev: ArticleParams) => ({
+        setNoticeSearchListCondition((prev) => ({
             ...prev,
             keyword: query,
         }));
@@ -321,15 +346,13 @@ const Search = () => {
                         onChange={onInputChange}
                     />
 
-                    <FlexContainer>
+                    <FlexContainer style={{ display: 'none' }}>
                         <SearchFilter>
                             {searchTab?.map(({ key, name, isActive }) => {
                                 return (
                                     <SearchFilterItem
                                         key={key}
-                                        onClick={(
-                                            e: React.MouseEvent<HTMLLIElement>,
-                                        ) => onSearchTabClick(e, key)}
+                                        onClick={() => onSearchTabClick(key)}
                                         isActive={isActive}
                                     >{`${name}(${getSearchListLength(
                                         key,
@@ -342,9 +365,7 @@ const Search = () => {
                                 return (
                                     <SearchFilterItem
                                         key={key}
-                                        onClick={(
-                                            e: React.MouseEvent<HTMLLIElement>,
-                                        ) => onOrderTabClick(e, key)}
+                                        onClick={() => onOrderTabClick(key)}
                                         isActive={isActive}
                                     >
                                         {name}
@@ -372,10 +393,8 @@ const Search = () => {
                                             return (
                                                 <SearchFilterItem
                                                     key={key}
-                                                    onClick={(
-                                                        e: React.MouseEvent<HTMLLIElement>,
-                                                    ) =>
-                                                        onSearchTabClick(e, key)
+                                                    onClick={() =>
+                                                        onSearchTabClick(key)
                                                     }
                                                     isActive={isActive}
                                                 >{`${name}(${getSearchListLength(
@@ -391,10 +410,8 @@ const Search = () => {
                                             return (
                                                 <SearchFilterItem
                                                     key={key}
-                                                    onClick={(
-                                                        e: React.MouseEvent<HTMLLIElement>,
-                                                    ) =>
-                                                        onOrderTabClick(e, key)
+                                                    onClick={() =>
+                                                        onOrderTabClick(key)
                                                     }
                                                     isActive={isActive}
                                                 >
@@ -406,26 +423,28 @@ const Search = () => {
                                 </SearchFilter>
                             </div>
 
-                            <div
-                                style={{
-                                    borderTop: '2px solid #222943',
-                                    borderBottom: '1px solid #222943',
-                                    margin: '40px 0',
-                                }}
-                            >
-                                {activeTab?.key === 'product' && (
-                                    <ProductSearchResult />
-                                )}
-                                {activeTab?.key === 'manual' && (
-                                    <ManualSearchResult />
-                                )}
-                                {activeTab?.key === 'notice' && (
-                                    <NoticeSearchResult />
-                                )}
-                                {activeTab?.key === 'golfCourse' && (
-                                    <GolfCourseSearchResult />
-                                )}
-                            </div>
+                            {activeTab?.key === 'product' && (
+                                <ProductSearchResult />
+                            )}
+                            {activeTab?.key === 'manual' && (
+                                <ManualSearchResult />
+                            )}
+                            {activeTab?.key === 'notice' && (
+                                <NoticeSearchResult
+                                    noticeListTotalCount={noticeListTotalCount}
+                                    noticeSearchListCondition={
+                                        noticeSearchListCondition
+                                    }
+                                    noticeList={noticeList}
+                                    setNoticeList={setNoticeList}
+                                    setNoticeSearchListCondition={
+                                        setNoticeSearchListCondition
+                                    }
+                                />
+                            )}
+                            {activeTab?.key === 'golfCourse' && (
+                                <GolfCourseSearchResult />
+                            )}
                         </>
                     )}
                 </SearchResultContainer>
