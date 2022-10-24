@@ -233,7 +233,11 @@ const Header = () => {
                     )}
                 </IconContainer>
             </HeaderContainer>
-            {searchToggle && <SearchLayer />}
+
+            <SearchLayer
+                searchToggle={searchToggle}
+                setSearchToggle={setSearchToggle}
+            />
         </>
     );
 };

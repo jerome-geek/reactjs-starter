@@ -20,4 +20,14 @@ const ellipsis = (line: number) =>
               word-wrap: break-word;
           `;
 
-export { ellipsis };
+const flex = () => {
+    return css`
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    `;
+};
+
+export { ellipsis, flex };

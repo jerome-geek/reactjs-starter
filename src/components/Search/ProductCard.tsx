@@ -1,5 +1,6 @@
 import { FC, HTMLAttributes } from 'react';
 import styled from 'styled-components';
+
 import { KRW } from 'utils/currency';
 import media from 'utils/styles/media';
 import { ellipsis } from 'utils/styles/mixin';
@@ -9,7 +10,7 @@ interface ProductCardProps extends HTMLAttributes<HTMLDivElement> {
     productName: string;
     promotionText: string;
     salePrice: number;
-    immediateDiscountAmt: number;
+    immediateDiscountAmt?: number;
 }
 
 const ProductCardContainer = styled.div`
@@ -38,10 +39,27 @@ const ProductCardImageContainer = styled.div`
 `;
 
 const ProductCardImage = styled.div`
+    position: relative;
+    padding: 40px;
     & > img {
-        width: 100%;
-        max-width: 100%;
-        height: auto;
+        width: 284px;
+        height: 284px;
+
+        ${media.medium} {
+            width: 144px;
+            height: 144px;
+        }
+    }
+`;
+
+const ProductCardTag = styled.span`
+    position: absolute;
+    top: 28px;
+    left: 28px;
+
+    ${media.medium} {
+        top: 20px;
+        left: 20px;
     }
 `;
 
@@ -65,11 +83,10 @@ const ProductInfoContainer = styled.div`
 
 const ProductName = styled.p`
     font-size: 16px;
-    font-weight: medium;
+    font-weight: bold;
     text-align: left;
     color: #191919;
-    /* margin-bottom: 4px; */
-    line-height: 22px;
+    margin-bottom: 4px;
 `;
 
 const ProductDescription = styled.p`
@@ -133,6 +150,7 @@ const ProductCard: FC<ProductCardProps> = ({
     return (
         <ProductCardContainer {...props}>
             <ProductCardImageContainer>
+                <ProductCardTag>NEW</ProductCardTag>
                 <ProductCardImage>
                     <img src={imgUrl} alt={productName} />
                 </ProductCardImage>

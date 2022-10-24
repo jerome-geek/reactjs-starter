@@ -15,7 +15,6 @@ interface NoticeSearchResultProps {
     noticeListTotalCount: number;
     noticeList: BoardListItemModel[];
     noticeSearchListCondition: ArticleParams;
-    setNoticeList: Dispatch<SetStateAction<BoardListItemModel[]>>;
     setNoticeSearchListCondition: Dispatch<SetStateAction<ArticleParams>>;
 }
 
