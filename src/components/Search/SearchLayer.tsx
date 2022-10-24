@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FC, SetStateAction, useState, Dispatch } from 'react';
 import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,6 +6,11 @@ import styled from 'styled-components';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import { product } from 'api/product';
 import PATHS from 'const/paths';
+
+interface SearchLayerProps {
+    searchToggle: boolean;
+    setSearchToggle: Dispatch<SetStateAction<boolean>>;
+}
 
 const SearchContainer = styled.div`
     background: #f8f8fa 0% 0% no-repeat padding-box;
@@ -36,7 +41,10 @@ const FavoriteKeyword = styled(Link)`
     margin-right: 10px;
 `;
 
-const SearchLayer = () => {
+const SearchLayer: FC<SearchLayerProps> = ({
+    searchToggle,
+    setSearchToggle,
+}) => {
     const { data: favoriteKeywords } = useQuery(
         ['favoriteKeywords'],
         async () => await product.getFavoriteKeywords(10),
@@ -57,6 +65,7 @@ const SearchLayer = () => {
 
     const navigate = useNavigate();
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        setSearchToggle(false);
         e.preventDefault();
         navigate({
             pathname: '/search',
@@ -65,39 +74,55 @@ const SearchLayer = () => {
     };
 
     return (
-        <SearchContainer>
-            <div
-                style={{ width: '533px', margin: '0 auto', padding: '60px 0' }}
-            >
-                <form onSubmit={onSubmit}>
-                    <InputWithIcon
-                        placeholder='검색어를 입력해주세요.'
-                        containerProps={{
-                            style: {
-                                borderLeft: 0,
-                                borderRight: 0,
-                                borderTop: 0,
-                            },
+        <>
+            {searchToggle ? (
+                <SearchContainer>
+                    <div
+                        style={{
+                            width: '533px',
+                            margin: '0 auto',
+                            padding: '60px 0',
                         }}
-                        onChange={onQueryChange}
-                    />
-                </form>
-                <div style={{ paddingTop: '20px' }}>
-                    <FavoriteKeywordTitle>인기 검색어</FavoriteKeywordTitle>
-                    <FavoriteKeywordContainer>
-                        {favoriteKeywords?.length > 0 &&
-                            favoriteKeywords?.map((favoriteKeyword: string) => (
-                                <FavoriteKeyword
-                                    key={favoriteKeyword}
-                                    to={`${PATHS.SEARCH}?keywords=${favoriteKeyword}`}
-                                >
-                                    {favoriteKeyword}
-                                </FavoriteKeyword>
-                            ))}
-                    </FavoriteKeywordContainer>
-                </div>
-            </div>
-        </SearchContainer>
+                    >
+                        <form onSubmit={onSubmit}>
+                            <InputWithIcon
+                                placeholder='검색어를 입력해주세요.'
+                                containerProps={{
+                                    style: {
+                                        borderLeft: 0,
+                                        borderRight: 0,
+                                        borderTop: 0,
+                                    },
+                                }}
+                                onChange={onQueryChange}
+                                value={keywords}
+                            />
+                        </form>
+                        <div style={{ paddingTop: '20px' }}>
+                            <FavoriteKeywordTitle>
+                                인기 검색어
+                            </FavoriteKeywordTitle>
+                            <FavoriteKeywordContainer>
+                                {favoriteKeywords?.length > 0 &&
+                                    favoriteKeywords?.map(
+                                        (favoriteKeyword: string) => (
+                                            <FavoriteKeyword
+                                                key={favoriteKeyword}
+                                                to={`${PATHS.SEARCH}?keywords=${favoriteKeyword}`}
+                                                onClick={() =>
+                                                    setSearchToggle(false)
+                                                }
+                                            >
+                                                {favoriteKeyword}
+                                            </FavoriteKeyword>
+                                        ),
+                                    )}
+                            </FavoriteKeywordContainer>
+                        </div>
+                    </div>
+                </SearchContainer>
+            ) : null}
+        </>
     );
 };
 

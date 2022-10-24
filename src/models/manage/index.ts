@@ -54,7 +54,7 @@ export interface ArticleParams extends Paging {
     // 조회일 시작일(yyyy-MM-dd, default: 3개월) (Example : YYYY-MM-DD)
     startYmd?: string;
     // 조회일 종료일(yyyy-MM-dd, default: 오늘) (Example : YYYY-MM-DD)
-    endYmd?: string; // default 오늘
+    endYmd?: string;
     // 답글도 리스트에 같이 조회할지 여부 (false: 답글 미포함(default), true: 답글 포함) (Example : false)
     withReplied?: boolean;
     // 최신 순 정렬 여부 (Example : DESC)

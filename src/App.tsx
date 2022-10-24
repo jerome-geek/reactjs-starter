@@ -85,7 +85,7 @@ const App: FC = () => {
                                 <Route path='/manager' element={<Manager />} />
                                 <Route path='/cart' element={<Cart />} />
                                 <Route
-                                    path='/search'
+                                    path='/search/*'
                                     element={<SearchRouter />}
                                 />
                                 <Route
