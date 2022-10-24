@@ -1,0 +1,271 @@
+import { useForm } from 'react-hook-form';
+import { useMutation } from 'react-query';
+import { Link, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
+import { AxiosError } from 'axios';
+
+import Header from 'components/shared/Header';
+import MobileHeader from 'components/shared/MobileHeader';
+import { profile } from 'api/member';
+import { ProfileBody } from 'models/member';
+import PATHS from 'const/paths';
+import media from 'utils/styles/media';
+import { isMobile } from 'utils/styles/responsive';
+
+const PasswordContainer = styled.form`
+    width: 440px;
+    margin: 131px auto 154px;
+    color: ${(props) => props.theme.text1};
+    ${media.medium} {
+        margin: 49px auto 88px;
+        width: 100%;
+        padding: 0 24px;
+    }
+`;
+
+const Title = styled.h2`
+    text-align: center;
+    letter-spacing: -1.2px;
+    font-size: 1.5rem;
+    line-height: 36px;
+    font-weight: bold;
+    margin-bottom: 30px;
+`;
+
+const PasswordInputContainer = styled.div`
+    margin-bottom: 17px;
+`;
+
+const PasswordTitleContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    ${media.medium} {
+        justify-content: flex-start;
+    }
+`;
+
+const PasswordTitle = styled.p`
+    letter-spacing: 0;
+    font-size: 0.75rem;
+    line-height: 18px;
+    font-weight: 500;
+    color: ${(props) => props.theme.text2};
+    ${media.medium} {
+        font-size: 1.333rem;
+        color: ${(props) => props.theme.text1};
+        padding-left: 10px;
+        line-height: 24px;
+        letter-spacing: -0.64px;
+    }
+`;
+
+const PasswordTitleDescription = styled.p`
+    color: ${(props) => props.theme.text2};
+    line-height: 15px;
+    letter-spacing: -0.4px;
+    font-size: 0.375rem;
+    ${media.medium} {
+        font-size: 1.333rem;
+        font-weight: 500;
+        color: #747474;
+        margin-left: 3px;
+        letter-spacing: -0.64px;
+    }
+    ${media.custom(400)} {
+        font-size: 1rem;
+    }
+`;
+
+const PasswordInput = styled.input.attrs({ type: 'password' })`
+    line-height: 24px;
+    padding: 11px 17px;
+    font-size: 1rem;
+    line-height: 24px;
+    border: ${(props) => `1px solid ${props.theme.line2}`};
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    &:last-child {
+        margin-bottom: 0;
+    }
+    &:focus {
+        border: ${(props) => `1px solid ${props.theme.line2}`};
+    }
+    &::placeholder {
+        line-height: 24px;
+        color: ${(props) => props.theme.text3};
+        font-size: 1rem;
+        letter-spacing: -0.64px;
+    }
+    ${media.medium} {
+        padding: 15px 20px;
+        font-size: 1.333rem;
+        line-height: 24px;
+        &::placeholder {
+            font-size: 1.333rem;
+            line-height: 24px;
+            letter-spacing: -0.64px;
+        }
+    }
+`;
+
+const PasswordUpdateButton = styled.button`
+    margin-top: 30px;
+    width: 100%;
+    font-size: 1rem;
+    color: #fff;
+    background: ${(props) => props.theme.secondary};
+    padding: 12px 0;
+    display: block;
+    line-height: 24px;
+    cursor: pointer;
+    ${media.medium} {
+        font-size: 1.333rem;
+        font-weight: 500;
+        margin-top: 15vh;
+    }
+`;
+
+const DeleteProfile = styled.p`
+    text-align: center;
+    letter-spacing: 0;
+    font-size: 0.75rem;
+    color: ${(props) => props.theme.text3};
+    line-height: 18px;
+    margin-top: 18px;
+    > a {
+        color: ${(props) => props.theme.text1};
+        text-decoration: underline;
+        font-weight: bold;
+    }
+    ${media.medium} {
+        font-size: 1.1666rem;
+        line-height: 20px;
+    }
+`;
+
+const Password = () => {
+    const { width } = useWindowSize();
+
+    const navigate = useNavigate();
+
+    const { register, handleSubmit } =
+        useForm<
+            Omit<
+                ProfileBody,
+                | 'firstName'
+                | 'lastName'
+                | 'openIdAccessToken'
+                | 'ci'
+                | 'recommenderId'
+                | 'countryCd'
+                | 'groupNo'
+                | 'memberId'
+            > & {
+                checkNewPassword: string;
+            }
+        >();
+
+    const { mutate: updatePassword } = useMutation(
+        async (
+            updateInfoData: Omit<
+                ProfileBody,
+                | 'firstName'
+                | 'lastName'
+                | 'openIdAccessToken'
+                | 'ci'
+                | 'recommenderId'
+                | 'countryCd'
+                | 'groupNo'
+                | 'memberId'
+            >,
+        ) => await profile.updateProfile(updateInfoData),
+        {
+            onSuccess: () => {
+                alert('회원 정보 수정 성공!');
+                navigate(PATHS.MY_INFO);
+            },
+            onError: (error: AxiosError<{ message: string }>) => {
+                alert(error.response?.data.message);
+            },
+        },
+    );
+
+    const onSubmit = handleSubmit(
+        async ({
+            password: newPassword,
+            checkNewPassword,
+            currentPassword,
+        }) => {
+            if (newPassword !== checkNewPassword) {
+                alert('새 비밀번호가 일치하지 않습니다.');
+                return;
+            }
+            profile
+                .checkPassword({ password: currentPassword })
+                .then(() => {
+                    updatePassword({
+                        password: newPassword,
+                    });
+                })
+                .catch((error) => alert(error.response.data.message));
+        },
+    );
+
+    return (
+        <>
+            {isMobile(width) ? (
+                <MobileHeader title='비밀번호 변경' />
+            ) : (
+                <Header />
+            )}
+            <PasswordContainer
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    onSubmit();
+                }}
+            >
+                <Title>비밀번호 변경</Title>
+                <PasswordInputContainer>
+                    <PasswordTitleContainer>
+                        <PasswordTitle>기존 비밀번호</PasswordTitle>
+                        <PasswordTitleDescription></PasswordTitleDescription>
+                    </PasswordTitleContainer>
+                    <PasswordInput
+                        placeholder='비밀번호 입력'
+                        {...register('currentPassword')}
+                    />
+                </PasswordInputContainer>
+                <PasswordInputContainer>
+                    <PasswordTitleContainer>
+                        <PasswordTitle>새 비밀번호</PasswordTitle>
+                        <PasswordTitleDescription>
+                            (영어, 숫자, 특수문자 포함 8자리 이상)
+                        </PasswordTitleDescription>
+                    </PasswordTitleContainer>
+                    <PasswordInput
+                        placeholder='비밀번호 입력'
+                        {...register('password')}
+                    />
+                    <PasswordInput
+                        placeholder='비밀번호 재입력'
+                        {...register('checkNewPassword')}
+                    />
+                </PasswordInputContainer>
+                <PasswordUpdateButton>비밀번호 변경</PasswordUpdateButton>
+                {isMobile(width) && (
+                    <DeleteProfile>
+                        회원 탈퇴를 원하시면,{' '}
+                        <Link to={`${PATHS.MY_PAGE}/sign-out`}>여기</Link>를
+                        눌러주세요
+                    </DeleteProfile>
+                )}
+            </PasswordContainer>
+        </>
+    );
+};
+
+export default Password;

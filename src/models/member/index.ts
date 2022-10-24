@@ -19,7 +19,7 @@ export interface ProfileBody {
     mobileNo?: string;
     pushNotificationAgreed?: boolean;
     refundBank?: string;
-    currentPassword: string;
+    currentPassword?: string;
     refundBankDepositorName?: string;
     password?: string;
     telephoneNo?: string;
@@ -126,7 +126,7 @@ export interface DuplicateMemberParams {
 export interface UpdatePasswordParams {
     newPassword: string;
     memberId: string;
-    key: string;
+    key?: string;
     certificationNumber: string;
 }
 

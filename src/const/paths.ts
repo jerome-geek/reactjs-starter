@@ -8,6 +8,7 @@ const PATHS = {
     FIND_PASSWORD: '/member/find-password',
     MY_PAGE: '/my-page/index',
     MY_INFO: '/my-page/info',
+    MY_PASSWORD: '/my-page/password',
     MY_ORDER_LIST: '/my-page/order/list',
     MY_ORDER_DETAIL: '/my-page/order/detail',
     MY_PRODUCTS: '/my-page/products',

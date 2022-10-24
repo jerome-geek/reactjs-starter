@@ -386,11 +386,10 @@ const Info = () => {
                 | 'countryCd'
                 | 'groupNo'
                 | 'memberId'
-                | 'currentPassword'
             >,
         ) => await profile.updateProfile(updateInfoData),
         {
-            onSuccess: (res) => {
+            onSuccess: () => {
                 alert('회원 정보 수정 성공');
                 dispatch(fetchProfile());
                 navigate(PATHS.MY_PAGE);
@@ -500,7 +499,7 @@ const Info = () => {
                     </InfoNameSexContainer>
                     <InfoInputItem>
                         <InfoInputTitle>비밀번호</InfoInputTitle>
-                        <PasswordButton to={`${PATHS.MY_PAGE}/password`}>
+                        <PasswordButton to={PATHS.MY_PASSWORD}>
                             비밀번호 변경하기
                         </PasswordButton>
                     </InfoInputItem>
