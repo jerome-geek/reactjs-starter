@@ -168,8 +168,11 @@ enum OPEN_ID_PROVIDER {
     LINE = 'LINE',
 }
 
+// 정렬여부
 enum ORDER_DIRECTION {
+    // 최신 순
     ASC = 'ASC',
+    // 오래된 순
     DESC = 'DESC',
 }
 

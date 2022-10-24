@@ -7,9 +7,9 @@ interface Sort {
 }
 
 interface Paging {
-    pageNumber: Number;
-    pageSize: Number;
-    hasTotalCount: Boolean;
+    pageNumber: number;
+    pageSize: number;
+    hasTotalCount: boolean;
 }
 
 interface SearchDate {

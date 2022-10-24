@@ -44,17 +44,22 @@ export interface AddressResponse {
     items: Item[];
 }
 
-export interface ArticleParams {
-    pageNumber?: number;
-    pageSize?: number;
-    hasTotalCount?: boolean;
+export interface ArticleParams extends Paging {
+    // 검색어 (Example : keyword)
     keyword?: string;
+    // 검색 유형 (Example : ALL)
     searchType?: SEARCH_TYPE;
+    // 게시판 카테고리 (Example: 1)
     categoryNo?: number;
-    startYmd?: string; // default 3개월
+    // 조회일 시작일(yyyy-MM-dd, default: 3개월) (Example : YYYY-MM-DD)
+    startYmd?: string;
+    // 조회일 종료일(yyyy-MM-dd, default: 오늘) (Example : YYYY-MM-DD)
     endYmd?: string; // default 오늘
+    // 답글도 리스트에 같이 조회할지 여부 (false: 답글 미포함(default), true: 답글 포함) (Example : false)
     withReplied?: boolean;
+    // 최신 순 정렬 여부 (Example : DESC)
     direction?: ORDER_DIRECTION;
+    // 본인이 작성한 글만 조회 여부(false: 전체 조회(default), true: 본인 글만 조회) (Example : true)
     isMine?: boolean;
 }
 
