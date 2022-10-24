@@ -6,6 +6,7 @@ import {
     ArticleParams,
     BoardListItem as BoardListItemModel,
 } from 'models/manage';
+import { flex } from 'utils/styles/mixin';
 
 interface ManualSearchResultProps {
     manualListTotalCount: number;
@@ -21,6 +22,12 @@ const ManualListContainer = styled.section`
     height: auto;
     overflow: auto;
     min-height: 400px;
+`;
+
+const StyledDiv = styled.div`
+    ${flex};
+    width: 100%;
+    min-height: 60px;
 `;
 
 const ManualSearchResult: FC<ManualSearchResultProps> = ({
@@ -80,21 +87,11 @@ const ManualSearchResult: FC<ManualSearchResultProps> = ({
                 {manualList?.length > 0 ? (
                     <div></div>
                 ) : (
-                    <div
-                        style={{
-                            width: '100%',
-                            textAlign: 'center',
-                            minHeight: '60px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
+                    <StyledDiv>
                         <p>검색결과가 없습니다.</p>
-                    </div>
+                    </StyledDiv>
                 )}
             </ManualListContainer>
-            ;
         </SearchResultLayout>
     );
 };
