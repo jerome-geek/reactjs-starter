@@ -8,6 +8,7 @@ import {
     PAY_TYPE,
     PG_TYPE,
     NCP_OPEN_ID_PROVIDER,
+    NEXT_ACTION_TYPE,
 } from 'models';
 
 // 상품쿠폰
@@ -192,16 +193,26 @@ export interface CashReceiptBody {
 }
 
 export interface DeliveryBody {
-    receiverZipCd: string;
-    receiverAddress: string;
-    receiverJibunAddress: string; // 대한민국 주소의 경우는 필수 값
-    receiverDetailAddress: string;
+    // 주소
+    receiverAddress?: string;
+    // 지번주소(대한민국 주소의 경우는 필수 값) (nullable)
+    receiverJibunAddress: string;
+    // 수령자명
     receiverName: string;
-    receiverContact1: string;
-    receiverContact2?: string;
+    // 개인통관고유부호 (nullable)
     customIdNumber?: string;
-    countryCd?: COUNTRY_CD; // default mall의 국가코드
+    // 국가코드(default:mall의 국가코드) (nullable)
+    countryCd?: COUNTRY_CD;
+    // 우편번호
+    receiverZipCd: string;
+    // 상세주소
+    receiverDetailAddress: string;
+    // 배송메모 (nullable)
     deliveryMemo?: string;
+    // 수령자연락처1
+    receiverContact1: string;
+    // 수령자연락처2 (nullable)
+    receiverContact2?: string;
 }
 
 export interface PasswordParams {
@@ -1005,10 +1016,15 @@ export interface OrderStatusDate {
     payYmdt: any;
 }
 
+// 다음에 할 수 있는 작업
 export interface NextAction {
-    nextActionType: string;
-    uri: string;
+    // 다음에 할 수 있는 작업 그룹 (example: NORMAL)
     actionGroupType: string;
+
+    // 작업타입 (example: CANCEL_ALL)
+    nextActionType: NEXT_ACTION_TYPE;
+    // uri (example: /profile/orders/{orderNo}/claim)
+    uri: string;
 }
 
 export interface Delivery {
@@ -1271,19 +1287,32 @@ export interface FirstOrderAmount {
     payAmt: number;
 }
 
+// 최종 주문 금액 정보
 export interface LastOrderAmount {
-    payAmt: number;
-    subPayAmt: number;
-    standardAmt: number;
-    deliveryAmt: number;
-    remoteDeliveryAmt: number;
-    immediateDiscountAmt: number;
-    additionalDiscountAmt: number;
-    cartCouponDiscountAmt: number;
-    productCouponDiscountAmt: number;
-    deliveryCouponDiscountAmt: number;
+    // 총 상품금액 (example: 10000)
     totalProductAmt: number;
+    // 총 추가할인 금액 (example: 0)
+    additionalDiscountAmt: number;
+    // 총 즉시할인 금액 (example: 0)
+    immediateDiscountAmt: number;
+    // 사용자 결제 금액 (example: 10000)
     chargeAmt: number;
+    // 총 배송비 (example: 2500)
+    deliveryAmt: number;
+    // 배송비쿠폰 할인 금액 (example: 0)
+    deliveryCouponDiscountAmt: number;
+    // 총 상품정상금액(즉시할인, 추가할인 제외) (example: 7500)
+    standardAmt: number;
+    // 총 지역추가배송비 (example: 0)
+    remoteDeliveryAmt: number;
+    // 주문쿠폰할인 금액 (example: 0)
+    cartCouponDiscountAmt: number;
+    // 총 상품쿠폰할인 금액 (example: 0)
+    productCouponDiscountAmt: number;
+    // 보조결제금액(적립금) (example: 2000)
+    subPayAmt: number;
+    // 결제금액 (example: 10000)
+    payAmt: number;
 }
 
 export interface ShippingAddress {
@@ -1346,4 +1375,32 @@ export interface OrderSummary {
     exchangeDoneCnt: number; // 교환완료
     returnProcessingCnt: number; // 반품진행중
     returnDoneCnt: number; // 반품완료
+}
+
+export interface OrderItems {
+    // 주문 상품 옵션
+    orderOptions: any;
+    // 외부 PG사 (example: PAYCO)
+    pgType: PG_TYPE;
+    // 주문번호 (example: 201912312312121234)
+    orderNo: string;
+    // PG사 결제키 (nullable) (example: 12)
+    pgMallKey: Nullable<string>;
+    // 결제수단 (example: CREDIT_CARD)
+    payType: PAY_TYPE;
+    // 최종주문금액정보
+    lastOrderAmt: LastOrderAmount;
+    // PG사 주문번호 - 매출전표등 확인용 (nullable) (example: 12)
+    pgOrderNo: Nullable<string>;
+    // 회원여부 (example: true)
+    member: boolean;
+    // 다음에 할 수 있는 작업
+    nextActions: NextAction;
+    // 에스크로 여부 (example: false)
+    escrow: boolean;
+    // 주문일자 (example: YYYY-MM-DD hh:mm:ss)
+    orderYmdt: string;
+    // 결제수단라벨 (example: 신용카드)
+    payTypeLabel: string;
+    firstOrderAmt: FirstOrderAmount;
 }

@@ -85,7 +85,7 @@ const OrderList = () => {
                 )}
 
                 <div style={{ marginTop: '40px' }}>
-                    {orderList?.items.length > 0 ? (
+                    {orderList && orderList?.items.length > 0 ? (
                         orderList?.items.map((order: any) => {
                             return (
                                 <div
