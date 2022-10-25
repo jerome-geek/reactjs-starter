@@ -9,16 +9,7 @@ import PrimaryButton from 'components/Button/PrimaryButton';
 interface SearchPeriodProps extends HTMLAttributes<HTMLDivElement> {
     startYmd: string;
     endYmd: string;
-    setSearchPeriod: any;
-    setSearchCondition: Dispatch<
-        SetStateAction<{
-            hasTotalCount: boolean;
-            pageNumber: number;
-            pageSize: number;
-            startYmd: string;
-            endYmd: string;
-        }>
-    >;
+    setSearchCondition: Dispatch<SetStateAction<Paging & SearchDate>>;
 }
 
 interface PeriodTab {
@@ -59,8 +50,6 @@ const SearchButton = styled(PrimaryButton)`
 const SearchPeriod: FC<SearchPeriodProps> = ({
     startYmd,
     endYmd,
-    setSearchPeriod,
-
     setSearchCondition,
 }) => {
     const [periodTab, setPeriodTab] = useState<PeriodTab[]>([
@@ -83,10 +72,6 @@ const SearchPeriod: FC<SearchPeriodProps> = ({
                 toArray,
             ),
         );
-        setSearchPeriod({
-            startYmd: dayjs().subtract(period, 'days').format('YYYY-MM-DD'),
-            endYmd: dayjs().format('YYYY-MM-DD'),
-        });
     };
 
     const onSearchButtonClick = () => {

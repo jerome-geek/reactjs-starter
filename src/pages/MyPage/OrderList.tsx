@@ -17,7 +17,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PATHS from 'const/paths';
 
 const OrderListContainer = styled(LayoutResponsive)`
-    margin-top: 150px;
     max-width: 840px;
 `;
 
@@ -29,23 +28,12 @@ const OrderDetailLink = styled(Link)`
     color: #999999;
 `;
 
-const DEFAULT_SEARCH_PERIOD = 7;
-
 const OrderList = () => {
-    const [searchPeriod, setSearchPeriod] = useState({
-        startYmd: dayjs()
-            .subtract(DEFAULT_SEARCH_PERIOD, 'days')
-            .format('YYYY-MM-DD'),
-        endYmd: dayjs().format('YYYY-MM-DD'),
-    });
-
     const [searchCondition, setSearchCondition] = useState({
         hasTotalCount: true,
         pageNumber: 1,
         pageSize: 30,
-        startYmd: dayjs()
-            .subtract(DEFAULT_SEARCH_PERIOD, 'days')
-            .format('YYYY-MM-DD'),
+        startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
         endYmd: dayjs().format('YYYY-MM-DD'),
     });
 
@@ -78,7 +66,6 @@ const OrderList = () => {
             }),
         {
             select: ({ data }) => data,
-            onSuccess: (data) => {},
         },
     );
 
@@ -88,9 +75,8 @@ const OrderList = () => {
 
             <OrderListContainer>
                 <SearchPeriod
-                    startYmd={searchPeriod.startYmd}
-                    endYmd={searchPeriod.endYmd}
-                    setSearchPeriod={setSearchPeriod}
+                    startYmd={searchCondition.startYmd}
+                    endYmd={searchCondition.endYmd}
                     setSearchCondition={setSearchCondition}
                 />
 

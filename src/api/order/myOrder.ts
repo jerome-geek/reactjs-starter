@@ -1,4 +1,5 @@
 import { AxiosResponse } from 'axios';
+import dayjs from 'dayjs';
 
 import request, { defaultHeaders } from 'api/core';
 import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
@@ -10,17 +11,26 @@ import {
 } from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
+interface GetOrderListParams extends Paging, SearchDate {
+    orderRequestTypes?: ORDER_REQUEST_TYPE;
+}
+
 const myOrder = {
     /**
      * 주문 리스트 조회하기
      * - 시작일 종료일 사이의 주문리스트를 조회하는 API 입니다.
      *
-     * @param params
+     * @param GetOrderListParams
      * @returns Promise<AxiosResponse>
      */
     getOrderList: (
-        params?: { orderRequestTypes?: ORDER_REQUEST_TYPE } & Paging &
-            SearchDate,
+        params: GetOrderListParams = {
+            pageNumber: 1,
+            pageSize: 10,
+            hasTotalCount: false,
+            startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+        },
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 

@@ -35,8 +35,6 @@ const StyledLink = styled(Link)`
 `;
 
 const MyPageContainer = styled(LayoutResponsive)`
-    margin-top: 150px;
-    padding-top: 0;
     max-width: 840px;
 `;
 
