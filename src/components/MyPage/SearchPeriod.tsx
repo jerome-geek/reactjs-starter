@@ -1,21 +1,30 @@
-import { FC, HTMLAttributes, MouseEvent, useState } from 'react';
+import { FC, HTMLAttributes, useState, Dispatch, SetStateAction } from 'react';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
-import { map, pipe, toArray } from '@fxts/core';
+import { map, pipe, toArray, filter, head } from '@fxts/core';
 
 import InputWithCalendarIcon from 'components/Input/InputWithCalendarIcon';
+import PrimaryButton from 'components/Button/PrimaryButton';
 
 interface SearchPeriodProps extends HTMLAttributes<HTMLDivElement> {
     startYmd: string;
     endYmd: string;
     setSearchPeriod: any;
-    onSearchClick: (startYmd: string, endYmd: string) => void;
+    setSearchCondition: Dispatch<
+        SetStateAction<{
+            hasTotalCount: boolean;
+            pageNumber: number;
+            pageSize: number;
+            startYmd: string;
+            endYmd: string;
+        }>
+    >;
 }
 
 interface PeriodTab {
     period: number;
     name: string;
-    isActive: boolean;
+    isSelected: boolean;
 }
 
 const SearchPeriodWrapper = styled.div`
@@ -41,41 +50,35 @@ const PeriodWrapper = styled.div`
     align-items: center;
 `;
 
-const SearchButton = styled.button`
-    background-color: #222943;
-    color: #fff;
-    font-size: 12px;
-    line-height: 18px;
-    letter-spacing: -0.48px;
-    padding: 6px 32px;
+const SearchButton = styled(PrimaryButton)`
+    max-height: 30px;
+    line-height: 30px;
+    padding: 0;
 `;
 
 const SearchPeriod: FC<SearchPeriodProps> = ({
     startYmd,
     endYmd,
     setSearchPeriod,
-    onSearchClick,
+
+    setSearchCondition,
 }) => {
     const [periodTab, setPeriodTab] = useState<PeriodTab[]>([
-        { period: 0, name: '오늘', isActive: false },
-        { period: 7, name: '7일', isActive: true },
-        { period: 15, name: '15일', isActive: false },
-        { period: 30, name: '1개월', isActive: false },
-        { period: 90, name: '3개월', isActive: false },
-        { period: 365, name: '1년', isActive: false },
+        { period: 0, name: '오늘', isSelected: false },
+        { period: 7, name: '7일', isSelected: true },
+        { period: 15, name: '15일', isSelected: false },
+        { period: 30, name: '1개월', isSelected: false },
+        { period: 90, name: '3개월', isSelected: false },
+        { period: 365, name: '1년', isSelected: false },
     ]);
 
-    // TODO: searchTab 클릭시 period에 따라 부모 component의 searchperiod를 계산해서 바꿔줘야한다
-    const onPeriodTabClick = (
-        e: React.MouseEvent<HTMLButtonElement>,
-        period: number,
-    ) => {
-        setPeriodTab((prev: PeriodTab[]) =>
+    const onPeriodTabClick = (period: number) => {
+        setPeriodTab((prev) =>
             pipe(
                 prev,
-                map((a: PeriodTab) => ({
+                map((a) => ({
                     ...a,
-                    isActive: a.period === period,
+                    isSelected: a.period === period,
                 })),
                 toArray,
             ),
@@ -86,16 +89,31 @@ const SearchPeriod: FC<SearchPeriodProps> = ({
         });
     };
 
+    const onSearchButtonClick = () => {
+        const selectedTab = pipe(
+            periodTab,
+            filter((a) => a.isSelected),
+            head,
+        );
+
+        if (selectedTab) {
+            setSearchCondition((prev) => ({
+                ...prev,
+                startYmd: dayjs()
+                    .subtract(selectedTab.period, 'days')
+                    .format('YYYY-MM-DD'),
+            }));
+        }
+    };
+
     return (
         <SearchPeriodWrapper>
             <PeriodWrapper>
-                {periodTab.map(({ period, name, isActive }) => (
+                {periodTab.map(({ period, name, isSelected }) => (
                     <PeriodButton
                         key={period}
-                        selected={isActive}
-                        onClick={(e: MouseEvent<HTMLButtonElement>) =>
-                            onPeriodTabClick(e, period)
-                        }
+                        selected={isSelected}
+                        onClick={() => onPeriodTabClick(period)}
                     >
                         {name}
                     </PeriodButton>
@@ -111,9 +129,7 @@ const SearchPeriod: FC<SearchPeriodProps> = ({
                     type='after'
                     value={dayjs(endYmd).format('YYYY-MM-DD')}
                 />
-                <SearchButton>
-                    <span>조회</span>
-                </SearchButton>
+                <SearchButton onClick={onSearchButtonClick}>조회</SearchButton>
             </PeriodWrapper>
         </SearchPeriodWrapper>
     );

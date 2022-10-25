@@ -34,9 +34,10 @@ const StyledLink = styled(Link)`
     opacity: 1;
 `;
 
-const MyPageWrapper = styled(LayoutResponsive)`
+const MyPageContainer = styled(LayoutResponsive)`
     margin-top: 150px;
     padding-top: 0;
+    max-width: 840px;
 `;
 
 const MyPageSection = styled.div`
@@ -71,9 +72,7 @@ const MyPageIndex = () => {
             }),
         {
             enabled: isLogin,
-            select: ({ data }) => {
-                return data;
-            },
+            select: ({ data }) => data,
         },
     );
 
@@ -81,16 +80,12 @@ const MyPageIndex = () => {
         [PROFILE_ORDER_SUMMARY, member?.memberId],
         async () =>
             await myOrder.getOrderOptionStatus({
-                startYmd: dayjs()
-                    .subtract(1, 'year')
-                    .format('YYYY-MM-DD HH:mm:ss'),
-                endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                startYmd: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
+                endYmd: dayjs().format('YYYY-MM-DD'),
             }),
         {
             enabled: isLogin,
-            select: ({ data }) => {
-                return data;
-            },
+            select: ({ data }) => data,
         },
     );
     const couponData = useCouponData({ memberNo: member?.memberNo });
@@ -101,7 +96,7 @@ const MyPageIndex = () => {
 
             <Header />
 
-            <MyPageWrapper type='medium'>
+            <MyPageContainer>
                 <MyPageSection
                     style={{
                         display: 'flex',
@@ -165,7 +160,7 @@ const MyPageIndex = () => {
                         <CouponSummary coupons={couponData.data.items} />
                     )}
                 </MyPageSection>
-            </MyPageWrapper>
+            </MyPageContainer>
         </>
     );
 };

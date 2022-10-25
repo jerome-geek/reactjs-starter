@@ -16,8 +16,9 @@ import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PATHS from 'const/paths';
 
-const OrderListWrapper = styled(LayoutResponsive)`
+const OrderListContainer = styled(LayoutResponsive)`
     margin-top: 150px;
+    max-width: 840px;
 `;
 
 const OrderOptionList = styled.ul``;
@@ -34,57 +35,63 @@ const OrderList = () => {
     const [searchPeriod, setSearchPeriod] = useState({
         startYmd: dayjs()
             .subtract(DEFAULT_SEARCH_PERIOD, 'days')
-            .format('YYYY-MM-DD HH:mm:ss'),
-        endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            .format('YYYY-MM-DD'),
+        endYmd: dayjs().format('YYYY-MM-DD'),
+    });
+
+    const [searchCondition, setSearchCondition] = useState({
+        hasTotalCount: true,
+        pageNumber: 1,
+        pageSize: 30,
+        startYmd: dayjs()
+            .subtract(DEFAULT_SEARCH_PERIOD, 'days')
+            .format('YYYY-MM-DD'),
+        endYmd: dayjs().format('YYYY-MM-DD'),
     });
 
     const { member } = useMember();
 
     const { data: orderSummary } = useQuery(
-        [PROFILE_ORDER_SUMMARY, member?.memberId],
+        [
+            PROFILE_ORDER_SUMMARY,
+            member?.memberId,
+            {
+                startYmd: searchCondition.startYmd,
+                endYmd: searchCondition.endYmd,
+            },
+        ],
         async () =>
             await myOrder.getOrderOptionStatus({
-                startYmd: searchPeriod.startYmd,
-                endYmd: searchPeriod.endYmd,
+                startYmd: searchCondition.startYmd,
+                endYmd: searchCondition.endYmd,
             }),
         {
-            select: ({ data }) => {
-                return data;
-            },
+            select: ({ data }) => data,
         },
     );
 
     const { data: orderList } = useQuery(
-        [MY_ORDER_LIST, member?.memberId],
+        [MY_ORDER_LIST, member?.memberId, { ...searchCondition }],
         async () =>
             await myOrder.getOrderList({
-                hasTotalCount: true,
-                pageNumber: 1,
-                pageSize: 30,
-                startYmd: searchPeriod.startYmd,
-                endYmd: searchPeriod.endYmd,
+                ...searchCondition,
             }),
         {
-            select: ({ data }) => {
-                return data;
-            },
+            select: ({ data }) => data,
+            onSuccess: (data) => {},
         },
     );
-
-    const onSearchClick = (startYmd: string, endYmd: string) => {
-        setSearchPeriod({ startYmd, endYmd });
-    };
 
     return (
         <>
             <Header />
 
-            <OrderListWrapper type='medium'>
+            <OrderListContainer>
                 <SearchPeriod
                     startYmd={searchPeriod.startYmd}
                     endYmd={searchPeriod.endYmd}
                     setSearchPeriod={setSearchPeriod}
-                    onSearchClick={onSearchClick}
+                    setSearchCondition={setSearchCondition}
                 />
 
                 {orderSummary && (
@@ -92,94 +99,103 @@ const OrderList = () => {
                 )}
 
                 <div style={{ marginTop: '40px' }}>
-                    {orderList?.items.map((order: any) => {
-                        console.log(
-                            '🚀 ~ file: OrderList.tsx ~ line 71 ~ OrderList ~ order',
-                            order,
-                        );
-                        return (
-                            <div
-                                key={order.orderNo}
-                                style={{ borderTop: '2px solid #222943' }}
-                            >
+                    {orderList?.items.length > 0 ? (
+                        orderList?.items.map((order: any) => {
+                            return (
                                 <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '10px',
-                                        lineHeight: '24px',
-                                        borderBottom: '1px solid #222943',
-                                    }}
+                                    key={order.orderNo}
+                                    style={{ borderTop: '2px solid #222943' }}
                                 >
-                                    <p
+                                    <div
                                         style={{
-                                            fontSize: '16px',
-                                            letterSpacing: 0,
-                                            color: '#191919',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '10px',
+                                            lineHeight: '24px',
+                                            borderBottom: '1px solid #222943',
                                         }}
                                     >
-                                        {order.orderNo}&nbsp;
-                                        <OrderDetailLink
-                                            to={`${PATHS.MY_ORDER_DETAIL}/${order.orderNo}`}
+                                        <p
+                                            style={{
+                                                fontSize: '16px',
+                                                letterSpacing: 0,
+                                                color: '#191919',
+                                            }}
                                         >
-                                            주문상세&nbsp;
-                                            <FontAwesomeIcon
-                                                icon={faAngleRight}
-                                            />
-                                        </OrderDetailLink>
-                                    </p>
-                                    <p
-                                        style={{
-                                            fontSize: '10px',
-                                            letterSpacing: 0,
-                                            color: '#000000',
-                                        }}
-                                    >
-                                        {`${dayjs(order.orderYmdt).format(
-                                            'YY-MM-DD HH:mm',
-                                        )} 주문`}
-                                    </p>
-                                </div>
+                                            {order.orderNo}&nbsp;
+                                            <OrderDetailLink
+                                                to={`${PATHS.MY_ORDER_DETAIL}/${order.orderNo}`}
+                                            >
+                                                주문상세&nbsp;
+                                                <FontAwesomeIcon
+                                                    icon={faAngleRight}
+                                                />
+                                            </OrderDetailLink>
+                                        </p>
+                                        <p
+                                            style={{
+                                                fontSize: '10px',
+                                                letterSpacing: 0,
+                                                color: '#000000',
+                                            }}
+                                        >
+                                            {`${dayjs(order.orderYmdt).format(
+                                                'YY-MM-DD HH:mm',
+                                            )} 주문`}
+                                        </p>
+                                    </div>
 
-                                <OrderOptionList>
-                                    {order.orderOptions?.map((option: any) => {
-                                        console.log(
-                                            '🚀 ~ file: OrderList.tsx ~ line 99 ~ {orderList?.items.map ~ option',
-                                            option,
-                                        );
-                                        return (
-                                            <OrderOptionListItem
-                                                key={
-                                                    option.orderNo +
-                                                    option.optionNo
-                                                }
-                                                productNo={option.productNo}
-                                                imageUrl={option.imageUrl}
-                                                orderStatusTypeLabel={
-                                                    option.orderStatusTypeLabel
-                                                }
-                                                productName={option.productName}
-                                                optionName={option.optionName}
-                                                orderCnt={option.orderCnt}
-                                                price={option.price}
-                                                invoiceNo={
-                                                    option.delivery.invoiceNo ||
-                                                    411677450483
-                                                } // TEST용 값 추가
-                                                deliveryCompanyTypeLabel={
-                                                    option.delivery
-                                                        .deliveryCompanyTypeLabel
-                                                }
-                                            />
-                                        );
-                                    })}
-                                </OrderOptionList>
-                            </div>
-                        );
-                    })}
+                                    <OrderOptionList>
+                                        {order.orderOptions?.map(
+                                            (option: any) => {
+                                                return (
+                                                    <OrderOptionListItem
+                                                        key={
+                                                            option.orderNo +
+                                                            option.optionNo
+                                                        }
+                                                        productNo={
+                                                            option.productNo
+                                                        }
+                                                        imageUrl={
+                                                            option.imageUrl
+                                                        }
+                                                        orderStatusTypeLabel={
+                                                            option.orderStatusTypeLabel
+                                                        }
+                                                        productName={
+                                                            option.productName
+                                                        }
+                                                        optionName={
+                                                            option.optionName
+                                                        }
+                                                        orderCnt={
+                                                            option.orderCnt
+                                                        }
+                                                        price={option.price}
+                                                        invoiceNo={
+                                                            option.delivery
+                                                                .invoiceNo ||
+                                                            411677450483
+                                                        } // TEST용 값 추가
+                                                        deliveryCompanyTypeLabel={
+                                                            option.delivery
+                                                                .deliveryCompanyTypeLabel
+                                                        }
+                                                    />
+                                                );
+                                            },
+                                        )}
+                                    </OrderOptionList>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div>주문 내역이 없습니다.</div>
+                    )}
                 </div>
-            </OrderListWrapper>
+            </OrderListContainer>
         </>
     );
 };
