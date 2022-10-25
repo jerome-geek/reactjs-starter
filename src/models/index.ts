@@ -90,6 +90,74 @@ enum ACCUMULATION_GIVE_POINT {
     NEXT_MONTH = 'NEXT_MONTH',
 }
 
+// 적립사유 코드
+enum ACCUMULATION_RESERVE_REASON {
+    // 상품 구매확정 적립,
+    ADD_AFTER_PAYMENT = 'ADD_AFTER_PAYMENT',
+    // 이벤트 구매확정 적립
+    ADD_AFTER_EVENT_PAYMENT = 'ADD_AFTER_EVENT_PAYMENT',
+    // 상품 교환 결제 추가 적립
+    ADD_AFTER_REPLACE_PAYMENT = 'ADD_AFTER_REPLACE_PAYMENT',
+    // 상품평 작성 적립
+    ADD_POSTING = 'ADD_POSTING',
+    // 주문취소 재적립
+    ADD_CANCEL = 'ADD_CANCEL',
+    // 반품 재적립
+    ADD_RETURN = 'ADD_RETURN',
+    // 운영자 지급
+    ADD_MANUAL = 'ADD_MANUAL',
+    // 이벤트성 적립
+    ADD_EVENT = 'ADD_EVENT',
+    // 회원가입 적립금
+    ADD_SIGNUP = 'ADD_SIGNUP',
+    // 생일축하 적립금
+    ADD_BIRTHDAY = 'ADD_BIRTHDAY',
+    // 앱설치 적립금
+    ADD_APP_INSTALL = 'ADD_APP_INSTALL',
+    // 회원등급 적립금
+    ADD_GRADE = 'ADD_GRADE',
+    // 등급 혜택 즉시 지급 적립금
+    ADD_GRADE_BENEFIT = 'ADD_GRADE_BENEFIT',
+    // 상품 결제 사용 차감
+    SUB_PAYMENT_USED = 'SUB_PAYMENT_USED',
+    // 교환 상품 추가 결제 차감
+    SUB_EXTRA_PAYMENT_USED = 'SUB_EXTRA_PAYMENT_USED',
+    // 사용적립금 주문취소 재적립
+    SUB_CANCEL = 'SUB_CANCEL',
+    // 상품 구매확정 취소 차감
+    SUB_RETURN = 'SUB_RETURN',
+    // 상품평 삭제 차감
+    SUB_DELETE_POSTING = 'SUB_DELETE_POSTING',
+    // 유효기간 만료
+    SUB_EXPIRED = 'SUB_EXPIRED',
+    // 운영자 차감
+    SUB_MANUAL = 'SUB_MANUAL',
+    // 회원탈퇴 차감
+    SUB_DELETE_ACCOUNT = 'SUB_DELETE_ACCOUNT',
+    // 외부적립금
+    EXTERNAL_ACCUMULATION = 'EXTERNAL_ACCUMULATION',
+}
+
+// 적립 지급/차감 구분 코드
+enum ACCUMULATION_STATUS_GROUP_TYPE {
+    // 지급
+    PAYMENT = 'PAYMENT',
+    // 차감
+    DEDUCTION = 'DEDUCTION',
+}
+
+// 적립상태 코드
+enum ACCUMULATION_STATUS {
+    // 지급
+    GIVE = 'GIVE',
+    // 사용 취소로 인한 재지급
+    GIVE_BY_CANCELED = 'GIVE_BY_CANCELED',
+    // 차감
+    SUBTRACTION = 'SUBTRACTION',
+    // 지급 취소로 인한 재차감
+    SUBTRACTION_BY_CANCELED = 'SUBTRACTION_BY_CANCELED',
+}
+
 // 쇼핑몰 회원 인증 수단
 enum AUTHENTICATION_TYPE {
     // 휴대폰 본인 인증
@@ -927,6 +995,9 @@ export {
     PRODUCT_ACCUMULATION_BASIS_TYPE,
     ACCUMULATION_DISPLAY_FORMAT_TYPE,
     ACCUMULATION_GIVE_POINT,
+    ACCUMULATION_RESERVE_REASON,
+    ACCUMULATION_STATUS_GROUP_TYPE,
+    ACCUMULATION_STATUS,
     AUTHENTICATION_TYPE,
     AUTHENTICATION_TIME_TYPE,
     AUTH_TYPE,

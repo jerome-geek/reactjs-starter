@@ -1,4 +1,10 @@
-import { ORDER_DIRECTION, SEARCH_TYPE } from 'models';
+import {
+    ACCUMULATION_RESERVE_REASON,
+    ACCUMULATION_STATUS,
+    ACCUMULATION_STATUS_GROUP_TYPE,
+    ORDER_DIRECTION,
+    SEARCH_TYPE,
+} from 'models';
 import { INQUIRY_SEARCH_TYPE } from 'models/index';
 
 type INQUIRY_STATUS = 'ISSUED' | 'ASKED' | 'IN_PROGRESS' | 'ANSWERED';
@@ -208,4 +214,50 @@ export interface Answer {
     answerNo: number;
     answerContent: string;
     answerRegisterYmdt: string;
+}
+
+export interface GetAccumulationHistoriesResponse {
+    // 회원 번호 (example: 0)
+    memberNo: number;
+    // 적립 총액 (example: 0)
+    totalAmt: number;
+    // 전체 카운트 (example: 0)
+    totalCount: number;
+    itmes: AccumulationHistory[];
+}
+
+export interface AccumulationHistory {
+    // 만료일 (example: YYYY-MM-DD HH:mm:ss)
+    expireYmdt: string;
+    // 주문번호 (example: string)
+    orderNo: string;
+    // 적립금 번호(example: 0)
+    accumulationNo: number;
+    // 잔여 적립금 (example: 0)
+    accumulationRestAmt: number;
+    // 적립사유 코드 (example: ADD_AFTER_PAYMENT)
+    accumulationReserveReason: ACCUMULATION_RESERVE_REASON;
+    // 적립사유 코드 표시명 (example: string)
+    accumulationReserveReasonDisplay: string;
+    // 시작일 (example: YYYY-MM-DD HH:mm:ss)
+    startYmdt: string;
+    // 적립사유 상세 (example: string);
+    reasonDetail: string;
+    // 적립금 총액 (example: 0)
+    totalAvailableAmt: number;
+    // 적립 지급/차감 구분 코드 (example: PAYMENT)
+    accumulationStatusGroupType: ACCUMULATION_STATUS_GROUP_TYPE;
+    // 적립금액 (example: 0)
+    accumulationAmt: number;
+    // 적립상태 코드 (example: GIVE_AVAILABLE)
+    accumulationStatus: ACCUMULATION_STATUS;
+    // 등록일 (example: YYYY-MM-DD HH:mm:ss)
+    registerYmdt: string;
+}
+
+export interface GetAccumulationSummaryResponse {
+    // 사용가능한 총 적립금액 (example: 0)
+    totalAvailableAmt: number;
+    // 만료조회 총 적립금액 (example: 0)
+    totalExpireAmt: number;
 }
