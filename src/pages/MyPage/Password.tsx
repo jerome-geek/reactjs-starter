@@ -4,14 +4,18 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 import { AxiosError } from 'axios';
+import { ErrorMessage } from '@hookform/error-message';
 
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
+import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { profile } from 'api/member';
 import { ProfileBody } from 'models/member';
-import PATHS from 'const/paths';
+import { useDebounce } from 'hooks';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
+import PATHS from 'const/paths';
+import HTTP_RESPONSE from 'const/http';
 
 const PasswordContainer = styled.form`
     width: 440px;
@@ -152,24 +156,33 @@ const Password = () => {
 
     const navigate = useNavigate();
 
-    const { register, handleSubmit } =
-        useForm<
-            Omit<
-                ProfileBody,
-                | 'firstName'
-                | 'lastName'
-                | 'openIdAccessToken'
-                | 'ci'
-                | 'recommenderId'
-                | 'countryCd'
-                | 'groupNo'
-                | 'memberId'
-            > & {
-                checkNewPassword: string;
-            }
-        >();
+    const {
+        register,
+        handleSubmit,
+        setError,
+        watch,
+        clearErrors,
+        formState: { errors },
+    } = useForm<
+        Omit<
+            ProfileBody,
+            | 'firstName'
+            | 'lastName'
+            | 'openIdAccessToken'
+            | 'ci'
+            | 'recommenderId'
+            | 'countryCd'
+            | 'groupNo'
+            | 'memberId'
+        > & {
+            checkNewPassword: string;
+        }
+    >();
 
-    const { mutate: updatePassword } = useMutation(
+    const inputPassword = watch('password');
+    const inputCheckPassword = watch('checkNewPassword');
+
+    const passwordMutation = useMutation(
         async (
             updateInfoData: Omit<
                 ProfileBody,
@@ -195,25 +208,42 @@ const Password = () => {
     );
 
     const onSubmit = handleSubmit(
-        async ({
-            password: newPassword,
-            checkNewPassword,
-            currentPassword,
-        }) => {
-            if (newPassword !== checkNewPassword) {
-                alert('새 비밀번호가 일치하지 않습니다.');
-                return;
-            }
-            profile
-                .checkPassword({ password: currentPassword })
-                .then(() => {
-                    updatePassword({
+        async ({ password: newPassword, currentPassword }) => {
+            try {
+                const checkPasswordResponse = await profile.checkPassword({
+                    password: currentPassword,
+                });
+
+                if (
+                    checkPasswordResponse.status ===
+                    HTTP_RESPONSE.HTTP_NO_CONTENT
+                ) {
+                    await passwordMutation.mutateAsync({
                         password: newPassword,
                     });
-                })
-                .catch((error) => alert(error.response.data.message));
+                }
+            } catch (error) {
+                if (error instanceof AxiosError) {
+                    alert(error.response?.data.message);
+                } else {
+                    alert('알수 없는 에러가 발생했습니다.');
+                }
+            }
         },
     );
+
+    const checkEmailIsSame = useDebounce(() => {
+        if (inputPassword?.length === 0 || inputCheckPassword?.length === 0) {
+            return;
+        }
+        if (inputPassword === inputCheckPassword) {
+            clearErrors('checkNewPassword');
+            return;
+        }
+        setError('checkNewPassword', {
+            message: '비밀번호가 일치하지 않습니다.',
+        });
+    }, 700);
 
     return (
         <>
@@ -248,11 +278,20 @@ const Password = () => {
                     </PasswordTitleContainer>
                     <PasswordInput
                         placeholder='비밀번호 입력'
+                        onKeyUp={() => checkEmailIsSame()}
                         {...register('password')}
                     />
                     <PasswordInput
                         placeholder='비밀번호 재입력'
+                        onKeyUp={() => checkEmailIsSame()}
                         {...register('checkNewPassword')}
+                    />
+                    <ErrorMessage
+                        errors={errors}
+                        name='checkNewPassword'
+                        render={({ message }) => (
+                            <StyledErrorMessage>{message}</StyledErrorMessage>
+                        )}
                     />
                 </PasswordInputContainer>
                 <PasswordUpdateButton>비밀번호 변경</PasswordUpdateButton>
