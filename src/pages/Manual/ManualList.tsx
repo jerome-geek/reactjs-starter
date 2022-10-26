@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { head } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import ManualCard from 'components/Card/ManualCard';
 import Loader from 'components/shared/Loader';
@@ -124,7 +123,7 @@ const ManualList = () => {
                     title: manual('manualTitle'),
                 }}
             />
-            <Header />
+
             <div style={{ padding: '10px', width: '1280px', margin: '0 auto' }}>
                 <div style={{ marginTop: '4rem' }}>
                     <h1 style={{ fontSize: '24px' }}>

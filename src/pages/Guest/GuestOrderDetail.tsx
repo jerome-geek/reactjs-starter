@@ -1,19 +1,15 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useWindowSize } from 'usehooks-ts';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import OrderInformationSection from 'components/Order/OrderInformationSection';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import SecondaryButton from 'components/Button/SecondaryButton';
 import { guestOrder } from 'api/order';
-import { isDesktop } from 'utils/styles/responsive';
 import { tokenStorage } from 'utils/storage';
 import { KRW } from 'utils/currency';
 import media from 'utils/styles/media';
@@ -94,8 +90,6 @@ const GuestOrderDetail = () => {
         navigate(PATHS.GUEST_LOGIN);
     }
 
-    const { width } = useWindowSize();
-
     const guestToken = useMemo(
         () =>
             tokenStorage.getGuestToken()
@@ -128,12 +122,6 @@ const GuestOrderDetail = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'비회원 주문 조회'} />
-            )}
-
             <GuestOrderDetailContainer>
                 {guestOrderData.data && (
                     <>

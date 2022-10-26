@@ -16,3 +16,8 @@ interface SearchDate {
     startYmd: string;
     endYmd: string;
 }
+
+interface ItemList<T> {
+    totalCount: number;
+    items: T[];
+}

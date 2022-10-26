@@ -344,32 +344,16 @@ enum OPEN_ID_TERM {
     PERSONAL_THIRD_PARTY_PROVISION = 'PERSONAL_THIRD_PARTY_PROVISION',
 }
 
+// 주문옵션타입
 enum ORDER_REQUEST_TYPE {
+    //전체
     ALL = 'ALL',
+    // 클레임 진행
     CLAIM = 'CLAIM',
+    // 클레임미진행
     NORMAL = 'NORMAL',
-
-    DEPOSIT_WAIT = 'DEPOSIT_WAIT',
-
-    PAY_DONE = 'PAY_DONE',
-
-    PRODUCT_PREPARE = 'PRODUCT_PREPARE',
-
-    DELIVERY_PREPARE = 'DELIVERY_PREPARE',
-
-    DELIVERY_ING = 'DELIVERY_ING',
-    DELIVERY_DONE = 'DELIVERY_DONE',
-    BUY_CONFIRM = 'BUY_CONFIRM',
-    CANCEL_DONE = 'CANCEL_DONE',
-    RETURN_DONE = 'RETURN_DONE',
-    EXCHANGE_DONE = 'EXCHANGE_DONE',
-    PAY_WAIT = 'PAY_WAIT',
-    PAY_CANCEL = 'PAY_CANCEL',
-    PAY_FAIL = 'PAY_FAIL',
-    DELETE = 'DELETE',
-    EXCHANGE_WAIT = 'EXCHANGE_WAIT',
-    REFUND_DONE = 'REFUND_DONE',
 }
+
 // 주문상태 값
 enum ORDER_STATUS_TYPE {
     // 입금대기
@@ -987,6 +971,40 @@ enum DISCOUNT_UNIT_TYPE {
     RATE = 'RATE',
 }
 
+// 작업타입
+enum NEXT_ACTION_TYPE {
+    // 주문취소
+    CANCEL_ALL = 'CANCEL_ALL',
+    // 취소
+    CANCEL = 'CANCEL',
+    // 교환
+    EXCHANGE = 'EXCHANGE',
+    // 반품
+    RETURN = 'RETURN',
+    // 취소신청 취소
+    WITHDRAW_CANCEL = 'WITHDRAW_CANCEL',
+    // 교환신청 취소
+    WITHDRAW_EXCHANGE = 'WITHDRAW_EXCHANGE',
+    // 반품신청 취소
+    WITHDRAW_RETURN = 'WITHDRAW_RETURN',
+    // 클레임 조회
+    VIEW_CLAIM = 'VIEW_CLAIM',
+    // 배송조회
+    VIEW_DELIVERY = 'VIEW_DELIVERY',
+    // 수취확인
+    DELIVERY_DONE = 'DELIVERY_DONE',
+    // 구매확정
+    CONFIRM_ORDER = 'CONFIRM_ORDER',
+    // 배송지변경
+    CHANGE_ADDRESS = 'CHANGE_ADDRESS',
+    // 상품평작성
+    WRITE_REVIEW = 'WRITE_REVIEW',
+    // 현금영수증 발행
+    ISSUE_CASH_RECEIPT = 'ISSUE_CASH_RECEIPT',
+    // 현금영수증 조회
+    VIEW_RECEIPT = 'VIEW_RECEIPT',
+}
+
 export {
     REQUIRED_TYPE,
     IMAGE_DISPLAY_TYPE,
@@ -1054,4 +1072,5 @@ export {
     USABLE_PLATFORMS,
     REFUND_TYPE,
     DISCOUNT_UNIT_TYPE,
+    NEXT_ACTION_TYPE,
 };

@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { useMall } from 'hooks';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 
 import KaKaoMap from 'components/shared/Map';
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
 import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import ShareModal from 'components/Modal/ShareModal';
 import media from 'utils/styles/media';
@@ -235,8 +233,6 @@ const ServiceCenter = () => {
 
     const { width } = useWindowSize();
 
-    const { mallInfo } = useMall();
-
     const { t: serviceCenter } = useTranslation('serviceCenter');
 
     return (
@@ -260,7 +256,6 @@ const ServiceCenter = () => {
                     },
                 }}
             />
-            <Header />
             <ServiceCenterContainer>
                 <Title>{serviceCenter('title')}</Title>
                 {!isMobile(width) && (

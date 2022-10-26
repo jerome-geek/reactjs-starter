@@ -1,9 +1,6 @@
-import React from 'react';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import JoinLayout from 'components/Layout/JoinLayout';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledInput from 'components/Input/StyledInput';
@@ -42,12 +39,6 @@ const FindPassword = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'비밀번호 찾기'} />
-            )}
-
             <JoinLayout
                 isDesktop={isDesktop(width)}
                 title={'비밀번호 찾기'}

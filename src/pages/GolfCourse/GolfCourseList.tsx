@@ -1,13 +1,11 @@
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import RequestResultProgress from 'components/GolfCourse/RequestResultProgress';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
-import { useTranslation } from 'react-i18next';
 
 const Container = styled.main`
     width: 840px;
@@ -178,11 +176,7 @@ const GolfCourseList = () => {
                     },
                 }}
             />
-            {isMobile(width) ? (
-                <MobileHeader title={courseList('subTitle')} />
-            ) : (
-                <Header />
-            )}
+
             <Container>
                 <Title>{courseList('title')}</Title>
                 <RequestResultProgress

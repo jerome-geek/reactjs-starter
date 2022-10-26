@@ -8,8 +8,6 @@ import dayjs from 'dayjs';
 import { coupon } from 'api/promotion';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledInput from 'components/Input/StyledInput';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import Coupon from 'components/Coupon/Coupon';
 import IssuableCoupon from 'components/Coupon/IssuableCoupon';
 import media, { mediaQuery } from 'utils/styles/media';
@@ -333,8 +331,6 @@ const Coupons = () => {
 
     return (
         <>
-            {isDesktop(width) ? <Header /> : <MobileHeader title={'쿠폰'} />}
-
             <MypageLayout>
                 <CouponContentContainer>
                     <CouponTitleContainer>

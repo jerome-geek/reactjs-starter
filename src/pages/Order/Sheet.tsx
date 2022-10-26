@@ -10,8 +10,6 @@ import { every, pipe, toArray, map } from '@fxts/core';
 import { DevTool } from '@hookform/devtools';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import CartList from 'components/Cart/CartList';
 import OrdererInformation from 'components/OrderSheet/OrdererInformation';
 import ShippingAddress from 'components/OrderSheet/ShippingAddress';
@@ -43,7 +41,7 @@ import {
 } from 'models/order';
 import { orderSheet } from 'api/order';
 import media from 'utils/styles/media';
-import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { isMobile } from 'utils/styles/responsive';
 import { useMall, useMember } from 'hooks';
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
@@ -609,13 +607,6 @@ const Sheet = () => {
                     couponApplyMutate={couponApplyMutate}
                 />
             )}
-
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={sheet('progress.now')} />
-            )}
-
             <OrderSheetContainer onSubmit={onOrderFormSubmit}>
                 {!isMobile(width) && (
                     <OrderProgress

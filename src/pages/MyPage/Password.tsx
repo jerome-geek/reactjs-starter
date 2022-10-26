@@ -250,11 +250,6 @@ const Password = () => {
 
     return (
         <>
-            {isMobile(width) ? (
-                <MobileHeader title={myPageInfo('passwordTitle')} />
-            ) : (
-                <Header />
-            )}
             <PasswordContainer
                 onSubmit={(e) => {
                     e.preventDefault();

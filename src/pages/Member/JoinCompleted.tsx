@@ -7,8 +7,6 @@ import { head } from '@fxts/core';
 import { AxiosResponse, AxiosError } from 'axios';
 
 import FlexContainer from 'components/shared/FlexContainer';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import media from 'utils/styles/media';
 import { isDesktop } from 'utils/styles/responsive';
@@ -134,12 +132,6 @@ const JoinCompleted = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'회원가입'} />
-            )}
-
             <JoinCompletedContainer>
                 <JoinLogo />
                 <JoinCompletedTitle

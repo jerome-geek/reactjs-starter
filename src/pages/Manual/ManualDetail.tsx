@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { product } from 'api/product';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import SecondaryButton from 'components/Button/SecondaryButton';
-import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
 
 const ManualDetail = () => {
@@ -27,7 +26,7 @@ const ManualDetail = () => {
                     title: manual('manualDetailTitle'),
                 }}
             />
-            <Header />
+
             <div style={{ padding: '10px', width: '1280px', margin: '0 auto' }}>
                 <div style={{ marginTop: '4rem' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>

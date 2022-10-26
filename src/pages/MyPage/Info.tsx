@@ -8,8 +8,6 @@ import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import { ReactComponent as CheckedSquare } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnCheckedSquare } from 'assets/icons/checkbox_square_unchecked.svg';
 import { ReactComponent as CheckedCircle } from 'assets/icons/checkbox_circle_checked.svg';
@@ -425,10 +423,6 @@ const Info = () => {
     );
     return (
         <>
-            <Header />
-            {isMobile(width) && (
-                <MobileHeader title={myPageInfo('infoTitle')} />
-            )}
             <InfoContainer>
                 {!isMobile(width) && (
                     <InfoTitle>{myPageInfo('infoTitle')}</InfoTitle>

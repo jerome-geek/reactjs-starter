@@ -5,6 +5,7 @@ import { useLockedBody, useWindowSize } from 'usehooks-ts';
 
 import MemberPopup from 'components/Member/MemberPopup';
 import SearchLayer from 'components/Search/SearchLayer';
+import HeaderNavigation from 'components/shared/HeaderNavigation';
 import SideNavigation from 'components/shared/SideNavigation';
 import { useCart, useMember } from 'hooks';
 import { isDesktop } from 'utils/styles/responsive';
@@ -19,8 +20,7 @@ import { ReactComponent as BarsIcon } from 'assets/icons/bars.svg';
 
 const HeaderContainer = styled.header`
     background-color: #fff;
-    box-shadow: 0 3px 5px #999;
-    padding: 34px 80px;
+    padding: 0 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,15 +33,17 @@ const HeaderContainer = styled.header`
     }
 `;
 
-const LogoContainer = styled.div``;
+const LogoContainer = styled.div`
+    padding: 34px 0;
+`;
 
 const NavContainer = styled.nav`
-    ${media.medium} {
-        display: none;
+    & > a {
+        padding: 34px 1.5em;
     }
 
-    & > a {
-        padding: 0 1.5em;
+    ${media.medium} {
+        display: none;
     }
 `;
 
@@ -49,6 +51,7 @@ const IconContainer = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 34px 0;
 
     & > div {
         cursor: pointer;
@@ -159,6 +162,7 @@ const Header = () => {
     const [myPageToggle, setMyPageToggle] = useState(false);
     const [searchToggle, setSearchToggle] = useState(false);
     const [sideNavigationToggle, setSideNavigationToggle] = useState(false);
+    const [headerNavigationToggle, setHeaderNavigationToggle] = useState(false);
 
     const navigate = useNavigate();
 
@@ -191,12 +195,26 @@ const Header = () => {
                 </LogoContainer>
 
                 {isDesktop(width) && (
-                    <NavContainer>
+                    <NavContainer
+                        onMouseUp={() => {
+                            setHeaderNavigationToggle(false);
+                        }}
+                        onMouseEnter={() => {
+                            setHeaderNavigationToggle(true);
+                        }}
+                        onMouseLeave={() => {
+                            setHeaderNavigationToggle(false);
+                        }}
+                    >
                         {headerNavList.map(({ url, name }) => (
                             <NavLink key={url} to={url}>
                                 {name}
                             </NavLink>
                         ))}
+
+                        <HeaderNavigation
+                            headerNavigationToggle={headerNavigationToggle}
+                        />
                     </NavContainer>
                 )}
 

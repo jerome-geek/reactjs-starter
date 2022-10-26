@@ -1,15 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SingleValue, StylesConfig } from 'react-select';
 import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { head, map, pipe, toArray } from '@fxts/core';
-import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import InputWithIcon from 'components/Input/InputWithIcon';
@@ -20,7 +17,6 @@ import { ReactComponent as ContourIcon } from 'assets/icons/golf_course_contour.
 import { ReactComponent as FinleyRoadIcon } from 'assets/icons/golf_course_finley_load.svg';
 import HazardIcon from 'assets/icons/golf_course_hazard.svg';
 import { ReactComponent as APLIcon } from 'assets/icons/golf_course_APL.svg';
-import { isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import golfCourse, { GolfCourseParams } from 'api/etc/golfCourse';
 import { product } from 'api/product';
@@ -394,8 +390,6 @@ const GolfCourseDetail = () => {
 
     const { courseNo } = useParams();
 
-    const { width } = useWindowSize();
-
     const { data: productData } = useQuery(
         [courseNo],
         async () => await product.getProductDetail(courseNo!),
@@ -474,7 +468,7 @@ const GolfCourseDetail = () => {
                 options: courseCity,
             },
         ],
-        [courseState, courseCity],
+        [courseDetail, courseState, courseCity],
     );
 
     return (
@@ -502,11 +496,7 @@ const GolfCourseDetail = () => {
                     },
                 }}
             />
-            {isMobile(width) ? (
-                <MobileHeader title={courseDetail('title')}></MobileHeader>
-            ) : (
-                <Header />
-            )}
+
             {productData && (
                 <CourseContainer>
                     <Title>{courseDetail('title')}</Title>

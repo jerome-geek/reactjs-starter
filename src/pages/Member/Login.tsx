@@ -9,7 +9,6 @@ import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
 import FlexContainer from 'components/shared/FlexContainer';
 import StyledInput from 'components/Input/StyledInput';
-import Header from 'components/shared/Header';
 import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
@@ -166,7 +165,6 @@ const Login = () => {
 
     return (
         <>
-            <Header />
             <DevTool control={control} placement='top-right' />
 
             <Contiainer>

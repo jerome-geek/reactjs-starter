@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { pipe, map, toArray, filter, every } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import JoinLayout from 'components/Layout/JoinLayout';
 import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
@@ -14,6 +12,7 @@ import media from 'utils/styles/media';
 import { isDesktop } from 'utils/styles/responsive';
 import PATHS from 'const/paths';
 import { ReactComponent as ArrowRightIcon } from 'assets/icons/arrow_right.svg';
+
 interface Agreement {
     id: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES;
     name: string;
@@ -149,12 +148,6 @@ const JoinAgreement = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'회원가입'} />
-            )}
-
             <JoinLayout
                 isDesktop={isDesktop(width)}
                 title={'회원가입'}

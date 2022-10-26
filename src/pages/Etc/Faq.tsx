@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { filter, head, pipe, slice, toArray } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
 import SectionDropdown from 'components/SectionDropdown';
 import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
@@ -327,7 +326,6 @@ const Faq = () => {
                     },
                 }}
             />
-            <Header></Header>
             <FaqContainer>
                 <FaqTitle>자주 묻는 질문</FaqTitle>
                 <FaqSearchContainer>

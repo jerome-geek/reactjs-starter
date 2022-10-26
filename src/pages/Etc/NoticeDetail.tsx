@@ -4,7 +4,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
-import Header from 'components/shared/Header';
 import Loader from 'components/shared/Loader';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import { board } from 'api/manage';
@@ -115,8 +114,6 @@ const NoticeDetail = () => {
 
     return (
         <>
-            <Header />
-
             <NoticeDetailContainer>
                 <NoticeDetailTitle>공지사항</NoticeDetailTitle>
                 {boardDetail ? (
