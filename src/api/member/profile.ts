@@ -132,7 +132,7 @@ const profile = {
     }): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
         return request({
-            method: 'GET',
+            method: 'DELETE',
             url: '/profile',
             params: { reason },
             headers: Object.assign({}, defaultHeaders(), {

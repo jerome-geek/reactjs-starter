@@ -6,6 +6,7 @@ import { useMutation } from 'react-query';
 import { useAppDispatch, useTypedSelector } from 'state/reducers';
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
+import { useTranslation } from 'react-i18next';
 
 import { ReactComponent as CheckedSquare } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnCheckedSquare } from 'assets/icons/checkbox_square_unchecked.svg';
@@ -362,6 +363,8 @@ const Info = () => {
 
     const { width } = useWindowSize();
 
+    const { t: myPageInfo } = useTranslation('myPageInfo');
+
     const agreeAll = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
             setValue('smsAgreed', true);
@@ -388,7 +391,7 @@ const Info = () => {
         ) => await profile.updateProfile(updateInfoData),
         {
             onSuccess: () => {
-                alert('회원 정보 수정 성공');
+                alert(myPageInfo('alert.successUpdateInfo'));
                 dispatch(fetchProfile());
                 navigate(PATHS.MY_PAGE);
             },
@@ -414,14 +417,16 @@ const Info = () => {
                     directMailAgreed,
                 });
             } catch (error) {
-                alert('회원 정보 수정 실패!');
+                alert(myPageInfo('alert.failUpdateInfo'));
             }
         },
     );
     return (
         <>
             <InfoContainer>
-                {!isMobile(width) && <InfoTitle>개인 정보 수정</InfoTitle>}
+                {!isMobile(width) && (
+                    <InfoTitle>{myPageInfo('infoTitle')}</InfoTitle>
+                )}
                 <InfoInputContainer
                     onSubmit={(e) => {
                         e.preventDefault();
@@ -429,21 +434,25 @@ const Info = () => {
                     }}
                 >
                     <InfoInputItem>
-                        <InfoInputTitle>이메일</InfoInputTitle>
+                        <InfoInputTitle>{myPageInfo('email')}</InfoInputTitle>
                         <InfoEmail>{member?.email}</InfoEmail>
                     </InfoInputItem>
                     <InfoNameSexContainer>
                         <InfoInputItem>
-                            <InfoInputTitle>이름</InfoInputTitle>
+                            <InfoInputTitle>
+                                {myPageInfo('name')}
+                            </InfoInputTitle>
                             <InfoName
                                 as={'input'}
-                                placeholder='홍길동'
+                                placeholder={myPageInfo('placeholder.name')}
                                 {...register('memberName')}
                             />
                         </InfoInputItem>
                         <InfoInputItem>
                             {isMobile(width) && (
-                                <InfoInputTitle>이름</InfoInputTitle>
+                                <InfoInputTitle>
+                                    {myPageInfo('name')}
+                                </InfoInputTitle>
                             )}
                             <InfoSexContainer>
                                 <InfoSex
@@ -454,7 +463,7 @@ const Info = () => {
                                             : selectedSex === SEX.MALE
                                     }
                                 >
-                                    남성
+                                    {myPageInfo('male')}
                                     <input
                                         type={'radio'}
                                         id='male'
@@ -476,7 +485,7 @@ const Info = () => {
                                     htmlFor='female'
                                     isChecked={selectedSex === SEX.FEMALE}
                                 >
-                                    여성
+                                    {myPageInfo('female')}
                                     <input
                                         type={'radio'}
                                         id='female'
@@ -494,18 +503,24 @@ const Info = () => {
                         </InfoInputItem>
                     </InfoNameSexContainer>
                     <InfoInputItem>
-                        <InfoInputTitle>비밀번호</InfoInputTitle>
+                        <InfoInputTitle>
+                            {myPageInfo('password')}
+                        </InfoInputTitle>
                         <PasswordButton to={PATHS.MY_PASSWORD}>
-                            비밀번호 변경하기
+                            {myPageInfo('updatePassword')}
                         </PasswordButton>
                     </InfoInputItem>
                     <InfoInputItem>
-                        <InfoInputTitle>전화번호</InfoInputTitle>
+                        <InfoInputTitle>
+                            {myPageInfo('phoneNumber')}
+                        </InfoInputTitle>
                         <InfoPhoneNumberContainer>
                             <InfoPhoneNumber
                                 as={'input'}
                                 type='tel'
-                                placeholder={"'-' 없이 입력해주세요"}
+                                placeholder={myPageInfo(
+                                    'placeholder.phoneNumber',
+                                )}
                                 onKeyDown={(
                                     e: KeyboardEvent<HTMLInputElement>,
                                 ) => {
@@ -521,12 +536,14 @@ const Info = () => {
                                 })}
                             />
                             <PhoneNumberCertificationButton as={'button'}>
-                                인증
+                                {myPageInfo('certification')}
                             </PhoneNumberCertificationButton>
                         </InfoPhoneNumberContainer>
                     </InfoInputItem>
                     <InfoInputItem>
-                        <InfoInputTitle>생년월일</InfoInputTitle>
+                        <InfoInputTitle>
+                            {myPageInfo('birthday')}
+                        </InfoInputTitle>
                         <BirthDayContainer>
                             <BirthDayInput
                                 disabled
@@ -560,11 +577,12 @@ const Info = () => {
                                         {...register('disclosure')}
                                     />
                                 </InfoTermCheckBox>
-                                <InfoTermTitle>정보공개</InfoTermTitle>
+                                <InfoTermTitle>
+                                    {myPageInfo('disclosure')}
+                                </InfoTermTitle>
                             </div>
                             <InfoTermDisclosureDescription>
-                                체크 시, 다른 사람들이 회원님의 정보를 확인할 수
-                                있습니다.
+                                {myPageInfo('disclosureDescription')}
                             </InfoTermDisclosureDescription>
                         </InfoTermContainer>
                         <InfoTermContainer>
@@ -584,7 +602,7 @@ const Info = () => {
                                     />
                                 </InfoTermCheckBox>
                                 <InfoTermTitle>
-                                    마케팅 수신 전체동의
+                                    {myPageInfo('marketing')}
                                 </InfoTermTitle>
                             </div>
                             <MarketingMethodContainer>
@@ -596,7 +614,11 @@ const Info = () => {
                                     )}
                                     <p>
                                         SMS{' '}
-                                        {isMobile(width) && <span>(선택)</span>}
+                                        {isMobile(width) && (
+                                            <span>
+                                                ({myPageInfo('select')})
+                                            </span>
+                                        )}
                                     </p>
                                     <input
                                         type='checkbox'
@@ -611,8 +633,12 @@ const Info = () => {
                                         <UnCheckedCircle />
                                     )}
                                     <p>
-                                        이메일{' '}
-                                        {isMobile(width) && <span>(선택)</span>}
+                                        {myPageInfo('email')}{' '}
+                                        {isMobile(width) && (
+                                            <span>
+                                                ({myPageInfo('select')})
+                                            </span>
+                                        )}
                                     </p>
                                     <input
                                         type='checkbox'
@@ -623,12 +649,16 @@ const Info = () => {
                             </MarketingMethodContainer>
                         </InfoTermContainer>
                     </div>
-                    <UpdateButton as={'button'}>수정하기</UpdateButton>
+                    <UpdateButton as={'button'}>
+                        {myPageInfo('infoUpdate')}
+                    </UpdateButton>
                 </InfoInputContainer>
                 <DeleteProfile>
-                    회원 탈퇴를 원하시면,{' '}
-                    <Link to={`${PATHS.MY_PAGE}/sign-out`}>여기</Link>를
-                    눌러주세요
+                    {myPageInfo('wantWithdrawal')},{' '}
+                    <Link to={`${PATHS.MY_WITHDRAWAL}`}>
+                        {myPageInfo('here')}
+                    </Link>
+                    {myPageInfo('click')}
                 </DeleteProfile>
             </InfoContainer>
         </>

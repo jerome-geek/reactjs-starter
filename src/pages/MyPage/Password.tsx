@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 import { AxiosError } from 'axios';
 import { ErrorMessage } from '@hookform/error-message';
+import { useTranslation } from 'react-i18next';
 
 import Header from 'components/shared/Header';
 import MobileHeader from 'components/shared/MobileHeader';
@@ -182,6 +183,8 @@ const Password = () => {
     const inputPassword = watch('password');
     const inputCheckPassword = watch('checkNewPassword');
 
+    const { t: myPageInfo } = useTranslation('myPageInfo');
+
     const passwordMutation = useMutation(
         async (
             updateInfoData: Omit<
@@ -198,7 +201,7 @@ const Password = () => {
         ) => await profile.updateProfile(updateInfoData),
         {
             onSuccess: () => {
-                alert('회원 정보 수정 성공!');
+                alert(myPageInfo('alert.successUpdateInfo'));
                 navigate(PATHS.MY_INFO);
             },
             onError: (error: AxiosError<{ message: string }>) => {
@@ -226,7 +229,7 @@ const Password = () => {
                 if (error instanceof AxiosError) {
                     alert(error.response?.data.message);
                 } else {
-                    alert('알수 없는 에러가 발생했습니다.');
+                    alert(myPageInfo('alert.error'));
                 }
             }
         },
@@ -241,7 +244,7 @@ const Password = () => {
             return;
         }
         setError('checkNewPassword', {
-            message: '비밀번호가 일치하지 않습니다.',
+            message: myPageInfo('error.passwordUnMatch'),
         });
     }, 700);
 
@@ -253,31 +256,35 @@ const Password = () => {
                     onSubmit();
                 }}
             >
-                <Title>비밀번호 변경</Title>
+                <Title>{myPageInfo('passwordTitle')}</Title>
                 <PasswordInputContainer>
                     <PasswordTitleContainer>
-                        <PasswordTitle>기존 비밀번호</PasswordTitle>
+                        <PasswordTitle>
+                            {myPageInfo('currentPassword')}
+                        </PasswordTitle>
                         <PasswordTitleDescription></PasswordTitleDescription>
                     </PasswordTitleContainer>
                     <PasswordInput
-                        placeholder='비밀번호 입력'
+                        placeholder={myPageInfo('placeholder.currentPassword')}
                         {...register('currentPassword')}
                     />
                 </PasswordInputContainer>
                 <PasswordInputContainer>
                     <PasswordTitleContainer>
-                        <PasswordTitle>새 비밀번호</PasswordTitle>
+                        <PasswordTitle>
+                            {myPageInfo('newPassword')}
+                        </PasswordTitle>
                         <PasswordTitleDescription>
-                            (영어, 숫자, 특수문자 포함 8자리 이상)
+                            ({myPageInfo('passwordValidation')})
                         </PasswordTitleDescription>
                     </PasswordTitleContainer>
                     <PasswordInput
-                        placeholder='비밀번호 입력'
+                        placeholder={myPageInfo('placeholder.currentPassword')}
                         onKeyUp={() => checkEmailIsSame()}
                         {...register('password')}
                     />
                     <PasswordInput
-                        placeholder='비밀번호 재입력'
+                        placeholder={myPageInfo('placeholder.reEnterPassword')}
                         onKeyUp={() => checkEmailIsSame()}
                         {...register('checkNewPassword')}
                     />
@@ -289,12 +296,16 @@ const Password = () => {
                         )}
                     />
                 </PasswordInputContainer>
-                <PasswordUpdateButton>비밀번호 변경</PasswordUpdateButton>
+                <PasswordUpdateButton>
+                    {myPageInfo('updatePasswordButton')}
+                </PasswordUpdateButton>
                 {isMobile(width) && (
                     <DeleteProfile>
-                        회원 탈퇴를 원하시면,{' '}
-                        <Link to={`${PATHS.MY_PAGE}/sign-out`}>여기</Link>를
-                        눌러주세요
+                        {myPageInfo('wantWithdrawal')},{' '}
+                        <Link to={PATHS.MY_WITHDRAWAL}>
+                            {myPageInfo('here')}
+                        </Link>
+                        {myPageInfo('click')}
                     </DeleteProfile>
                 )}
             </PasswordContainer>

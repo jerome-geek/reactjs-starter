@@ -23,6 +23,7 @@ declare module 'react-i18next' {
             courseList: typeof ko.courseList;
             serviceCenter: typeof ko.serviceCenter;
             agency: typeof ko.agency;
+            myPageInfo: typeof ko.myPageInfo;
             // about: typeof ko.about;
             //   about: typeof ko
         };
