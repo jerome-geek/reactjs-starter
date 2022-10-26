@@ -509,10 +509,87 @@ enum DISCOUNTED_COMPARISON {
     BETWEEN = 'BETWEEN',
 }
 
+// 배송비 착불 여부
+enum DELIVERY_PAY_TYPE {
+    // 배송비 선불
+    PREPAID_DELIVERY = 'PREPAID_DELIVERY',
+    // 배송비 착불
+    PAY_ON_DELIVERY = 'PAY_ON_DELIVERY',
+}
+
+// 배송조건
 enum DELIVERY_CONDITION_TYPE {
+    // 무료
     FREE = 'FREE',
+    // 조건별무료
     CONDITIONAL = 'CONDITIONAL',
+    // 유료(고정 배송비)
     FIXED_FEE = 'FIXED_FEE',
+    // 수량 비례
+    QUANTITY_PROPOSITIONAL_FEE = 'QUANTITY_PROPOSITIONAL_FEE',
+    // 금액별 차등
+    PRICE_FEE = 'PRICE_FEE',
+    // 수량별 차등
+    QUANTITY_FEE = 'QUANTITY_FEE',
+}
+
+// 묶음배송조건
+enum GROUP_DELIVERY_AMT_TYPE {
+    // 최대부과
+    MAXIMUM_SELECTED = 'MAXIMUM_SELECTED',
+    // 최소부과
+    MINIMUM_SELECTED = 'MINIMUM_SELECTED',
+}
+
+// 배송구분 (`/cart` 에서 사용)
+enum SHIPPING_AREA_TYPE {
+    // 파트너사배송
+    PARTNER_SHIPPING_AREA = 'PARTNER_SHIPPING_AREA',
+    // 쇼핑몰배송
+    MALL_SHIPPING_AREA = 'MALL_SHIPPING_AREA',
+}
+
+// 배송 구분 (`/product/search` 에서 사용)
+enum SHIPPING_AREA_TYPE_PARAMS {
+    // 파트너사 배송
+    PARTNER = 'PARTNER',
+    // 쇼핑몰 배송
+    MALL = 'MALL',
+}
+
+// 옵션 선택 방식
+enum SELECT_TYPE {
+    // 일체형
+    FLAT = 'FLAT',
+    // 분리형
+    MULTI = 'MULTI',
+}
+
+enum DAYS_OF_WEEK {
+    // 일
+    SUN = 'SUN',
+    // 월
+    MON = 'MON',
+    // 화
+    TUE = 'TUE',
+    // 수
+    WED = 'WED',
+    // 목
+    THU = 'THU',
+    // 금
+    FRI = 'FRI',
+    // 토
+    SAT = 'SAT',
+}
+
+// 옵션형태
+enum OPTION_TYPE {
+    // 옵션없음
+    PRODUCT_ONLY = 'PRODUCT_ONLY',
+    // 일반옵션
+    NORMAL_OPTION = 'NORMAL_OPTION',
+    // 추가옵션
+    ADDITIONAL_PRODUCT = 'ADDITIONAL_PRODUCT',
 }
 
 enum PRODUCT_BY {
@@ -524,11 +601,6 @@ enum PRODUCT_BY {
     RECENT_PRODUCT = 'RECENT_PRODUCT',
     MD_RECOMMEND = 'MD_RECOMMEND',
     LIKE_CNT = 'LIKE_CNT',
-}
-
-enum SHIPPING_AREA_TYPE {
-    PARTNER = 'PARTNER',
-    MALL = 'MALL',
 }
 
 enum CHANNEL_TYPE {
@@ -644,6 +716,16 @@ enum PRODUCT_REVIEW_REPORT_TYPE {
 enum RETURN_WAY_TYPE {
     SELLER_COLLECT = 'SELLER_COLLECT',
     BUYER_DIRECT_RETURN = 'BUYER_DIRECT_RETURN',
+}
+
+// 배송타입
+enum DELIVERY_TYPE {
+    // 택배/등기/소포
+    PARCEL_DELIVERY = 'PARCEL_DELIVERY',
+    // 직접배송(화물배달)
+    DIRECT_DELIVERY = 'DIRECT_DELIVERY',
+    // 없음
+    NONE = 'NONE',
 }
 
 enum DELIVERY_COMPANY_TYPE {
@@ -1045,10 +1127,16 @@ export {
     REPLY_TYPE,
     CRITERION,
     DISCOUNTED_COMPARISON,
+    DELIVERY_PAY_TYPE,
     DELIVERY_CONDITION_TYPE,
+    GROUP_DELIVERY_AMT_TYPE,
+    SHIPPING_AREA_TYPE,
+    SHIPPING_AREA_TYPE_PARAMS,
+    SELECT_TYPE,
+    DAYS_OF_WEEK,
+    OPTION_TYPE,
     ORDER_STATUS_TYPE,
     PRODUCT_BY,
-    SHIPPING_AREA_TYPE,
     CHANNEL_TYPE,
     INQUIRY_SEARCH_TYPE,
     RESPONSIBLE_OBJECT_TYPE,
@@ -1057,6 +1145,7 @@ export {
     CART_EQUIVALENT_OPTION_UNIT_TYPE,
     PRODUCT_REVIEW_REPORT_TYPE,
     RETURN_WAY_TYPE,
+    DELIVERY_TYPE,
     DELIVERY_COMPANY_TYPE,
     BANK,
     CYCLE_TYPE,

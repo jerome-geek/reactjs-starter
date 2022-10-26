@@ -7,8 +7,6 @@ import { AxiosError } from 'axios';
 import { ErrorMessage } from '@hookform/error-message';
 import { useTranslation } from 'react-i18next';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { profile } from 'api/member';
 import { ProfileBody } from 'models/member';
@@ -302,9 +300,7 @@ const Password = () => {
                 {isMobile(width) && (
                     <DeleteProfile>
                         {myPageInfo('wantWithdrawal')},{' '}
-                        <Link to={PATHS.MY_WITHDRAWAL}>
-                            {myPageInfo('here')}
-                        </Link>
+                        <Link to={PATHS.WITHDRAWAL}>{myPageInfo('here')}</Link>
                         {myPageInfo('click')}
                     </DeleteProfile>
                 )}

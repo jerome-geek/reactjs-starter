@@ -132,7 +132,7 @@ const NoticeSearchResult: FC<NoticeSearchResultProps> = ({
                     <li
                         style={{
                             textAlign: 'center',
-                            minHeight: '60px',
+                            minHeight: '400px',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',

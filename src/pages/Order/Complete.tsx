@@ -341,11 +341,6 @@ const Complete = () => {
             enabled: isLogin && !!orderParam.get('orderNo'),
             select: (res) => ({ ...res.data, status: res.status }),
             onSuccess: (data) => {
-                console.log(
-                    '🚀 ~ file: Complete.tsx ~ line 452 ~ Complete ~ data',
-                    data,
-                );
-
                 if (data.status === HTTP_RESPONSE.HTTP_OK) {
                     data.orderOptionsGroupByPartner.forEach(
                         (partnerOptionGroup: any) => {
@@ -369,11 +364,8 @@ const Complete = () => {
                                             reservationDeliveryYmdt,
                                             setOptions,
                                             inputs,
+                                            validInfo,
                                         }: any) => {
-                                            console.log(
-                                                '🚀 ~ file: Complete.tsx ~ line 373 ~ Complete ~ optionNo',
-                                                optionNo,
-                                            );
                                             setOrderList((prev) => [
                                                 ...prev,
                                                 {
@@ -399,6 +391,7 @@ const Complete = () => {
                                                     reservation,
                                                     reservationDeliveryYmdt,
                                                     setOptions,
+                                                    validInfo,
                                                     soldOut: false, // TODO: check 필요
                                                     stockCnt: 999999, // TODO: check 필요
                                                 },
@@ -531,6 +524,7 @@ const Complete = () => {
                                             reservationDeliveryYmdt,
                                             setOptions,
                                             inputs,
+                                            validInfo,
                                         }: any) => {
                                             setOrderList((prev) => [
                                                 ...prev,
@@ -557,6 +551,7 @@ const Complete = () => {
                                                     reservation,
                                                     reservationDeliveryYmdt,
                                                     setOptions,
+                                                    validInfo,
                                                     soldOut: false, // TODO: check 필요
                                                     stockCnt: 999999, // TODO: check 필요
                                                 },

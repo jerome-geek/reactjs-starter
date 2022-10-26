@@ -23,7 +23,7 @@ const MyPageRouter = () => (
         <Route path='accumulation' element={<Accumulation />} />
         <Route path='round-analysis' element={<RoundAnalysis />} />
         <Route path='password' element={<Password />} />
-        <Route path='leave' element={<Withdrawal />} />
+        <Route path='withdrawal' element={<Withdrawal />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
 );

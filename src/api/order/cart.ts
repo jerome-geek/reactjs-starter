@@ -4,7 +4,8 @@ import qs from 'qs';
 import request, { defaultHeaders } from 'api/core';
 import {
     CartList,
-    CartPrice,
+    CartPriceInfo,
+    getMaximumCouponCartPriceResponse,
     OptionInputs,
     ShoppingCartBody,
 } from 'models/order/index';
@@ -86,10 +87,21 @@ const cart = {
         });
     },
 
+    /**
+     * 장바구니에서 선택된 상품금액 계산하기
+     *  - 장바구니에서 선택된 상품만 계산하여 금액만 리턴하는 API 입니다.
+     *  - 아래 화면예시에서 상품/옵션별 배송비는 업데이트(재계산)하지 못합니다.
+     *  - cartNo 파라미터 자체를 넘기지 않는 경우 : 장바구니 전체
+     *  - cartNo 에 빈 값을 넘기는 경우 : 0원
+     * TODO: cartNo는 dot seperated value(string)
+     *
+     * @param params
+     * @returns
+     */
     getSelectedCartPrice: (params: {
         cartNo: number[] | number | null;
         divideInvalidProducts?: boolean;
-    }): Promise<AxiosResponse<CartPrice>> => {
+    }): Promise<AxiosResponse<CartPriceInfo>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
@@ -101,14 +113,13 @@ const cart = {
             },
             paramsSerializer: (param) =>
                 qs.stringify(param, { arrayFormat: 'comma' }),
-
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
         });
     },
 
-    getCartCount: (): Promise<AxiosResponse> => {
+    getCartCount: (): Promise<AxiosResponse<{ count: number }>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
@@ -144,6 +155,28 @@ const cart = {
         return request({
             method: 'GET',
             url: '/cart/validate',
+            headers: Object.assign({}, defaultHeaders(), {
+                accessToken: accessTokenInfo?.accessToken || '',
+            }),
+        });
+    },
+
+    /**
+     * 장바구니 기준 최대 쿠폰 할인 금액 가져오기
+     *  - 장바구니 기준으로 최대 할인이 가능한 쿠폰 정보를 조회합니다.
+     *
+     * @param parmas
+     * @returns
+     */
+    getMaximumCouponCartPrice: (parmas: {
+        cartNo: number;
+    }): Promise<AxiosResponse<getMaximumCouponCartPriceResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
+            method: 'GET',
+            url: '/cart/coupons/maximum',
+            params: parmas?.cartNo,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
