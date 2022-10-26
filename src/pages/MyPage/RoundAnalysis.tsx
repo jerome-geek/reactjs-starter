@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
-import Header from 'components/shared/Header';
 import media from 'utils/styles/media';
 
 const RoundAnalysisContainer = styled.main`
@@ -71,7 +70,6 @@ const RoundAnalysis = () => {
 
     return (
         <>
-            <Header />
             <RoundAnalysisContainer>
                 <Title>라운드 분석</Title>
                 <Description>

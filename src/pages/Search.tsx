@@ -5,7 +5,6 @@ import { filter, head, map, pipe, some, toArray } from '@fxts/core';
 import styled, { css } from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 
-import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import FlexContainer from 'components/shared/FlexContainer';
 import InputWithIcon from 'components/Input/InputWithIcon';
@@ -318,8 +317,6 @@ const Search = () => {
 
     return (
         <>
-            <Header />
-
             <SearchContainer>
                 <SearchResultSummary onSubmit={onSubmitHandler}>
                     <SearchResultTitle>

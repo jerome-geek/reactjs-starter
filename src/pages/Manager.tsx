@@ -8,7 +8,6 @@ import { head } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import PrimaryButton from 'components/Button/PrimaryButton';
-import Header from 'components/shared/Header';
 import ManualCard from 'components/Card/ManualCard';
 import { category } from 'api/display';
 import { product } from 'api/product';
@@ -87,7 +86,6 @@ const Manager = () => {
     return (
         <>
             <SEOHelmet data={{ title: manager('managerTitle') }} />
-            <Header />
             <MobileView>
                 <div
                     style={{

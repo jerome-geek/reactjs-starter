@@ -32,6 +32,7 @@ const PATHS = {
     GOLF_COURSE_REQUEST: '/golf-course/request',
     MY_INQUIRY: '/support/my-inquiry',
     INQUIRY: '/support/inquiry',
+    SERVICE_CENTER: '/support/service-center',
     FAQ: '/etc/faq',
     NOTICE: '/etc/notice',
     NOT_FOUND: '/not-found',

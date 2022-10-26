@@ -10,9 +10,9 @@ import { useMutation } from 'react-query';
 import { Oval } from 'react-loader-spinner';
 
 import { useAppDispatch } from 'state/reducers';
+import JoinLayout from 'components/Layout/JoinLayout';
 import FlexContainer from 'components/shared/FlexContainer';
 import { fetchProfile } from 'state/slices/memberSlice';
-import Header from 'components/shared/Header';
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
@@ -24,8 +24,6 @@ import { useDebounce } from 'hooks';
 import { tokenStorage } from 'utils/storage';
 import media from 'utils/styles/media';
 import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
-import MobileHeader from 'components/shared/MobileHeader';
-import JoinLayout from 'components/Layout/JoinLayout';
 import { isDesktop } from 'utils/styles/responsive';
 import PATHS from 'const/paths';
 
@@ -289,12 +287,6 @@ const Join = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'회원가입'} />
-            )}
-
             <JoinLayout
                 isDesktop={isDesktop(width)}
                 title={'회원가입'}

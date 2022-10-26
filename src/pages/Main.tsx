@@ -5,7 +5,6 @@ import { SwiperProps } from 'swiper/react';
 import { useWindowSize } from 'usehooks-ts';
 import { filter, head, pipe } from '@fxts/core';
 
-import Header from 'components/shared/Header';
 import BandBanner from 'components/shared/BandBanner';
 import MainSlideBanner from 'components/Main/MainSlideBanner';
 import MainCategoryBanners from 'components/Main/MainCategoryBanners';
@@ -20,6 +19,9 @@ import PRODUCT_SECTION from 'const/productSection';
 import NewReleases from 'components/Main/NewReleases';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import { BY, SALE_STATUS } from 'models';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/navigation';
 
 const Main = () => {
     const { width } = useWindowSize();
@@ -100,16 +102,12 @@ const Main = () => {
                 },
             ),
         {
-            select: ({ data }) => {
-                return data;
-            },
+            select: ({ data }) => data,
         },
     );
 
     return (
         <>
-            <Header />
-
             {bandBannerVisible &&
                 mainBannerData?.mainBandBanner?.accounts[0]?.banners && (
                     <BandBanner

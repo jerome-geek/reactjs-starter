@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
-import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import OrderSummarySection from 'components/Order/OrderSummarySection';
@@ -91,8 +90,6 @@ const MyPageIndex = () => {
     return (
         <>
             <SEOHelmet data={{ title: '마이페이지' }} />
-
-            <Header />
 
             <MyPageContainer>
                 <MyPageSection

@@ -247,11 +247,6 @@ const Password = () => {
 
     return (
         <>
-            {isMobile(width) ? (
-                <MobileHeader title='비밀번호 변경' />
-            ) : (
-                <Header />
-            )}
             <PasswordContainer
                 onSubmit={(e) => {
                     e.preventDefault();

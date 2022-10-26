@@ -4,7 +4,6 @@ import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { head, map, pipe, toArray, filter, concat } from '@fxts/core';
 
-import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import ProductSort from 'components/Product/ProductSort';
 import ProductCard from 'components/Search/ProductCard';
@@ -300,8 +299,6 @@ const ProductList = () => {
     return (
         <>
             <SEOHelmet data={{ title: categoryInfo?.label }} />
-
-            <Header />
 
             <ProductListContainer>
                 <ProductListTopContainer>

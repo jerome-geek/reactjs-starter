@@ -1,17 +1,13 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
-import { useWindowSize } from 'usehooks-ts';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import InquiryContent from 'components/Support/InquiryContent';
 import Paging from 'components/shared/Paging';
 import Loader from 'components/shared/Loader';
-import { isMobile } from 'utils/styles/responsive';
 import { inquiry } from 'api/manage';
 import media from 'utils/styles/media';
 
@@ -99,8 +95,6 @@ const MyInquiry = () => {
     });
     const [totalPage, setTotalPage] = useState(1);
 
-    const { width } = useWindowSize();
-
     const { t: myInquiry } = useTranslation('myInquiry');
 
     const {
@@ -162,11 +156,6 @@ const MyInquiry = () => {
                     },
                 }}
             />
-            {isMobile(width) ? (
-                <MobileHeader title={myInquiry('mobileTitle')} />
-            ) : (
-                <Header />
-            )}
             <MyInquiryContainer>
                 <MyInquiryContainerTop>
                     <Title>{myInquiry('title')}</Title>

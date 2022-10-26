@@ -6,8 +6,6 @@ import InputWithIcon from 'components/Input/InputWithIcon';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { ReactComponent as ArrowRightIcon } from 'assets/icons/arrow_right.svg';
 import { fadeIn, fadeOut } from 'utils/styles/transitions';
-import { useQuery } from 'react-query';
-import { category } from 'api/display';
 
 interface SideNavigationProps {
     sideNavigationToggle: boolean;

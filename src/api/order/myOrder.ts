@@ -2,17 +2,23 @@ import { AxiosResponse } from 'axios';
 import dayjs from 'dayjs';
 
 import request, { defaultHeaders } from 'api/core';
-import { CLAIM_TYPE, ORDER_REQUEST_TYPE } from 'models';
+import { CLAIM_TYPE, ORDER_REQUEST_TYPE, ORDER_STATUS_TYPE } from 'models';
 import {
     DeliveryBody,
     OrderSummary,
     CashReceiptBody,
     OrderDetailResponse,
+    OrderItems,
 } from 'models/order';
 import { tokenStorage } from 'utils/storage';
 
 interface GetOrderListParams extends Paging, SearchDate {
-    orderRequestTypes?: ORDER_REQUEST_TYPE;
+    // !키값과 실제 쓰는 enum값과 다르니 주의
+    orderRequestTypes?: ORDER_STATUS_TYPE;
+}
+
+interface GetOrderSummaryParams extends SearchDate {
+    orderStatusType?: ORDER_STATUS_TYPE;
 }
 
 const myOrder = {
@@ -31,7 +37,7 @@ const myOrder = {
             startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
             endYmd: dayjs().format('YYYY-MM-DD'),
         },
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<ItemList<OrderItems>>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
@@ -62,10 +68,7 @@ const myOrder = {
     getOrderDetail: (
         orderNo: string,
         params?: {
-            orderRequestTypes: Extract<
-                keyof typeof ORDER_REQUEST_TYPE,
-                'ALL' | 'CLAIM' | 'NORMAL'
-            >;
+            orderRequestTypes: ORDER_REQUEST_TYPE;
         },
     ): Promise<AxiosResponse<OrderDetailResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
@@ -89,7 +92,10 @@ const myOrder = {
      * @returns Promise<AxiosResponse<OrderSummary>>
      */
     getOrderOptionStatus: (
-        params?: SearchDate,
+        params: SearchDate = {
+            startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+        },
     ): Promise<AxiosResponse<OrderSummary>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
@@ -102,6 +108,7 @@ const myOrder = {
             }),
         });
     },
+
     /**
      * 상품 주문 구매 확정하기
      * - 배송중, 배송완료 상태의 상태주문을 구매확정 처리하는 API 입니다.
@@ -148,13 +155,11 @@ const myOrder = {
      * @param param0
      * @returns Promise<AxiosResponse>
      */
-    getOrderStatusCountAndPrice: (
-        params?: {
-            orderStatusType: Exclude<
-                keyof typeof ORDER_REQUEST_TYPE,
-                'ALL' | 'CLAIM' | 'NORMAL'
-            >;
-        } & SearchDate,
+    getOrderSummary: (
+        params: GetOrderSummaryParams = {
+            startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+        },
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
@@ -178,12 +183,21 @@ const myOrder = {
      * - 옵션별로 카운트 합니다.(FIX ME: 옵션별이 아니고 주문별인듯)
      * @returns Promise<AxiosResponse>
      */
-    getOrderStatus: (): Promise<AxiosResponse> => {
+    getOrderStatus: (
+        params: SearchDate = {
+            startYmd: dayjs().subtract(3, 'months').format('YYYY-MM-DD'),
+            endYmd: dayjs().format('YYYY-MM-DD'),
+        },
+    ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
             url: '/profile/orders/summary/status',
+            params: {
+                startYmd: params?.startYmd,
+                endYmd: params?.endYmd,
+            },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
@@ -229,7 +243,7 @@ const myOrder = {
     getOrderDetailForClaim: (
         orderNo: string,
         params?: {
-            orderRequestType?: ORDER_REQUEST_TYPE;
+            orderRequestType?: ORDER_STATUS_TYPE;
             claimType: CLAIM_TYPE;
         },
     ): Promise<AxiosResponse> => {
@@ -258,6 +272,7 @@ const myOrder = {
      */
     updateDeliveryInformation: (
         orderNo: string,
+        add: boolean,
         body?: DeliveryBody,
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
@@ -265,6 +280,7 @@ const myOrder = {
         return request({
             method: 'PUT',
             url: `/profile/orders/${orderNo}/deliveries`,
+            params: add,
             data: {
                 receiverZipCd: body?.receiverZipCd,
                 receiverAddress: body?.receiverAddress,

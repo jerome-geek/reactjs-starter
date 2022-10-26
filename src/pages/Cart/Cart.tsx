@@ -16,8 +16,6 @@ import {
 } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import SecondaryButton from 'components/Button/SecondaryButton';
 import CartList from 'components/Cart/CartList';
@@ -521,12 +519,6 @@ const Cart = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'장바구니'} />
-            )}
-
             <CartContainer>
                 <CartListWrapper>
                     {isCartListForResponsive('mustShowDesktop') && (

@@ -4,8 +4,6 @@ import { ErrorMessage } from '@hookform/error-message';
 import { useWindowSize } from 'usehooks-ts';
 import { useNavigate } from 'react-router-dom';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import JoinLayout from 'components/Layout/JoinLayout';
 import StyledInput from 'components/Input/StyledInput';
 import PrimaryButton from 'components/Button/PrimaryButton';
@@ -80,12 +78,6 @@ const GuestLogin = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'비회원 주문 조회'} />
-            )}
-
             <JoinLayout
                 title='비회원 주문 조회'
                 isDesktop={isDesktop(width)}

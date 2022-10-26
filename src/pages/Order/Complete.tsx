@@ -595,8 +595,6 @@ const Complete = () => {
                 }}
             />
 
-            <Header />
-
             <CompleteContainer>
                 {!isMobile(width) && (
                     <OrderProgress
