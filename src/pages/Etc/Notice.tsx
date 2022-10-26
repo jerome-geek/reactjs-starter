@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 import { map, pipe, filter, toArray, head } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
-import Header from 'components/shared/Header';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import Paging from 'components/shared/Paging';
@@ -268,8 +267,6 @@ const Notice = () => {
     return (
         <>
             <SEOHelmet data={{ title: '공지사항' }} />
-
-            <Header />
 
             <NoticeContainer>
                 <NoticeTitle>공지사항</NoticeTitle>

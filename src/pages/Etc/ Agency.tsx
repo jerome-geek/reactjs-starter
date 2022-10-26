@@ -4,7 +4,6 @@ import { StylesConfig } from 'react-select';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
 
-import Header from 'components/shared/Header';
 import SectionDropdown from 'components/SectionDropdown';
 import MapModal from 'components/Modal/MapModal';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
@@ -315,7 +314,6 @@ const Agency = () => {
                     agencyName={'(주) 가야골프'}
                 />
             )}
-            <Header />
             <AgencyContainer>
                 <Title>{agency('title')}</Title>
                 <DropdownContainer>

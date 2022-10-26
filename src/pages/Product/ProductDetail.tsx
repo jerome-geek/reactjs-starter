@@ -9,7 +9,6 @@ import { AxiosError } from 'axios';
 
 import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
-import Header from 'components/shared/Header';
 import MainCategoryBanners from 'components/Main/MainCategoryBanners';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import ProductOptionList from 'components/Product/ProductOptionList';
@@ -20,7 +19,6 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
-import ErrorBoundary from 'components/ErrorBoundary';
 import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
@@ -435,8 +433,6 @@ const ProductDetail = () => {
 
     return (
         <>
-            <Header />
-
             {isModalVisible && (
                 <ShareModal
                     width={isMobile(width) ? 'calc(100% - 48px)' : '700px'}

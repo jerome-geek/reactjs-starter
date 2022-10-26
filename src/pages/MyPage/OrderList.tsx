@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
 
-import Header from 'components/shared/Header';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import SearchPeriod from 'components/MyPage/SearchPeriod';
 import OrderSummarySection from 'components/Order/OrderSummarySection';
@@ -71,8 +70,6 @@ const OrderList = () => {
 
     return (
         <>
-            <Header />
-
             <OrderListContainer>
                 <SearchPeriod
                     startYmd={searchCondition.startYmd}

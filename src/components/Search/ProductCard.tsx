@@ -16,6 +16,7 @@ interface ProductCardProps extends HTMLAttributes<HTMLDivElement> {
 const ProductCardContainer = styled.div`
     width: 31%;
     margin-bottom: 80px;
+    position: relative;
 
     &:not(:nth-child(3n)) {
         margin-right: 40px;

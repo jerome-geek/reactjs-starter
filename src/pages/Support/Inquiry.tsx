@@ -1,7 +1,6 @@
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import { GroupBase, StylesConfig } from 'react-select';
-import { useWindowSize } from 'usehooks-ts';
 import { map, pipe, pluck, toArray, uniqBy, concat, every } from '@fxts/core';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -9,13 +8,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import ImageUploadButton from 'components/Input/ImageUploadButton';
 import { ReactComponent as CloseButtonIcon } from 'assets/icons/gray_close_icon.svg';
 import { useMall, useMember } from 'hooks';
-import { isMobile } from 'utils/styles/responsive';
 import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
@@ -226,8 +222,6 @@ const Inquiry = () => {
 
     const { member } = useMember();
 
-    const { width } = useWindowSize();
-
     const navigate = useNavigate();
 
     const { register, handleSubmit, setValue, getValues } =
@@ -430,11 +424,6 @@ const Inquiry = () => {
                     },
                 }}
             />
-            {isMobile(width) ? (
-                <MobileHeader title={translation('mobileTitle')}></MobileHeader>
-            ) : (
-                <Header />
-            )}
             <InquiryContainer>
                 <Title>{translation('title')}</Title>
                 <InquiryTypeContainer>

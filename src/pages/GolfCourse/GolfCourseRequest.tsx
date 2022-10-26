@@ -12,10 +12,9 @@ import { head } from '@fxts/core';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import RequestResultProgress from 'components/GolfCourse/RequestResultProgress';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
+import PersonalInformationModal from 'components/Modal/PersonalInformationModal';
 import { ReactComponent as ArrowRight } from 'assets/icons/arrow_right_small.svg';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
@@ -24,7 +23,6 @@ import PATHS from 'const/paths';
 import { countries } from 'const/country';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
-import PersonalInformationModal from 'components/Modal/PersonalInformationModal';
 
 const CourseRequestContainer = styled(LayoutResponsive)`
     width: 840px;
@@ -383,11 +381,7 @@ const GolfCourseRequest = () => {
                     width={isDesktop(width) ? '1080px' : '82%'}
                 />
             )}
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={courseRequest('title')} />
-            )}
+
             <SEOHelmet
                 data={{
                     title: courseRequest('subTitle'),

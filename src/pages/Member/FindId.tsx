@@ -1,12 +1,9 @@
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 
-import Header from 'components/shared/Header';
-import MobileHeader from 'components/shared/MobileHeader';
 import { isDesktop } from 'utils/styles/responsive';
 import JoinLayout from 'components/Layout/JoinLayout';
 import PrimaryButton from 'components/Button/PrimaryButton';
-import SecondaryButton from 'components/Button/SecondaryButton';
 import StyledInput from 'components/Input/StyledInput';
 import media from 'utils/styles/media';
 
@@ -42,12 +39,6 @@ const FindId = () => {
 
     return (
         <>
-            {isDesktop(width) ? (
-                <Header />
-            ) : (
-                <MobileHeader title={'아이디 찾기'} />
-            )}
-
             <JoinLayout
                 isDesktop={isDesktop(width)}
                 title={'아이디 찾기'}
