@@ -14,6 +14,7 @@ const PATHS = {
     MY_PRODUCTS: '/my-page/products',
     MY_COUPONS: '/my-page/coupons',
     MY_ACCUMULATION: '/my-page/accumulation',
+    MY_WITHDRAWAL: '/my-page/leave',
     PRODUCT_LIST: '/product',
     PRODUCT_DETAIL: '/product/detail',
     CART: '/cart',

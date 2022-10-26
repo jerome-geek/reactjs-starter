@@ -11,6 +11,7 @@ import courseRequest from 'locales/ko/courseRequest.json';
 import courseList from 'locales/ko/courseList.json';
 import serviceCenter from 'locales/ko/serviceCenter.json';
 import agency from 'locales/ko/agency.json';
+import myPageInfo from 'locales/ko/myPageInfo.json';
 
 export {
     main,
@@ -26,4 +27,5 @@ export {
     courseList,
     serviceCenter,
     agency,
+    myPageInfo,
 };
