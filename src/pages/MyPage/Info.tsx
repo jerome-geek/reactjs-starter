@@ -655,9 +655,7 @@ const Info = () => {
                 </InfoInputContainer>
                 <DeleteProfile>
                     {myPageInfo('wantWithdrawal')},{' '}
-                    <Link to={`${PATHS.MY_WITHDRAWAL}`}>
-                        {myPageInfo('here')}
-                    </Link>
+                    <Link to={`${PATHS.WITHDRAWAL}`}>{myPageInfo('here')}</Link>
                     {myPageInfo('click')}
                 </DeleteProfile>
             </InfoContainer>

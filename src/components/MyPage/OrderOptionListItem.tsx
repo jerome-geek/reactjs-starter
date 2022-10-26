@@ -13,7 +13,7 @@ interface OrderOptionListItemProps extends HTMLAttributes<HTMLLIElement> {
     optionName: string;
     orderCnt: number;
     price: any;
-    invoiceNo: number;
+    invoiceNo: Nullable<string>;
     deliveryCompanyTypeLabel: string;
 }
 

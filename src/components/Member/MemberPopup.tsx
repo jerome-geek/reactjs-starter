@@ -76,7 +76,9 @@ const MemberPopup: FC<MemberPopupProps> = ({
                 <MemberPopupListItem onClick={() => navigate(PATHS.MY_PAGE)}>
                     마이페이지
                 </MemberPopupListItem>
-                <MemberPopupListItem onClick={() => navigate('/')}>
+                <MemberPopupListItem
+                    onClick={() => navigate(PATHS.MY_ROUND_ANALYSIS)}
+                >
                     라운드 분석
                 </MemberPopupListItem>
             </MemberPopupList>

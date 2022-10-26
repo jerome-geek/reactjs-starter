@@ -9,6 +9,16 @@ import {
     PG_TYPE,
     NCP_OPEN_ID_PROVIDER,
     NEXT_ACTION_TYPE,
+    DELIVERY_PAY_TYPE,
+    DELIVERY_CONDITION_TYPE,
+    GROUP_DELIVERY_AMT_TYPE,
+    SHIPPING_AREA_TYPE,
+    SELECT_TYPE,
+    DAYS_OF_WEEK,
+    OPTION_TYPE,
+    CLAIM_STATUS_TYPE,
+    DELIVERY_TYPE,
+    ORDER_STATUS_TYPE,
 } from 'models';
 
 // 상품쿠폰
@@ -37,9 +47,13 @@ interface RecurringPaymentDelivery {
     cycle: number;
 }
 
+// 소비자 입력형 옵션
 export interface OptionInputs {
+    // 구매자 작성형 입력 깂 (example: 14호)
     inputValue: string;
+    // 구매자 작성형 입력 이름 (example: 사이즈)
     inputLabel: string;
+    // 구매자 작성형 입력 필수여부 (example: true)
     required: boolean;
 }
 
@@ -52,6 +66,7 @@ export interface Products {
     channelType: string;
     // 주문수량 (example: 1)
     orderCnt: number;
+    // TODO: 소비자 입력형 옵션 check
     optionInputs?: OptionInputs[];
     // 옵션번호 (example: 1258932)
     optionNo: number;
@@ -334,78 +349,149 @@ export interface RentalInfo {
     // 월 렌탈료 (example: 10000)
     monthlyRentalAmount: number;
 }
+
 export interface CartList {
+    // 배송그룹
     deliveryGroups: DeliveryGroup[];
+    // 가격 정보
+    price: CartPriceInfo;
+    // 유효하지 않은 상품
     invalidProducts: InvalidProduct[];
-    price: CartPrice;
 }
 
+// 배송그룹
 export interface DeliveryGroup {
-    orderProducts: OrderProduct[];
-    deliveryAmt: number;
-    deliveryPayType: string;
+    // 파트너번호 (nullable) (example: 2500)
+    partnerNo: Nullable<number>;
+    // 배송비착불여부 (example: PREPAID_DELIVERY)
+    deliveryPayType: DELIVERY_PAY_TYPE;
+    // 배송 조건
     deliveryCondition: DeliveryCondition;
+    // 배송비 (example: 2500)
+    deliveryAmt: number;
+    // 파트너명 (example: NCP)
     partnerName: string;
-    partnerNo: number;
-    deliveryTemplateNo: number;
-    deliveryTemplateGroupNo: number;
+    // 주문상품
+    orderProducts: OrderProduct[];
+    // 배송비 템플릿 그룹 번호 (nullable) (example: 1)
+    deliveryTemplateGroupNo: Nullable<number>;
+    // 배송비 템플릿 번호 (nullable) (example: 1)
+    deliveryTemplateNo: Nullable<number>;
 }
 
+// 주문상품
 export interface OrderProduct {
-    productNo: number;
-    imageUrl: string;
-    brandNo: number;
+    // 구매금액 합 (example: 0)
+    buyAmt: number;
+    // 브랜드 명 (example: string)
     brandName: string;
-    productName: string;
-    liked: boolean;
-    optionUsed: boolean;
-    deliverable: boolean;
-    deliveryInternational: boolean;
-    refundable: boolean;
-    orderProductOptions: OrderProductOption[];
-    brandNameEn: string;
-    deliveryDate: DeliveryDate;
-    hsCode: string;
-    eanCode: string;
-    shippingAreaType: string;
-    selectType: any;
-    maxBuyCountInfo: MaxBuyCountInfo;
-    minBuyCount: number;
-    accumulationUsable: boolean;
+    // 파트너 명
+    partnerName: string;
+    // 쿠폰 사용 가능 여부 (example: true)
     couponUsable: boolean;
-    buyAmt: number;
-}
-
-export interface OrderProductOption {
-    optionManagementCd: string;
-    price: Price;
-    cartNo: number;
+    // 배송구분 (example: PARTNER_SHIPPING_AREA)
+    shippingAreaType: SHIPPING_AREA_TYPE;
+    // 배송가능여부 (example: false)
+    deliverable: boolean;
+    // 옵션사용여부 (example: false)
+    optionUsed: boolean;
+    // 찜상품 여부 (example: false)
+    liked: boolean;
+    // 상품 명 (example: string)
+    productName: string;
+    // 파트너 번호
+    partnerNo: number;
+    // 최대 구매수량 정보
+    maxBuyCountInfo: MaxBuyCountInfo;
+    // hsCode (example: p1)
+    hsCode: string;
+    // 적립금 사용 가능 여부 (example: true)
+    accumulationUsable: boolean;
+    // eanCode (example: e1)
+    eanCode: string;
+    // 최소 구매 수량
+    minBuyCount: number;
+    // 상품 url (example: http://image.url)
     imageUrl: string;
-    optionName: string;
-    optionValue: string;
-    orderCnt: number;
-    stockCnt: number;
-    optionType: string;
-    accumulationAmtWhenBuyConfirm: number;
+    // 브랜드 영문명 (example: string)
+    brandNameEn: string;
+    // 옵션 선택 방식 (nullable)
+    selectType: Nullable<SELECT_TYPE>;
+    // 주문 상품 옵션
+    orderProductOptions: OrderProductOption[];
+    // 환불가능여부 (example: false)
+    refundable: boolean;
+    // 배송일 지정 정보
+    deliveryDate: DeliveryDate;
+    // 브랜드 번호 (example: 12)
+    brandNo: number;
+    // 해외직배송여부 (example: false)
+    deliveryInternational: boolean;
+    // 상품번호 (example: 0)
     productNo: number;
-    optionNo: number;
-    optionInputs: OptionInputs[];
-    validInfo?: ValidInfo;
-    reservation: boolean;
-    reservationDeliveryYmdt: string;
-    setOptions: SetOption[];
-    recurringDeliveryCycles: any;
-    soldOut: boolean;
-    optionTitle: string;
 }
 
+export interface OrderOptions {}
+
+// 주문 상품 옵션
+export interface OrderProductOption {
+    // 예약주문 상품 배송시작예정일 (example: String)
+    reservationDeliveryYmdt: string;
+    // 옵션권장출력값 (example: string)
+    optionTitle: string;
+    // 구매확정 시 적립금 합 (example: 0)
+    accumulationAmtWhenBuyConfirm: number;
+    // 유효성 정보
+    validInfo: ValidInfo;
+    // 옵션값 (example: string)
+    optionValue: string;
+    // 주문수량 (example: 0)
+    orderCnt: number;
+    // 소비자 입력형 옵션
+    optionInputs: OptionInputs[];
+    // 품절여부 (true:품절 false:구매가능) (example: false)
+    soldOut: boolean;
+    // 옵션형태 (example: PRODUCT_ONLY)
+    optionType: OPTION_TYPE;
+    // 가격정보
+    price: Price;
+    // 옵션 이미지 URL (example: http://image.url)
+    imageUrl: string;
+    // TODO: 타입체크 필요 (number가 dot으로 연결되어 있는 형식), schema에서는 nullable이 아니지만 실제 값은 nullable
+    // 정기 결제 배송 주기 (example: 1,2,3)
+    recurringDeliveryCycles: Nullable<number>;
+    // 주문 상품 옵션
+    setOptions: SetOption[];
+    // 예약주문여부 (true: 예약주문상품, false: 일반상품) (example: false)
+    reservation: boolean;
+    // 재고 개수 (example: 0)
+    stockCnt: number;
+    // 옵션번호 (example: 0)
+    optionNo: number;
+    // 옵션명 (example: string)
+    optionName: string;
+    // 판매자 관리코드 (example: string)
+    optionManagementCd: string;
+    // 장바구니 번호 (example: 0)
+    cartNo: number;
+    // 상품번호 (example: 0)
+    productNo: number;
+}
+
+// 가격정보
 export interface Price {
-    salePrice: number;
-    addPrice: number;
-    immediateDiscountAmt: number;
-    additionalDiscountAmt: number;
+    // 구매금액(구매가 * 주문수량) (example: 0)
     buyAmt: number;
+    // 추가할인금액 (example: 0)
+    additionalDiscountAmt: number;
+    // 즉시할인금액 (example: 0)
+    immediateDiscountAmt: number;
+    // 상품판매가 example: 0)
+    salePrice: number;
+    // 정상금액(상품판매가 + 옵션추가금액) * 주문수량 (example: 0)
     standardAmt: number;
+    // 옵션가격(추가금액) (example: 0)
+    addPrice: number;
 }
 
 export interface OptionInput {
@@ -414,72 +500,120 @@ export interface OptionInput {
     required: any;
 }
 
+// 유효성 정보
 export interface ValidInfo {
-    errorCode: string;
-    message: string;
-    orderCntChangeable: boolean;
+    // 유효 여부(true: 유효, false: 유효하지 않음) (example: false)
     valid: boolean;
-    validYn: string;
+    // deprecated(더 이상 제공하지 않는 개체항목입니다)
+    validYn?: string;
+    // 유효성 실패 코드 (nullable) (example: string)
+    errorCode: Nullable<string>;
+    // 유효성 실패 사유 메세지 (nullable) (example: string)
+    message: Nullable<string>;
+    // 주문수량변경 가능 여부 (true:변경가능, false:변경불가능) (example: false)
+    orderCntChangeable: boolean;
 }
 
+// 배송일 지정 정보
 export interface DeliveryDate {
-    daysAfterPurchase: number;
-    daysOfWeek: string[];
+    // 기간
     period: Period;
+    // 요일 (example: [MON])
+    daysOfWeek: DAYS_OF_WEEK[];
+    // 주문일 기준 (example: 0)
+    daysAfterPurchase: number;
 }
 
+// 기간
 export interface Period {
+    // 배송일지정 가능한 시작일 (example: YYYY-MM-DD hh:mm:ss)
     startYmdt: string;
+    // 배송일지정 가능한 종료일 (example: YYYY-MM-DD hh:mm:ss)
     endYmdt: string;
 }
 
+// 최대 구매수량 정보
 export interface MaxBuyCountInfo {
+    // 1인당 최대 구매 수량
     maxBuyPersonCount: number;
-    maxBuyTimeCount: number;
-    maxBuyDays: number;
+    // 최대 구매 수량 기간 제한 : 7일 동안 최대 2개 구매가능 (2개 항목)
     maxBuyPeriodCount: number;
+    // 최대 구매 수량 기간 제한 : 7일 동안 최대 2개 구매가능 (7일 항목) (example: 0)
+    maxBuyDays: number;
+    // 1회당 최대 구매 수량 (example: 0)
+    maxBuyTimeCount: number;
 }
 
+// 배송 조건
 export interface DeliveryCondition {
-    deliveryAmt: number;
-    remoteDeliveryAmt: number;
-    returnDeliveryAmt: number;
+    // 배송조건 (nullable) (example: FREE)
+    deliveryConditionType: Nullable<DELIVERY_CONDITION_TYPE>;
+    // 조건부 배송비의 기준값(9,800원 미만 배송비 2,500원일때 aboveDeliveryAmt는 9800) (example: 9800)
     aboveDeliveryAmt: number;
+    // 배송비(조건에 의해 계산되어진) (example: 2500)
+    deliveryAmt: number;
+    // 묶음배송조건 (nullable) (example: MAXIMUM_SELECTED)
+    groupDeliveryAmtType: Nullable<GROUP_DELIVERY_AMT_TYPE>;
+    // 반품배송비 (example: 2500)
+    returnDeliveryAmt: number;
+    // 조건부 배송비 미달 시 배송비(9,800원 미만 배송비 2,500원일때 baseDeliveryAmt는 2,500) (example: 2500)
     baseDeliveryAmt: number;
-    deliveryConditionType: string;
-    groupDeliveryAmtType: string;
-    chargesRemoteDeliveryAmt: boolean;
+    // 추가배송비(조건에 의해 계산되어진) (example: 2500)
+    remoteDeliveryAmt: number;
+    // 지역별추가배송비사용여부 (nullable) (example: false)
+    chargesRemoteDeliveryAmt: Nullable<boolean>;
 }
 
+// 유효하지 않은 상품
 export interface InvalidProduct {
-    productNo: number;
-    imageUrl: string;
-    brandNo: number;
-    brandName: string;
-    productName: string;
-    liked: boolean;
-    optionUsed: boolean;
-    deliverable: boolean;
-    deliveryInternational: boolean;
-    refundable: boolean;
-    orderProductOptions: OrderProductOption[];
-    brandNameEn: string;
-    deliveryDate: DeliveryDate2;
-    hsCode: string;
-    eanCode: string;
-    shippingAreaType: string;
-    selectType: any;
-    maxBuyCountInfo: MaxBuyCountInfo;
-    minBuyCount: number;
-    accumulationUsable: boolean;
-    couponUsable: boolean;
+    // 구매금액 합 (example: 0)
     buyAmt: number;
-}
-
-export interface DeliveryDate2 {
-    daysAfterPurchase: number;
-    daysOfWeek: string[];
-    period: Period2;
+    // 브랜드 명 (example: string)
+    brandName: string;
+    // 파트너 명
+    partnerName: string;
+    // 쿠폰 사용 가능 여부 (example: true)
+    couponUsable: boolean;
+    // 배송구분 (example: PARTNER_SHIPPING_AREA)
+    shippingAreaType: SHIPPING_AREA_TYPE;
+    // 배송가능여부 (example: false)
+    deliverable: boolean;
+    // 옵션사용여부 (example: false)
+    optionUsed: boolean;
+    // 찜상품 여부 (example: false)
+    liked: boolean;
+    // 상품 명 (example: string)
+    productName: string;
+    // 파트너 번호
+    partnerNo: number;
+    // 최대 구매수량 정보
+    maxBuyCountInfo: MaxBuyCountInfo;
+    // hsCode (example: p1)
+    hsCode: string;
+    // 적립금 사용 가능 여부 (example: true)
+    accumulationUsable: boolean;
+    // eanCode (example: e1)
+    eanCode: string;
+    // 최소 구매 수량
+    minBuyCount: number;
+    // 상품 url (example: http://image.url)
+    imageUrl: string;
+    // 브랜드 영문명 (example: string)
+    brandNameEn: string;
+    // 옵션 선택 방식 (nullable) (example: FLAT)
+    selectType: Nullable<SELECT_TYPE>;
+    // 주문 상품 옵션
+    orderProductOptions: OrderProductOption[];
+    // 환불가능여부 (example: false)
+    refundable: boolean;
+    // 배송일 지정 정보
+    deliveryDate: DeliveryDate;
+    // 브랜드 번호 (example: 12)
+    brandNo: number;
+    // 해외직배송여부 (example: false)
+    deliveryInternational: boolean;
+    // 상품번호 (example: 0)
+    productNo: number;
 }
 
 export interface Period2 {
@@ -487,15 +621,24 @@ export interface Period2 {
     endYmdt: string;
 }
 
-export interface CartPrice {
+// 가격 정보
+export interface CartPriceInfo {
+    // 구매금액 합 (example: 0)
     buyAmt: number;
-    accumulationAmtWhenBuyConfirm: number;
-    standardAmt: number;
+    // 할인금액 (example: 0)
     discountAmt: number;
-    totalDeliveryAmt: number;
-    totalPrePaidDeliveryAmt: number;
-    totalPayOnDeliveryAmt: number;
+    // 총 구매금액 합(구매금액 합 + 총 선불배송비 합) (example: 0)
     totalAmt: number;
+    // 구매확정 시 적립금 합 (example: 0)
+    accumulationAmtWhenBuyConfirm: number;
+    // 정상금액(상품판매가 + 옵션추가금액) * 주문수량 (example: 0)
+    standardAmt: number;
+    // 총 착불배송비 합 (example: 0)
+    totalPayOnDeliveryAmt: number;
+    // 총 배송비 합 (example: 0)
+    totalDeliveryAmt: number;
+    // 총 선불배송비 합 (example: 0)
+    totalPrePaidDeliveryAmt: number;
 }
 
 export interface OrderSheetResponse {
@@ -518,37 +661,6 @@ export interface OrderSheetResponse {
     invalidProducts: any;
 }
 
-export interface DeliveryGroup {
-    orderProducts: OrderProduct[];
-    deliveryAmt: number;
-    deliveryPayType: string;
-    deliveryCondition: DeliveryCondition;
-    partnerName: string;
-    partnerNo: number;
-}
-
-export interface OrderProduct {
-    productNo: number;
-    imageUrl: string;
-    brandNo: number;
-    brandName: string;
-    productName: string;
-    liked: boolean;
-    optionUsed: boolean;
-    deliverable: boolean;
-    deliveryInternational: boolean;
-    refundable: boolean;
-    orderProductOptions: OrderProductOption[];
-    brandNameEn: string;
-    deliveryDate: DeliveryDate;
-    shippingAreaType: string;
-    accumulationUsable: boolean;
-    couponUsable: boolean;
-    categoryNos: number[];
-    buyAmt: number;
-    additionalProducts: any[];
-}
-
 export interface ErrorCode {
     code: string;
     simpleCode: string;
@@ -563,42 +675,32 @@ export interface Price {
     buyAmt: number;
 }
 
+// 주문 상품 옵션
 export interface SetOption {
-    mallProductNo: number;
-    productManagementCd: string;
-    productName: string;
-    mallOptionNo: number;
-    optionManagementCd: string;
-    optionName: string;
-    optionValue: string;
+    // 옵션사용여부 (example: true)
     usesOption: boolean;
+    // 옵션번호 (example: 1)
+    mallOptionNo: number;
+    // 상품관리코드 (nullable) (example: 1231)
+    productManagementCd: Nullable<string>;
+    // 옵션 (example: 100)
+    optionValue: string;
+    // 구매수 (example: 1)
     count: number;
+    // 옵션가격 (example: 1000)
     optionPrice: number;
+    // sku (nullable)(example: 1231)
+    sku: Nullable<string>;
+    // 옵션명 (example: 사이즈)
+    optionName: string;
+    // 옵션관리코드 (nullable) (example: 1231)
+    optionManagementCd: Nullable<string>;
+    // 상품번호 (example: 1)
+    mallProductNo: number;
+    // 재고번호 (example: 1)
     stockNo: number;
-    sku: string;
-    optionNameForDisplay: string;
-}
-
-export interface DeliveryDate {
-    daysAfterPurchase: number;
-    daysOfWeek: string[];
-    period: Period;
-}
-
-export interface Period {
-    startYmdt: string;
-    endYmdt: string;
-}
-
-export interface DeliveryCondition {
-    deliveryAmt: number;
-    remoteDeliveryAmt: number;
-    returnDeliveryAmt: number;
-    aboveDeliveryAmt: number;
-    baseDeliveryAmt: number;
-    deliveryConditionType: string;
-    groupDeliveryAmtType: string;
-    chargesRemoteDeliveryAmt: boolean;
+    // 상품명 (example: TEST_PRODUCT)
+    productName: string;
 }
 
 export interface OrderSheetPromotionSummary {
@@ -965,105 +1067,160 @@ export interface OrderOptionsGroupByDelivery {
     deliveryCompanyTypeLabel: string;
 }
 
+//주문 상품 옵션
 export interface OrderOption {
-    orderNo: string;
-    orderOptionNo: number;
-    productNo: number;
-    partnerName: string;
-    optionNo: number;
-    additionalProductNo: number;
-    imageUrl: string;
-    brandNo: number;
-    brandName: string;
-    brandNameEn: string;
-    productName: string;
-    productNameEn: string;
-    optionName: string;
-    optionValue: string;
-    optionUsed: boolean;
-    optionType: string;
-    orderCnt: number;
-    orderStatusType: string;
-    claimStatusType: any;
-    orderStatusDate: OrderStatusDate;
-    claimNo: any;
-    accumulationAmt: number;
-    refundable: boolean;
-    deliveryInternationalYn: boolean;
-    reservationDeliveryYmdt: any;
-    exchangeYn: string;
-    member: boolean;
-    deliverable: boolean;
-    inputs: any[];
-    nextActions: NextAction[];
-    optionManagementCd: string;
-    delivery: Delivery;
-    price: Price;
-    reservation: boolean;
+    // 예약배송시작일 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    reservationDeliveryYmdt: Nullable<string>;
+    // 클레임 번호 (nullable) (example: 1)
+    claimNo: Nullable<number>;
+    // 주문상태 (nullable) (example: 결제완료)
+    orderStatusTypeLabel: Nullable<string>;
+    // 사은품 여부 (example: true)
     isFreeGift: boolean;
+    // 구매자 작성형 옵션
+    inputs: {
+        // 구매자 작성형 입력 값 (nullable) (example: 14호)
+        inputValue: Nullable<string>;
+        // 구매자 작성형 입력 이름 (nullable) (example: 사이즈)
+        inputLabel: Nullable<string>;
+    }[];
+    // 배송여부 (example: true)
+    deliverable: boolean;
+    // 옵션사용여부 (example: true)
+    optionUsed: boolean;
+    // 정기배송 상품여부 (nullable) (example: false)
+    isRecurringPayment: Nullable<boolean>;
+    // 클레임상태 (nullable) (example: 취소신청)
+    claimStatusTypeLabel: Nullable<string>;
+    // 상품명 (example: 상품1)
+    productName: string;
+    // 클레임상태 (nullable) (example: CANCEL_NO_REFUND)
+    claimStatusType: Nullable<CLAIM_STATUS_TYPE>;
+    // 추가상품번호 (example: 1234)
+    additionalProductNo: number;
+    // 옵션형태 (example: PRODUCT_ONLY)
+    optionType: OPTION_TYPE;
+    // 해외배송여부 (example: false)
+    deliveryInternationalYn: boolean;
+    // 가격정보
+    price: Price;
+    // 상품 이미지 URL (example: http://image.url)
+    imageUrl: string;
+    // 회원여부 (example: true)
+    member: boolean;
+    // 세트옵션
     setOptions: SetOption[];
-    isRecurringPayment: boolean;
-    holdDelivery: boolean;
+    // 예약여부 (example: true)
+    reservation: boolean;
+    // 다음에 할 수 있는 작업
+    nextActions: NextAction[];
+    // 환불가능여부 (example: true)
+    refundable: boolean;
+    // 옵션번호 (example: 123)
+    optionNo: number;
+    // 브랜드 번호 (nullable) (example: 1234)
+    brandNo: number;
+    // 주문옵션번호 (example: 123)
+    orderOptionNo: number;
+    // 상품번호 (example: 123)
+    productNo: number;
+    // 배송정보
+    delivery: Delivery;
+    // 옵션권장출력값 (example: 색상/레드)
     optionTitle: string;
-    orderStatusTypeLabel: string;
-    claimStatusTypeLabel: any;
+    // 브랜드명 (nullable) (example: 나이키)
+    brandName: Nullable<string>;
+    // 주문번호 (example: 20201011231211)
+    orderNo: string;
+    // 파트너명 (example: 파트너 이름)
+    partnerName: string;
+    // 주문상태 (example: DEPOSIT_WAIT)
+    orderStatusType: ORDER_STATUS_TYPE;
+    // 옵션값 (example: 레드)
+    optionValue: string;
+    // 배송보류 여부 (nullable) (example: false)
+    holdDelivery: Nullable<boolean>;
+    // 주문수량 (example: 1)
+    orderCnt: number;
+    // 교환여부 (example: N)
+    exchangeYn: string;
+    // 적립금 (example: 1000)
+    accumulationAmt: number;
+    // 주문 상태 일자
+    orderStatusDate: OrderStatusDate;
+    // 브랜드영문명 (nullable) (example: nike)
+    brandNameEn: Nullable<string>;
+    // 영어상품명 (nullable) (example: sangpum)
+    productNameEn: Nullable<string>;
+    // 옵션관리코드 (nullable) (example: OPTI123123)
+    optionManagementCd: Nullable<string>;
+    // 옵션명 (example: 색상)
+    optionName: string;
 }
 
+// 주문 상태 일자
 export interface OrderStatusDate {
+    // 상품평작성기한 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    reviewableYmdt: Nullable<string>;
+    // 구매확정일자 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    buyConfirmYmdt: Nullable<string>;
+    // 결제일시 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    payYmdt: Nullable<string>;
+    // 등록일자 (example: YYYY-MM-DD hh:mm:ss)
     registerYmdt: string;
-    buyConfirmYmdt: any;
-    reviewableYmdt: any;
-    payYmdt: any;
 }
 
 // 다음에 할 수 있는 작업
 export interface NextAction {
     // 다음에 할 수 있는 작업 그룹 (example: NORMAL)
     actionGroupType: string;
-
     // 작업타입 (example: CANCEL_ALL)
     nextActionType: NEXT_ACTION_TYPE;
     // uri (example: /profile/orders/{orderNo}/claim)
     uri: string;
 }
 
+// 배송정보
+
 export interface Delivery {
-    invoiceNo: any;
-    deliveryCompanyType: any;
-    retrieveInvoiceUrl: any;
-    deliveryType: string;
-    usesShippingInfoLaterInput: boolean;
-    deliveryCompanyTypeLabel: any;
+    // 배송지 나중입력 여부 (nullable) (example: false)
+    usesShippingInfoLaterInput: Nullable<boolean>;
+    // 택배사 (nullable) (example: CJ대한통운)
+    deliveryCompanyTypeLabel: Nullable<string>;
+    // 배송타입 (nullable) (example: PARCEL_DELIVERY)
+    deliveryType: Nullable<DELIVERY_TYPE>;
+    // 택배사타입 (nullable) (example: CJ)
+    deliveryCompanyType: Nullable<string>;
+    // 송장추적 URL (nullable) (example: https://www.logistics.dhl/de-en/home/tracking.html?tracking-id=12345)
+    retrieveInvoiceUrl: Nullable<string>;
+    // 송장번호 (nullable) (example: 123456789)
+    invoiceNo: Nullable<string>;
 }
 
+// 가격정보 (/profile/orders)
 export interface Price {
-    standardPrice: number;
-    immediateDiscountedPrice: number;
+    // 구매가(즉시할인 + 추가할인 적용) (example: 10000)
     buyPrice: number;
-    standardAmt: number;
-    immediateDiscountedAmt: number;
+    // 구매금액(구매가 * 주문수량) (example: 10000)
     buyAmt: number;
-    salePrice: number;
-    addPrice: number;
-    immediateDiscountAmt: number;
+    // 즉시할인적용가 * 주문수량 (example: 10000)
+    immediateDiscountedAmt: number;
+    // 추가할인금액 (example: 10000)
     additionalDiscountAmt: number;
+    // 즉시할인금액 (example: 10000)
+    immediateDiscountAmt: number;
+    // 상품판매가 (example: 10000)
+    salePrice: number;
+    // 정상금액(상품판매가 + 옵션추가금액) * 주문수량 (example: 10000)
+    standardAmt: number;
+    // 즉시할인적용가 (example: 10000)
+    immediateDiscountedPrice: number;
+    // 옵션추가금액 (example: 10000)
+    addPrice: number;
+    // 정상가(상품판매가 + 옵션추가금액) (example: 10000)
+    standardPrice: number;
+    // 적립율 (example: 10)
     accumulationRate: number;
-}
-
-export interface SetOption {
-    mallProductNo: number;
-    productManagementCd: string;
-    productName: string;
-    mallOptionNo: number;
-    optionManagementCd: string;
-    optionName: string;
-    optionValue: string;
-    usesOption: boolean;
-    count: number;
-    optionPrice: number;
-    stockNo: number;
-    sku: string;
-    optionNameForDisplay: string;
 }
 
 export interface RefundInfo {
@@ -1379,7 +1536,7 @@ export interface OrderSummary {
 
 export interface OrderItems {
     // 주문 상품 옵션
-    orderOptions: any;
+    orderOptions: OrderOption[];
     // 외부 PG사 (example: PAYCO)
     pgType: PG_TYPE;
     // 주문번호 (example: 201912312312121234)
@@ -1402,5 +1559,31 @@ export interface OrderItems {
     orderYmdt: string;
     // 결제수단라벨 (example: 신용카드)
     payTypeLabel: string;
+    // 최초주문금액정보
     firstOrderAmt: FirstOrderAmount;
+}
+
+export interface getMaximumCouponCartPriceResponse {
+    // 최적 상품쿠폰 정보
+    productCoupons: {
+        // 상품쿠폰 할인금액
+        discountAmt: number;
+        // 상품쿠폰 발급번호
+        productCouponIssueNo: number;
+        // 상품쿠폰번호
+        productCouponNo: number;
+        // 상품번호
+        mallProductNo: number;
+    }[];
+    // 전체 할인 금액
+    totalDiscountAmt: number;
+    // 최적 장바구니쿠폰 정보
+    cartCoupons: {
+        // 장바구니쿠폰 할인금액
+        discountAmt: number;
+        // 장바구니쿠폰 발급번호
+        cartCouponIssueNo: number;
+        // 장바구니쿠폰 번호
+        cartCouponNo: number;
+    }[];
 }

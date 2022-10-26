@@ -7,7 +7,7 @@ import {
     PRODUCT_BY,
     PRODUCT_DIRECTION,
     PRODUCT_SALE_STATUS,
-    SHIPPING_AREA_TYPE,
+    SHIPPING_AREA_TYPE_PARAMS,
 } from 'models';
 
 export interface BrandsParams {
@@ -74,7 +74,7 @@ export interface ProductSearchParams {
     hasTotalCount?: boolean;
     hasOptionValues?: boolean;
     includeSummaryInfo?: boolean;
-    shippingAreaType?: SHIPPING_AREA_TYPE;
+    shippingAreaType?: SHIPPING_AREA_TYPE_PARAMS;
 }
 
 export interface ProductsSearchResponse {

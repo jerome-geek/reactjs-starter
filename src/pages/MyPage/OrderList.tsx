@@ -83,7 +83,7 @@ const OrderList = () => {
 
                 <div style={{ marginTop: '40px' }}>
                     {orderList && orderList?.items.length > 0 ? (
-                        orderList?.items.map((order: any) => {
+                        orderList?.items.map((order) => {
                             return (
                                 <div
                                     key={order.orderNo}
@@ -130,46 +130,39 @@ const OrderList = () => {
                                     </div>
 
                                     <OrderOptionList>
-                                        {order.orderOptions?.map(
-                                            (option: any) => {
-                                                return (
-                                                    <OrderOptionListItem
-                                                        key={
-                                                            option.orderNo +
-                                                            option.optionNo
-                                                        }
-                                                        productNo={
-                                                            option.productNo
-                                                        }
-                                                        imageUrl={
-                                                            option.imageUrl
-                                                        }
-                                                        orderStatusTypeLabel={
-                                                            option.orderStatusTypeLabel
-                                                        }
-                                                        productName={
-                                                            option.productName
-                                                        }
-                                                        optionName={
-                                                            option.optionName
-                                                        }
-                                                        orderCnt={
-                                                            option.orderCnt
-                                                        }
-                                                        price={option.price}
-                                                        invoiceNo={
-                                                            option.delivery
-                                                                .invoiceNo ||
-                                                            411677450483
-                                                        } // TEST용 값 추가
-                                                        deliveryCompanyTypeLabel={
-                                                            option.delivery
-                                                                .deliveryCompanyTypeLabel
-                                                        }
-                                                    />
-                                                );
-                                            },
-                                        )}
+                                        {order.orderOptions?.map((option) => {
+                                            return (
+                                                <OrderOptionListItem
+                                                    key={
+                                                        option.orderNo +
+                                                        option.optionNo
+                                                    }
+                                                    productNo={option.productNo}
+                                                    imageUrl={option.imageUrl}
+                                                    orderStatusTypeLabel={
+                                                        option.orderStatusTypeLabel ||
+                                                        ''
+                                                    }
+                                                    productName={
+                                                        option.productName
+                                                    }
+                                                    optionName={
+                                                        option.optionName
+                                                    }
+                                                    orderCnt={option.orderCnt}
+                                                    price={option.price}
+                                                    invoiceNo={
+                                                        option.delivery
+                                                            .invoiceNo
+                                                    }
+                                                    deliveryCompanyTypeLabel={
+                                                        option.delivery
+                                                            .deliveryCompanyTypeLabel ||
+                                                        ''
+                                                    }
+                                                />
+                                            );
+                                        })}
                                     </OrderOptionList>
                                 </div>
                             );
