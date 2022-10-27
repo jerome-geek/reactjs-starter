@@ -26,6 +26,7 @@ import media from 'utils/styles/media';
 import { SEX, SHOPBY_TERMS_TYPES, VC_TERMS_TYPES } from 'models';
 import { isDesktop } from 'utils/styles/responsive';
 import PATHS from 'const/paths';
+import { AxiosError } from 'axios';
 
 interface LocationState {
     joinTermsAgreements: SHOPBY_TERMS_TYPES | VC_TERMS_TYPES[];
@@ -279,8 +280,12 @@ const Join = () => {
                     navigate(PATHS.JOIN_COMPLETED);
                 }
             } catch (error) {
-                alert('알 수 없는 에러 발생!');
-                navigate('/');
+                if (error instanceof AxiosError) {
+                    alert(error.response?.data.message);
+                } else {
+                    alert('알 수 없는 에러 발생!');
+                    navigate('/');
+                }
             }
         },
     );

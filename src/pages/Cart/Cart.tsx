@@ -407,11 +407,17 @@ const Cart = () => {
     };
 
     const productCountHandler = (count: number, cartNo: number) => () => {
-        const cartInfo = pipe(
-            cartList,
-            filter((a) => a.cartNo === cartNo),
-            head,
-        );
+        const cartInfo = isLogin
+            ? pipe(
+                  cartList,
+                  filter((a) => a.cartNo === cartNo),
+                  head,
+              )
+            : pipe(
+                  cartList,
+                  filter((a) => a.optionNo === cartNo),
+                  head,
+              );
 
         if (!isUndefined(cartInfo)) {
             if (cartInfo.orderCnt + count <= 0) {
@@ -427,7 +433,7 @@ const Cart = () => {
             } else {
                 dispatch(
                     updateCart({
-                        cartNo,
+                        optionNo: cartNo,
                         orderCnt: cartInfo.orderCnt + count,
                     }),
                 );
@@ -443,8 +449,8 @@ const Cart = () => {
                 deleteCart({
                     deleteList: pipe(
                         cartList,
-                        filter((a) => a.cartNo === cartNo),
-                        map((b) => b.cartNo),
+                        filter((a) => a.optionNo === cartNo),
+                        map((b) => b.optionNo),
                         toArray,
                     ),
                 }),
@@ -581,6 +587,7 @@ const Cart = () => {
                                             productCountHandler
                                         }
                                         deleteCartList={deleteCartList}
+                                        isLogin={isLogin}
                                     />
                                 );
                             })

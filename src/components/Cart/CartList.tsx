@@ -24,6 +24,7 @@ interface CartListProps {
     productCountHandler?: (number: number, cartNo: number) => () => void;
     deleteCartList?: (cartNo: number) => () => void;
     isModifiable?: boolean;
+    isLogin?: boolean;
 }
 
 const CartListBox = styled.div`
@@ -275,6 +276,7 @@ const CartList: FC<CartListProps> = ({
     productCountHandler,
     deleteCartList,
     isModifiable = true,
+    isLogin,
 }) => {
     const { width } = useWindowSize();
     const navigate = useNavigate();
@@ -332,9 +334,19 @@ const CartList: FC<CartListProps> = ({
                                         agreeButton(cartData.optionNo)
                                     }
                                     checked={cartData.isChecked}
-                                    id={cartData.cartNo.toString()}
+                                    id={
+                                        isLogin
+                                            ? cartData.cartNo.toString()
+                                            : cartData.optionNo.toString()
+                                    }
                                 />
-                                <label htmlFor={cartData.cartNo.toString()}>
+                                <label
+                                    htmlFor={
+                                        isLogin
+                                            ? cartData.cartNo.toString()
+                                            : cartData.optionNo.toString()
+                                    }
+                                >
                                     {cartData.isChecked ? (
                                         <Checked />
                                     ) : (
@@ -358,7 +370,15 @@ const CartList: FC<CartListProps> = ({
                                 <CartCountMinus
                                     onClick={
                                         productCountHandler &&
-                                        productCountHandler(-1, cartData.cartNo)
+                                        (isLogin
+                                            ? productCountHandler(
+                                                  -1,
+                                                  cartData.cartNo,
+                                              )
+                                            : productCountHandler(
+                                                  -1,
+                                                  cartData.optionNo,
+                                              ))
                                     }
                                 >
                                     <Minus />
@@ -371,7 +391,15 @@ const CartList: FC<CartListProps> = ({
                                 <CartCountPlus
                                     onClick={
                                         productCountHandler &&
-                                        productCountHandler(+1, cartData.cartNo)
+                                        (isLogin
+                                            ? productCountHandler(
+                                                  +1,
+                                                  cartData.cartNo,
+                                              )
+                                            : productCountHandler(
+                                                  +1,
+                                                  cartData.optionNo,
+                                              ))
                                     }
                                 >
                                     <Plus />
@@ -415,7 +443,9 @@ const CartList: FC<CartListProps> = ({
                         <CartCloseButton
                             onClick={
                                 deleteCartList &&
-                                deleteCartList(cartData.cartNo)
+                                (isLogin
+                                    ? deleteCartList(cartData.cartNo)
+                                    : deleteCartList(cartData.optionNo))
                             }
                         >
                             <CloseButtonIcon />
@@ -433,7 +463,9 @@ const CartList: FC<CartListProps> = ({
                             <CartCloseButton
                                 onClick={
                                     deleteCartList &&
-                                    deleteCartList(cartData.cartNo)
+                                    (isLogin
+                                        ? deleteCartList(cartData.cartNo)
+                                        : deleteCartList(cartData.optionNo))
                                 }
                             >
                                 <CloseButtonIcon />
@@ -447,10 +479,15 @@ const CartList: FC<CartListProps> = ({
                                     <CartCountMinus
                                         onClick={
                                             productCountHandler &&
-                                            productCountHandler(
-                                                -1,
-                                                cartData.cartNo,
-                                            )
+                                            (isLogin
+                                                ? productCountHandler(
+                                                      -1,
+                                                      cartData.cartNo,
+                                                  )
+                                                : productCountHandler(
+                                                      -1,
+                                                      cartData.optionNo,
+                                                  ))
                                         }
                                     >
                                         <Minus />
@@ -463,10 +500,15 @@ const CartList: FC<CartListProps> = ({
                                     <CartCountPlus
                                         onClick={
                                             productCountHandler &&
-                                            productCountHandler(
-                                                +1,
-                                                cartData.cartNo,
-                                            )
+                                            (isLogin
+                                                ? productCountHandler(
+                                                      +1,
+                                                      cartData.cartNo,
+                                                  )
+                                                : productCountHandler(
+                                                      +1,
+                                                      cartData.optionNo,
+                                                  ))
                                         }
                                     >
                                         <Plus />
