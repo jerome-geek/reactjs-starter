@@ -370,15 +370,12 @@ const CartList: FC<CartListProps> = ({
                                 <CartCountMinus
                                     onClick={
                                         productCountHandler &&
-                                        (isLogin
-                                            ? productCountHandler(
-                                                  -1,
-                                                  cartData.cartNo,
-                                              )
-                                            : productCountHandler(
-                                                  -1,
-                                                  cartData.optionNo,
-                                              ))
+                                        productCountHandler(
+                                            -1,
+                                            isLogin
+                                                ? cartData.cartNo
+                                                : cartData.optionNo,
+                                        )
                                     }
                                 >
                                     <Minus />
@@ -391,15 +388,12 @@ const CartList: FC<CartListProps> = ({
                                 <CartCountPlus
                                     onClick={
                                         productCountHandler &&
-                                        (isLogin
-                                            ? productCountHandler(
-                                                  +1,
-                                                  cartData.cartNo,
-                                              )
-                                            : productCountHandler(
-                                                  +1,
-                                                  cartData.optionNo,
-                                              ))
+                                        productCountHandler(
+                                            +1,
+                                            isLogin
+                                                ? cartData.cartNo
+                                                : cartData.optionNo,
+                                        )
                                     }
                                 >
                                     <Plus />
@@ -443,9 +437,11 @@ const CartList: FC<CartListProps> = ({
                         <CartCloseButton
                             onClick={
                                 deleteCartList &&
-                                (isLogin
-                                    ? deleteCartList(cartData.cartNo)
-                                    : deleteCartList(cartData.optionNo))
+                                deleteCartList(
+                                    isLogin
+                                        ? cartData.cartNo
+                                        : cartData.optionNo,
+                                )
                             }
                         >
                             <CloseButtonIcon />
@@ -463,9 +459,11 @@ const CartList: FC<CartListProps> = ({
                             <CartCloseButton
                                 onClick={
                                     deleteCartList &&
-                                    (isLogin
-                                        ? deleteCartList(cartData.cartNo)
-                                        : deleteCartList(cartData.optionNo))
+                                    deleteCartList(
+                                        isLogin
+                                            ? cartData.cartNo
+                                            : cartData.optionNo,
+                                    )
                                 }
                             >
                                 <CloseButtonIcon />
@@ -479,15 +477,12 @@ const CartList: FC<CartListProps> = ({
                                     <CartCountMinus
                                         onClick={
                                             productCountHandler &&
-                                            (isLogin
-                                                ? productCountHandler(
-                                                      -1,
-                                                      cartData.cartNo,
-                                                  )
-                                                : productCountHandler(
-                                                      -1,
-                                                      cartData.optionNo,
-                                                  ))
+                                            productCountHandler(
+                                                -1,
+                                                isLogin
+                                                    ? cartData.cartNo
+                                                    : cartData.optionNo,
+                                            )
                                         }
                                     >
                                         <Minus />
@@ -500,15 +495,12 @@ const CartList: FC<CartListProps> = ({
                                     <CartCountPlus
                                         onClick={
                                             productCountHandler &&
-                                            (isLogin
-                                                ? productCountHandler(
-                                                      +1,
-                                                      cartData.cartNo,
-                                                  )
-                                                : productCountHandler(
-                                                      +1,
-                                                      cartData.optionNo,
-                                                  ))
+                                            productCountHandler(
+                                                +1,
+                                                isLogin
+                                                    ? cartData.cartNo
+                                                    : cartData.optionNo,
+                                            )
                                         }
                                     >
                                         <Plus />
