@@ -1,5 +1,14 @@
-import { filter, includes, map, pipe, toArray } from '@fxts/core';
-import { createSlice } from '@reduxjs/toolkit';
+import {
+    filter,
+    find,
+    includes,
+    map,
+    partition,
+    pipe,
+    pluck,
+    toArray,
+} from '@fxts/core';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ShoppingCartBody } from 'models/order';
 
@@ -17,52 +26,53 @@ export const cartSlice = createSlice({
     name: 'member',
     initialState: cartInitialState,
     reducers: {
-        setCart: (state, action) => {
+        setCart: (state, action: PayloadAction<initialState[]>) => {
             if (state.data.length > 0) {
+                const originOptionList = pipe(
+                    state.data,
+                    pluck('optionNo'),
+                    toArray,
+                );
+
+                const incomingOptionList = pipe(
+                    action.payload,
+                    pluck('optionNo'),
+                    toArray,
+                );
+
+                const [_, newCartOptionList] = pipe(
+                    incomingOptionList,
+                    partition((a) => originOptionList.includes(a)),
+                );
+
+                const newCartList = pipe(
+                    action.payload,
+                    filter((a) => newCartOptionList.includes(a.optionNo)),
+                    toArray,
+                );
+
+                const originCartList = pipe(
+                    state.data,
+                    map((a) =>
+                        Object({
+                            ...a,
+                            orderCnt:
+                                a.orderCnt +
+                                    find(
+                                        (b) => b.optionNo === a.optionNo,
+                                        action.payload,
+                                    )?.orderCnt! || a.orderCnt,
+                        }),
+                    ),
+                    toArray,
+                );
+
                 return {
-                    data: [
-                        ...state.data.map((baseCartData) => {
-                            let addedOrderCnt: initialState[] = [];
-                            action.payload.forEach(
-                                (newCartData: {
-                                    optionNo: number;
-                                    orderCnt: number;
-                                }) => {
-                                    if (
-                                        baseCartData?.optionNo ===
-                                        newCartData.optionNo
-                                    ) {
-                                        const orderCnt =
-                                            baseCartData.orderCnt +
-                                            newCartData.orderCnt;
-                                        addedOrderCnt.push({
-                                            ...baseCartData,
-                                            orderCnt,
-                                            isChecked: true,
-                                        });
-                                    }
-                                },
-                            );
-
-                            if (addedOrderCnt.length > 0)
-                                return addedOrderCnt[0];
-                            return baseCartData;
-                        }),
-                        ...action.payload.filter((item: ShoppingCartBody) => {
-                            let isDuplicate = false;
-
-                            state.data.forEach((baseCartData) => {
-                                if (item.optionNo === baseCartData.optionNo)
-                                    isDuplicate = true;
-                            });
-
-                            if (!isDuplicate) return item;
-                        }),
-                    ],
+                    data: [...newCartList, ...originCartList],
                 };
             }
             return {
-                data: [...state.data, ...action.payload],
+                data: [...action.payload],
             };
         },
         updateCart: (state, action) => {
