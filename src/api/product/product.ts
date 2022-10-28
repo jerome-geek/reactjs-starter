@@ -46,11 +46,19 @@ const product = {
             },
         }),
 
-    getFavoriteKeywords: (size?: number): Promise<AxiosResponse> =>
+    /**
+     * 인기 검색어 조회하기
+     *  - 인기 검색어 조회하는 API입니다
+     */
+    getFavoriteKeywords: (
+        params: {
+            size?: number;
+        } = { size: 10 },
+    ): Promise<AxiosResponse<string[]>> =>
         request({
             method: 'GET',
             url: '/products/favoriteKeywords',
-            params: { size },
+            params: { size: params.size },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
