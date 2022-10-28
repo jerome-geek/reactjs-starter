@@ -40,9 +40,9 @@ export const cartSlice = createSlice({
                     toArray,
                 );
 
-                const [_, newCartOptionList] = pipe(
+                const [newCartOptionList] = pipe(
                     incomingOptionList,
-                    partition((a) => originOptionList.includes(a)),
+                    partition((a) => !originOptionList.includes(a)),
                 );
 
                 const newCartList = pipe(
@@ -51,19 +51,18 @@ export const cartSlice = createSlice({
                     toArray,
                 );
 
+                const originCartCount = (optionNo: number) =>
+                    find((b) => b.optionNo === optionNo, action.payload)
+                        ?.orderCnt!;
+
                 const originCartList = pipe(
                     state.data,
-                    map((a) =>
-                        Object({
+                    map((a) => {
+                        return {
                             ...a,
-                            orderCnt:
-                                a.orderCnt +
-                                    find(
-                                        (b) => b.optionNo === a.optionNo,
-                                        action.payload,
-                                    )?.orderCnt! || a.orderCnt,
-                        }),
-                    ),
+                            orderCnt: a.orderCnt + originCartCount(a.optionNo),
+                        };
+                    }),
                     toArray,
                 );
 
