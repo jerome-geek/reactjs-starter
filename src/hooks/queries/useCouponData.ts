@@ -10,15 +10,15 @@ interface useCouponDataParams {
     memberNo?: number;
     params?: CouponsParams;
     options?: UseQueryOptions<
-        AxiosResponse<{ totalCount: number; items: Coupon[] }>,
+        AxiosResponse<ItemList<Coupon>>,
         AxiosError,
-        { totalCount: number; items: Coupon[] },
-        [string, number | undefined, CouponsParams]
+        ItemList<Coupon>,
+        [string, number, CouponsParams]
     >;
 }
 
 const useCouponData = ({
-    memberNo,
+    memberNo = 0,
     params = {
         startYmd: dayjs().subtract(1, 'year').format('YYYY-MM-DD'),
         endYmd: dayjs().format('YYYY-MM-DD'),
@@ -26,15 +26,12 @@ const useCouponData = ({
         pageSize: 30,
         usable: true,
     },
-    options = {
-        enabled: !!memberNo,
-        select: ({ data }) => data,
-    },
+    options,
 }: useCouponDataParams) => {
     return useQuery(
         [PROFILE_COUPONS, memberNo, { ...params }],
         async () => await coupon.getUserCoupons({ ...params }),
-        { ...options },
+        { enabled: !!memberNo, select: ({ data }) => data, ...options },
     );
 };
 
