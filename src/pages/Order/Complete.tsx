@@ -3,15 +3,17 @@ import { useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { head, includes, join, pipe, split } from '@fxts/core';
+import { includes } from '@fxts/core';
 import styled from 'styled-components';
-import dayjs from 'dayjs';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import OrderCompleteTopContent from 'components/OrderSheet/OrderCompleteTopContent';
 import CartList from 'components/Cart/CartList';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
+import DepositInfo from 'components/Order/DepositInfo';
+import PaymentInfo from 'components/Order/PaymentInfo';
+import DeliveryInfo from 'components/Order/DeliveryInfo';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
@@ -19,15 +21,10 @@ import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderProductOption } from 'models/order';
 import { useMember, useQueryString } from 'hooks';
-import { KRW } from 'utils/currency';
 import HTTP_RESPONSE from 'const/http';
 
 const CompleteContainer = styled(LayoutResponsive)`
     max-width: 840px;
-`;
-
-const OrderInformationContainer = styled.section`
-    margin-bottom: 24px;
 `;
 
 const ButtonContainer = styled.div`
@@ -161,41 +158,6 @@ const OrderAmountPrice = styled.div`
     font-weight: bold;
     > span {
         font-weight: 400;
-    }
-`;
-
-const OrderInformationListTitle = styled.h3`
-    font-size: 24px;
-    line-height: 36px;
-    font-weight: bold;
-    letter-spacing: -1.2px;
-    color: #191919;
-    text-align: left;
-    margin-bottom: 24px;
-`;
-
-const OrderInformationList = styled.ul`
-    border-top: 2px solid #222943;
-    padding: 40px 10px;
-`;
-
-const OrderInformationListItem = styled.li`
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 24px;
-
-    font-size: 16px;
-    line-height: 24px;
-    color: #191919;
-
-    & > p:first-child {
-        letter-spacing: -0.64px;
-        text-align: left;
-    }
-
-    & > p:last-child {
-        letter-spacing: 0;
-        text-align: right;
     }
 `;
 
@@ -405,14 +367,14 @@ const Complete = () => {
 
     const isBankInfoVisible = useMemo(
         () =>
-            includes(orderInfo.payType, [
+            includes(orderInfo?.payType, [
                 PAY_TYPE.ACCOUNT,
                 PAY_TYPE.REALTIME_ACCOUNT_TRANSFER,
                 PAY_TYPE.VIRTUAL_ACCOUNT,
                 PAY_TYPE.ESCROW_REALTIME_ACCOUNT_TRANSFER,
                 PAY_TYPE.ESCROW_VIRTUAL_ACCOUNT,
             ]),
-        [orderInfo.payType],
+        [orderInfo?.payType],
     );
 
     return (
@@ -446,224 +408,49 @@ const Complete = () => {
                 {orderInfo && (
                     <>
                         {isBankInfoVisible && (
-                            <OrderInformationContainer>
-                                <OrderInformationListTitle>
-                                    {orderComplete('transferInformation.title')}
-                                </OrderInformationListTitle>
-                                <OrderInformationList>
-                                    <OrderInformationListItem>
-                                        <p style={{ fontWeight: 'bold' }}>
-                                            {orderComplete(
-                                                'transferInformation.category.price',
-                                            )}
-                                        </p>
-                                        <p
-                                            style={{
-                                                fontSize: '20px',
-                                                fontWeight: 'bold',
-                                                color: '#C00020',
-                                            }}
-                                        >
-                                            {KRW(
-                                                orderInfo.payInfo.payAmt,
-                                            ).format()}
-                                        </p>
-                                    </OrderInformationListItem>
-                                    <OrderInformationListItem>
-                                        <p>
-                                            {orderComplete(
-                                                'transferInformation.category.accountInformation',
-                                            )}
-                                        </p>
-                                        <p>
-                                            {`${orderInfo.payInfo.bankInfo.bankName} ${orderInfo.payInfo.bankInfo.account}`}
-                                            <br />
-                                            <span
-                                                style={{
-                                                    marginTop: '12px',
-                                                    color: '#858585',
-                                                }}
-                                            >
-                                                {`${orderInfo.payInfo.bankInfo.remitterName}`}
-                                            </span>
-                                        </p>
-                                    </OrderInformationListItem>
-                                    <OrderInformationListItem>
-                                        <p>
-                                            {orderComplete(
-                                                'transferInformation.category.depositWait',
-                                            )}
-                                        </p>
-
-                                        <p>
-                                            {`${dayjs(
-                                                orderInfo.payInfo.bankInfo
-                                                    .paymentExpirationYmdt,
-                                            ).format(
-                                                'YYYY.MM.DD HH:mm:ss',
-                                            )} ${orderComplete('etc.until')}`}
-                                        </p>
-                                    </OrderInformationListItem>
-                                </OrderInformationList>
-                            </OrderInformationContainer>
+                            <DepositInfo
+                                paymentAmt={orderInfo.payInfo.payAmt}
+                                bankName={orderInfo.payInfo.bankInfo.bankName}
+                                account={orderInfo.payInfo.bankInfo.account}
+                                remitterName={
+                                    orderInfo.payInfo.bankInfo.remitterName
+                                }
+                                paymentExpirationYmdt={
+                                    orderInfo.payInfo.bankInfo
+                                        .paymentExpirationYmdt
+                                }
+                            />
                         )}
 
-                        <OrderInformationContainer>
-                            <OrderInformationListTitle>
-                                {orderComplete('paymentInformation.title')}
-                            </OrderInformationListTitle>
-                            <OrderInformationList>
-                                <OrderInformationListItem>
-                                    <p style={{ fontWeight: 'bold' }}>
-                                        {orderComplete(
-                                            'paymentInformation.category.totalPrice',
-                                        )}
-                                    </p>
-                                    <p
-                                        style={{
-                                            fontSize: '20px',
-                                            fontWeight: 'bold',
-                                            color: '#C00020',
-                                        }}
-                                    >
-                                        {KRW(orderInfo.payInfo.payAmt).format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'paymentInformation.category.productPrice',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {KRW(
-                                            orderInfo.lastOrderAmount
-                                                .standardAmt,
-                                        ).format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'paymentInformation.category.deliverPrice',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {KRW(
-                                            orderInfo.lastOrderAmount
-                                                .deliveryAmt,
-                                        ).format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'paymentInformation.category.discountPrice',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {KRW(
-                                            orderInfo.lastOrderAmount
-                                                .immediateDiscountAmt,
-                                        )
-                                            .add(
-                                                orderInfo.lastOrderAmount
-                                                    .additionalDiscountAmt,
-                                            )
-                                            .multiply(-1)
-                                            .format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'paymentInformation.category.couponDiscount',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {KRW(
-                                            orderInfo.lastOrderAmount
-                                                .cartCouponDiscountAmt,
-                                        )
-                                            .add(
-                                                orderInfo.lastOrderAmount
-                                                    .productCouponDiscountAmt,
-                                            )
-                                            .add(
-                                                orderInfo.lastOrderAmount
-                                                    .deliveryCouponDiscountAmt,
-                                            )
-                                            .multiply(-1)
-                                            .format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'paymentInformation.category.useDeposit',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {KRW(
-                                            orderInfo.lastOrderAmount.subPayAmt,
-                                        )
-                                            .multiply(-1)
-                                            .format()}
-                                    </p>
-                                </OrderInformationListItem>
-                            </OrderInformationList>
-                        </OrderInformationContainer>
-
-                        <OrderInformationContainer
-                            style={{ marginBottom: '80px' }}
-                        >
-                            <OrderInformationListTitle>
-                                {orderComplete('deliveryInformation.title')}
-                            </OrderInformationListTitle>
-                            <OrderInformationList>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'deliveryInformation.category.receiver',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {orderInfo.shippingAddress.receiverName}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'deliveryInformation.category.address',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {
-                                            orderInfo.shippingAddress
-                                                .receiverAddress
-                                        }
-                                        <br />
-                                        {
-                                            orderInfo.shippingAddress
-                                                .receiverDetailAddress
-                                        }
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'deliveryInformation.category.phoneNumber',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {
-                                            orderInfo.shippingAddress
-                                                .receiverContact1
-                                        }
-                                    </p>
-                                </OrderInformationListItem>
-                            </OrderInformationList>
-                        </OrderInformationContainer>
+                        <PaymentInfo
+                            payAmt={orderInfo.payInfo.payAmt}
+                            standardAmt={orderInfo.lastOrderAmount.standardAmt}
+                            deliveryAmt={orderInfo.lastOrderAmount.deliveryAmt}
+                            totalDiscountAmt={
+                                orderInfo.lastOrderAmount.immediateDiscountAmt +
+                                orderInfo.lastOrderAmount.additionalDiscountAmt
+                            }
+                            totalCouponAmt={
+                                orderInfo.lastOrderAmount
+                                    .cartCouponDiscountAmt +
+                                orderInfo.lastOrderAmount
+                                    .productCouponDiscountAmt +
+                                orderInfo.lastOrderAmount
+                                    .deliveryCouponDiscountAmt
+                            }
+                            subPayAmt={orderInfo.lastOrderAmount.subPayAmt}
+                        />
+                        <DeliveryInfo
+                            receiverName={
+                                orderInfo.shippingAddress.receiverName
+                            }
+                            receiverAddress={
+                                orderInfo.shippingAddress.receiverAddress
+                            }
+                            receiverContact={
+                                orderInfo.shippingAddress.receiverContact1
+                            }
+                        />
                     </>
                 )}
 
