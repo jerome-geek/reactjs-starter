@@ -4,6 +4,11 @@ import styled from 'styled-components';
 
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
+import { NextAction } from 'models/order';
+import SecondaryButton from 'components/Button/SecondaryButton';
+import { CLAIM_STATUS_TYPE, ORDER_STATUS_TYPE } from 'models';
+import { nextActionName } from 'utils/order';
+import { flex } from 'utils/styles/mixin';
 
 interface OrderOptionListItemProps extends HTMLAttributes<HTMLLIElement> {
     productNo: string | number;
@@ -15,6 +20,9 @@ interface OrderOptionListItemProps extends HTMLAttributes<HTMLLIElement> {
     price: any;
     invoiceNo: Nullable<string>;
     deliveryCompanyTypeLabel: string;
+    nextActions: NextAction[];
+    orderStatusType: ORDER_STATUS_TYPE;
+    claimStatusType: Nullable<CLAIM_STATUS_TYPE>;
 }
 
 const OrderOptionListItemWrapper = styled.li`
@@ -57,16 +65,35 @@ const Price = styled.span`
     line-height: 24px;
 `;
 
+const ClaimButtonContainer = styled.div`
+    ${flex}
+`;
+
+const ClaimButton = styled(SecondaryButton)`
+    border: 1px solid #dbdbdb;
+    font-size: 12px;
+    letter-spacing: -0.48px;
+    color: #191919;
+    width: 100%;
+
+    &:not(:last-of-type) {
+        margin-right: 10px;
+    }
+`;
+
 const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
     productNo,
     imageUrl,
+    orderStatusType,
     orderStatusTypeLabel,
+    claimStatusType,
     productName,
     optionName,
     orderCnt,
     price,
     invoiceNo,
     deliveryCompanyTypeLabel,
+    nextActions,
 }) => {
     return (
         <OrderOptionListItemWrapper>
@@ -118,12 +145,37 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                         <ProductName>{productName}</ProductName>
                         <OptionName>{`${optionName} ${orderCnt}개`}</OptionName>
                     </div>
-                    <Price>
-                        <b>{`${KRW(
-                            price.immediateDiscountedPrice,
-                        ).format()}`}</b>
-                        &nbsp;원
-                    </Price>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Price
+                            dangerouslySetInnerHTML={{
+                                __html: KRW(
+                                    price.immediateDiscountedPrice,
+                                ).format({
+                                    symbol: '원',
+                                    precision: 0,
+                                    pattern: `<b>#</b> !`,
+                                }),
+                            }}
+                        />
+                        <ClaimButtonContainer>
+                            {nextActions?.map((action, index) => {
+                                return (
+                                    <ClaimButton key={index}>
+                                        {nextActionName(
+                                            orderStatusType,
+                                            action.nextActionType,
+                                            claimStatusType,
+                                        )}
+                                    </ClaimButton>
+                                );
+                            })}
+                        </ClaimButtonContainer>
+                    </div>
                 </div>
             </div>
         </OrderOptionListItemWrapper>

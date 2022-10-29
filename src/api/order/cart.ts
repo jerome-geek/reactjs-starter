@@ -168,7 +168,7 @@ const cart = {
      * @param parmas
      * @returns
      */
-    getMaximumCouponCartPrice: (parmas: {
+    getMaximumCouponCartPrice: (params: {
         cartNo: number;
     }): Promise<AxiosResponse<getMaximumCouponCartPriceResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
@@ -176,7 +176,7 @@ const cart = {
         return request({
             method: 'GET',
             url: '/cart/coupons/maximum',
-            params: parmas?.cartNo,
+            params: params?.cartNo,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
