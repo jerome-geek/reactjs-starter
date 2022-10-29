@@ -3,23 +3,21 @@ import { useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { head, join, pipe, split } from '@fxts/core';
+import { head, includes, join, pipe, split } from '@fxts/core';
 import styled from 'styled-components';
-import currency from 'currency.js';
 import dayjs from 'dayjs';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import OrderCompleteTopContent from 'components/OrderSheet/OrderCompleteTopContent';
 import CartList from 'components/Cart/CartList';
 import SEOHelmet from 'components/shared/SEOHelmet';
-import Header from 'components/shared/Header';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
-import { OrderOptionsGroupByDelivery, OrderProductOption } from 'models/order';
+import { OrderProductOption } from 'models/order';
 import { useMember, useQueryString } from 'hooks';
 import { KRW } from 'utils/currency';
 import HTTP_RESPONSE from 'const/http';
@@ -30,108 +28,6 @@ const CompleteContainer = styled(LayoutResponsive)`
 
 const OrderInformationContainer = styled.section`
     margin-bottom: 24px;
-`;
-
-const OrderInformationBox = styled.div`
-    margin-bottom: 64px;
-`;
-
-const OrderInformationTitle = styled.div`
-    text-align: left;
-    color: ${(props) => props.theme.text1};
-    font-size: 1.5rem;
-    font-weight: bold;
-    letter-spacing: -1.2px;
-    padding-bottom: 24px;
-    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
-    margin-bottom: 40px;
-    ${media.xlarge} {
-        margin-bottom: 20px;
-        border-bottom: ${(props) => `1px solid ${props.theme.secondary}`};
-        letter-spacing: 0;
-        font-size: 1.143rem;
-    }
-    ${media.medium} {
-        font-size: 1.333rem;
-    }
-`;
-
-const OrderInformationPrice = styled.div<{ marginBottom: string }>`
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    text-align: left;
-    margin-bottom: ${(props) => props.marginBottom};
-    color: ${(props) => props.theme.text1};
-    font-weight: bold;
-    ${media.xlarge} {
-        margin-bottom: 24px;
-        font-size: 1.143rem;
-    }
-    ${media.medium} {
-        font-size: 1.333rem;
-    }
-`;
-
-const OrderInformationListDiv = styled.div<{ marginBottom: string }>`
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    text-align: right;
-    margin-bottom: ${(props) => props.marginBottom};
-    color: #767676;
-    ${media.xlarge} {
-        margin-bottom: 24px;
-        font-size: 1.143rem;
-        letter-spacing: 0;
-    }
-    ${media.medium} {
-        font-size: 1.333rem;
-    }
-`;
-
-const OrderInformationCategory = styled.div`
-    ${media.xlarge} {
-        color: ${(props) => props.theme.text1};
-        font-weight: 500;
-        letter-spacing: -0.64px;
-    }
-`;
-
-const ImportantInformation = styled.div`
-    ${media.xlarge} {
-        color: ${(props) => props.theme.primary};
-        font-size: 1.429rem;
-        font-weight: bold;
-    }
-    ${media.medium} {
-        color: ${(props) => props.theme.primary};
-        font-size: 1.666rem;
-    }
-`;
-
-const OrderInformationContent = styled.div`
-    letter-spacing: 0;
-    p {
-        margin-top: 0.75rem;
-    }
-    ${media.xlarge} {
-        color: ${(props) => props.theme.text1};
-        font-weight: 500;
-        .depositor_name {
-            font-size: 0.857rem;
-            color: ${(props) => props.theme.text2};
-        }
-    }
-    ${media.medium} {
-        max-width: 89%;
-        white-space: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        .depositor_name {
-            font-size: 1rem;
-        }
-    }
 `;
 
 const ButtonContainer = styled.div`
@@ -410,74 +306,6 @@ const Complete = () => {
                     error,
                 );
             },
-            //     onSuccess: (res) => {
-            //         const newOrderList: Array<
-            //             OrderProductOption & {
-            //                 deliveryAmt: number;
-            //                 productName: string;
-            //             }
-            //         > = [];
-            //         res.orderOptionsGroupByPartner.forEach((partnerOptionGroup) => {
-            //             partnerOptionGroup.orderOptionsGroupByDelivery.forEach(
-            //                 (deliveryOptionGroup) => {
-            //                     deliveryOptionGroup.orderOptions.forEach(
-            //                         ({
-            //                             accumulationAmt,
-            //                             optionNo,
-            //                             imageUrl,
-            //                             optionManagementCd,
-            //                             optionName,
-            //                             orderOptionNo,
-            //                             optionTitle,
-            //                             optionType,
-            //                             optionValue,
-            //                             orderCnt,
-            //                             price,
-            //                             productName,
-            //                             productNo,
-            //                             reservation,
-            //                             reservationDeliveryYmdt,
-            //                             setOptions,
-            //                             inputs,
-            //                         }) => {
-            //                             newOrderList.push({
-            //                                 accumulationAmtWhenBuyConfirm:
-            //                                     accumulationAmt,
-            //                                 cartNo: optionNo,
-            //                                 deliveryAmt:
-            //                                     deliveryOptionGroup.deliveryAmt,
-            //                                 imageUrl,
-            //                                 optionInputs: inputs,
-            //                                 optionManagementCd,
-            //                                 optionName,
-            //                                 optionNo: orderOptionNo,
-            //                                 optionTitle,
-            //                                 optionType,
-            //                                 optionValue,
-            //                                 orderCnt,
-            //                                 price,
-            //                                 productName,
-            //                                 productNo,
-            //                                 recurringDeliveryCycles: null,
-            //                                 reservation,
-            //                                 reservationDeliveryYmdt,
-            //                                 setOptions,
-            //                                 soldOut: false,
-            //                                 stockCnt: 999999,
-            //                             });
-            //                         },
-            //                     );
-            //                 },
-            //             );
-            //         });
-            //         setOrderList([...newOrderList]);
-            //         setDeliveryInfo(
-            //             head(
-            //                 head(res.orderOptionsGroupByPartner)!
-            //                     .orderOptionsGroupByDelivery,
-            //             ),
-            //         );
-            //     },
         },
     );
 
@@ -495,11 +323,6 @@ const Complete = () => {
             enabled: !isLogin && !!orderParam.get('orderNo'),
             select: (res) => ({ ...res.data, status: res.status }),
             onSuccess: (data) => {
-                console.log(
-                    '🚀 ~ file: Complete.tsx ~ line 452 ~ Complete ~ data',
-                    data,
-                );
-
                 if (data.status === HTTP_RESPONSE.HTTP_OK) {
                     data.orderOptionsGroupByPartner.forEach(
                         (partnerOptionGroup: any) => {
@@ -526,8 +349,7 @@ const Complete = () => {
                                             inputs,
                                             validInfo,
                                         }: any) => {
-                                            setOrderList((prev) => [
-                                                ...prev,
+                                            setOrderList([
                                                 {
                                                     accumulationAmtWhenBuyConfirm:
                                                         accumulationAmt,
@@ -563,7 +385,6 @@ const Complete = () => {
                         },
                     );
                 } else {
-                    console.log('not ok');
                     alert(data.message);
                     navigate(PATHS.MAIN);
                 }
@@ -580,6 +401,18 @@ const Complete = () => {
     const orderInfo = useMemo(
         () => (isLogin ? orderCompleteData : guestOrderCompleteData),
         [isLogin, orderCompleteData, guestOrderCompleteData],
+    );
+
+    const isBankInfoVisible = useMemo(
+        () =>
+            includes(orderInfo.payType, [
+                PAY_TYPE.ACCOUNT,
+                PAY_TYPE.REALTIME_ACCOUNT_TRANSFER,
+                PAY_TYPE.VIRTUAL_ACCOUNT,
+                PAY_TYPE.ESCROW_REALTIME_ACCOUNT_TRANSFER,
+                PAY_TYPE.ESCROW_VIRTUAL_ACCOUNT,
+            ]),
+        [orderInfo.payType],
     );
 
     return (
@@ -612,64 +445,68 @@ const Complete = () => {
 
                 {orderInfo && (
                     <>
-                        <OrderInformationContainer>
-                            <OrderInformationListTitle>
-                                {orderComplete('transferInformation.title')}
-                            </OrderInformationListTitle>
-                            <OrderInformationList>
-                                <OrderInformationListItem>
-                                    <p style={{ fontWeight: 'bold' }}>
-                                        {orderComplete(
-                                            'transferInformation.category.price',
-                                        )}
-                                    </p>
-                                    <p
-                                        style={{
-                                            fontSize: '20px',
-                                            fontWeight: 'bold',
-                                            color: '#C00020',
-                                        }}
-                                    >
-                                        {KRW(orderInfo.payInfo.payAmt).format()}
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'transferInformation.category.accountInformation',
-                                        )}
-                                    </p>
-                                    <p>
-                                        {`${orderInfo.payInfo.bankInfo.bankName} ${orderInfo.payInfo.bankInfo.account}`}
-                                        <br />
-                                        <span
+                        {isBankInfoVisible && (
+                            <OrderInformationContainer>
+                                <OrderInformationListTitle>
+                                    {orderComplete('transferInformation.title')}
+                                </OrderInformationListTitle>
+                                <OrderInformationList>
+                                    <OrderInformationListItem>
+                                        <p style={{ fontWeight: 'bold' }}>
+                                            {orderComplete(
+                                                'transferInformation.category.price',
+                                            )}
+                                        </p>
+                                        <p
                                             style={{
-                                                marginTop: '12px',
-                                                color: '#858585',
+                                                fontSize: '20px',
+                                                fontWeight: 'bold',
+                                                color: '#C00020',
                                             }}
                                         >
-                                            {`${orderInfo.payInfo.bankInfo.remitterName}`}
-                                        </span>
-                                    </p>
-                                </OrderInformationListItem>
-                                <OrderInformationListItem>
-                                    <p>
-                                        {orderComplete(
-                                            'transferInformation.category.depositWait',
-                                        )}
-                                    </p>
+                                            {KRW(
+                                                orderInfo.payInfo.payAmt,
+                                            ).format()}
+                                        </p>
+                                    </OrderInformationListItem>
+                                    <OrderInformationListItem>
+                                        <p>
+                                            {orderComplete(
+                                                'transferInformation.category.accountInformation',
+                                            )}
+                                        </p>
+                                        <p>
+                                            {`${orderInfo.payInfo.bankInfo.bankName} ${orderInfo.payInfo.bankInfo.account}`}
+                                            <br />
+                                            <span
+                                                style={{
+                                                    marginTop: '12px',
+                                                    color: '#858585',
+                                                }}
+                                            >
+                                                {`${orderInfo.payInfo.bankInfo.remitterName}`}
+                                            </span>
+                                        </p>
+                                    </OrderInformationListItem>
+                                    <OrderInformationListItem>
+                                        <p>
+                                            {orderComplete(
+                                                'transferInformation.category.depositWait',
+                                            )}
+                                        </p>
 
-                                    <p>
-                                        {`${dayjs(
-                                            orderInfo.payInfo.bankInfo
-                                                .paymentExpirationYmdt,
-                                        ).format(
-                                            'YY.MM.DD HH:mm:ss',
-                                        )} ${orderComplete('etc.until')}`}
-                                    </p>
-                                </OrderInformationListItem>
-                            </OrderInformationList>
-                        </OrderInformationContainer>
+                                        <p>
+                                            {`${dayjs(
+                                                orderInfo.payInfo.bankInfo
+                                                    .paymentExpirationYmdt,
+                                            ).format(
+                                                'YYYY.MM.DD HH:mm:ss',
+                                            )} ${orderComplete('etc.until')}`}
+                                        </p>
+                                    </OrderInformationListItem>
+                                </OrderInformationList>
+                            </OrderInformationContainer>
+                        )}
 
                         <OrderInformationContainer>
                             <OrderInformationListTitle>

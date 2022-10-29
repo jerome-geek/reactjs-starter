@@ -1,11 +1,10 @@
 import { FC, SetStateAction, useState, Dispatch } from 'react';
-import { useQuery } from 'react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import InputWithIcon from 'components/Input/InputWithIcon';
-import { product } from 'api/product';
 import PATHS from 'const/paths';
+import useFavoriteKeywords from 'hooks/queries/useFavoriteKeywords';
 
 interface SearchLayerProps {
     searchToggle: boolean;
@@ -45,17 +44,14 @@ const SearchLayer: FC<SearchLayerProps> = ({
     searchToggle,
     setSearchToggle,
 }) => {
-    const { data: favoriteKeywords } = useQuery(
-        ['favoriteKeywords'],
-        async () => await product.getFavoriteKeywords(10),
-        {
+    const { data: favoriteKeywords } = useFavoriteKeywords({
+        size: 10,
+        options: {
+            enabled: !!searchToggle,
             staleTime: 1000 * 60 * 5,
             cacheTime: 1000 * 60 * 5,
-            select: ({ data }) => {
-                return data;
-            },
         },
-    );
+    });
 
     const [keywords, setKeywords] = useState('');
 
@@ -103,7 +99,8 @@ const SearchLayer: FC<SearchLayerProps> = ({
                                 인기 검색어
                             </FavoriteKeywordTitle>
                             <FavoriteKeywordContainer>
-                                {favoriteKeywords?.length > 0 &&
+                                {favoriteKeywords &&
+                                    favoriteKeywords?.length > 0 &&
                                     favoriteKeywords?.map(
                                         (favoriteKeyword: string) => (
                                             <FavoriteKeyword

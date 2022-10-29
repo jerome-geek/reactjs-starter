@@ -10,6 +10,7 @@ interface InputWithCalendarIconProps
 }
 
 const InputWithCalendarIconContainer = styled.div`
+    max-height: 30px;
     border-bottom: 1px solid ${(props) => props.theme.line2};
     display: flex;
     align-items: center;
@@ -24,9 +25,9 @@ const Input = styled(StyledInput)`
     border: none;
     outline: none;
     width: 100%;
-    padding: 10px 20px;
+    height: 100%;
+    min-height: 30px;
     font-size: 12px;
-    line-height: 18px;
     letter-spacing: -0.48px;
 
     &:focus {
@@ -40,8 +41,8 @@ const InputWithCalendarIcon = forwardRef(
         return (
             <InputWithCalendarIconContainer>
                 <Input ref={ref} {...props} />
-                {props.type === 'before' && <CalendarAfterIcon />}
-                {props.type === 'after' && <CalendarBeforeIcon />}
+                {props.type === 'before' && <CalendarBeforeIcon />}
+                {props.type === 'after' && <CalendarAfterIcon />}
             </InputWithCalendarIconContainer>
         );
     },

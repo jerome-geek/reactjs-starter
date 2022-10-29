@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useQuery } from 'react-query';
@@ -25,6 +25,8 @@ const OrderDetailLink = styled(Link)`
     font-size: 12px;
     vertical-align: top;
     color: #999999;
+    margin-left: 10px;
+    font-weight: normal;
 `;
 
 const OrderList = () => {
@@ -37,6 +39,7 @@ const OrderList = () => {
     });
 
     const { member } = useMember();
+    const isLogin = useMemo(() => !!member, [member]);
 
     const { data: orderSummary } = useQuery(
         [
@@ -53,6 +56,8 @@ const OrderList = () => {
                 endYmd: searchCondition.endYmd,
             }),
         {
+            enabled: isLogin,
+            keepPreviousData: true,
             select: ({ data }) => data,
         },
     );
@@ -64,6 +69,8 @@ const OrderList = () => {
                 ...searchCondition,
             }),
         {
+            enabled: isLogin,
+            keepPreviousData: true,
             select: ({ data }) => data,
         },
     );
@@ -74,6 +81,7 @@ const OrderList = () => {
                 <SearchPeriod
                     startYmd={searchCondition.startYmd}
                     endYmd={searchCondition.endYmd}
+                    searchCondition={searchCondition}
                     setSearchCondition={setSearchCondition}
                 />
 
@@ -101,9 +109,11 @@ const OrderList = () => {
                                     >
                                         <p
                                             style={{
+                                                fontWeight: 'bold',
                                                 fontSize: '16px',
                                                 letterSpacing: 0,
                                                 color: '#191919',
+                                                marginRight: '10px',
                                             }}
                                         >
                                             {order.orderNo}&nbsp;
@@ -143,6 +153,9 @@ const OrderList = () => {
                                                         option.orderStatusTypeLabel ||
                                                         ''
                                                     }
+                                                    orderStatusType={
+                                                        option.orderStatusType
+                                                    }
                                                     productName={
                                                         option.productName
                                                     }
@@ -159,6 +172,12 @@ const OrderList = () => {
                                                         option.delivery
                                                             .deliveryCompanyTypeLabel ||
                                                         ''
+                                                    }
+                                                    nextActions={
+                                                        option.nextActions
+                                                    }
+                                                    claimStatusType={
+                                                        option.claimStatusType
                                                     }
                                                 />
                                             );

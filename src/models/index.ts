@@ -671,6 +671,9 @@ enum CLAIM_STATUS_TYPE {
     RETURN_PROC_WAITING_REFUND = 'RETURN_PROC_WAITING_REFUND',
     // 반품완료[환불완료]
     RETURN_DONE = 'RETURN_DONE',
+    // TODO: 스키마에는 나와있지 않고 https://shopby.works/guide/skin/dev-cover/my-shopping#order-delivery-check 에만 나와있음
+    // 반품완료[환불없음]
+    RETURN_NO_REFUND = 'RETURN_NO_REFUND',
     // 교환처리[조정요청]
     RETURN_REFUND_AMT_ADJUST_REQUESTED = 'RETURN_REFUND_AMT_ADJUST_REQUESTED',
     // 교환신청[승인대기]
