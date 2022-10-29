@@ -70,7 +70,7 @@ export const cartSlice = createSlice({
                 data: pipe(
                     state.data,
                     map((a) =>
-                        a.cartNo === action.payload.cartNo
+                        a.optionNo === action.payload.optionNo
                             ? {
                                   ...a,
                                   orderCnt: action.payload.orderCnt,
@@ -108,7 +108,7 @@ export const cartSlice = createSlice({
                 data: pipe(
                     state.data,
                     filter(
-                        (a) => !includes(a.cartNo, action.payload.deleteList),
+                        (a) => !includes(a.optionNo, action.payload.deleteList),
                     ),
                     toArray,
                 ),
