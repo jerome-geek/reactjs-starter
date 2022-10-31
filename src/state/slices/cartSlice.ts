@@ -22,19 +22,19 @@ export const cartSlice = createSlice({
                 const combinedArray = [...action.payload, ...state.data];
 
                 const cartList: initialState[] = combinedArray.reduce(
-                    (prev: initialState[], current) => {
+                    (accumulatedCartList: initialState[], currentCartData) => {
                         const overlapIndex = findIndex(
-                            (a) => a.optionNo === current.optionNo,
-                            prev,
+                            (a) => a.optionNo === currentCartData.optionNo,
+                            accumulatedCartList,
                         );
 
                         if (overlapIndex === -1) {
-                            prev.push(current);
+                            accumulatedCartList.push(currentCartData);
                         } else {
-                            [...prev][overlapIndex].orderCnt +=
-                                current.orderCnt;
+                            accumulatedCartList[overlapIndex].orderCnt +=
+                                currentCartData.orderCnt;
                         }
-                        return prev;
+                        return accumulatedCartList;
                     },
                     [],
                 );
