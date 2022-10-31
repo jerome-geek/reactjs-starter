@@ -12,18 +12,18 @@ import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
 import BOARD from 'const/board';
-import paths from 'const/paths';
 import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import { board } from 'api/manage';
+import PATHS from 'const/paths';
 
 const FaqContainer = styled.div`
     max-width: 1060px;
     width: 100%;
     padding: 20px;
     margin: 116px auto 153px;
-    ${media.custom(576)} {
+    ${media.small} {
         margin: 0 auto 88px;
         overflow: hidden;
     }
@@ -35,7 +35,7 @@ const FaqTitle = styled.h2`
     font-size: 1.5rem;
     font-weight: bold;
     letter-spacing: -1.2px;
-    ${media.custom(576)} {
+    ${media.small} {
         font-size: 2rem;
     }
 `;
@@ -44,7 +44,7 @@ const FaqSearchContainer = styled.div`
     width: 100%;
     background: ${(props) => props.theme.bg2};
     padding: 20px 0;
-    ${media.custom(576)} {
+    ${media.small} {
         width: 100vw;
         margin-left: -20px;
         padding: 15px 24px;
@@ -61,7 +61,7 @@ const FaqSearchBox = styled.form`
     justify-content: space-between;
     align-items: center;
 
-    ${media.custom(576)} {
+    ${media.small} {
         width: 100%;
         height: 54px;
     }
@@ -75,10 +75,10 @@ const FaqSearchInput = styled.input.attrs({ type: 'text' })`
         letter-spacing: -0.64;
         color: ${(props) => props.theme.text3};
     }
-    ${media.custom(576)} {
+    ${media.small} {
         width: 80%;
         &::placeholder {
-            font-size: 1.6rem;
+            font-size: 1.333rem;
         }
     }
 `;
@@ -87,7 +87,7 @@ const FaqSearchButton = styled.button`
     width: auto;
     text-align: center;
     padding: 0 10px;
-    ${media.custom(576)} {
+    ${media.small} {
         padding: 0 20px;
     }
 `;
@@ -96,11 +96,15 @@ const FaqCategoryContainer = styled.ul`
     display: flex;
     justify-content: center;
     margin: 2rem 0;
-    ${media.custom(576)} {
-        margin-left: -24px;
-        margin: 16px 0 16px -24px;
-        padding-left: 20px;
+    ${media.small} {
         width: 100vw;
+        justify-content: left;
+    }
+`;
+
+const MobileFaqCategoryContainer = styled.div`
+    ${media.small} {
+        width: 100%;
         justify-content: flex-start;
         overflow-x: scroll;
     }
@@ -117,14 +121,19 @@ const FaqCategoryBox = styled.li<{ isActive?: boolean }>`
     :hover {
         color: ${(props) => props.theme.text1};
     }
-    ${media.small} {
+    &:first-child {
+        margin-left: 0;
+    }
+    ${media.medium} {
         margin-left: 20px;
     }
-    ${media.custom(576)} {
+    ${media.small} {
         margin-left: 8px;
-        font-size: 1.6rem;
+        font-size: 1.333rem;
+        font-weight: 400;
         letter-spacing: -0.64px;
         padding: 15px 12px;
+        line-height: 24px;
         border: ${(props) => `1px solid ${props.theme.line3}`};
         white-space: nowrap;
         color: ${(props) => (props.isActive ? '#fff' : '#8f8f8f')};
@@ -149,9 +158,9 @@ const FaqDetailContainer = styled.div`
         letter-spacing: -0.8px;
         background: ${(props) => props.theme.bg2};
     }
-    ${media.custom(576)} {
+    ${media.small} {
         > div {
-            font-size: 2rem;
+            font-size: 1.666rem;
         }
     }
 `;
@@ -166,12 +175,12 @@ const FaqDetailBox = styled.li`
             font-size: 1.25rem;
         }
     }
-    ${media.custom(576)} {
+    ${media.small} {
         padding: 16.5px 10px;
         letter-spacing: -0.64px;
         > div {
             p {
-                font-size: 1.6rem;
+                font-size: 1.333rem;
             }
         }
     }
@@ -183,8 +192,9 @@ const FaqDetailLabel = styled.p`
     width: 162px;
     font-size: 0.75rem;
     line-height: 30px;
-    ${media.custom(576)} {
+    ${media.small} {
         width: auto;
+        font-size: 1rem;
         white-space: nowrap;
         padding-right: 33px;
     }
@@ -201,8 +211,8 @@ const InquiryButton = styled.div`
         font-weight: bold;
         text-decoration: underline;
     }
-    ${media.custom(576)} {
-        font-size: 1.6rem;
+    ${media.small} {
+        font-size: 1.333rem;
     }
 `;
 
@@ -355,22 +365,28 @@ const Faq = () => {
                         </FaqSearchButton>
                     </FaqSearchBox>
                 </FaqSearchContainer>
-                <FaqCategoryContainer>
-                    {faqCategoryList.map(({ categoryNo, label }) => {
-                        return (
-                            faqList.get(categoryNo) && (
-                                <FaqCategoryBox
-                                    isActive={categoryNo === currentCategoryNo}
-                                    key={categoryNo}
-                                    onClick={handleCategoryClick(categoryNo)}
-                                >
-                                    {isDesktop(width) && '# '}
-                                    {label}({faqList.get(categoryNo)?.size})
-                                </FaqCategoryBox>
-                            )
-                        );
-                    })}
-                </FaqCategoryContainer>
+                <MobileFaqCategoryContainer>
+                    <FaqCategoryContainer>
+                        {faqCategoryList.map(({ categoryNo, label }) => {
+                            return (
+                                faqList.get(categoryNo) && (
+                                    <FaqCategoryBox
+                                        isActive={
+                                            categoryNo === currentCategoryNo
+                                        }
+                                        key={categoryNo}
+                                        onClick={handleCategoryClick(
+                                            categoryNo,
+                                        )}
+                                    >
+                                        {isDesktop(width) && '# '}
+                                        {label}({faqList.get(categoryNo)?.size})
+                                    </FaqCategoryBox>
+                                )
+                            );
+                        })}
+                    </FaqCategoryContainer>
+                </MobileFaqCategoryContainer>
                 {isFetching ? (
                     <Loader />
                 ) : (
@@ -439,7 +455,7 @@ const Faq = () => {
                     )}
                 <InquiryButton>
                     원하는 질문이 없나요?&nbsp;&nbsp;&nbsp;
-                    <Link to={paths.MAIN}>1:1 문의하기</Link>
+                    <Link to={PATHS.INQUIRY}>1:1 문의하기</Link>
                 </InquiryButton>
             </FaqContainer>
         </>
