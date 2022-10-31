@@ -16,6 +16,7 @@ const ModalContainer = styled.div`
     align-items: center;
     justify-content: center;
     position: fixed;
+    top: 0;
     z-index: 10001;
 `;
 

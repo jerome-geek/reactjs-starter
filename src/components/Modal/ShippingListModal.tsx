@@ -3,13 +3,15 @@ import styled from 'styled-components';
 import { shallowEqual } from 'react-redux';
 import { useQuery } from 'react-query';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
+import { useWindowSize } from 'usehooks-ts';
 
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
+import { ReactComponent as Checked } from 'assets/icons/checkbox_circle_checked.svg';
+import { ReactComponent as UnChecked } from 'assets/icons/checkbox_circle_uhchecked.svg';
 import { shippingAddress } from 'api/order';
 import { PaymentReserve } from 'models/order';
 import { useTypedSelector } from 'state/reducers';
-import { ReactComponent as Checked } from 'assets/icons/checkbox_circle_checked.svg';
-import { ReactComponent as UnChecked } from 'assets/icons/checkbox_circle_uhchecked.svg';
+import { isDesktop } from 'utils/styles/responsive';
 
 const widthRatio = 2.17;
 
@@ -153,8 +155,13 @@ const ShippingListModal = ({
         },
     );
 
+    const { width: windowWidth } = useWindowSize();
+
     return (
-        <Modal onClickToggleModal={onClickToggleModal} width={width}>
+        <Modal
+            onClickToggleModal={onClickToggleModal}
+            width={isDesktop(windowWidth) ? width : '90%'}
+        >
             <ShippingListContainer>
                 <Title>배송지</Title>
                 <ShippingListWrapper>
