@@ -1,5 +1,20 @@
 import { includes } from '@fxts/core';
-import { CLAIM_STATUS_TYPE, NEXT_ACTION_TYPE, ORDER_STATUS_TYPE } from 'models';
+import {
+    CLAIM_STATUS_TYPE,
+    NEXT_ACTION_TYPE,
+    ORDER_STATUS_TYPE,
+    PAY_TYPE,
+} from 'models';
+
+const isBankInfoVisible = (payType?: Nullable<PAY_TYPE>) =>
+    payType &&
+    includes(payType, [
+        PAY_TYPE.ACCOUNT,
+        PAY_TYPE.REALTIME_ACCOUNT_TRANSFER,
+        PAY_TYPE.VIRTUAL_ACCOUNT,
+        PAY_TYPE.ESCROW_REALTIME_ACCOUNT_TRANSFER,
+        PAY_TYPE.ESCROW_VIRTUAL_ACCOUNT,
+    ]);
 
 const nextActionName = (
     orderStatusType: ORDER_STATUS_TYPE,
@@ -190,4 +205,4 @@ const nextActionName = (
     }
 };
 
-export { nextActionName };
+export { isBankInfoVisible, nextActionName };

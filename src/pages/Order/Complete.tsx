@@ -347,15 +347,13 @@ const Complete = () => {
                         },
                     );
                 } else {
-                    alert(data.message);
+                    // TODO: 에러처리 및 타입 정의 필요
+                    alert('에러가 발생했습니다.');
                     navigate(PATHS.MAIN);
                 }
             },
             onError: (error) => {
-                console.log(
-                    '🚀 ~ file: Complete.tsx ~ line 449 ~ Complete ~ error',
-                    error,
-                );
+                alert('에러가 발생했습니다.');
             },
         },
     );
@@ -409,7 +407,7 @@ const Complete = () => {
                     <>
                         {isBankInfoVisible && (
                             <DepositInfo
-                                paymentAmt={orderInfo.payInfo.payAmt}
+                                paymentAmt={orderInfo.payInfo.payAmt || 0}
                                 bankName={orderInfo.payInfo.bankInfo.bankName}
                                 account={orderInfo.payInfo.bankInfo.account}
                                 remitterName={
@@ -423,7 +421,7 @@ const Complete = () => {
                         )}
 
                         <PaymentInfo
-                            payAmt={orderInfo.payInfo.payAmt}
+                            payAmt={orderInfo.payInfo.payAmt || 0}
                             standardAmt={orderInfo.lastOrderAmount.standardAmt}
                             deliveryAmt={orderInfo.lastOrderAmount.deliveryAmt}
                             totalDiscountAmt={
@@ -440,15 +438,16 @@ const Complete = () => {
                             }
                             subPayAmt={orderInfo.lastOrderAmount.subPayAmt}
                         />
+
                         <DeliveryInfo
                             receiverName={
-                                orderInfo.shippingAddress.receiverName
+                                orderInfo.shippingAddress.receiverName || ''
                             }
                             receiverAddress={
-                                orderInfo.shippingAddress.receiverAddress
+                                orderInfo.shippingAddress.receiverAddress || ''
                             }
                             receiverContact={
-                                orderInfo.shippingAddress.receiverContact1
+                                orderInfo.shippingAddress.receiverContact1 || ''
                             }
                         />
                     </>

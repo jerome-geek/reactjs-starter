@@ -9,7 +9,7 @@ interface useGuestOrderDetailParams {
     guestOrderNo: string;
     options?: UseQueryOptions<
         AxiosResponse<OrderDetailResponse>,
-        AxiosError,
+        AxiosError<ShopByErrorResponse>,
         OrderDetailResponse,
         [string, { guestToken: string }]
     >;

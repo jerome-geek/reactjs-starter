@@ -67,7 +67,7 @@ const OrderDetail = () => {
 
             {orderDetailData.data?.payInfo && (
                 <PaymentInfo
-                    payAmt={orderDetailData.data.payInfo.payAmt}
+                    payAmt={orderDetailData.data.payInfo.payAmt || 0}
                     standardAmt={
                         orderDetailData.data.lastOrderAmount.standardAmt
                     }
@@ -95,13 +95,15 @@ const OrderDetail = () => {
             {orderDetailData.data?.shippingAddress && (
                 <DeliveryInfo
                     receiverName={
-                        orderDetailData.data.shippingAddress.receiverName
+                        orderDetailData.data.shippingAddress.receiverName || ''
                     }
                     receiverAddress={
-                        orderDetailData.data.shippingAddress.receiverAddress
+                        orderDetailData.data.shippingAddress.receiverAddress ||
+                        ''
                     }
                     receiverContact={
-                        orderDetailData.data.shippingAddress.receiverContact1
+                        orderDetailData.data.shippingAddress.receiverContact1 ||
+                        ''
                     }
                 />
             )}
