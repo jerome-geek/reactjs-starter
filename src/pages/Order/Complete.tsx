@@ -393,12 +393,13 @@ const Complete = () => {
                     />
                 )}
 
-                {query.result && orderInfo && (
+                {query.result && (
                     <OrderCompleteTopContent
                         result={query.result as 'SUCCESS' | 'FAIL'}
-                        payType={orderInfo.payType as PAY_TYPE}
+                        payType={orderInfo && (orderInfo.payType as PAY_TYPE)}
                         orderNo={query.orderNo as string}
                         paymentExpirationYmdt={
+                            orderInfo &&
                             orderInfo.payInfo?.bankInfo?.paymentExpirationYmdt
                         }
                         message={query?.message as string}

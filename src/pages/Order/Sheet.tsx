@@ -17,6 +17,7 @@ import DiscountApply from 'components/OrderSheet/DiscountApply';
 import CommonPayment from 'components/OrderSheet/CommonPayment';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import ShippingListModal from 'components/Modal/ShippingListModal';
+import MobileShippingListModal from 'components/Modal/MobileShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestOrderPassword from 'components/OrderSheet/GuestOrderPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
@@ -572,17 +573,28 @@ const Sheet = () => {
                 }}
             />
 
-            {isShippingListModal && (
-                <ShippingListModal
-                    onClickToggleModal={() =>
-                        setIsShippingListModal(!isShippingListModal)
-                    }
-                    width={'1080px'}
-                    register={register}
-                    setValue={setValue}
-                    setIsShippingListModal={setIsShippingListModal}
-                />
-            )}
+            {isShippingListModal &&
+                (isMobile(width) ? (
+                    <MobileShippingListModal
+                        onClickToggleModal={() =>
+                            setIsShippingListModal(!isShippingListModal)
+                        }
+                        title={'배송지 정보'}
+                        register={register}
+                        setValue={setValue}
+                        setIsShippingListModal={setIsShippingListModal}
+                    />
+                ) : (
+                    <ShippingListModal
+                        onClickToggleModal={() =>
+                            setIsShippingListModal(!isShippingListModal)
+                        }
+                        width={'1080px'}
+                        register={register}
+                        setValue={setValue}
+                        setIsShippingListModal={setIsShippingListModal}
+                    />
+                ))}
             {isSearchAddressModal && (
                 <SearchAddressModal
                     onClickToggleModal={() =>
