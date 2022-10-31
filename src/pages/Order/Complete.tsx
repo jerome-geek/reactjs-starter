@@ -3,7 +3,6 @@ import { useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { includes } from '@fxts/core';
 import styled from 'styled-components';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
@@ -17,6 +16,7 @@ import DeliveryInfo from 'components/Order/DeliveryInfo';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { isBankInfoVisible } from 'utils/order';
 import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderProductOption } from 'models/order';
@@ -363,18 +363,6 @@ const Complete = () => {
         [isLogin, orderCompleteData, guestOrderCompleteData],
     );
 
-    const isBankInfoVisible = useMemo(
-        () =>
-            includes(orderInfo?.payType, [
-                PAY_TYPE.ACCOUNT,
-                PAY_TYPE.REALTIME_ACCOUNT_TRANSFER,
-                PAY_TYPE.VIRTUAL_ACCOUNT,
-                PAY_TYPE.ESCROW_REALTIME_ACCOUNT_TRANSFER,
-                PAY_TYPE.ESCROW_VIRTUAL_ACCOUNT,
-            ]),
-        [orderInfo?.payType],
-    );
-
     return (
         <>
             <SEOHelmet
@@ -405,7 +393,7 @@ const Complete = () => {
 
                 {orderInfo && (
                     <>
-                        {isBankInfoVisible && (
+                        {isBankInfoVisible(orderInfo?.payType) && (
                             <DepositInfo
                                 paymentAmt={orderInfo.payInfo.payAmt || 0}
                                 bankName={orderInfo.payInfo.bankInfo.bankName}

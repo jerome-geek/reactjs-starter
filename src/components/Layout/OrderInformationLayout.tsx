@@ -21,9 +21,10 @@ const Title = styled.h3`
 const OrderInformationLayout: FC<OrderInformationLayoutProps> = ({
     title,
     children,
+    ...props
 }) => {
     return (
-        <StyledSection>
+        <StyledSection {...props}>
             {title && <Title>{title}</Title>}
             {children}
         </StyledSection>

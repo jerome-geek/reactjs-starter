@@ -7,6 +7,7 @@ import SecondaryButton from 'components/Button/SecondaryButton';
 import DepositInfo from 'components/Order/DepositInfo';
 import PaymentInfo from 'components/Order/PaymentInfo';
 import DeliveryInfo from 'components/Order/DeliveryInfo';
+import OrderProductInfo from 'components/Order/OrderProductInfo';
 import useGuestOrderDetail from 'hooks/queries/useGuestOrderDetail';
 import { isBankInfoVisible } from 'utils/order';
 import media from 'utils/styles/media';
@@ -88,6 +89,15 @@ const GuestOrderDetail = () => {
             <GuestOrderDetailContainer>
                 {guestOrderData.data && (
                     <>
+                        <OrderProductInfo
+                            key={guestOrderData.data.orderNo}
+                            orderNo={guestOrderData.data.orderNo}
+                            orderYmdt={guestOrderData.data.orderYmdt}
+                            orderOptionsGroupByPartner={
+                                guestOrderData.data.orderOptionsGroupByPartner
+                            }
+                        />
+
                         {isBankInfoVisible(guestOrderData.data?.payType) && (
                             <DepositInfo
                                 paymentAmt={
