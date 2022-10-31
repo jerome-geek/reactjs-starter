@@ -541,7 +541,7 @@ enum GROUP_DELIVERY_AMT_TYPE {
     MINIMUM_SELECTED = 'MINIMUM_SELECTED',
 }
 
-// 배송구분 (`/cart` 에서 사용)
+// 배송구분 (`/cart`, `/guest/orders/{orderNo}` 에서 사용)
 enum SHIPPING_AREA_TYPE {
     // 파트너사배송
     PARTNER_SHIPPING_AREA = 'PARTNER_SHIPPING_AREA',
@@ -618,8 +618,11 @@ enum INQUIRY_SEARCH_TYPE {
     CONTENT = 'CONTENT',
 }
 
+// 귀책타입
 enum RESPONSIBLE_OBJECT_TYPE {
+    // 구매자 귀책
     BUYER = 'BUYER',
+    // 판매자 귀책
     SELLER = 'SELLER',
 }
 
@@ -716,8 +719,11 @@ enum PRODUCT_REVIEW_REPORT_TYPE {
     SLANDER = 'SLANDER',
 }
 
+// 반품수거 타입
 enum RETURN_WAY_TYPE {
+    // 판매자수거요청
     SELLER_COLLECT = 'SELLER_COLLECT',
+    // 구매자직접반품
     BUYER_DIRECT_RETURN = 'BUYER_DIRECT_RETURN',
 }
 
@@ -731,6 +737,7 @@ enum DELIVERY_TYPE {
     NONE = 'NONE',
 }
 
+// 택배사타입
 enum DELIVERY_COMPANY_TYPE {
     CJ = 'CJ',
     POST = 'POST',
@@ -1090,6 +1097,146 @@ enum NEXT_ACTION_TYPE {
     VIEW_RECEIPT = 'VIEW_RECEIPT',
 }
 
+// 클레임 타입
+enum CLAIM_CLASS_TYPE {
+    // 레거시
+    LEGACY = 'LEGACY',
+    // 전체취소
+    ORDER_CANCEL = 'ORDER_CANCEL',
+    // 부분취소
+    OPTION_CANCEL = 'OPTION_CANCEL',
+    // 출고 후 교환
+    RETURN_EXCHANGE = 'RETURN_EXCHANGE',
+    // 출고 전 교환
+    CANCEL_EXCHANGE = 'CANCEL_EXCHANGE',
+    // 반품
+    RETURN = 'RETURN',
+}
+
+// 카드사(발급사)
+enum CARD_COMPANY {
+    // 미분류카드
+    ANONYMOUS = 'ANONYMOUS',
+    // BC카드
+    BC = 'BC',
+    // KB국민카드
+    KB = 'KB',
+    // NH농협카드
+    NH = 'NH',
+    // 광주카드
+    KWANGJU = 'KWANGJU',
+    // 롯데아멕스카드
+    LOTTE_AMEX = 'LOTTE_AMEX',
+    // 롯데카드
+    LOTTE = 'LOTTE',
+    // 산업카드
+    KDB = 'KDB',
+    // 삼성카드
+    SAMSUNG = 'SAMSUNG',
+    // 수협카드
+    SUHYUP = 'SUHYUP',
+    // 신세계카드
+    SHINSEGAE = 'SHINSEGAE',
+    // 신한카드
+    SHINHAN = 'SHINHAN',
+    // 신협카드
+    SHINHYUP = 'SHINHYUP',
+    // 씨티카드
+    CITY = 'CITY',
+    // 우리카드
+    WOORI = 'WOORI',
+    // 은련카드
+    UNIONPAY = 'UNIONPAY',
+    // 저축카드
+    JEOCHOOK = 'JEOCHOOK',
+    // 전북카드
+    JEONBUK = 'JEONBUK',
+    // 제주카드
+    JEJU = 'JEJU',
+    // 하나(외환)카드
+    HANA_KEB = 'HANA_KEB',
+    // 하나카드
+    HANA = 'HANA',
+    // 한미카드
+    HANMI = 'HANMI',
+    // JCB카드
+    JCB = 'JCB',
+    // MASTER카드
+    MASTER = 'MASTER',
+    // VISA카드
+    VISA = 'VISA',
+    // 현대카드
+    HYUNDAI = 'HYUNDAI',
+    // AMEX카드
+    AMEX = 'AMEX',
+    // 다이너스카드
+    DINERS = 'DINERS',
+    // 광주카드
+    GWANGJU = 'GWANGJU',
+    // 카카오뱅크카드
+    KAKAO = 'KAKAO',
+    // 케이뱅크카드
+    KBANK = 'KBANK',
+    // 기업은행카드
+    IBK = 'IBK',
+    // 국민은행(구주택)
+    HCB = 'HCB',
+    // 단위농협
+    NHLOCAL = 'NHLOCAL',
+    // 축협중앙회
+    NHLIVESTOCK = 'NHLIVESTOCK',
+    // 신한은행(조흥은행)
+    JH = 'JH',
+    // 제일은행
+    SC = 'SC',
+    // 대구은행
+    DAEGU = 'DAEGU',
+    // 부산은행
+    PUSAN = 'PUSAN',
+    // 강원은행
+    KANGWON = 'KANGWON',
+    // 경남은행
+    GYEONGNAM = 'GYEONGNAM',
+    // 홍콩상하이은행
+    HSB = 'HSB',
+    // 우체국
+    EPOST = 'EPOST',
+    // 하나은행(서울은행)
+    HANA_SEOUL = 'HANA_SEOUL',
+    // 평화은행
+    PB = 'PB',
+    // 신한은행(조흥 통합)
+    SHINHAN_JH = 'SHINHAN_JH',
+    // PAYCO
+    PAYCO = 'PAYCO',
+    // 새마을금고
+    KFCC = 'KFCC',
+    // DISCOVER카드
+    DISCOVER = 'DISCOVER',
+    // 현대증권카드
+    HYUNDAI_STOCK = 'HYUNDAI_STOCK',
+    // 네이버포인트
+    NAVER_POINT = 'NAVER_POINT',
+    // 토스머니
+    TOSS_MONEY = 'TOSS_MONEY',
+    // SSG머니
+    SSG_MONEY = 'SSG_MONEY',
+    // 엘포인트
+    L_POINT = 'L_POINT',
+    // 카카오머니
+    KAKAO_MONEY = 'KAKAO_MONEY',
+}
+
+// 몰의 과세 타입
+enum TAX_TYPE {
+    // 과세
+    DUTY = 'DUTY',
+    // 면세
+    DUTYFREE = 'DUTYFREE',
+    // 영세
+    SMALL = 'SMALL',
+}
+
 export {
     REQUIRED_TYPE,
     IMAGE_DISPLAY_TYPE,
@@ -1165,4 +1312,7 @@ export {
     REFUND_TYPE,
     DISCOUNT_UNIT_TYPE,
     NEXT_ACTION_TYPE,
+    CLAIM_CLASS_TYPE,
+    CARD_COMPANY,
+    TAX_TYPE,
 };

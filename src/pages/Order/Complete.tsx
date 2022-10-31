@@ -3,7 +3,6 @@ import { useQuery } from 'react-query';
 import { useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { includes } from '@fxts/core';
 import styled from 'styled-components';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
@@ -17,6 +16,7 @@ import DeliveryInfo from 'components/Order/DeliveryInfo';
 import PATHS from 'const/paths';
 import media from 'utils/styles/media';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
+import { isBankInfoVisible } from 'utils/order';
 import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderProductOption } from 'models/order';
@@ -347,15 +347,13 @@ const Complete = () => {
                         },
                     );
                 } else {
-                    alert(data.message);
+                    // TODO: 에러처리 및 타입 정의 필요
+                    alert('에러가 발생했습니다.');
                     navigate(PATHS.MAIN);
                 }
             },
             onError: (error) => {
-                console.log(
-                    '🚀 ~ file: Complete.tsx ~ line 449 ~ Complete ~ error',
-                    error,
-                );
+                alert('에러가 발생했습니다.');
             },
         },
     );
@@ -363,18 +361,6 @@ const Complete = () => {
     const orderInfo = useMemo(
         () => (isLogin ? orderCompleteData : guestOrderCompleteData),
         [isLogin, orderCompleteData, guestOrderCompleteData],
-    );
-
-    const isBankInfoVisible = useMemo(
-        () =>
-            includes(orderInfo?.payType, [
-                PAY_TYPE.ACCOUNT,
-                PAY_TYPE.REALTIME_ACCOUNT_TRANSFER,
-                PAY_TYPE.VIRTUAL_ACCOUNT,
-                PAY_TYPE.ESCROW_REALTIME_ACCOUNT_TRANSFER,
-                PAY_TYPE.ESCROW_VIRTUAL_ACCOUNT,
-            ]),
-        [orderInfo?.payType],
     );
 
     return (
@@ -407,9 +393,9 @@ const Complete = () => {
 
                 {orderInfo && (
                     <>
-                        {isBankInfoVisible && (
+                        {isBankInfoVisible(orderInfo?.payType) && (
                             <DepositInfo
-                                paymentAmt={orderInfo.payInfo.payAmt}
+                                paymentAmt={orderInfo.payInfo.payAmt || 0}
                                 bankName={orderInfo.payInfo.bankInfo.bankName}
                                 account={orderInfo.payInfo.bankInfo.account}
                                 remitterName={
@@ -423,7 +409,7 @@ const Complete = () => {
                         )}
 
                         <PaymentInfo
-                            payAmt={orderInfo.payInfo.payAmt}
+                            payAmt={orderInfo.payInfo.payAmt || 0}
                             standardAmt={orderInfo.lastOrderAmount.standardAmt}
                             deliveryAmt={orderInfo.lastOrderAmount.deliveryAmt}
                             totalDiscountAmt={
@@ -440,15 +426,16 @@ const Complete = () => {
                             }
                             subPayAmt={orderInfo.lastOrderAmount.subPayAmt}
                         />
+
                         <DeliveryInfo
                             receiverName={
-                                orderInfo.shippingAddress.receiverName
+                                orderInfo.shippingAddress.receiverName || ''
                             }
                             receiverAddress={
-                                orderInfo.shippingAddress.receiverAddress
+                                orderInfo.shippingAddress.receiverAddress || ''
                             }
                             receiverContact={
-                                orderInfo.shippingAddress.receiverContact1
+                                orderInfo.shippingAddress.receiverContact1 || ''
                             }
                         />
                     </>

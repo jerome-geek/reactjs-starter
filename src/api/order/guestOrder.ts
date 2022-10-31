@@ -9,6 +9,7 @@ import {
     CashReceiptBody,
     ShoppingCartBody,
     TokenIssueBody,
+    OrderDetailResponse,
 } from 'models/order';
 
 const guestOrder = {
@@ -40,7 +41,7 @@ const guestOrder = {
         guestToken: string,
         orderNo: string,
         params?: { orderRequestType: ORDER_REQUEST_TYPE },
-    ): Promise<AxiosResponse> => {
+    ): Promise<AxiosResponse<OrderDetailResponse>> => {
         return request({
             method: 'GET',
             url: `/guest/orders/${orderNo}`,
@@ -104,7 +105,7 @@ const guestOrder = {
             }),
         }),
 
-    // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요
+    // TODO GuestToken, orderNo 모름, 400 error 발생 추후 테스트 필요, claim으로 이름 변경
     getGuestOrderDetail: (
         orderNo: string,
         {

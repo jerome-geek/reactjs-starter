@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import OrderInformationLayout from 'components/Layout/OrderInformationLayout';
 
 interface DeliveryInfoProps {
-    receiverName: string;
-    receiverAddress: string;
-    receiverContact: string;
+    receiverName?: string;
+    receiverAddress?: string;
+    receiverContact?: string;
 }
 
 const OrderInformationList = styled.ul`
@@ -42,21 +42,27 @@ const DeliveryInfo: FC<DeliveryInfoProps> = ({
     return (
         <OrderInformationLayout title='배송정보'>
             <OrderInformationList>
-                <OrderInformationListItem>
-                    <p>받는사람</p>
-                    <p>{receiverName}</p>
-                </OrderInformationListItem>
+                {receiverName && (
+                    <OrderInformationListItem>
+                        <p>받는사람</p>
+                        <p>{receiverName}</p>
+                    </OrderInformationListItem>
+                )}
 
-                <OrderInformationListItem>
-                    {/* TODO: 상세주소 표시 */}
-                    <p>주소</p>
-                    <p>{receiverAddress}</p>
-                </OrderInformationListItem>
+                {receiverAddress && (
+                    <OrderInformationListItem>
+                        {/* TODO: 상세주소 표시 */}
+                        <p>주소</p>
+                        <p>{receiverAddress}</p>
+                    </OrderInformationListItem>
+                )}
 
-                <OrderInformationListItem>
-                    <p>전화번호</p>
-                    <p>{receiverContact}</p>
-                </OrderInformationListItem>
+                {receiverContact && (
+                    <OrderInformationListItem>
+                        <p>전화번호</p>
+                        <p>{receiverContact}</p>
+                    </OrderInformationListItem>
+                )}
             </OrderInformationList>
         </OrderInformationLayout>
     );

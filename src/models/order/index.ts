@@ -19,6 +19,15 @@ import {
     CLAIM_STATUS_TYPE,
     DELIVERY_TYPE,
     ORDER_STATUS_TYPE,
+    BANK,
+    RETURN_WAY_TYPE,
+    REFUND_TYPE,
+    CLAIM_CLASS_TYPE,
+    DELIVERY_COMPANY_TYPE,
+    RESPONSIBLE_OBJECT_TYPE,
+    CLAIM_REASON_TYPE,
+    CARD_COMPANY,
+    TAX_TYPE,
 } from 'models';
 
 // 상품쿠폰
@@ -174,10 +183,16 @@ interface ShippingAddresses {
     shippingInfoLaterInputContact?: string;
 }
 
+// 주문자정보
+// !schema 이름과 설명이 다르니 추후 확인 필요
 interface Orderer {
-    ordererEmail?: string;
+    // 주문자이메일 (example: test@nhn-commerce.com)
+    ordererEmail: string;
+    // 주문자연락처1 (example: 010-0000-0000)
     ordererContact1: string;
+    // 주문자연락처2 (nullable) (example: 010-0000-0000)
     ordererContact2?: string;
+    // 주문자명 (example: 홍길동)
     ordererName: string;
 }
 
@@ -937,7 +952,8 @@ export interface CartCoupon {
     couponDiscountAmt: number;
 }
 
-export interface GuestOrderDetailResponse {
+// 회원 / 비회원 response 구조 같음
+export interface OrderDetailResponse {
     // deprecated(더 이상 제공하지 않는 개체항목입니다)
     insurance: Insurance;
     // 추가 정보 (nullable)
@@ -956,115 +972,240 @@ export interface GuestOrderDetailResponse {
     orderMemo: Nullable<string>;
     // 개인통관고유부호필요여부(true: 필요, false: 불필요) (example: false)
     requireCustomsIdNumber: boolean;
-
     // 환불(예상)방법(PG) (example: PG)
     refundType: string;
-}
-
-// TODO: 회원 / 비회원(guestOrder.issueToken) 확인해볼것
-export interface OrderDetailResponse {
-    orderNo: string;
-    orderYmdt: string;
-    payType: string;
-    payInfo: PayInfo;
-    pgType: string;
-    pgMallKey: string;
-    pgOrderNo: string;
-    escrow: boolean;
-    orderMemo: string;
-    orderOptionsGroupByPartner: OrderOptionsGroupByPartner[];
-    guestToken: any;
-    refundInfos: RefundInfo[];
-    additionalPayInfos: AdditionalPayInfo[];
-    exchangePayInfos: ExchangePayInfo[];
-    member: boolean;
-    firstOrderAmount: FirstOrderAmount;
-    lastOrderAmount: LastOrderAmount;
-    shippingAddress: ShippingAddress;
-    orderer: Orderer;
-    billingAddress: any;
-    nextActions: NextAction2[];
+    // 결제 영수증 정보
     receiptInfos: ReceiptInfo[];
-    claimReasonTypes: ClaimReasonType[];
-    refundType: string;
-    refundPayType: string;
-    refundTypeLabel: string;
-    memo: string;
-    deliveryMemo: string;
-    extraData: ExtraData;
-    insurance: Insurance;
+    // 교환추가결제 정보 (nullable)
+    exchangePayInfos: Nullable<ExchangePayInfo[]>;
+    // 결제수단 (nullable) (example: CREDIT_CARD)
+    payType: Nullable<PAY_TYPE>;
+    // 회원여부(true: 회원, false: 비회원) (example: true)
+    member: boolean;
+    // 다음에 할 수 있는 작업
+    nextActions: NextAction[];
+    // 에스크로 여부(true: 에스크로, false: 비에스크로) (example: false)
+    escrow: boolean;
+    // 선택가능한 은행
     availableBanks: AvailableBank[];
-    requireCustomsIdNumber: boolean;
-    defaultOrderStatusType: string;
-    payTypeLabel: string;
-    accumulationAmtWhenBuyConfirm: number;
+    // 비회원-인증토큰 (nullable) (example: 121212)
+    guestToken: Nullable<string>;
+    // 환불방법(노출용)
+    refundTypeLabel: string;
+    // 외부 PG사 (example: PAYCO)
+    pgType: string;
+    // 주문번호 (example: 202012341234)
+    orderNo: string;
+    // 최종주문금액정보
+    lastOrderAmount: LastOrderAmount;
+    // 환불정보 (nullable)
+    refundInfos: Nullable<RefundInfo>;
+    // 추가결제정보 (nullable)
+    additionalPayInfos: AdditionalPayInfo[];
+    // 배송지 메모 (example: 빠른 배송 부탁드립니다.)
+    deliveryMemo: string;
+    // 환불결제방법 (example: CANCEL_DEPOSIT)
+    refundPayType: REFUND_TYPE;
+    // 선택가능한 사유 목록
+    claimReasonTypes: ClaimReasonType[];
+    // 주문자정보
+    orderer: Orderer;
+    // PG사 결제번호(주문번호) - 매출전표등 확인용 (nullable) (example: 202012341234)
+    pgOrderNo: Nullable<string>;
+    // 파트너별주문리스트
+    orderOptionsGroupByPartner: OrderOptionsGroupByPartner[];
+    // 배송지 정보
+    shippingAddress: ShippingAddress;
+    // 주문일자 (example: YYYY-MM-DD hh:mm:ss)
+    orderYmdt: string;
+    // 결제지 주소
+    billingAddress: ShippingAddress;
+    // 결제수단라벨 (nullable) (example: 신용카드)
+    payTypeLabel: Nullable<string>;
+    // 결제정보
+    payInfo: PayInfo;
 }
 
+// 결제정보
 export interface PayInfo {
-    payType: string;
-    cardInfo: any;
+    // 휴대폰결제 정보
+    mobileInfo: {
+        // 통신사 (example: SKT)
+        mobileCompany: string;
+        // 휴대폰번호 (example: 010-1111-1111)
+        mobileNo: string;
+    };
+    // 가상계좌/계좌이체/무통장 정보
     bankInfo: BankInfo;
-    naverPayInfo: any;
-    cashAuthNo: any;
-    cashNo: any;
-    tradeNo: any;
-    escrowYn: string;
-    payAmt: number;
-    sellerCouponAmt: number;
-    pgCouponAmt: number;
+    // 신용카드 정보
+    cardInfo: CardInfo;
+    // 거래번호 (nullable) (example: 201811022002417377)
+    tradeNo: Nullable<string>;
+    // PG 쿠폰 금액 (nullable) (example: 0)
+    pgCouponAmt: Nullable<number>;
+    // 카드사 쿠폰 금액 (nullable) (example: 0)
     cardCouponAmt: number;
-    pointAmt: number;
-    taxType: any;
-    mobileInfo: any;
+    // 네이버페이결제정보
+    naverPayInfo: NaverPayInfo;
+    // 가맹점 발행쿠폰 (nullable) (example: 0)
+    sellerCouponAmt: Nullable<number>;
+    // 현금영수증 거래번호 (nullable) (example: 12121212)
+    cashNo: Nullable<string>;
+    // 현금영수증 승인번호 (nullable) (example: 12121212)
+    cashAuthNo: Nullable<string>;
+    // PG결제 금액 (nullable) (example: 10000)
+    payAmt: Nullable<number>;
+    // PG 포인트 (nullable) (example: 0)
+    pointAmt: Nullable<number>;
+    // 렌탈 정보
+    rentalInfo: RentalInfo;
+    // 결제타입 (example: CREDIT_CARD)
+    payType: PAY_TYPE;
+    // 에스크로 결제 여부 (example: Y)
+    escrowYn: string;
+    // 몰의 과세 타입 (nullable) (example: DUTY)
+    taxType: Nullable<TAX_TYPE>;
 }
 
+// 가상계좌/계좌이체/무통장 정보
 export interface BankInfo {
-    bank: string;
-    bankCode: string;
-    bankName: string;
-    account: string;
-    bankAmt: number;
-    depositAmt: number;
-    depositYmdt: string;
-    remitterName: string;
+    // 예금주명 (example: 홍길동)
     depositorName: string;
+    // PG 은행코드 (PG별로 다름) (example: 11)
+    bankCode: string;
+    // 은행 (example: KDB)
+    bank: BANK;
+    // 입금해야할 금액 (example: 10000)
+    bankAmt: number;
+    // 입금일시 (example: YYYY-MM-DD hh:mm:ss)
+    depositYmdt: string;
+    // 은행명 (example: 산업은행)
+    bankName: string;
+    // 입금자명 (example: 홍길동)
+    remitterName: string;
+    // 실제 입금금액 (example: 10000)
+    depositAmt: number;
+    // 입금 마감일 (example: YYYY-MM-DD hh:mm:ss)
     paymentExpirationYmdt: string;
+    // 계좌번호 (example: 1104568886666)
+    account: string;
 }
 
+// 신용카드 정보
+export interface CardInfo {
+    // 결제승인번호 (example: 1234)
+    cardApprovalNumber: string;
+    // 카드사명 (example: 현대카드)
+    cardName: string;
+    // 할부기간 (example: 0)
+    installmentPeriod: number;
+    // PG 카드사 코드(PG별로 다름) (example: CCDI)
+    cardCode: string;
+    // 결제승인시간 (example: YYYY-MM-DD hh:mm:ss)
+    approveYmdt: string;
+    // 신용카드 결제금액 (example: 10000)
+    cardAmt: number;
+    // 카드번호 (example: 451842******9654)
+    cardNo: string;
+    // TODO: enum 작성
+    // 카드사(발급사) (example: BC)
+    cardCompany: CARD_COMPANY;
+    // 무이자여부(true: 무이자, false: 이자) (example: false)
+    noInterest: boolean;
+}
+
+// 네이버페이결제정보
+export interface NaverPayInfo {
+    // 네이버페이 포인트 최종 결제 금액 (example: 0)
+    naverMileagePaymentAmount: number;
+    // 주문 유형 구분(네이버페이/통합장바구니) (example: 일반)
+    orderType: string;
+    // 입금 기한 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    paymentDueDate: Nullable<string>;
+    // 일반결제수단최종결제금액 (example: 10000)
+    generalPaymentAmount: number;
+    // 네이버 페이 결제 수단 (example: 신용카드)
+    paymentMeans: string;
+    // 충전금최종결제금액 (example: 0)
+    chargeAmountPaymentAmount: number;
+    // 결제 구분(네이버결제/PG 결제) (example: 네이버결제)
+    paymentCoreType: string;
+    // 네이버페이 적립금 최종 결제 금액 (example: 0)
+    checkoutAccumulationPaymentAmount: number;
+    // 주문 할인액 (example: 0)
+    orderDiscountAmount: number;
+    // PG승인번호 (nullable) (example: 1001305630)
+    paymentNumber: Nullable<string>;
+    // 결제 위치 구분(PC/MOBILE) (example: PC)
+    payLocationType: string;
+}
+
+// 파트너별주문리스트
 export interface OrderOptionsGroupByPartner {
+    // 파트너번호 (example: 123)
     partnerNo: number;
-    partnerName: string;
+    // 배송그룹별 옵션
     orderOptionsGroupByDelivery: OrderOptionsGroupByDelivery[];
+    // 파트너명 (example: 파트너이름)
+    partnerName: string;
 }
 
+// 배송그룹별 옵션
 export interface OrderOptionsGroupByDelivery {
-    deliveryNo: number;
-    deliveryAmt: number;
-    remoteDeliveryAmt: number;
-    returnDeliveryAmt: number;
-    deliveryType: string;
-    deliveryCompanyType: string;
-    invoiceNo: string;
-    deliveryPayType: string;
-    deliveryMemo: any;
-    retrieveInvoiceUrl: string;
-    orderOptions: OrderOption[];
-    receiverName: string;
-    receiverContact1: string;
-    receiverContact2: string;
-    receiverAddress: string;
-    receiverZipCd: string;
-    receiverDetailAddress: string;
-    receiverJibunAddress: any;
+    // 선/착불타입 (example: PREPAID_DELIVERY)
+    deliveryPayType: DELIVERY_PAY_TYPE;
+    // 배송지정일 (nullable) (example: YYYY-MM-DD)
     requestShippingDate: any;
-    usesShippingInfoLaterInput: boolean;
-    shippingAreaType: string;
+    // 배송조건노출문구(for US) (nullable) (example: US)
+    frontDisplayText: Nullable<string>;
+    // 배송지 나중입력 여부 (true: 나중입력, false: 바로입력) (nullable) (example: false)
+    usesShippingInfoLaterInput: Nullable<boolean>;
+    // 배송지 우편 번호 (example: 13487)
+    receiverZipCd: string;
+    // 송장추적 URL (nullable) (example: www.cj.com/121211)
+    retrieveInvoiceUrl: Nullable<string>;
+    // 파트너번호 - 쇼핑몰 배송일 경우 0 (example: 121212)
     partnerNo: number;
+    // 배송서비스타입라벨(for US) (nullable) (example: UPS Ground)
+    shippingMethodLabel: Nullable<string>;
+    // 송장번호 (example: 12121212)
+    invoiceNo: string;
+    // 연락처1 (example: 010-1111-1111)
+    receiverContact1: string;
+    // 연락처2 (example: 010-1111-1111)
+    receiverContact2: string;
+    // 배송지 지번 (nullable) (example: 경기도 성남시 분당구 삼평동 629번지 NHN 플레이뮤지엄)
+    receiverJibunAddress: Nullable<string>;
+    // 주문상품옵션
+    orderOptions: OrderOption[];
+    // 파트너명 - 쇼핑몰 배송일 경우 '쇼핑몰 배송' (example: 파트너명)
     partnerName: string;
-    shippingMethodType: any;
-    shippingMethodLabel: any;
-    frontDisplayText: any;
-    deliveryCompanyTypeLabel: string;
+    // 수령자 명 (example: 홍길동)
+    receiverName: string;
+    // 택배사명 (nullable) (example: CJ대한통운)
+    deliveryCompanyTypeLabel: Nullable<string>;
+    // 배송구분 (nullable) (example: PARCEL_DELIVERY)
+    deliveryType: Nullable<DELIVERY_TYPE>;
+    // 배송번호 (example: 12121212)
+    deliveryNo: number;
+    // 배송구분 (example: PARTNER_SHIPPING_AREA)
+    shippingAreaType: SHIPPING_AREA_TYPE;
+    // 택배사타입 (nullable) (example: CJ)
+    deliveryCompanyType: Nullable<DELIVERY_COMPANY_TYPE>;
+    // 지역별 추가 배송비 (example: 0)
+    remoteDeliveryAmt: number;
+    // 배송지 상세 주소 (example: 529 NHN 플레이 뮤지엄)
+    receiverDetailAddress: string;
+    // 배송지 메모 (nullable) (example: 빠른 배송 부탁합니다.)
+    deliveryMemo: Nullable<string>;
+    // 배송지 주소 (example: 경기도 성남시 분당구 대왕판교로645번길 12)
+    receiverAddress: string;
+    // 배송비 example: 0
+    deliveryAmt: number;
+    // 반품 배송비 (example: 2000)
+    returnDeliveryAmt: number;
+    // 배송서비스타입(for US) (nullable) (example: SUREPOST)
+    shippingMethodType: Nullable<string>;
 }
 
 //주문 상품 옵션
@@ -1223,197 +1364,224 @@ export interface Price {
     accumulationRate: number;
 }
 
+// 환불정보
 export interface RefundInfo {
-    claimNo: number;
-    productAmtInfo: ProductAmtInfo;
-    deliveryAmtInfo: DeliveryAmtInfo;
-    subtractionAmtInfo: SubtractionAmtInfo;
-    returnWayType: string;
-    returnAddress: ReturnAddress;
-    returnInvoiceNo: any;
-    returnDeliveryCompanyTypeLabel: any;
-    exchangeAddress: ExchangeAddress;
-    claimImageUrls: any[];
-    exchangeOrderOption: any;
-    claimClassType: any;
-    refundBankAccount: RefundBankAccount;
-    refundPayAmt: number;
-    refundSubPayAmt: number;
-    refundType: string;
-    refundPayType: string;
-    refundTypeLabel: string;
+    // 환불금액 (example: 0)
     refundMainPayAmt: number;
-}
-
-export interface ProductAmtInfo {
-    immediateDiscountedPrice: number;
-    discountAmt: number;
-    standardPrice: number;
-    immediateDiscountAmt: number;
-    additionalDiscountAmt: number;
-    productCouponDiscountAmt: number;
-    exchangeImmediateDiscountedPrice: number;
-    returnImmediateDiscountedPrice: number;
-    exchangeDiscountAmt: number;
-    exchangeAdjustAmt: number;
-    totalAmt: number;
-}
-
-export interface DeliveryAmtInfo {
-    beforeDeliveryAmt: number;
-    afterDeliveryAmt: number;
-    refundDeliveryAmt: number;
-    payOnDelivery: boolean;
-    sellerFault: boolean;
-    returnDeliveryAmt: number;
-    returnAdjustAmt: number;
-    buyerReturn: boolean;
-    exchangeDeliveryAmt: number;
-    exchangeAdjustAmt: number;
-    totalAmt: number;
-}
-
-export interface SubtractionAmtInfo {
-    cartCouponAmt: number;
-    deliveryCouponAmt: number;
-    refundAdjustAmt: number;
-    refundAdjustReason: string;
-    totalAmt: number;
-}
-
-export interface ReturnAddress {
-    name: string;
-    contact1: string;
-    contact2: any;
-    zipCd: string;
-    address: string;
-    jibunAddress: string;
-    detailAddress: string;
-    note: string;
-    addressStr: string;
-    customsIdNumber: any;
-}
-
-export interface ExchangeAddress {
-    name: string;
-    contact1: string;
-    contact2: any;
-    zipCd: string;
-    address: string;
-    jibunAddress: string;
-    detailAddress: string;
-    note: string;
-    addressStr: string;
-    customsIdNumber: any;
-}
-
-export interface RefundBankAccount {
-    bank: string;
-    bankAccount: string;
-    bankDepositorName: string;
-    bankName: string;
-}
-
-export interface AdditionalPayInfo {
+    // 환불방법(노출용) (example: 미입금 취소처리)
+    refundTypeLabel: string;
+    // 클레임번호 (example: 12121212)
     claimNo: number;
-    productAmtInfo: ProductAmtInfo2;
-    deliveryAmtInfo: DeliveryAmtInfo2;
-    subtractionAmtInfo: SubtractionAmtInfo2;
-    returnWayType: any;
-    returnAddress: ReturnAddress2;
-    returnInvoiceNo: any;
-    returnDeliveryCompanyTypeLabel: any;
-    exchangeAddress: ExchangeAddress2;
-    claimImageUrls: any[];
-    exchangeOrderOption: any;
-    claimClassType: any;
-    bankAccount: BankAccount;
-    remitter: string;
-    payType: string;
-    exchangePayAmt: number;
+    // 배송비금액
+    deliveryAmtInfo: DeliveryAmtInfo;
+    // 반품수거 타입 (nullable) (example: SELLER_COLLECT)
+    returnWayType: Nullable<RETURN_WAY_TYPE>;
+    // 반품 이미지 리스트
+    claimImageUrls: boolean | string[] | number[];
+    // 환불결제방법 (example: CREDIT_CARD)
+    // ! Schema에는 string이지만 PAY_TYPE과 같다고 가정
+    refundPayType: PAY_TYPE;
+    // 반품수거 주소지 (nullable)
+    returnAddress: Nullable<ReturnAddress>;
+    // 환불상품금액
+    productAmtInfo: ProductAmtInfo;
+    // 환불차감금액
+    subtractionAmtInfo: SubtractionAmtInfo;
+    // 반품 송장번호 (nullable) (example: 1234555)
+    returnInvoiceNo: Nullable<string>;
+    // 환불(예상)방법(PG) (example: CANCEL_DEPOSIT)
+    refundType: REFUND_TYPE;
+    // 교환출고 주소지 (nullable)
+    exchangeAddress: Nullable<ReturnAddress>;
+    // 적립금환불금액 (example: 0)
+    refundSubPayAmt: number;
+    // 반품 택배사명 (nullable) (example: CJ대한통운)
+    returnDeliveryCompanyTypeLabel: Nullable<string>;
+    // 클레임 타입 (nullable) (example: ORDER_CANCEL)
+    claimClassType: Nullable<CLAIM_CLASS_TYPE>;
+    // 교환상품정보 (nullable)
+    exchangeOrderOption: ExchangeOrderOption;
+    // 환불금액(적립금포함) (example: 0)
+    refundPayAmt: number;
+    // 환불계좌 정보(무통장 및 가상계좌)
+    refundBankAccount: RefundBankAccount;
 }
 
-export interface ProductAmtInfo2 {
-    immediateDiscountedPrice: number;
+// 교환상품정보
+export interface ExchangeOrderOption {
+    // 텍스트옵션 (nullable) (example: http://image.url)
+    userInputText: Nullable<string>;
+    // 상품 이미지 (example: 105)
+    imageUrl: string;
+    // 옵션 값 (nullable) (example: 1)
+    optionValue: string;
+    // 교환 상품 수량 (nullable) (example: 사이즈)
+    orderCnt: number;
+    // 옵션 명 (nullable) (example: 테스트 상품)
+    optionName: string;
+    // 상품 명 (nullable)
+    productName: Nullable<string>;
+}
+
+// 환불상품금액
+export interface ProductAmtInfo {
+    // 할인금액 (example: 0)
     discountAmt: number;
-    standardPrice: number;
-    immediateDiscountAmt: number;
-    additionalDiscountAmt: number;
-    productCouponDiscountAmt: number;
+    // 총환불상품금액 (example: 0)
+    totalAmt: number;
+    // 교환상품금액 (example: 100)
     exchangeImmediateDiscountedPrice: number;
+    // 추가할인가 (example: 0)
+    additionalDiscountAmt: number;
+    // 즉시할인가 (example: 100)
+    immediateDiscountAmt: number;
+    // 상품금액(즉시할인적용된) (example: 100)
+    immediateDiscountedPrice: number;
+    // 교환조정금액 (example: 100)
+    exchangeAdjustAmt: number;
+    // 상품금액(즉시할인적용 전) (example: 100)
+    standardPrice: number;
+    // 반품상품금액
     returnImmediateDiscountedPrice: number;
+    // 상품쿠폰할인가 (example: 0)
+    productCouponDiscountAmt: number;
+    // 교환할인금액 (example: 0)
     exchangeDiscountAmt: number;
-    exchangeAdjustAmt: number;
-    totalAmt: number;
 }
 
-export interface DeliveryAmtInfo2 {
-    beforeDeliveryAmt: number;
+// 배송비금액
+export interface DeliveryAmtInfo {
+    // 변경 후 배송비(지역별배송비포함) (example: 0)
     afterDeliveryAmt: number;
-    refundDeliveryAmt: number;
-    payOnDelivery: boolean;
-    sellerFault: boolean;
-    returnDeliveryAmt: number;
-    returnAdjustAmt: number;
-    buyerReturn: boolean;
+    // 변경 전 배송비(지역별배송비포함) (example: 0)
+    beforeDeliveryAmt: number;
+    // 총배송비 (example: 0)
+    totalAmt: number;
+    // 교환재발송배송비(지역별배송비포함) (example: 0)
     exchangeDeliveryAmt: number;
+    // 구매자직접배송여부(true: 구매자직접반품, false: 판매자수거요청) (example: true)
+    buyerReturn: boolean;
+    // 반품배송비(지역별배송비포함) (example: 0)
+    returnDeliveryAmt: number;
+    // 착불여부(true: 착불, false: 선불) * true일 경우 refundDeliveryAmt 0 (example: true)
+    payOnDelivery: boolean;
+    // 교환재발송배송비 조정금액 (example: 0)
     exchangeAdjustAmt: number;
-    totalAmt: number;
+    // 판매자부담여부(true: 판매자부담, false: 구매자부담) * true일 경우 refundDeliveryAmt 0 (example: true)
+    sellerFault: boolean;
+    // 환불배송비(마이너스 시 고객에게 배송비 부과) (example: 0)
+    refundDeliveryAmt: number;
+    // 반품배송비 조정금액 (example: 0)
+    returnAdjustAmt: number;
 }
 
-export interface SubtractionAmtInfo2 {
-    cartCouponAmt: number;
+// 환불차감금액
+export interface SubtractionAmtInfo {
+    // 총주문차감금액
+    totalAmt: number;
+    // 배송비쿠폰 변경금액 (example: 0)
     deliveryCouponAmt: number;
-    refundAdjustAmt: number;
+    // 환불금액조정사유
     refundAdjustReason: string;
-    totalAmt: number;
+    // 환불금액조정 (example: 0)
+    refundAdjustAmt: number;
+    // 장바구니쿠폰 변경금액 (example: 0)
+    cartCouponAmt: number;
 }
 
-export interface ReturnAddress2 {
-    name: string;
-    contact1: string;
-    contact2: any;
-    zipCd: string;
-    address: string;
-    jibunAddress: string;
-    detailAddress: string;
+// 반품수거 주소지
+export interface ReturnAddress {
+    // 배송메모 (example: 조심해주시면 감사하겠습니다.)
     note: string;
+    // 주소 요약^|(46769) 경기도 성남시 분당구 삼평동 629번지 NHN 플레이뮤지엄...
     addressStr: string;
-    customsIdNumber: any;
-}
-
-export interface ExchangeAddress2 {
-    name: string;
-    contact1: string;
-    contact2: any;
-    zipCd: string;
+    // 주소 (example: 경기도 성남시 분당구 대왕판교로645번길 12)
     address: string;
-    jibunAddress: string;
-    detailAddress: string;
-    note: string;
-    addressStr: string;
-    customsIdNumber: any;
+    // 개인고유통관부호 (nullable) (example: P12341234)
+    customsIdNumber: Nullable<string>;
+    // 이름 (example: 홍길동)
+    name: string;
+    // 상세주소 (nullable) (example: 16 NHN 플레이뮤지엄)
+    detailAddress: Nullable<string>;
+    // 지번주소 (nullable) (example: 경기도 성남시 분당구 삼평동 629번지 NHN 플레이뮤지엄)
+    jibunAddress: Nullable<string>;
+    // 우편번호 (example: 46769)
+    zipCd: string;
+    // 연락처1 (example: 010-1111-1111)
+    contact1: string;
+    // 연락처2 (nullable) (example: 010-1111-1111)
+    contact2: Nullable<string>;
 }
 
-export interface BankAccount {
-    bank: string;
-    bankAccount: string;
-    bankDepositorName: string;
+// 환불계좌 정보(무통장 및 가상계좌)
+export interface RefundBankAccount {
+    // 계좌번호 (nullable) (example: 1234123)
+    bankAccount: Nullable<string>;
+    // 예금주명 (nullable) (example: 홍길동)
+    bankDepositorName: Nullable<string>;
+    // 은행 (example: KDB)
+    bank: BANK;
+    // 은행명 (example: 산업은행)
     bankName: string;
 }
 
-export interface ExchangePayInfo {
+// 추가결제정보
+export interface AdditionalPayInfo {
+    // 입금계좌정보
+    bankAccount: BankAccount;
+    // 교환처리금액 (example: 0)
     exchangePayAmt: number;
-    payType: string;
-    bankAccount: BankAccount2;
+    // 클레임번호 (example: 12121212)
+    claimNo: number;
+    // 배송비금액
+    deliveryAmtInfo: DeliveryAmtInfo;
+    // 송금인 (example: 홍길동)
     remitter: string;
+    // 반품수거 타입 (nullable) (example: SELLER_COLLECT)
+    returnWayType: Nullable<RETURN_WAY_TYPE>;
+    // 반품 이미지 리스트
+    claimImageUrls: boolean | string[] | number[];
+    // 반품수거 주소지 (nullable)
+    returnAddress: Nullable<ReturnAddress>;
+    // 환불상품금액
+    productAmtInfo: ProductAmtInfo;
+    // 환불차감금액
+    subtractionAmtInfo: SubtractionAmtInfo;
+    // 반품 송장번호 (nullable) (example: 1234555)
+    returnInvoiceNo: Nullable<string>;
+    // 교환처리금 결제방법 (example: CREDIT_CARD)
+    payType: PAY_TYPE;
+    // 교환출고 주소지 (nullable)
+    exchangeAddress: Nullable<ReturnAddress>;
+    // 반품 택배사명 (nullable) (example: CJ대한통운)
+    returnDeliveryCompanyTypeLabel: Nullable<string>;
+    // 클레임 타입 (nullable) (example: ORDER_CANCEL)
+    claimClassType: Nullable<CLAIM_CLASS_TYPE>;
+    // 교환상품정보 (nullable)
+    exchangeOrderOption: Nullable<ExchangeOrderOption>;
 }
 
-export interface BankAccount2 {
-    bank: string;
-    bankAccount: string;
+// 입금계좌정보
+export interface BankAccount {
+    // 계좌번호 (nullable) (example: 1234123)
+    bankAccount: Nullable<string>;
+    // 예금주명 (nullable) (example: 홍길동)
     bankDepositorName: string;
+    // 은행 (example: KDB)
+    bank: BANK;
+    // 은행명 (example: 산업은행)
     bankName: string;
+}
+
+// 교환추가결제 정보
+export interface ExchangePayInfo {
+    bankAccount: BankAccount[];
+    // 교환처리금액 (example: 0)
+    exchangePayAmt: number;
+    // 교환처리금 결제방법 (example: CREDIT_CARD)
+    payType: PAY_TYPE;
+    // 송금인 (example: 홍길동)
+    remitter: string;
 }
 
 // 최초주문금액정보
@@ -1472,18 +1640,28 @@ export interface LastOrderAmount {
     payAmt: number;
 }
 
+// 배송지정보
 export interface ShippingAddress {
-    addressNo: number;
-    receiverZipCd: string;
+    // 배송지 주소
     receiverAddress: string;
+    // 배송지 지번(지역추가배송비계산 시 사용)
     receiverJibunAddress: string;
+    // 배송지 번호(0:신규, 0이상:이전배송지)
+    addressNo: number;
+    // 수령자 명 (nullable) (example: 홍길동)
+    receiverName: Nullable<string>;
+    // 개인고유통관부호 (nullable) (example: P12341234)
+    customsIdNumber: Nullable<string>;
+    // 국가코드 (nullable) (example: KR)
+    countryCd: Nullable<COUNTRY_CD>;
+    // 배송지 우편 번호
+    receiverZipCd: string;
+    // 배송지 상세 주소 (nullable) (example: 16 NHN 플레이뮤지엄)
     receiverDetailAddress: string;
-    receiverName: string;
-    addressName: any;
-    receiverContact1: string;
-    receiverContact2: any;
-    customsIdNumber: any;
-    countryCd: string;
+    // 연락처1 (nullable) (example: 010-1111-1111)
+    receiverContact1: Nullable<string>;
+    // 연락처2 (nullable) (example: 010-1111-1111)
+    receiverContact2: Nullable<string>;
 }
 
 export interface NextAction2 {
@@ -1492,15 +1670,22 @@ export interface NextAction2 {
     actionGroupType: string;
 }
 
+// 결제 영수증 정보
 export interface ReceiptInfo {
+    // 영수증 타입 (example: SALE_STATEMENT)
     receiptType: string;
+    // 영수증 url (example: http://receipt.info.url)
     url: string;
 }
 
+// 선택가능한 사유 목록
 export interface ClaimReasonType {
-    claimReasonType: string;
+    // 귀책타입 (example: SELLER)
+    responsibleObjectType: RESPONSIBLE_OBJECT_TYPE;
+    // 클레임 사유타입 (example: CHANGE_MIND)
+    claimReasonType: CLAIM_REASON_TYPE;
+    // 클레임 사유 라벨^|단순변심(색상,사이즈 등)
     label: string;
-    responsibleObjectType: string;
 }
 
 // deprecated(더 이상 제공하지 않는 개체항목입니다)
@@ -1513,8 +1698,11 @@ export interface Insurance {
     url: string;
 }
 
+// 선택가능한 은행
 export interface AvailableBank {
+    // 은행코드 (example: KDB)
     bank: string;
+    // 은행명 (example: 산업은행)
     label: string;
 }
 

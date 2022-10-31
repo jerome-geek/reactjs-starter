@@ -1,6 +1,7 @@
 /// <reference types="react-scripts" />
 
 type Nullable<T> = T | null;
+
 interface Sort {
     orderBy: ORDER_BY;
     orderDirection: ORDER_DIRECTION;
@@ -20,4 +21,16 @@ interface SearchDate {
 interface ItemList<T> {
     totalCount: number;
     items: T[];
+}
+
+interface ShopByErrorResponse {
+    code: string;
+    detail: {
+        time: string;
+        extra: Nullable<string>;
+    };
+    error: string;
+    message: string;
+    path: string;
+    status: number;
 }
