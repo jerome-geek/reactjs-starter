@@ -37,18 +37,6 @@ import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 import HTTP_RESPONSE from 'const/http';
 
-interface ShopByErrorResponse {
-    code: string;
-    detail: {
-        time: string;
-        extra: Nullable<string>;
-    };
-    error: string;
-    message: string;
-    path: string;
-    status: number;
-}
-
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
     text-align: left;
