@@ -1,13 +1,4 @@
-import {
-    filter,
-    find,
-    includes,
-    map,
-    partition,
-    pipe,
-    pluck,
-    toArray,
-} from '@fxts/core';
+import { filter, findIndex, includes, map, pipe, toArray } from '@fxts/core';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ShoppingCartBody } from 'models/order';
@@ -28,50 +19,32 @@ export const cartSlice = createSlice({
     reducers: {
         setCart: (state, action: PayloadAction<initialState[]>) => {
             if (state.data.length > 0) {
-                const originOptionList = pipe(
-                    state.data,
-                    pluck('optionNo'),
-                    toArray,
-                );
+                const combinedArray = [...action.payload, ...state.data];
 
-                const incomingOptionList = pipe(
-                    action.payload,
-                    pluck('optionNo'),
-                    toArray,
-                );
+                const cartList: initialState[] = combinedArray.reduce(
+                    (accumulatedCartList: initialState[], currentCartData) => {
+                        const overlapIndex = findIndex(
+                            (a) => a.optionNo === currentCartData.optionNo,
+                            accumulatedCartList,
+                        );
 
-                const [newCartOptionList] = pipe(
-                    incomingOptionList,
-                    partition((a) => !originOptionList.includes(a)),
-                );
-
-                const newCartList = pipe(
-                    action.payload,
-                    filter((a) => newCartOptionList.includes(a.optionNo)),
-                    toArray,
-                );
-
-                const originCartCount = (optionNo: number) =>
-                    find((b) => b.optionNo === optionNo, action.payload)
-                        ?.orderCnt!;
-
-                const originCartList = pipe(
-                    state.data,
-                    map((a) => {
-                        return {
-                            ...a,
-                            orderCnt: a.orderCnt + originCartCount(a.optionNo),
-                        };
-                    }),
-                    toArray,
+                        if (overlapIndex === -1) {
+                            accumulatedCartList.push(currentCartData);
+                        } else {
+                            accumulatedCartList[overlapIndex].orderCnt +=
+                                currentCartData.orderCnt;
+                        }
+                        return accumulatedCartList;
+                    },
+                    [],
                 );
 
                 return {
-                    data: [...newCartList, ...originCartList],
+                    data: cartList,
                 };
             }
             return {
-                data: [...action.payload],
+                data: [...action.payload, ...state.data],
             };
         },
         updateCart: (state, action) => {
