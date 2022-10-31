@@ -69,7 +69,7 @@ const InquiryButton = styled(Link)`
 
 const MyInquiryListContainer = styled.ul`
     border-top: ${(props) => `2px solid ${props.theme.secondary}`};
-    border-bottom: ${(props) => `2px solid ${props.theme.secondary}`};
+    border-bottom: ${(props) => `1px solid ${props.theme.secondary}`};
     > p {
         padding: 80px 0;
         text-align: center;

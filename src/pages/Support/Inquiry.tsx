@@ -16,6 +16,7 @@ import { inquiry } from 'api/manage';
 import { WriteInquiry } from 'models/manage';
 import media from 'utils/styles/media';
 import upload from 'api/etc/upload';
+import PATHS from 'const/paths';
 
 const InquiryContainer = styled.div`
     width: 1060px;
@@ -122,6 +123,9 @@ const InquiryContentInputBox = styled.div`
     flex-wrap: wrap;
     ${media.medium} {
         width: 100%;
+    }
+    > label {
+        margin-right: 20px;
     }
 `;
 
@@ -235,7 +239,7 @@ const Inquiry = () => {
         {
             onSuccess: () => {
                 alert('문의가 완료됐습니다.');
-                navigate('/support/my-inquiry');
+                navigate(PATHS.MY_INQUIRY);
             },
             onError: () => {
                 alert('문의 등록에 실패하였습니다.');
