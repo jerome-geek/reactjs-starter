@@ -208,15 +208,18 @@ const product = {
         params?: {
             channelType: CHANNEL_TYPE;
         },
-    ): Promise<AxiosResponse<ProductDetailResponse>> =>
-        request({
+    ): Promise<AxiosResponse<ProductDetailResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/products/${productNo}`,
             params: { channelType: params?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getBestReviewProducts: ({
         filter = { familyMalls: false },
