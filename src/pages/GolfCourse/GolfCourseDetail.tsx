@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { SingleValue, StylesConfig } from 'react-select';
-import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { head, map, pipe, toArray } from '@fxts/core';
@@ -10,18 +9,18 @@ import { useTranslation } from 'react-i18next';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import SelectBox, { customStyle } from 'components/Common/SelectBox';
 import InputWithIcon from 'components/Input/InputWithIcon';
+import useProductDetail from 'hooks/queries/useProductDetail';
+import media from 'utils/styles/media';
+import golfCourse, { GolfCourseParams } from 'api/etc/golfCourse';
+import PATHS from 'const/paths';
+import { countries } from 'const/country';
 import { ReactComponent as AltitudeIcon } from 'assets/icons/golf_course_altitude.svg';
 import { ReactComponent as CourseView } from 'assets/icons/golf_course_course_view.svg';
 import { ReactComponent as ShapeIcon } from 'assets/icons/golf_course_shape.svg';
 import { ReactComponent as ContourIcon } from 'assets/icons/golf_course_contour.svg';
 import { ReactComponent as FinleyRoadIcon } from 'assets/icons/golf_course_finley_load.svg';
-import HazardIcon from 'assets/icons/golf_course_hazard.svg';
 import { ReactComponent as APLIcon } from 'assets/icons/golf_course_APL.svg';
-import media from 'utils/styles/media';
-import golfCourse, { GolfCourseParams } from 'api/etc/golfCourse';
-import { product } from 'api/product';
-import PATHS from 'const/paths';
-import { countries } from 'const/country';
+import HazardIcon from 'assets/icons/golf_course_hazard.svg';
 
 const CourseContainer = styled.main`
     width: 1280px;
@@ -388,17 +387,11 @@ const GolfCourseDetail = () => {
 
     const { t: courseDetail } = useTranslation('courseDetail');
 
-    const { courseNo } = useParams();
+    const { productNo } = useParams() as { productNo: string };
 
-    const { data: productData } = useQuery(
-        [courseNo],
-        async () => await product.getProductDetail(courseNo!),
-        {
-            select: (res) => {
-                return res.data.baseInfo;
-            },
-        },
-    );
+    const productDetailData = useProductDetail({
+        productNo,
+    });
 
     useQuery(
         ['golfCourse', { courseCondition }],
@@ -475,46 +468,55 @@ const GolfCourseDetail = () => {
         <>
             <SEOHelmet
                 data={{
-                    title: `${productData?.productName} ${courseDetail(
-                        'title',
-                    )}`,
+                    title: `${
+                        productDetailData.data?.baseInfo?.productName
+                    } ${courseDetail('title')}`,
                     meta: {
-                        title: `${productData?.productName} ${courseDetail(
-                            'title',
-                        )}`,
+                        title: `${
+                            productDetailData.data?.baseInfo?.productName
+                        } ${courseDetail('title')}`,
                         description: `${
-                            productData?.productName
+                            productDetailData.data?.baseInfo?.productName
                         } ${courseDetail('description')}`,
                     },
                     og: {
-                        title: `${productData?.productName} ${courseDetail(
-                            'title',
-                        )}`,
+                        title: `${
+                            productDetailData.data?.baseInfo?.productName
+                        } ${courseDetail('title')}`,
                         description: `${
-                            productData?.productName
+                            productDetailData.data?.baseInfo?.productName
                         } ${courseDetail('description')}`,
                     },
                 }}
             />
 
-            {productData && (
+            {productDetailData.data?.baseInfo && (
                 <CourseContainer>
                     <Title>{courseDetail('title')}</Title>
                     <CourseTop>
                         <CourseProductImageBox>
                             <div>
                                 <img
-                                    src={head(productData?.imageUrls!)}
-                                    alt={productData?.productName}
+                                    src={head(
+                                        productDetailData.data?.baseInfo
+                                            ?.imageUrls!,
+                                    )}
+                                    alt={
+                                        productDetailData.data?.baseInfo
+                                            ?.productName
+                                    }
                                 />
                             </div>
                         </CourseProductImageBox>
                         <CourseProductInformation>
                             <CourseProductName>
-                                {productData?.productName}
+                                {productDetailData.data?.baseInfo?.productName}
                             </CourseProductName>
                             <CourseProductDescription>
-                                {productData?.promotionText}
+                                {
+                                    productDetailData.data?.baseInfo
+                                        ?.promotionText
+                                }
                             </CourseProductDescription>
                             <CourseDetailConditionForm>
                                 <CourseAddressBox>

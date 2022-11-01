@@ -8,7 +8,7 @@ import NotFound from 'pages/NotFound';
 const GolfCourseRouter = () => (
     <Routes>
         <Route path='list' element={<GolfCourseList />} />
-        <Route path='detail/:courseNo' element={<GolfCourseDetail />} />
+        <Route path='detail/:productNo' element={<GolfCourseDetail />} />
         <Route path='request' element={<GolfCourseRequest />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
