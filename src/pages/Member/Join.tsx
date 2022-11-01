@@ -277,7 +277,11 @@ const Join = () => {
                     );
 
                     dispatch(fetchProfile());
-                    navigate(PATHS.JOIN_COMPLETED);
+                    navigate(PATHS.JOIN_COMPLETED, {
+                        state: {
+                            memberId: email,
+                        },
+                    });
                 }
             } catch (error) {
                 if (error instanceof AxiosError) {

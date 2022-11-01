@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
 import { useWindowSize } from 'usehooks-ts';
@@ -18,6 +18,7 @@ import { MY_COUPON_LIST } from 'const/queryKeys';
 import { ReactComponent as JoinLogo } from 'assets/logo/joinLogo.svg';
 import { ReactComponent as HeaderLogo } from 'assets/logo/headerLogo.svg';
 import BREAKPOINTS from 'const/breakpoints';
+import { isLogin } from 'utils/users';
 
 const JoinCompletedContainer = styled(FlexContainer)`
     flex-direction: column;
@@ -101,11 +102,13 @@ const CouponPrice = styled.p`
     font-weight: bold;
     margin-bottom: 0.5rem;
 `;
+
 const CouponTItle = styled.p`
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
 `;
+
 const CouponDescription = styled.span`
     font-size: 1rem;
     color: #a8a8a8;
@@ -121,14 +124,17 @@ const JoinCompleted = () => {
         AxiosResponse<any>,
         AxiosError,
         Coupon | undefined
-    >(
-        [MY_COUPON_LIST, member?.memberId],
-        async () => await coupon.getUserCoupons(),
-        {
-            select: ({ data }) => head<Coupon[]>(data.items),
-            enabled: !!member,
-        },
-    );
+    >([MY_COUPON_LIST], async () => await coupon.getUserCoupons(), {
+        enabled: isLogin(),
+        select: ({ data }) => head<Coupon[]>(data.items),
+    });
+
+    // react-router-dom v6부터는 generic 지원X
+    const location = useLocation() as { state: { memberId: string } };
+
+    if (!isLogin() || !location?.state?.memberId) {
+        return <Navigate to={PATHS.LOGIN} replace />;
+    }
 
     return (
         <>
@@ -147,6 +153,7 @@ const JoinCompleted = () => {
                                 감사합니다.`,
                     }}
                 />
+                {/* TODO: 신규회원 쿠폰 세팅 */}
                 <CouponContainer>
                     <div>
                         <HeaderLogo />
