@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { useQuery } from 'react-query';
 import { flatMap, pipe, pluck, size } from '@fxts/core';
@@ -7,6 +7,7 @@ import { useTypedSelector } from 'state/reducers';
 import { reset } from 'state/slices/memberSlice';
 import { cart, guestOrder } from 'api/order';
 import { CartList } from 'models/order';
+import { isLogin } from 'utils/users';
 
 const useCart = () => {
     const [cartInfo, setCartInfo] = useState<CartList>();
@@ -18,8 +19,6 @@ const useCart = () => {
         }),
         shallowEqual,
     );
-
-    const isLogin = useMemo(() => !!member, [member]);
 
     const { cart: guestCartList } = useTypedSelector(
         ({ cart }) => ({
@@ -35,7 +34,7 @@ const useCart = () => {
                 divideInvalidProducts: true,
             }),
         {
-            enabled: !isLogin,
+            enabled: !isLogin(),
             select: (response) => response.data,
             onSuccess: (data) => setCartInfo(data),
         },
@@ -45,7 +44,7 @@ const useCart = () => {
         ['cart', member?.memberId],
         async () => await cart.getCart(),
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             select: (response) => response.data,
             onSuccess: (data) => setCartInfo(data),
             onError: (error) => {
@@ -71,7 +70,7 @@ const useCart = () => {
     return {
         cartInfo,
         totalCount,
-        refetch: isLogin ? cartRefetch : guestCartRefetch,
+        refetch: isLogin() ? cartRefetch : guestCartRefetch,
     };
 };
 

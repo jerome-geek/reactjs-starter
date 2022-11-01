@@ -19,6 +19,7 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
+import useProductDetail from 'hooks/queries/useProductDetail';
 import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
@@ -246,11 +247,9 @@ const ProductDetail = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const { data: productData } = useQuery(
-        ['productDetailData', { productNo }],
-        async () => await product.getProductDetail(productNo),
-        {
-            select: ({ data }) => data,
+    const productDetailData = useProductDetail({
+        productNo,
+        options: {
             onSuccess: (data) => {
                 setProductImageData((prev) => ({
                     ...prev,
@@ -258,7 +257,7 @@ const ProductDetail = () => {
                 }));
             },
         },
-    );
+    });
 
     useQuery(
         ['productOptionList', { productNo }],
@@ -437,7 +436,7 @@ const ProductDetail = () => {
             <ProductContainer>
                 <ProductContainerTop>
                     <ProductImageSlider
-                        imageList={productData?.baseInfo.imageUrls}
+                        imageList={productDetailData.data?.baseInfo.imageUrls}
                     />
                     <ProductInfoContainer>
                         <ProductInfoIconContainer isNew>
@@ -448,20 +447,21 @@ const ProductDetail = () => {
 
                         <ProductTitleBox>
                             <ProductTitle>
-                                {productData?.baseInfo.productName}
+                                {productDetailData.data?.baseInfo.productName}
                             </ProductTitle>
                             <ProductText>
-                                {productData?.baseInfo.promotionText}
+                                {productDetailData.data?.baseInfo.promotionText}
                             </ProductText>
                         </ProductTitleBox>
 
-                        {productData && (
+                        {productDetailData.data && (
                             <ProductPriceContainer>
                                 <SalePrice
                                     dangerouslySetInnerHTML={{
                                         __html: KRW(
-                                            productData.price.salePrice -
-                                                productData.price
+                                            productDetailData.data.price
+                                                .salePrice -
+                                                productDetailData.data.price
                                                     .immediateDiscountAmt,
                                             {
                                                 symbol: '<sub>원</sub>',
@@ -476,7 +476,8 @@ const ProductDetail = () => {
                                 <ProductPrice
                                     dangerouslySetInnerHTML={{
                                         __html: KRW(
-                                            productData.price.salePrice,
+                                            productDetailData.data.price
+                                                .salePrice,
                                             {
                                                 symbol: '<sub>원</sub>',
                                                 precision: 0,
@@ -489,17 +490,19 @@ const ProductDetail = () => {
                             </ProductPriceContainer>
                         )}
 
-                        {productData?.deliveryFee && (
+                        {productDetailData.data?.deliveryFee && (
                             <DeliveryInfo
                                 deliveryFee={
-                                    productData.deliveryFee.deliveryAmt
+                                    productDetailData.data.deliveryFee
+                                        .deliveryAmt
                                 }
                             />
                         )}
 
                         <AccumulationInfo
                             accumulationAmtWhenBuyConfirm={
-                                productData?.price.accumulationAmtWhenBuyConfirm
+                                productDetailData.data?.price
+                                    .accumulationAmtWhenBuyConfirm
                             }
                         />
 
@@ -548,7 +551,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productSummary'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -557,7 +562,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productSpecifications'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -566,7 +573,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productComparison'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -575,13 +584,17 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productPolicy'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
 
                     <RelatedProduct
-                        relatedProductNos={productData?.relatedProductNos || []}
+                        relatedProductNos={
+                            productDetailData.data?.relatedProductNos || []
+                        }
                     />
                 </ProductContainerBottom>
             </ProductContainer>

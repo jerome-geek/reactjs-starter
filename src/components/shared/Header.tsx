@@ -17,6 +17,7 @@ import { ReactComponent as MyPageIcon } from 'assets/icons/person.svg';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as CartIcon } from 'assets/icons/cart.svg';
 import { ReactComponent as BarsIcon } from 'assets/icons/bars.svg';
+import { isLogin } from 'utils/users';
 
 const HeaderContainer = styled.header`
     background-color: #fff;
@@ -219,14 +220,14 @@ const Header = () => {
                 )}
 
                 <IconContainer>
-                    {isDesktop(width) && member?.memberName && (
-                        <MemberName>{`${member.memberName}님`}</MemberName>
+                    {isDesktop(width) && isLogin() && (
+                        <MemberName>{`${member?.memberName}님`}</MemberName>
                     )}
                     <div onClick={onMypageClick}>
                         <MyPageIcon />
                         {myPageToggle && (
                             <MemberPopup
-                                isLogin={!!member}
+                                isLogin={isLogin()}
                                 onLoginClick={onLoginClick}
                                 onLogOutClick={onLogOutClick}
                             />
