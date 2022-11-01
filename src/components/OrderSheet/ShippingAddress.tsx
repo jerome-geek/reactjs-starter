@@ -59,6 +59,9 @@ const SheetInputBox = styled.div`
 const CheckBox = styled.label`
     display: flex;
     align-items: center;
+    > input {
+        display: none;
+    }
     ${media.medium} {
         margin-top: 12px;
         > p {
@@ -246,19 +249,19 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
                             },
                         })}
                     />
-                    <input
-                        type='hidden'
-                        id='defaultAddress'
-                        onChange={() => {
-                            setDefaultAddress((prev) => !prev);
-                        }}
-                        checked={defaultAddress}
-                    />
                     {member && (
                         <CheckBox
                             htmlFor='defaultAddress'
                             style={{ width: '100%' }}
                         >
+                            <input
+                                type='checkbox'
+                                id='defaultAddress'
+                                onChange={() => {
+                                    setDefaultAddress((prev) => !prev);
+                                }}
+                                checked={defaultAddress}
+                            />
                             {defaultAddress ? <Checked /> : <UnChecked />}
                             <p>{sheet('shippingAddress.setDefaultAddress')}</p>
                         </CheckBox>

@@ -398,7 +398,7 @@ const MobileShippingListModal = ({
                         </NoCouponMessage>
                     )}
                 </CouponListWrapper>
-                {totalCouponCount < 1 && (
+                {totalCouponCount > 0 && (
                     <ApplyButton
                         onClick={() => {
                             couponApplyMutate();
