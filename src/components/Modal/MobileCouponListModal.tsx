@@ -184,12 +184,7 @@ const MobileShippingListModal = ({
         shallowEqual,
     );
 
-    const {
-        data: couponData,
-        isLoading,
-        refetch,
-        isFetching,
-    } = useQuery(
+    const { data: couponData } = useQuery(
         ['couponList', { member: member?.memberName }],
         async () => await orderSheet.getCanApplyCoupon(orderSheetNo),
         {
