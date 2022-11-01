@@ -21,6 +21,7 @@ import MobileShippingListModal from 'components/Modal/MobileShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
 import GuestOrderPassword from 'components/OrderSheet/GuestOrderPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
+import MobileCouponListModal from 'components/Modal/MobileCouponListModal';
 import OrderTermsAgreement from 'components/OrderSheet/OrderTermsAgreement';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
@@ -606,19 +607,31 @@ const Sheet = () => {
                     setValue={setValue}
                 />
             )}
-            {isCouponListModal && (
-                <CouponListModal
-                    onClickToggleModal={() =>
-                        setIsCouponListModal((prev) => !prev)
-                    }
-                    width={'700px'}
-                    height={'696px'}
-                    setIsCouponListModal={setIsCouponListModal}
-                    setSelectCoupon={setSelectCoupon}
-                    orderSheetNo={orderSheetNo}
-                    couponApplyMutate={couponApplyMutate}
-                />
-            )}
+            {isCouponListModal &&
+                (isMobile(width) ? (
+                    <MobileCouponListModal
+                        onClickToggleModal={() =>
+                            setIsCouponListModal((prev) => !prev)
+                        }
+                        title={'쿠폰 선택'}
+                        setIsCouponListModal={setIsCouponListModal}
+                        setSelectCoupon={setSelectCoupon}
+                        orderSheetNo={orderSheetNo}
+                        couponApplyMutate={couponApplyMutate}
+                    />
+                ) : (
+                    <CouponListModal
+                        onClickToggleModal={() =>
+                            setIsCouponListModal((prev) => !prev)
+                        }
+                        width={'700px'}
+                        height={'696px'}
+                        setIsCouponListModal={setIsCouponListModal}
+                        setSelectCoupon={setSelectCoupon}
+                        orderSheetNo={orderSheetNo}
+                        couponApplyMutate={couponApplyMutate}
+                    />
+                ))}
             <OrderSheetContainer onSubmit={onOrderFormSubmit}>
                 {!isMobile(width) && (
                     <OrderProgress
