@@ -39,6 +39,7 @@ const App: FC = () => {
                                     </PrivateRoute>
                                 }
                             />
+                            {/* !회원가입 후 바로 로그인이 되기때문에 PrivateRoute로 감싸면 안됨 */}
                             <Route
                                 path='/member/join-completed'
                                 element={<JoinCompleted />}

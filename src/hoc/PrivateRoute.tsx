@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-import { useMember } from 'hooks';
-import paths from 'const/paths';
+import { isLogin } from 'utils/users';
+import PATHS from 'const/paths';
 
 /*
  예)  option: null -> 누구나 출입이 가능한 페이지 (home)
@@ -16,20 +15,13 @@ const PrivateRoute = ({
     children: JSX.Element;
     option?: Nullable<boolean>;
 }) => {
-    const location = useLocation();
-    const navigate = useNavigate();
+    if (!isLogin() && option) {
+        return <Navigate to={PATHS.LOGIN} replace />;
+    }
 
-    const { member } = useMember();
-
-    useEffect(() => {
-        if (!member && option) {
-            navigate(paths.LOGIN, { state: { from: location } });
-        }
-
-        if (member && !option) {
-            navigate(paths.MAIN);
-        }
-    }, [location, navigate, option, member]);
+    if (isLogin() && !option) {
+        return <Navigate to={PATHS.MAIN} replace />;
+    }
 
     return children;
 };
