@@ -1,10 +1,10 @@
-import React, { KeyboardEvent, useState } from 'react';
-import { useQuery } from 'react-query';
+import React, { KeyboardEvent, useCallback, useState } from 'react';
+import { useQueries, useQuery } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
-import { filter, head, pipe, slice, toArray } from '@fxts/core';
+import { filter, head, map, pipe, slice, toArray } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import SectionDropdown from 'components/SectionDropdown';
@@ -77,6 +77,7 @@ const FaqSearchInput = styled.input.attrs({ type: 'text' })`
     }
     ${media.small} {
         width: 80%;
+        font-size: 1.333rem;
         &::placeholder {
             font-size: 1.333rem;
         }
@@ -158,9 +159,19 @@ const FaqDetailContainer = styled.div`
         letter-spacing: -0.8px;
         background: ${(props) => props.theme.bg2};
     }
+    > p {
+        text-align: center;
+        padding: 80px 0;
+        color: ${(props) => props.theme.text3};
+        line-height: 24px;
+    }
     ${media.small} {
         > div {
             font-size: 1.666rem;
+        }
+        > p {
+            padding: 72px 0;
+            font-size: 1.333rem;
         }
     }
 `;
@@ -180,8 +191,17 @@ const FaqDetailBox = styled.li`
         letter-spacing: -0.64px;
         > div {
             p {
-                font-size: 1.333rem;
+                font-size: 1.1666rem;
             }
+        }
+    }
+`;
+
+const FaqDetail = styled.p`
+    > p {
+        font-size: 1rem !important;
+        ${media.small} {
+            font-size: 1.1666rem !important;
         }
     }
 `;
@@ -197,7 +217,18 @@ const FaqDetailLabel = styled.p`
         font-size: 1rem;
         white-space: nowrap;
         padding-right: 33px;
+        font-size: 1.333rem;
     }
+`;
+
+const MoreViewButton = styled.button`
+    display: block;
+    text-align: center;
+    padding: 6px 12px;
+    color: #fff;
+    background: ${(props) => props.theme.secondary};
+    font-weight: 500;
+    margin: 15px auto;
 `;
 
 const InquiryButton = styled.div`
@@ -250,49 +281,42 @@ const Faq = () => {
         },
     );
 
-    const { isFetching, refetch } = useQuery<
-        AxiosResponse<BoardList>,
-        AxiosError
-    >(
-        ['faqList'],
-        async () =>
-            await board.getArticlesByBoardNo(BOARD.FAQ, {
-                pageNumber: 1,
-                pageSize: 10,
-                hasTotalCount: true,
-                keyword,
-            }),
-        {
-            onSuccess: (res) => {
-                const faqListObject = new Map<number, Map<number, FaqList>>();
-                setFaqList(() => {
-                    faqCategoryList.forEach((boardCategory) => {
-                        const categoryNo = boardCategory.categoryNo;
-                        faqListObject.set(categoryNo, new Map());
-
-                        res.data?.items?.forEach((item) => {
-                            if (item.categoryNo === categoryNo) {
-                                faqListObject
-                                    ?.get(categoryNo)
-                                    ?.set(item.articleNo, item);
-                            }
+    const faqListUseQueries = useQueries(
+        faqCategoryList.map(({ categoryNo }) => {
+            return {
+                queryKey: [
+                    'faqCategoryList',
+                    {
+                        categoryNo,
+                    },
+                ],
+                queryFn: async () =>
+                    await board.getArticlesByBoardNo(BOARD.FAQ, {
+                        pageNumber: 1,
+                        pageSize: 999999999, // limit int 32
+                        hasTotalCount: true,
+                        categoryNo,
+                        keyword,
+                    }),
+                keepPreviousData: true,
+                onSuccess: (res: any) => {
+                    setFaqList((prev) => {
+                        const faqListObject = new Map<number, FaqList>();
+                        res.data?.items?.forEach((item: any) => {
+                            faqListObject.set(item.articleNo, item);
                         });
+                        return new Map(prev).set(categoryNo, faqListObject);
                     });
-                    return new Map(faqListObject);
-                });
-            },
-            onError: (error) => {
-                if (error instanceof AxiosError) {
-                    alert(error.message);
-                    return;
-                }
-                alert('알수 없는 에러가 발생했습니다.');
-            },
-            select: (res) => {
-                return res;
-            },
-            refetchOnWindowFocus: false,
-        },
+                },
+                onError: (error: any) => {
+                    if (error instanceof AxiosError) {
+                        alert(error.response?.data.message);
+                        return;
+                    }
+                    alert('알수 없는 에러가 발생했습니다.');
+                },
+            };
+        }),
     );
 
     const getNoticeDetailHandler = (articleNo: number) => async () => {
@@ -321,6 +345,12 @@ const Faq = () => {
         setListItemCount(count);
     };
 
+    const refetchAll = useCallback(() => {
+        faqListUseQueries.forEach((result) => result.refetch());
+    }, [faqListUseQueries]);
+
+    const isFetching = faqListUseQueries.some((res) => res.isFetching);
+
     return (
         <>
             <SEOHelmet
@@ -342,12 +372,12 @@ const Faq = () => {
                     <FaqSearchBox
                         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                             e.preventDefault();
-                            refetch();
+                            refetchAll();
                         }}
                         onKeyUp={(e: KeyboardEvent<HTMLFormElement>) => {
                             e.preventDefault();
                             if (e.key === 'Enter') {
-                                refetch();
+                                refetchAll();
                             }
                         }}
                     >
@@ -387,11 +417,13 @@ const Faq = () => {
                         })}
                     </FaqCategoryContainer>
                 </MobileFaqCategoryContainer>
+
                 {isFetching ? (
                     <Loader />
                 ) : (
                     <FaqDetailContainer>
-                        {faqList.get(currentCategoryNo) ? (
+                        {faqList.get(currentCategoryNo) &&
+                        faqList.get(currentCategoryNo)!.size > 0 ? (
                             <>
                                 <div>
                                     {
@@ -427,11 +459,11 @@ const Faq = () => {
                                                 <SectionDropdown
                                                     title={data.title}
                                                 >
-                                                    <p
+                                                    <FaqDetail
                                                         dangerouslySetInnerHTML={{
                                                             __html: data.content!,
                                                         }}
-                                                    ></p>
+                                                    ></FaqDetail>
                                                 </SectionDropdown>
                                             </FaqDetailBox>
                                         );
@@ -439,20 +471,22 @@ const Faq = () => {
                                 </ul>
                             </>
                         ) : (
-                            <p>검색결과가 없습니다.</p>
+                            <p>등록된 질문이 없습니다.</p>
                         )}
                     </FaqDetailContainer>
                 )}
+
                 {faqList.has(currentCategoryNo) &&
                     faqList.get(currentCategoryNo)!.size > listItemCount && (
-                        <div
+                        <MoreViewButton
                             onClick={() =>
                                 setListItemCount((prev) => prev + count)
                             }
                         >
                             더보기
-                        </div>
+                        </MoreViewButton>
                     )}
+
                 <InquiryButton>
                     원하는 질문이 없나요?&nbsp;&nbsp;&nbsp;
                     <Link to={PATHS.INQUIRY}>1:1 문의하기</Link>

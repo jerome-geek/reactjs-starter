@@ -24,6 +24,7 @@ import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
 import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
 import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
+import { AxiosError } from 'axios';
 
 interface LoginFormData {
     memberId: string;
@@ -112,6 +113,7 @@ const Login = () => {
         control,
         watch,
         setValue,
+        setError,
         formState: { errors },
     } = useForm<LoginFormData>({
         defaultValues: {
@@ -159,7 +161,11 @@ const Login = () => {
                 }
             }
         } catch (error) {
-            console.error(error);
+            if (error instanceof AxiosError) {
+                setError('memberId', { message: error.response?.data.message });
+                return;
+            }
+            alert('알수 없는 에러가 발생했습니다.');
         }
     });
 
