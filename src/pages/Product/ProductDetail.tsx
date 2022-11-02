@@ -19,13 +19,14 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
-import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
 import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { useMember } from 'hooks';
+import useProductOptionList from 'hooks/queries/useProductOptionList';
+import useProductDetail from 'hooks/queries/useProductDetail';
 import { isMobile } from 'utils/styles/responsive';
 import { sortBanners } from 'utils/banners';
 import media from 'utils/styles/media';
@@ -36,6 +37,7 @@ import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 import HTTP_RESPONSE from 'const/http';
+import { isLogin } from 'utils/users';
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -218,10 +220,6 @@ const ProductDetail = () => {
 
     const dispatch = useAppDispatch();
 
-    const { member } = useMember();
-
-    const isLogin = useMemo(() => !!member, [member]);
-
     const { t: productDetail } = useTranslation('productDetail');
 
     const { productNo } = useParams() as { productNo: string };
@@ -232,6 +230,7 @@ const ProductDetail = () => {
 
     const { width } = useWindowSize();
 
+    // TODO: 제거 예정
     const [productImageData, setProductImageData] = useState<{
         [id: string]: string[];
     }>({ represent: [] });
@@ -246,11 +245,9 @@ const ProductDetail = () => {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const { data: productData } = useQuery(
-        ['productDetailData', { productNo }],
-        async () => await product.getProductDetail(productNo),
-        {
-            select: ({ data }) => data,
+    const productDetailData = useProductDetail({
+        productNo,
+        options: {
             onSuccess: (data) => {
                 setProductImageData((prev) => ({
                     ...prev,
@@ -258,18 +255,16 @@ const ProductDetail = () => {
                 }));
             },
         },
-    );
+    });
 
-    useQuery(
-        ['productOptionList', { productNo }],
-        async () => await product.getProductOption(productNo),
-        {
-            select: ({ data }) => data,
+    useProductOptionList({
+        productNo,
+        options: {
             onSuccess: (data) => {
                 setProductOptionList(data.flatOptions);
             },
         },
-    );
+    });
 
     const cartMutate = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
@@ -290,7 +285,7 @@ const ProductDetail = () => {
             return;
         }
 
-        if (isLogin) {
+        if (isLogin()) {
             cartMutate.mutate(
                 pipe(
                     selectedOptionList,
@@ -437,7 +432,7 @@ const ProductDetail = () => {
             <ProductContainer>
                 <ProductContainerTop>
                     <ProductImageSlider
-                        imageList={productData?.baseInfo.imageUrls}
+                        imageList={productDetailData.data?.baseInfo.imageUrls}
                     />
                     <ProductInfoContainer>
                         <ProductInfoIconContainer isNew>
@@ -448,20 +443,21 @@ const ProductDetail = () => {
 
                         <ProductTitleBox>
                             <ProductTitle>
-                                {productData?.baseInfo.productName}
+                                {productDetailData.data?.baseInfo.productName}
                             </ProductTitle>
                             <ProductText>
-                                {productData?.baseInfo.promotionText}
+                                {productDetailData.data?.baseInfo.promotionText}
                             </ProductText>
                         </ProductTitleBox>
 
-                        {productData && (
+                        {productDetailData.data && (
                             <ProductPriceContainer>
                                 <SalePrice
                                     dangerouslySetInnerHTML={{
                                         __html: KRW(
-                                            productData.price.salePrice -
-                                                productData.price
+                                            productDetailData.data.price
+                                                .salePrice -
+                                                productDetailData.data.price
                                                     .immediateDiscountAmt,
                                             {
                                                 symbol: '<sub>원</sub>',
@@ -476,7 +472,8 @@ const ProductDetail = () => {
                                 <ProductPrice
                                     dangerouslySetInnerHTML={{
                                         __html: KRW(
-                                            productData.price.salePrice,
+                                            productDetailData.data.price
+                                                .salePrice,
                                             {
                                                 symbol: '<sub>원</sub>',
                                                 precision: 0,
@@ -489,17 +486,19 @@ const ProductDetail = () => {
                             </ProductPriceContainer>
                         )}
 
-                        {productData?.deliveryFee && (
+                        {productDetailData.data?.deliveryFee && (
                             <DeliveryInfo
                                 deliveryFee={
-                                    productData.deliveryFee.deliveryAmt
+                                    productDetailData.data.deliveryFee
+                                        .deliveryAmt
                                 }
                             />
                         )}
 
                         <AccumulationInfo
                             accumulationAmtWhenBuyConfirm={
-                                productData?.price.accumulationAmtWhenBuyConfirm
+                                productDetailData.data?.price
+                                    .accumulationAmtWhenBuyConfirm
                             }
                         />
 
@@ -548,7 +547,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productSummary'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -557,7 +558,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productSpecifications'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -566,7 +569,9 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productComparison'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
@@ -575,13 +580,17 @@ const ProductDetail = () => {
                         <ProductContentContainer
                             id='productPolicy'
                             dangerouslySetInnerHTML={{
-                                __html: productData?.baseInfo.content ?? '',
+                                __html:
+                                    productDetailData.data?.baseInfo.content ??
+                                    '',
                             }}
                         />
                     )}
 
                     <RelatedProduct
-                        relatedProductNos={productData?.relatedProductNos || []}
+                        relatedProductNos={
+                            productDetailData.data?.relatedProductNos || []
+                        }
                     />
                 </ProductContainerBottom>
             </ProductContainer>

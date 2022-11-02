@@ -3,10 +3,14 @@ import {
     DELIVERY_CONDITION_TYPE,
     DISCOUNTED_COMPARISON,
     DISCOUNT_UNIT_TYPE,
+    INPUT_MATCHING_TYPE,
     ORDER_DIRECTION,
     PRODUCT_BY,
     PRODUCT_DIRECTION,
+    PRODUCT_OPTION_TYPE,
     PRODUCT_SALE_STATUS,
+    SALE_TYPE,
+    SELECT_TYPE,
     SHIPPING_AREA_TYPE_PARAMS,
 } from 'models';
 
@@ -458,85 +462,106 @@ export interface RentalInfo {
     creditRating: number;
 }
 
-export interface OptionResponse {
-    type: string;
-    selectType: string;
-    labels: string[];
-    multiLevelOptions: MultiLevelOption[];
+export interface ProductOptionResponse {
+    // 일체형 옵션
     flatOptions: FlatOption[];
+    // 구매자 작성형 정보(텍스트 옵션 내 기입문장)
     inputs: Input[];
+    // 분리형 옵션
+    multiLevelOptions: MultiLevelOption[];
+    // 옵션 선택 타입 (example: "MULTI")
+    selectType: SELECT_TYPE;
+    /**
+     * 재고 노출 여부 (false:재고 미노출 / true:재고 노출)
+     *  - false로 재고를 숨김처리 한 경우,
+     *      - 1. 재고 관련 필드는(실제 재고가 있더라도) -999로 고정으로 리턴하며 실재고 값은 따로 내려주지 않아 조회 불가합니다.
+     *      - 2. 실재고가 0인 경우에만 0으로 응답합니다.
+     *          - 만약 재고 숨김처리 시, front에서 [-999]로 표시되도록 처리되고 있는게 있다면 재고노출여부(displayableStock)를 기준으로 수정 작업이 필요합니다.
+     *          - 만약 재고 숨김처리 시, front에서 [품절]로 표시되도록 처리되고 있는게 있다면 재고/예약재고값을 기준이 아닌, 품절상태(saleType>SOLD_OUT)값을 기준으로 처리되도록 수정 작업이 필요합니다.
+     */
     displayableStock: boolean;
-    additionalProducts: any[];
+    // 옵션 타입 (example: "COMBINATION")
+    type: PRODUCT_OPTION_TYPE;
+    // 옵션명 목록 (example: ["색상","사이즈"])
+    labels: string[];
 }
 
+// 분리형 옵션
 export interface MultiLevelOption {
+    // 자식 옵션 목록
+    children: Children[];
+    // 옵션명 (example: "색상")
     label: string;
+    // 옵션값 (example: "민트")
     value: string;
+}
+
+// 이미지 정보
+export interface Image {
+    // 메인이미지 여부 (true: 메인이미지, false: 메인이미지 아님) (example: true)
+    main: boolean;
+    // 이미지 URL (example: "www.image.com/image.jpg")
+    url: string;
+}
+
+// 렌탈료 정보
+export interface RentalInfo {
+    // 월 렌탈 금액 (example: 473000)
+    monthlyRentalAmount: number;
+    // 렌탈 기간 (example: 12)
+    rentalPeriod: number;
+    // 서비스 가능 최저 신용 등급 (example: 600)
+    creditRating: number;
+}
+
+// 일체형 옵션
+export interface FlatOption {
+    // 할인적용가 example: 15000
+    buyPrice: number;
+    // (옵션) 이미지 정보
+    images: Image[];
+    // 판매타입 (example: "AVAILABLE")
+    saleType: SALE_TYPE;
+    // 대표 옵션 여부 (true: 대표 옵션, false:대표 옵션 아님) (example: true)
+    main: boolean;
+    // 추가금액 (example: 10000)
+    addPrice: number;
+    // 옵션명 (example: "색상")
+    label: string;
+    // 렌탈료 정보
+    rentalInfo: RentalInfo[];
+    // 판매수량 (재고 미노출의 경우 -999 재고 미노출 설정일때 실재고가 없는 경우, 0으로 표기) (example: 100)
+    saleCnt: number;
+    // 예약재고수량 (재고 미노출의 경우 -999 재고 미노출 설정일때 실재고가 없는 경우, 0으로 표기) (example: 10)
+    reservationStockCnt: number;
+    // 재고수량 (재고 미노출의 경우 -999 재고 미노출 설정일때 실재고가 없는 경우, 0으로 표기) (example: 20)
+    stockCnt: number;
+    // 옵션 판매자 관리 코드 (example: "managementCode")
+    optionManagementCd: string;
+    // 옵션번호 (example: 1)
+    optionNo: number;
+    // 옵션값 (example: "민트")
+    value: string;
+    // 임시 품절 여부 (true: 임시품절, false:임시품절 아님) (example: false)
+    forcedSoldOut: boolean;
+}
+
+// 자식 옵션 목록
+export interface Children extends FlatOption {
+    // 자식 옵션 목록 (example: "[]")
     children: Children[];
 }
 
-export interface Children {
-    label: string;
-    value: string;
-    optionNo: number;
-    addPrice: number;
-    saleCnt: number;
-    stockCnt: number;
-    reservationStockCnt: number;
-    saleType: string;
-    main: boolean;
-    images: Image[];
-    optionManagementCd: string;
-    buyPrice: number;
-    forcedSoldOut: boolean;
-    children: any;
-    rentalInfo: RentalInfo[];
-}
-
-export interface Image {
-    url: string;
-    main: boolean;
-}
-
-export interface RentalInfo {
-    rentalPeriod: number;
-    monthlyRentalAmount: number;
-    creditRating: number;
-}
-
-export interface FlatOption {
-    optionNo: number;
-    label: string;
-    value: string;
-    addPrice: number;
-    saleCnt: number;
-    stockCnt: number;
-    reservationStockCnt: number;
-    saleType: string;
-    main: boolean;
-    images: Image2[];
-    optionManagementCd: string;
-    buyPrice: number;
-    forcedSoldOut: boolean;
-    rentalInfo: RentalInfo2[];
-}
-
-export interface Image2 {
-    url: string;
-    main: boolean;
-}
-
-export interface RentalInfo2 {
-    rentalPeriod: number;
-    monthlyRentalAmount: number;
-    creditRating: number;
-}
-
+// 구매자 작성형 정보(텍스트 옵션 내 기입문장)
 export interface Input {
-    inputNo: number;
+    // 매칭타입 (example: "PRODUCT")
+    inputMatchingType: INPUT_MATCHING_TYPE;
+    // 텍스트 옵션 입력 문구 (example: "최대한 늦게 생산된걸로 보내주세요")
     inputLabel: string;
-    inputMatchingType: string;
+    // 필수 여부 (true: 필수, false: 필수 아님) (example: true)
     required: boolean;
+    // 텍스트 옵션 번호 (example: 1)
+    inputNo: number;
 }
 
 export interface ProductOption {

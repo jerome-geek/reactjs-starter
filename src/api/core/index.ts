@@ -4,6 +4,7 @@ import HTTP_RESPONSE from 'const/http';
 import PATHS from 'const/paths';
 import { getPlatform } from 'utils';
 import { tokenStorage } from 'utils/storage';
+import { isLogin } from 'utils/users';
 
 export const defaultHeaders = () => {
     return {
@@ -23,6 +24,10 @@ request.defaults.timeout = 5000;
 
 // 요청 인터셉터 추가
 request.interceptors.request.use((config) => {
+    if (!isLogin()) {
+        tokenStorage.clear();
+    }
+
     return config;
 });
 
@@ -34,7 +39,6 @@ request.interceptors.response.use(
     (error) => {
         switch (error.request.status) {
             case HTTP_RESPONSE.HTTP_UNAUTHORIZED:
-                localStorage.removeItem('persist:root');
                 tokenStorage.clear();
                 alert('로그인 상태가 만료되었습니다. 다시 로그인해주세요.');
                 return window.location.replace(PATHS.LOGIN);
@@ -44,7 +48,6 @@ request.interceptors.response.use(
 
             default:
                 throw error;
-            // return Promise.reject(error);
         }
     },
 );

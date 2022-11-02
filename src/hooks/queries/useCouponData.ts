@@ -5,6 +5,7 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { coupon } from 'api/promotion';
 import { PROFILE_COUPONS } from 'const/queryKeys';
 import { Coupon, CouponsParams } from 'models/promotion';
+import { isLogin } from 'utils/users';
 
 interface useCouponDataParams {
     memberNo?: number;
@@ -31,7 +32,7 @@ const useCouponData = ({
     return useQuery(
         [PROFILE_COUPONS, memberNo, { ...params }],
         async () => await coupon.getUserCoupons({ ...params }),
-        { enabled: !!memberNo, select: ({ data }) => data, ...options },
+        { enabled: isLogin(), select: ({ data }) => data, ...options },
     );
 };
 

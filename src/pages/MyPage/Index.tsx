@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -18,6 +17,7 @@ import { useMember } from 'hooks';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import useCouponData from 'hooks/queries/useCouponData';
+import { isLogin } from 'utils/users';
 
 const MyPageSummaryContainer = styled.div`
     display: flex;
@@ -48,15 +48,7 @@ const MyPageTitle = styled.h1`
 `;
 
 const MyPageIndex = () => {
-    const navigate = useNavigate();
-
     const { member, onLogOutClick } = useMember();
-
-    const isLogin = useMemo(() => !!member, [member]);
-
-    if (!isLogin) {
-        navigate(PATHS.GUEST_LOGIN);
-    }
 
     const { data: accumulationData } = useQuery(
         [PROFILE_ACCUMULATION, member?.memberId],
@@ -68,7 +60,7 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             }),
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             select: ({ data }) => data,
         },
     );
@@ -81,7 +73,7 @@ const MyPageIndex = () => {
                 endYmd: dayjs().format('YYYY-MM-DD'),
             }),
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             select: ({ data }) => data,
         },
     );

@@ -14,13 +14,10 @@ const useMall = () => {
     const { isLoading } = useQuery(
         'mallInfo',
         async () => await mall.getMall(),
-        // TODO: staleTime, cahceTime 설정
         {
-            staleTime: 5000,
-            cacheTime: 5000,
-            select: ({ data }) => {
-                return data;
-            },
+            staleTime: 1000 * 60 * 10,
+            cacheTime: 1000 * 60 * 10,
+            select: ({ data }) => data,
             onSuccess: (data) => {
                 dispatch(setMall(data));
             },

@@ -10,7 +10,7 @@ import {
 } from 'models';
 import {
     GroupCodeParams,
-    OptionResponse,
+    ProductOptionResponse,
     ProductDetailResponse,
     ProductSearchParams,
     ProductsParams,
@@ -208,15 +208,18 @@ const product = {
         params?: {
             channelType: CHANNEL_TYPE;
         },
-    ): Promise<AxiosResponse<ProductDetailResponse>> =>
-        request({
+    ): Promise<AxiosResponse<ProductDetailResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/products/${productNo}`,
             params: { channelType: params?.channelType },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getBestReviewProducts: ({
         filter = { familyMalls: false },
@@ -297,16 +300,24 @@ const product = {
             }),
         }),
 
+    /**
+     * 옵션 조회하기
+     *  - 해당 상품 번호에 대한 옵션 정보를 조회하는 API입니다
+     *  - 2가지 옵션 목록(계층, 원본)을 제공합니다
+     */
     getProductOption: (
         productNo: string,
-    ): Promise<AxiosResponse<OptionResponse>> =>
-        request({
+    ): Promise<AxiosResponse<ProductOptionResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/products/${productNo}/options`,
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getRelatedProducts: (productNo: string): Promise<AxiosResponse> =>
         request({

@@ -1237,6 +1237,36 @@ enum TAX_TYPE {
     SMALL = 'SMALL',
 }
 
+// (상품)옵션 타입
+enum PRODUCT_OPTION_TYPE {
+    // 단독형 옵션(샵바이프로: 텍스트 옵션)
+    STANDARD = 'STANDARD',
+    // 조합형 옵션
+    COMBINATION = 'COMBINATION',
+    // 옵션 사용안함
+    DEFAULT = 'DEFAULT',
+    // 맵핑(샵바이 프리미엄 전용)
+    MAPPING = 'MAPPING',
+}
+
+// 판매타입
+enum SALE_TYPE {
+    // 판매가능
+    AVAILABLE = 'AVAILABLE',
+    // 품절
+    SOLD_OUT = 'SOLD_OUT',
+}
+
+// (옵션) 매칭 타입
+enum INPUT_MATCHING_TYPE {
+    // 옵션별
+    OPTION = 'OPTION',
+    // 상품별
+    PRODUCT = 'PRODUCT',
+    // 수량별
+    AMOUNT = 'AMOUNT',
+}
+
 export {
     REQUIRED_TYPE,
     IMAGE_DISPLAY_TYPE,
@@ -1315,4 +1345,7 @@ export {
     CLAIM_CLASS_TYPE,
     CARD_COMPANY,
     TAX_TYPE,
+    PRODUCT_OPTION_TYPE,
+    SALE_TYPE,
+    INPUT_MATCHING_TYPE,
 };
