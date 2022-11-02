@@ -1,6 +1,5 @@
-import { useLayoutEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
@@ -49,8 +48,6 @@ const MyPageTitle = styled.h1`
 `;
 
 const MyPageIndex = () => {
-    const navigate = useNavigate();
-
     const { member, onLogOutClick } = useMember();
 
     const { data: accumulationData } = useQuery(
