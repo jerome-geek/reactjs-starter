@@ -19,14 +19,14 @@ import TotalPriceInfo from 'components/Product/TotalPriceInfo';
 import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
-import useProductDetail from 'hooks/queries/useProductDetail';
-import { product } from 'api/product';
 import { cart, orderSheet } from 'api/order';
 import { banner } from 'api/display';
 import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
 import { useMember } from 'hooks';
+import useProductOptionList from 'hooks/queries/useProductOptionList';
+import useProductDetail from 'hooks/queries/useProductDetail';
 import { isMobile } from 'utils/styles/responsive';
 import { sortBanners } from 'utils/banners';
 import media from 'utils/styles/media';
@@ -37,6 +37,7 @@ import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 import HTTP_RESPONSE from 'const/http';
+import { isLogin } from 'utils/users';
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -219,10 +220,6 @@ const ProductDetail = () => {
 
     const dispatch = useAppDispatch();
 
-    const { member } = useMember();
-
-    const isLogin = useMemo(() => !!member, [member]);
-
     const { t: productDetail } = useTranslation('productDetail');
 
     const { productNo } = useParams() as { productNo: string };
@@ -233,6 +230,7 @@ const ProductDetail = () => {
 
     const { width } = useWindowSize();
 
+    // TODO: 제거 예정
     const [productImageData, setProductImageData] = useState<{
         [id: string]: string[];
     }>({ represent: [] });
@@ -259,16 +257,14 @@ const ProductDetail = () => {
         },
     });
 
-    useQuery(
-        ['productOptionList', { productNo }],
-        async () => await product.getProductOption(productNo),
-        {
-            select: ({ data }) => data,
+    useProductOptionList({
+        productNo,
+        options: {
             onSuccess: (data) => {
                 setProductOptionList(data.flatOptions);
             },
         },
-    );
+    });
 
     const cartMutate = useMutation(
         async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
@@ -289,7 +285,7 @@ const ProductDetail = () => {
             return;
         }
 
-        if (isLogin) {
+        if (isLogin()) {
             cartMutate.mutate(
                 pipe(
                     selectedOptionList,
