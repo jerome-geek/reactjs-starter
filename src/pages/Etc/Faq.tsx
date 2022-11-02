@@ -4,7 +4,7 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
-import { filter, head, map, pipe, slice, toArray } from '@fxts/core';
+import { find, pipe, toArray } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import SectionDropdown from 'components/SectionDropdown';
@@ -12,7 +12,7 @@ import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
 import BOARD from 'const/board';
-import { BoardCategory, BoardList, BoardListItem } from 'models/manage';
+import { BoardCategory, BoardListItem } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import { board } from 'api/manage';
@@ -256,6 +256,9 @@ const Faq = () => {
     const [faqList, setFaqList] = useState(
         new Map<number, Map<number, FaqList>>(),
     );
+    const [totalCountList, setTotalCountList] = useState(
+        new Map<number, number>(),
+    );
     const [currentCategoryNo, setCurrentCategoryNo] = useState<number>(0);
     const count = 5;
     const [listItemCount, setListItemCount] = useState(count);
@@ -288,18 +291,25 @@ const Faq = () => {
                     'faqCategoryList',
                     {
                         categoryNo,
+                        listItemCount,
                     },
                 ],
                 queryFn: async () =>
                     await board.getArticlesByBoardNo(BOARD.FAQ, {
                         pageNumber: 1,
-                        pageSize: 999999999, // limit int 32
+                        pageSize: listItemCount,
                         hasTotalCount: true,
                         categoryNo,
                         keyword,
                     }),
                 keepPreviousData: true,
                 onSuccess: (res: any) => {
+                    setTotalCountList((prev) => {
+                        return new Map(prev).set(
+                            categoryNo,
+                            res.data?.totalCount,
+                        );
+                    });
                     setFaqList((prev) => {
                         const faqListObject = new Map<number, FaqList>();
                         res.data?.items?.forEach((item: any) => {
@@ -349,7 +359,11 @@ const Faq = () => {
         faqListUseQueries.forEach((result) => result.refetch());
     }, [faqListUseQueries]);
 
-    const isFetching = faqListUseQueries.some((res) => res.isFetching);
+    const isLoading = faqListUseQueries.some((res) => res.isLoading);
+
+    const isMoreFaq =
+        faqList.get(currentCategoryNo)?.size ===
+        totalCountList.get(currentCategoryNo);
 
     return (
         <>
@@ -410,7 +424,8 @@ const Faq = () => {
                                         )}
                                     >
                                         {isDesktop(width) && '# '}
-                                        {label}({faqList.get(categoryNo)?.size})
+                                        {label}({totalCountList.get(categoryNo)}
+                                        )
                                     </FaqCategoryBox>
                                 )
                             );
@@ -418,32 +433,30 @@ const Faq = () => {
                     </FaqCategoryContainer>
                 </MobileFaqCategoryContainer>
 
-                {isFetching ? (
+                {isLoading ? (
                     <Loader />
                 ) : (
                     <FaqDetailContainer>
                         {faqList.get(currentCategoryNo) &&
-                        faqList.get(currentCategoryNo)!.size > 0 ? (
+                        totalCountList.get(currentCategoryNo) &&
+                        totalCountList.get(currentCategoryNo)! > 0 ? (
                             <>
                                 <div>
                                     {
                                         pipe(
                                             faqCategoryList,
-                                            filter(
+                                            find(
                                                 (categoryItem) =>
                                                     categoryItem.categoryNo ===
                                                     currentCategoryNo,
                                             ),
-                                            toArray,
-                                            head,
                                         )?.label
                                     }
-                                    ({faqList.get(currentCategoryNo)?.size})
+                                    ({totalCountList.get(currentCategoryNo)})
                                 </div>
                                 <ul>
                                     {pipe(
                                         faqList.get(currentCategoryNo)!,
-                                        slice(0, listItemCount),
                                         toArray,
                                     ).map(([key, data]) => {
                                         return (
@@ -475,18 +488,15 @@ const Faq = () => {
                         )}
                     </FaqDetailContainer>
                 )}
-
-                {faqList.has(currentCategoryNo) &&
-                    faqList.get(currentCategoryNo)!.size > listItemCount && (
-                        <MoreViewButton
-                            onClick={() =>
-                                setListItemCount((prev) => prev + count)
-                            }
-                        >
-                            더보기
-                        </MoreViewButton>
-                    )}
-
+                {!isMoreFaq && (
+                    <MoreViewButton
+                        onClick={() => {
+                            setListItemCount((prev) => prev + count);
+                        }}
+                    >
+                        더보기
+                    </MoreViewButton>
+                )}
                 <InquiryButton>
                     원하는 질문이 없나요?&nbsp;&nbsp;&nbsp;
                     <Link to={PATHS.INQUIRY}>1:1 문의하기</Link>
