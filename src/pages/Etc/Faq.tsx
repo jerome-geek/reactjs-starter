@@ -1,10 +1,19 @@
-import React, { KeyboardEvent, useCallback, useState } from 'react';
-import { useQueries, useQuery } from 'react-query';
+import React, { KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import { useQueries } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
-import { find, pipe, toArray } from '@fxts/core';
+import {
+    concat,
+    filter,
+    find,
+    findIndex,
+    map,
+    pipe,
+    some,
+    toArray,
+} from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import SectionDropdown from 'components/SectionDropdown';
@@ -12,11 +21,12 @@ import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
 import BOARD from 'const/board';
-import { BoardCategory, BoardListItem } from 'models/manage';
+import { BoardList, BoardListItem } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import { board } from 'api/manage';
 import PATHS from 'const/paths';
+import { useMall } from 'hooks';
 
 const FaqContainer = styled.div`
     max-width: 1060px;
@@ -247,75 +257,126 @@ const InquiryButton = styled.div`
     }
 `;
 
-interface FaqList extends BoardListItem {
+interface FaqItem extends BoardListItem {
     content?: string;
+}
+interface FaqList extends BoardList {
+    isSelected: boolean;
+    items: FaqItem[];
+    categoryNo: number;
 }
 
 const Faq = () => {
-    const [faqCategoryList, setFaqCategoryList] = useState<BoardCategory[]>([]);
-    const [faqList, setFaqList] = useState(
-        new Map<number, Map<number, FaqList>>(),
-    );
-    const [totalCountList, setTotalCountList] = useState(
-        new Map<number, number>(),
-    );
-    const [currentCategoryNo, setCurrentCategoryNo] = useState<number>(0);
-    const count = 5;
-    const [listItemCount, setListItemCount] = useState(count);
+    const [faqList, setFaqList] = useState<FaqList[]>([]);
     const [keyword, setKeyword] = useState('');
 
     const { width } = useWindowSize();
 
-    useQuery<AxiosResponse<BoardCategory[]>, AxiosError>(
-        ['faqCategoryList'],
-        async () => await board.getCategories(BOARD.FAQ),
-        {
-            onSuccess: (res) => {
-                setFaqCategoryList([...res.data]);
-                setCurrentCategoryNo(res.data[0].categoryNo);
-            },
-            onError: (error) => {
-                if (error instanceof AxiosError) {
-                    alert(error.message);
-                    return;
-                }
-                alert('알수 없는 에러가 발생했습니다.');
-            },
-        },
+    const { mallInfo } = useMall();
+
+    const faqCategoryList = useMemo(() => {
+        return (
+            mallInfo?.boardsCategories &&
+            find(
+                (a) => a.boardNo === parseInt(BOARD.FAQ),
+                mallInfo.boardsCategories,
+            )?.categories
+        );
+    }, [mallInfo?.boardsCategories]);
+
+    const [pageNumberList, setPageNumberList] = useState<
+        Array<{ categoryNo: number; pageNumber: number }>
+    >(
+        faqCategoryList?.map(({ categoryNo }) => ({
+            categoryNo,
+            pageNumber: 1,
+        })) ?? [],
     );
 
+    const selectedFaq = useMemo(() => {
+        return find((a) => a.isSelected, faqList);
+    }, [faqList]);
+
+    const plusPageNumber = () =>
+        setPageNumberList((prev) => {
+            const addedPageNumberList = pipe(
+                prev,
+                map((a) => {
+                    if (a.categoryNo === selectedFaq?.categoryNo) {
+                        return {
+                            categoryNo: a.categoryNo,
+                            pageNumber: a.pageNumber + 1,
+                        };
+                    }
+                    return a;
+                }),
+                toArray,
+            );
+            return addedPageNumberList;
+        });
+
+    const resetPageNumberList = () =>
+        setPageNumberList(
+            faqCategoryList?.map(({ categoryNo }) => ({
+                categoryNo,
+                pageNumber: 1,
+            })) ?? [],
+        );
+
+    const isPageNumberMoreThan1 = some((a) => a.pageNumber > 1, pageNumberList);
+
     const faqListUseQueries = useQueries(
-        faqCategoryList.map(({ categoryNo }) => {
+        faqCategoryList?.map(({ categoryNo }, index) => {
             return {
                 queryKey: [
                     'faqCategoryList',
                     {
                         categoryNo,
-                        listItemCount,
+                        pageNumberList: find(
+                            (a) => a.categoryNo === categoryNo,
+                            pageNumberList,
+                        ),
                     },
                 ],
                 queryFn: async () =>
                     await board.getArticlesByBoardNo(BOARD.FAQ, {
-                        pageNumber: 1,
-                        pageSize: listItemCount,
+                        pageNumber:
+                            find(
+                                (a) => a.categoryNo === categoryNo,
+                                pageNumberList,
+                            )?.pageNumber ?? 1,
+                        pageSize: 5,
                         hasTotalCount: true,
                         categoryNo,
                         keyword,
                     }),
-                keepPreviousData: true,
-                onSuccess: (res: any) => {
-                    setTotalCountList((prev) => {
-                        return new Map(prev).set(
-                            categoryNo,
-                            res.data?.totalCount,
-                        );
-                    });
+                onSuccess: (res: AxiosResponse<BoardList>) => {
                     setFaqList((prev) => {
-                        const faqListObject = new Map<number, FaqList>();
-                        res.data?.items?.forEach((item: any) => {
-                            faqListObject.set(item.articleNo, item);
-                        });
-                        return new Map(prev).set(categoryNo, faqListObject);
+                        const originItems =
+                            find((a) => a.categoryNo === categoryNo, prev)
+                                ?.items ?? [];
+
+                        const addedFaqListItem: FaqList = {
+                            totalCount: res.data?.totalCount,
+                            isSelected: selectedFaq
+                                ? selectedFaq.categoryNo === categoryNo
+                                : index === 0,
+                            categoryNo,
+                            items: [...originItems, ...res.data.items],
+                        };
+
+                        const addedFaqList = pipe(
+                            prev,
+                            filter(
+                                (a) =>
+                                    a.categoryNo !==
+                                    addedFaqListItem.categoryNo,
+                            ),
+                            concat([addedFaqListItem]),
+                            toArray,
+                        );
+
+                        return addedFaqList;
                     });
                 },
                 onError: (error: any) => {
@@ -326,22 +387,50 @@ const Faq = () => {
                     alert('알수 없는 에러가 발생했습니다.');
                 },
             };
-        }),
+        }) ?? [],
     );
 
     const getNoticeDetailHandler = (articleNo: number) => async () => {
-        if (!faqList?.get(currentCategoryNo)?.get(articleNo)?.content) {
+        if (
+            !find((a) => a.articleNo === articleNo, selectedFaq?.items ?? [])
+                ?.content
+        ) {
             try {
                 const noticeDetail = await board.getArticleDetail(
                     BOARD.FAQ,
                     articleNo.toString(),
                 );
                 setFaqList((prev) => {
-                    prev.get(currentCategoryNo)?.set(
-                        articleNo,
-                        noticeDetail.data,
+                    const selectedCategory = findIndex(
+                        (a) => a.categoryNo === selectedFaq?.categoryNo,
+                        prev,
                     );
-                    return new Map(prev);
+
+                    const addContentsCategory = pipe(
+                        prev[selectedCategory].items,
+                        map((a) => {
+                            if (a.articleNo === articleNo) {
+                                return noticeDetail.data;
+                            }
+                            return a;
+                        }),
+                        toArray,
+                    );
+
+                    const addedContentFaqList = pipe(
+                        prev,
+                        map((a) => {
+                            if (a.categoryNo === selectedFaq?.categoryNo) {
+                                return {
+                                    ...a,
+                                    items: addContentsCategory,
+                                };
+                            }
+                            return a;
+                        }),
+                        toArray,
+                    );
+                    return addedContentFaqList;
                 });
             } catch (err) {
                 alert(err);
@@ -351,8 +440,17 @@ const Faq = () => {
     };
 
     const handleCategoryClick = (categoryNo: number) => () => {
-        setCurrentCategoryNo(categoryNo);
-        setListItemCount(count);
+        setFaqList((prev) => {
+            const changedIsSelectedFaqList = pipe(
+                prev,
+                map((a) => ({
+                    ...a,
+                    isSelected: a.categoryNo === categoryNo,
+                })),
+                toArray,
+            );
+            return changedIsSelectedFaqList;
+        });
     };
 
     const refetchAll = useCallback(() => {
@@ -361,9 +459,15 @@ const Faq = () => {
 
     const isLoading = faqListUseQueries.some((res) => res.isLoading);
 
-    const isMoreFaq =
-        faqList.get(currentCategoryNo)?.size ===
-        totalCountList.get(currentCategoryNo);
+    const isMoreFaq = selectedFaq?.items.length === selectedFaq?.totalCount;
+
+    const searchKeyword = () => {
+        if (isPageNumberMoreThan1) {
+            resetPageNumberList();
+        } else {
+            refetchAll();
+        }
+    };
 
     return (
         <>
@@ -386,12 +490,14 @@ const Faq = () => {
                     <FaqSearchBox
                         onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                             e.preventDefault();
-                            refetchAll();
+                            setFaqList([]);
+                            searchKeyword();
                         }}
                         onKeyUp={(e: KeyboardEvent<HTMLFormElement>) => {
                             e.preventDefault();
                             if (e.key === 'Enter') {
-                                refetchAll();
+                                setFaqList([]);
+                                searchKeyword();
                             }
                         }}
                     >
@@ -411,23 +517,25 @@ const Faq = () => {
                 </FaqSearchContainer>
                 <MobileFaqCategoryContainer>
                     <FaqCategoryContainer>
-                        {faqCategoryList.map(({ categoryNo, label }) => {
+                        {faqCategoryList?.map(({ categoryNo, label }) => {
                             return (
-                                faqList.get(categoryNo) && (
-                                    <FaqCategoryBox
-                                        isActive={
-                                            categoryNo === currentCategoryNo
-                                        }
-                                        key={categoryNo}
-                                        onClick={handleCategoryClick(
-                                            categoryNo,
-                                        )}
-                                    >
-                                        {isDesktop(width) && '# '}
-                                        {label}({totalCountList.get(categoryNo)}
-                                        )
-                                    </FaqCategoryBox>
-                                )
+                                <FaqCategoryBox
+                                    isActive={
+                                        categoryNo === selectedFaq?.categoryNo
+                                    }
+                                    key={categoryNo}
+                                    onClick={handleCategoryClick(categoryNo)}
+                                >
+                                    {`
+                                    ${isDesktop(width) ? '#' : ''}
+                                    ${label} (${
+                                        find(
+                                            (a) => a.categoryNo === categoryNo,
+                                            faqList,
+                                        )?.totalCount ?? 0
+                                    })
+                                    `}
+                                </FaqCategoryBox>
                             );
                         })}
                     </FaqCategoryContainer>
@@ -437,50 +545,49 @@ const Faq = () => {
                     <Loader />
                 ) : (
                     <FaqDetailContainer>
-                        {faqList.get(currentCategoryNo) &&
-                        totalCountList.get(currentCategoryNo) &&
-                        totalCountList.get(currentCategoryNo)! > 0 ? (
+                        {selectedFaq && selectedFaq.totalCount > 0 ? (
                             <>
                                 <div>
-                                    {
-                                        pipe(
+                                    {faqCategoryList &&
+                                        find(
+                                            (categoryItem) =>
+                                                categoryItem.categoryNo ===
+                                                selectedFaq.categoryNo,
                                             faqCategoryList,
-                                            find(
-                                                (categoryItem) =>
-                                                    categoryItem.categoryNo ===
-                                                    currentCategoryNo,
-                                            ),
-                                        )?.label
-                                    }
-                                    ({totalCountList.get(currentCategoryNo)})
+                                        )?.label}
+                                    ({selectedFaq.totalCount})
                                 </div>
                                 <ul>
-                                    {pipe(
-                                        faqList.get(currentCategoryNo)!,
-                                        toArray,
-                                    ).map(([key, data]) => {
-                                        return (
-                                            <FaqDetailBox
-                                                onClick={getNoticeDetailHandler(
-                                                    data.articleNo,
-                                                )}
-                                                key={key}
-                                            >
-                                                <FaqDetailLabel>
-                                                    {data.categoryLabel}
-                                                </FaqDetailLabel>
-                                                <SectionDropdown
-                                                    title={data.title}
+                                    {selectedFaq.items.map(
+                                        ({
+                                            articleNo,
+                                            title,
+                                            content,
+                                            categoryLabel,
+                                        }) => {
+                                            return (
+                                                <FaqDetailBox
+                                                    onClick={getNoticeDetailHandler(
+                                                        articleNo,
+                                                    )}
+                                                    key={articleNo}
                                                 >
-                                                    <FaqDetail
-                                                        dangerouslySetInnerHTML={{
-                                                            __html: data.content!,
-                                                        }}
-                                                    ></FaqDetail>
-                                                </SectionDropdown>
-                                            </FaqDetailBox>
-                                        );
-                                    })}
+                                                    <FaqDetailLabel>
+                                                        {categoryLabel}
+                                                    </FaqDetailLabel>
+                                                    <SectionDropdown
+                                                        title={title}
+                                                    >
+                                                        <FaqDetail
+                                                            dangerouslySetInnerHTML={{
+                                                                __html: content!,
+                                                            }}
+                                                        ></FaqDetail>
+                                                    </SectionDropdown>
+                                                </FaqDetailBox>
+                                            );
+                                        },
+                                    )}
                                 </ul>
                             </>
                         ) : (
@@ -489,11 +596,7 @@ const Faq = () => {
                     </FaqDetailContainer>
                 )}
                 {!isMoreFaq && (
-                    <MoreViewButton
-                        onClick={() => {
-                            setListItemCount((prev) => prev + count);
-                        }}
-                    >
+                    <MoreViewButton onClick={() => plusPageNumber()}>
                         더보기
                     </MoreViewButton>
                 )}
