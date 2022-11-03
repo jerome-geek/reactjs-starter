@@ -147,6 +147,7 @@ const OrderList = () => {
                                                         option.orderNo +
                                                         option.optionNo
                                                     }
+                                                    optionNo={option.optionNo}
                                                     productNo={option.productNo}
                                                     imageUrl={option.imageUrl}
                                                     orderStatusTypeLabel={
