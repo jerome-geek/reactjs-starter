@@ -582,7 +582,7 @@ const Faq = () => {
                                                             dangerouslySetInnerHTML={{
                                                                 __html: content!,
                                                             }}
-                                                        ></FaqDetail>
+                                                        />
                                                     </SectionDropdown>
                                                 </FaqDetailBox>
                                             );
