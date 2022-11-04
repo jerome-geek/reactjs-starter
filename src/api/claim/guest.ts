@@ -3,10 +3,10 @@ import { AxiosResponse } from 'axios';
 import request, { defaultHeaders } from 'api/core';
 import { CLAIM_TYPE } from 'models';
 import {
-    CancelOptions,
-    CanceledPrice,
+    CancelOptionsBody,
+    GetEstimatedRefundPriceBody,
     ReturnOption,
-    ReturnAccount,
+    RefundAccountInfo,
     ExchangeRequest,
 } from 'models/claim';
 
@@ -21,7 +21,7 @@ const guest = {
         bankAccountInfo,
         claimReasonType,
         refundsImmediately,
-    }: CancelOptions): Promise<AxiosResponse> =>
+    }: CancelOptionsBody): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/guest/claims/cancel',
@@ -47,7 +47,7 @@ const guest = {
         productCnt,
         claimReasonType,
         returnWayType,
-    }: CanceledPrice): Promise<AxiosResponse> =>
+    }: GetEstimatedRefundPriceBody): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/guest/claims/estimate',
@@ -78,7 +78,7 @@ const guest = {
         deliveryCompanyType,
         invoiceNo,
         responsibleObjectType,
-    }: ReturnOption & CanceledPrice): Promise<AxiosResponse> =>
+    }: ReturnOption & GetEstimatedRefundPriceBody): Promise<AxiosResponse> =>
         request({
             method: 'POST',
             url: '/guest/claims/return',
@@ -104,7 +104,7 @@ const guest = {
 
     updateReturnAccount: (
         claimNo: string,
-        { depositorName, bank, account }: ReturnAccount,
+        { depositorName, bank, account }: RefundAccountInfo,
     ): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
@@ -166,7 +166,7 @@ const guest = {
             claimReasonType,
             refundsImmediately,
             productCnt,
-        }: Omit<CancelOptions, 'claimedProductOptions'> & {
+        }: Omit<CancelOptionsBody, 'claimedProductOptions'> & {
             productCnt: number;
         },
     ): Promise<AxiosResponse> =>
@@ -196,7 +196,7 @@ const guest = {
             productCnt,
             claimReasonType,
             returnWayType,
-        }: Omit<CanceledPrice, 'claimedProductOptions'>,
+        }: Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'>,
     ): Promise<AxiosResponse> =>
         request({
             method: 'GET',
@@ -230,7 +230,7 @@ const guest = {
             invoiceNo,
             exchangeAddress,
             exchangeOption,
-        }: Omit<CanceledPrice, 'claimedProductOptions'> &
+        }: Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'> &
             ReturnOption &
             ExchangeRequest,
     ): Promise<AxiosResponse> =>
@@ -282,7 +282,8 @@ const guest = {
             deliveryCompanyType,
             invoiceNo,
             responsibleObjectType,
-        }: ReturnOption & Omit<CanceledPrice, 'claimedProductOptions'>,
+        }: ReturnOption &
+            Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'>,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',
@@ -327,7 +328,7 @@ const guest = {
             bankAccountInfo,
             claimReasonType,
             refundsImmediately,
-        }: Omit<CancelOptions, 'claimedProductOptions'>,
+        }: Omit<CancelOptionsBody, 'claimedProductOptions'>,
     ): Promise<AxiosResponse> =>
         request({
             method: 'POST',

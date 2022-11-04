@@ -398,9 +398,13 @@ enum CASH_RECEIPT_ISSUE_PURPOSE_TYPE {
     PROOF_EXPENDITURE = 'PROOF_EXPENDITURE',
 }
 
+// 클레임 타입
 enum CLAIM_TYPE {
+    // 취소
     CANCEL = 'CANCEL',
+    // 반품
     RETURN = 'RETURN',
+    // 교환
     EXCHANGE = 'EXCHANGE',
     NONE = 'NONE',
 }
@@ -926,27 +930,50 @@ enum PAY_TYPE {
     ETC = 'ETC', // 기타결제수단
 }
 
+// PG타입
 enum PG_TYPE {
+    // 없음
     DUMMY = 'DUMMY',
+    // PAYCO
     PAYCO = 'PAYCO',
+    // PAYPAL
     PAYPAL = 'PAYPAL',
+    // STRIPE
     STRIPE = 'STRIPE',
+    // KCP
     KCP = 'KCP',
+    // 이니시스
     INICIS = 'INICIS',
+    // PG없음
     NONE = 'NONE',
+    // KCP(모바일)
     KCP_MOBILE = 'KCP_MOBILE',
+    // KCP(앱)
     KCP_APP = 'KCP_APP',
+    // 네이버페이(주문형)
     NAVER_PAY = 'NAVER_PAY',
+    // 리브메이트
     LIIVMATE = 'LIIVMATE',
+    // PAYPAL PRO
     PAYPALPRO = 'PAYPALPRO',
+    // AthorizeNet
     ATHOR_NET = 'ATHOR_NET',
+    // 카카오페이
     KAKAO_PAY = 'KAKAO_PAY',
+    // 네이버페이(간편결제)
     NAVER_EASY_PAY = 'NAVER_EASY_PAY',
+    // 토스페이먼츠
     LG_U_PLUS = 'LG_U_PLUS',
+    // 토스페이먼츠
     TOSS_PAYMENTS = 'TOSS_PAYMENTS',
+    // 차이
     CHAI = 'CHAI',
+    // 스마트로
     SMARTRO_PAY = 'SMARTRO_PAY',
+    // Veritrans
     VERITRANS = 'VERITRANS',
+    // 나이스페이
+    NICEPAY = 'NICEPAY',
 }
 
 enum DOMESTIC {

@@ -1,5 +1,5 @@
 import { FC, HTMLAttributes } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import PATHS from 'const/paths';
@@ -11,6 +11,7 @@ import { nextActionName } from 'utils/order';
 import { flex } from 'utils/styles/mixin';
 
 interface OrderOptionListItemProps extends HTMLAttributes<HTMLLIElement> {
+    orderOptionNo: number;
     productNo: string | number;
     imageUrl: string;
     orderStatusTypeLabel: string;
@@ -82,6 +83,7 @@ const ClaimButton = styled(SecondaryButton)`
 `;
 
 const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
+    orderOptionNo,
     productNo,
     imageUrl,
     orderStatusType,
@@ -95,6 +97,8 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
     deliveryCompanyTypeLabel,
     nextActions,
 }) => {
+    const navigate = useNavigate();
+
     return (
         <OrderOptionListItemWrapper>
             <div style={{ flex: '1 1 25%' }}>
@@ -163,7 +167,44 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                             }}
                         />
                         <ClaimButtonContainer>
-                            {nextActions?.map((action, index) => {
+                            <ClaimButton
+                                onClick={() =>
+                                    navigate('/my-page/claim/inquiry')
+                                }
+                            >
+                                문의하기
+                            </ClaimButton>
+                            <ClaimButton
+                                onClick={() =>
+                                    navigate('/my-page/claim/exchange')
+                                }
+                            >
+                                교환하기
+                            </ClaimButton>
+                            <ClaimButton
+                                onClick={() =>
+                                    navigate('/my-page/claim/return')
+                                }
+                            >
+                                반품요청
+                            </ClaimButton>
+                            {/* <ClaimButton
+                                onClick={() =>
+                                    navigate('/my-page/claim/refund', {
+                                        state: {
+                                            productNo,
+                                            orderOptionNo,
+                                            imageUrl,
+                                            productName,
+                                            optionName,
+                                            orderCnt,
+                                        },
+                                    })
+                                }
+                            >
+                                취소요청
+                            </ClaimButton> */}
+                            {/* {nextActions?.map((action, index) => {
                                 return (
                                     <ClaimButton key={index}>
                                         {nextActionName(
@@ -173,7 +214,7 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                                         )}
                                     </ClaimButton>
                                 );
-                            })}
+                            })} */}
                         </ClaimButtonContainer>
                     </div>
                 </div>
