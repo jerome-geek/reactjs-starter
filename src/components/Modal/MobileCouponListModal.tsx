@@ -9,8 +9,20 @@ import styled from 'styled-components';
 import { shallowEqual } from 'react-redux';
 import { UseMutateFunction, useQuery } from 'react-query';
 import { AxiosResponse } from 'axios';
+import {
+    flat,
+    flatMap,
+    pipe,
+    pluck,
+    reduce,
+    size,
+    toArray,
+    uniqBy,
+} from '@fxts/core';
 
-import Modal, { ModalDefaultType } from 'components/Modal/Modal';
+import MobileModal, {
+    MobileModalDefaultType,
+} from 'components/Modal/MobileModal';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_circle_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_circle_uhchecked.svg';
 import { ReactComponent as LogoBlack } from 'assets/logo/headerLogo.svg';
@@ -24,56 +36,60 @@ import { useTypedSelector } from 'state/reducers';
 
 const CouponListContainer = styled.div`
     width: 100%;
-    padding: 50px 50px;
+    overflow-y: scroll;
+    padding: 0 24px;
+    height: 100%;
+`;
+
+const CouponTitleContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 20px;
 `;
 
 const Title = styled.h2`
-    margin: 0 0 40px;
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
-    letter-spacing: -1.2px;
+    letter-spacing: -0.9px;
+    line-height: 27px;
     color: ${(props) => props.theme.text1};
 `;
 
 const CouponCount = styled.div`
     color: #999999;
-    text-align: right;
-    width: 100%;
-    font-size: 12px;
-    margin: 12px 0 10px;
+    font-size: 1.333rem;
 `;
 
 const CouponListWrapper = styled.div`
     border-top: 2px solid #222943;
     border-bottom: 1px solid #222943;
+    height: 100vh;
+    height: calc(var(--vh) * 100 - 210px);
+    overflow-y: scroll;
 `;
 
 const CouponListBox = styled.div`
-    font-size: 16px;
+    font-size: 1.333rem;
     font-weight: bold;
     color: ${(props) => props.theme.text1};
-    padding: 20px 0;
-    height: 446px;
-    overflow: auto;
+    padding: 8px 0;
 `;
 
 const CouponBox = styled.div`
-    border-top: ${(props) => `1px solid ${props.theme.line2}`};
     display: flex;
-    height: 223px;
+    margin: 12px 0;
     align-items: center;
-    padding-left: 24px;
     color: #121212;
-    &:first-child {
-        border: none;
-    }
     &:nth-child(2n) {
         color: #fff;
+    }
+    > svg {
+        width: 20%;
     }
 `;
 
 const CouponFigure = styled.div<{ couponBackground: string }>`
-    margin-left: 57px;
     width: 380px;
     height: 143px;
     background: url(${(props) => props.couponBackground});
@@ -117,45 +133,38 @@ const CouponYmdt = styled.div`
     color: #999999;
 `;
 
-const ButtonWrapper = styled.div`
-    display: flex;
-    margin-top: 40px;
-    justify-content: center;
-    text-align: center;
-    > div {
-        width: 210px;
-        padding: 13px 0;
-        font-size: 16px;
-    }
-`;
-
-const CancelButton = styled.div`
-    margin-right: 20px;
-    border: 1px solid #dbdbdb;
-    cursor: pointer;
-`;
-
 const ApplyButton = styled.div`
     background: #222943;
     color: #fff;
     cursor: pointer;
+    font-size: 1.333rem;
+    letter-spacing: -0.8px;
+    font-weight: bold;
+    line-height: 24px;
+    padding: 15px 0;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    margin-left: -24px;
 `;
 
 const NoCouponMessage = styled.p`
     text-align: center;
-    margin: 80px 0;
+    margin: 72px;
     color: ${(props) => props.theme.text3};
+    font-size: 1.333rem;
     line-height: 24px;
 `;
 
-const CouponListModal = ({
+const MobileShippingListModal = ({
     onClickToggleModal,
-    width,
+    title,
     setSelectCoupon,
     setIsCouponListModal,
     orderSheetNo,
     couponApplyMutate,
-}: PropsWithChildren<ModalDefaultType> & {
+}: PropsWithChildren<MobileModalDefaultType> & {
     setSelectCoupon: Dispatch<SetStateAction<CouponRequest | undefined>>;
     setIsCouponListModal: Dispatch<SetStateAction<boolean>>;
     orderSheetNo: string;
@@ -200,21 +209,22 @@ const CouponListModal = ({
     );
 
     return (
-        <Modal onClickToggleModal={onClickToggleModal} width={width}>
+        <MobileModal title={title} onClickToggleModal={onClickToggleModal}>
             <CouponListContainer>
-                <Title>쿠폰 선택</Title>
-                <CouponCount>
-                    사용가능쿠폰&#40;
-                    {totalCouponCount}
-                    &#41;
-                </CouponCount>
+                <CouponTitleContainer>
+                    <Title>쿠폰 선택</Title>
+                    <CouponCount>
+                        사용가능쿠폰&#40;
+                        {totalCouponCount}
+                        &#41;
+                    </CouponCount>
+                </CouponTitleContainer>
                 <CouponListWrapper>
                     {totalCouponCount > 0 ? (
                         <CouponListBox>
-                            {couponData && (
-                                <>
-                                    {' '}
-                                    {couponData.cartCoupons.map(
+                            <>
+                                {couponData &&
+                                    couponData.cartCoupons.map(
                                         (
                                             {
                                                 couponNo,
@@ -291,8 +301,8 @@ const CouponListModal = ({
                                             );
                                         },
                                     )}
-                                    {/* TODO 상품 쿠폰 노출 추후 작성 */}
-                                    {/* {couponData.products.map(
+                                {/* TODO 상품 쿠폰 노출 추후 작성 */}
+                                {/* {couponData.products.map(
                                     ({ productCoupons, productNo }) => {
                                         return productCoupons.map(
                                             (
@@ -380,8 +390,7 @@ const CouponListModal = ({
                                         );
                                     },
                                 )} */}
-                                </>
-                            )}
+                            </>
                         </CouponListBox>
                     ) : (
                         <NoCouponMessage>
@@ -389,30 +398,19 @@ const CouponListModal = ({
                         </NoCouponMessage>
                     )}
                 </CouponListWrapper>
-                <ButtonWrapper>
-                    {totalCouponCount > 0 && (
-                        <>
-                            <CancelButton
-                                onClick={() => {
-                                    setIsCouponListModal((prev) => !prev);
-                                }}
-                            >
-                                취소
-                            </CancelButton>
-                            <ApplyButton
-                                onClick={() => {
-                                    couponApplyMutate();
-                                    setIsCouponListModal((prev) => !prev);
-                                }}
-                            >
-                                적용하기
-                            </ApplyButton>
-                        </>
-                    )}
-                </ButtonWrapper>
+                {totalCouponCount > 0 && (
+                    <ApplyButton
+                        onClick={() => {
+                            couponApplyMutate();
+                            setIsCouponListModal(false);
+                        }}
+                    >
+                        적용하기
+                    </ApplyButton>
+                )}
             </CouponListContainer>
-        </Modal>
+        </MobileModal>
     );
 };
 
-export default CouponListModal;
+export default MobileShippingListModal;

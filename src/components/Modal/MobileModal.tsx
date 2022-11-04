@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
+import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
 
 import { ReactComponent as CloseButton } from 'assets/icons/close_black.svg';
@@ -10,7 +11,7 @@ export interface MobileModalDefaultType {
 
 const ModalContainer = styled.div`
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -59,6 +60,34 @@ const MobileModal = ({
     children,
     title,
 }: PropsWithChildren<MobileModalDefaultType>) => {
+    const { height } = useWindowSize();
+
+    const handleResize = () => {
+        const vh = height * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+
+    useEffect(() => {
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [height]);
+
+    useEffect(() => {
+        document.body.style.cssText = `
+          position: fixed; 
+          top: -${window.scrollY}px;
+          overflow-y: scroll;
+          width: 100%;`;
+        return () => {
+            const scrollY = document.body.style.top;
+            document.body.style.cssText = '';
+            window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+        };
+    }, []);
+
     return (
         <ModalContainer>
             <DialogBox>
