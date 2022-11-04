@@ -200,6 +200,7 @@ export interface Product {
 export interface StickerInfo {
     type: string;
     label: string;
+    name: string;
 }
 
 export interface ReservationData {

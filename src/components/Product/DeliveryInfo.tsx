@@ -7,6 +7,7 @@ import media from 'utils/styles/media';
 
 interface DeliveryInfoProps {
     deliveryFee: number;
+    remoteDeliveryFee: any;
 }
 
 const DeliveryInfoContainer = styled.div`
@@ -69,7 +70,10 @@ const DeliveryDesc = styled.div`
     }
 `;
 
-const DeliveryInfo: FC<DeliveryInfoProps> = ({ deliveryFee }) => {
+const DeliveryInfo: FC<DeliveryInfoProps> = ({
+    deliveryFee,
+    remoteDeliveryFee,
+}) => {
     const { t: productDetail } = useTranslation('productDetail');
 
     return (
@@ -91,9 +95,15 @@ const DeliveryInfo: FC<DeliveryInfoProps> = ({ deliveryFee }) => {
                         }).format(),
                     }}
                 />
-                {/* TODO: 추가배송비 확인 필요 */}
                 <DeliveryDesc>
-                    <sub>도서산간지역 / 제주도</sub> 7,500 <sub>원</sub>
+                    <sub>도서산간지역 / 제주도</sub>{' '}
+                    {remoteDeliveryFee
+                        ? KRW(remoteDeliveryFee.extraDeliveryAmt, {
+                              precision: 0,
+                              symbol: '',
+                          }).format()
+                        : 0}{' '}
+                    <sub>원</sub>
                 </DeliveryDesc>
             </ContentContainer>
         </DeliveryInfoContainer>

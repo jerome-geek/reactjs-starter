@@ -1,6 +1,8 @@
 import { FC, HTMLAttributes } from 'react';
 import styled from 'styled-components';
 
+import ProductSticker from 'components/Product/ProductSticker';
+import { StickerInfo } from 'models/display';
 import { KRW } from 'utils/currency';
 import media from 'utils/styles/media';
 import { ellipsis } from 'utils/styles/mixin';
@@ -11,24 +13,21 @@ interface ProductCardProps extends HTMLAttributes<HTMLDivElement> {
     promotionText: string;
     salePrice: number;
     immediateDiscountAmt?: number;
+    stickerInfos?: StickerInfo[];
 }
 
 const ProductCardContainer = styled.div`
     width: 31%;
-    margin-bottom: 80px;
+    margin-bottom: 72px;
     position: relative;
-
-    &:not(:nth-child(3n)) {
-        margin-right: 40px;
-    }
 
     ${media.medium} {
         width: 47%;
         margin-bottom: 20px;
-
-        &:not(:nth-child(3n)) {
-            margin-right: 8px;
-        }
+    }
+    ${media.small} {
+        width: 85%;
+        margin-bottom: 20px;
     }
 `;
 
@@ -43,24 +42,24 @@ const ProductCardImage = styled.div`
     position: relative;
     padding: 40px;
     & > img {
-        width: 284px;
-        height: 284px;
-
+        display: block;
+        margin: 0 auto;
+        width: 85%;
         ${media.medium} {
-            width: 144px;
-            height: 144px;
+            width: 80%;
         }
     }
 `;
 
-const ProductCardTag = styled.span`
+const ProductCardTagContainer = styled.div`
     position: absolute;
-    top: 28px;
-    left: 28px;
+    top: 16px;
+    left: 16px;
+    display: flex;
 
     ${media.medium} {
-        top: 20px;
-        left: 20px;
+        top: 14px;
+        left: 14px;
     }
 `;
 
@@ -77,7 +76,9 @@ const ProductCardContentsContainer = styled.div`
 `;
 
 const ProductInfoContainer = styled.div`
+    width: 60%;
     ${media.medium} {
+        width: 100%;
         margin-bottom: 10px;
     }
 `;
@@ -146,12 +147,15 @@ const ProductCard: FC<ProductCardProps> = ({
     promotionText,
     salePrice,
     immediateDiscountAmt = 0,
+    stickerInfos,
     ...props
 }) => {
     return (
         <ProductCardContainer {...props}>
             <ProductCardImageContainer>
-                <ProductCardTag>NEW</ProductCardTag>
+                <ProductCardTagContainer>
+                    <ProductSticker stickerInfos={stickerInfos} />
+                </ProductCardTagContainer>
                 <ProductCardImage>
                     <img src={imgUrl} alt={productName} />
                 </ProductCardImage>

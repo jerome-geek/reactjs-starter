@@ -13,6 +13,7 @@ import {
     SELECT_TYPE,
     SHIPPING_AREA_TYPE_PARAMS,
 } from 'models';
+import { StickerInfo } from 'models/display';
 
 export interface BrandsParams {
     filter?: { name?: string; categoryNo?: number };
@@ -172,7 +173,7 @@ export interface ProductItem {
     promotionText: Nullable<string>;
     saleStatusType: string;
     hsCode: string;
-    stickerInfos: any[];
+    stickerInfos: StickerInfo[];
     likeCount: number;
     productManagementCd: string;
     isSoldOut: boolean;
@@ -261,12 +262,6 @@ export interface BaseInfo {
     customPropertise: CustomPropertise[];
     couponUseYn: string;
     minorPurchaseYn: string;
-}
-
-export interface StickerInfo {
-    type: string;
-    label: string;
-    name: string;
 }
 
 export interface Certification {

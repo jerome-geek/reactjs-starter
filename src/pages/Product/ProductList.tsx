@@ -2,7 +2,7 @@ import { useEffect, useState, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
-import { head, map, pipe, toArray, filter, concat } from '@fxts/core';
+import { head, map, pipe, toArray, filter, concat, slice } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import ProductSort from 'components/Product/ProductSort';
@@ -28,11 +28,16 @@ const ProductListContainer = styled.div`
     margin-right: auto;
 
     ${media.xxlarge} {
-        width: calc(100% - 2rem);
+        width: calc(100% - 48px);
+    }
+
+    ${media.medium} {
+        width: calc(100% - 32px);
     }
 
     ${media.small} {
         /* width: 380px; */
+        width: calc(100% - 24px);
         margin-top: 24px;
     }
 `;
@@ -66,6 +71,10 @@ const ProductListDownContainer = styled.section`
     height: auto;
     overflow: auto;
     min-height: 400px;
+    justify-content: space-between;
+    ${media.small} {
+        justify-content: center;
+    }
 `;
 
 const EmptyProductListContainer = styled.div`
@@ -99,7 +108,9 @@ const ProductListTitle = styled.h2`
 `;
 
 const ProductCategoryListContainer = styled.div`
-    overflow: scroll;
+    ${media.small} {
+        overflow-x: scroll;
+    }
 `;
 
 const ProductCategoryList = styled.ul`
@@ -354,6 +365,7 @@ const ProductList = () => {
                                     listImageUrls,
                                     promotionText,
                                     immediateDiscountAmt,
+                                    stickerInfos,
                                 }: ProductItem) => (
                                     <ProductCard
                                         onClick={() =>
@@ -369,6 +381,11 @@ const ProductList = () => {
                                         immediateDiscountAmt={
                                             immediateDiscountAmt
                                         }
+                                        stickerInfos={pipe(
+                                            stickerInfos,
+                                            slice(0, 3),
+                                            toArray,
+                                        )}
                                     />
                                 ),
                             )}
