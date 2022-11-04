@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useQuery } from 'react-query';
 import dayjs from 'dayjs';
@@ -14,6 +14,10 @@ import { MY_ORDER_LIST, PROFILE_ORDER_SUMMARY } from 'const/queryKeys';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import PATHS from 'const/paths';
+import SecondaryButton from 'components/Button/SecondaryButton';
+import { NEXT_ACTION_TYPE } from 'models';
+import { isLogin } from 'utils/users';
+import { head } from '@fxts/core';
 
 const OrderListContainer = styled(LayoutResponsive)`
     max-width: 840px;
@@ -29,6 +33,18 @@ const OrderDetailLink = styled(Link)`
     font-weight: normal;
 `;
 
+const ClaimButton = styled(SecondaryButton)`
+    border: 1px solid #dbdbdb;
+    font-size: 12px;
+    letter-spacing: -0.48px;
+    color: #191919;
+    width: 100%;
+
+    &:not(:last-of-type) {
+        margin-right: 10px;
+    }
+`;
+
 const OrderList = () => {
     const [searchCondition, setSearchCondition] = useState({
         hasTotalCount: true,
@@ -39,7 +55,6 @@ const OrderList = () => {
     });
 
     const { member } = useMember();
-    const isLogin = useMemo(() => !!member, [member]);
 
     const { data: orderSummary } = useQuery(
         [
@@ -56,7 +71,7 @@ const OrderList = () => {
                 endYmd: searchCondition.endYmd,
             }),
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             keepPreviousData: true,
             select: ({ data }) => data,
         },
@@ -69,11 +84,13 @@ const OrderList = () => {
                 ...searchCondition,
             }),
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             keepPreviousData: true,
             select: ({ data }) => data,
         },
     );
+
+    const navigate = useNavigate();
 
     return (
         <>
@@ -91,7 +108,14 @@ const OrderList = () => {
 
                 <div style={{ marginTop: '40px' }}>
                     {orderList && orderList?.items.length > 0 ? (
-                        orderList?.items.map((order) => {
+                        orderList?.items.map((order, index) => {
+                            {
+                                index === 0 &&
+                                    console.log(
+                                        '🚀 ~ file: OrderList.tsx ~ line 212 ~ orderList?.items.map ~ order',
+                                        order?.nextActions,
+                                    );
+                            }
                             return (
                                 <div
                                     key={order.orderNo}
@@ -126,28 +150,52 @@ const OrderList = () => {
                                                 />
                                             </OrderDetailLink>
                                         </p>
-                                        <p
-                                            style={{
-                                                fontSize: '10px',
-                                                letterSpacing: 0,
-                                                color: '#000000',
-                                            }}
-                                        >
-                                            {`${dayjs(order.orderYmdt).format(
-                                                'YY-MM-DD HH:mm',
-                                            )} 주문`}
-                                        </p>
+
+                                        <div>
+                                            {head(order?.nextActions)
+                                                ?.nextActionType ===
+                                                NEXT_ACTION_TYPE.CANCEL_ALL && (
+                                                <ClaimButton
+                                                    onClick={() =>
+                                                        navigate(
+                                                            '/my-page/claim/cancel-all',
+                                                            {
+                                                                state: {
+                                                                    orderNo:
+                                                                        order.orderNo,
+                                                                },
+                                                            },
+                                                        )
+                                                    }
+                                                >
+                                                    전체취소
+                                                </ClaimButton>
+                                            )}
+
+                                            <p
+                                                style={{
+                                                    fontSize: '10px',
+                                                    letterSpacing: 0,
+                                                    color: '#000000',
+                                                }}
+                                            >
+                                                {`${dayjs(
+                                                    order.orderYmdt,
+                                                ).format(
+                                                    'YY-MM-DD HH:mm',
+                                                )} 주문`}
+                                            </p>
+                                        </div>
                                     </div>
 
                                     <OrderOptionList>
                                         {order.orderOptions?.map((option) => {
                                             return (
                                                 <OrderOptionListItem
-                                                    key={
-                                                        option.orderNo +
-                                                        option.optionNo
+                                                    key={option.orderOptionNo}
+                                                    orderOptionNo={
+                                                        option.orderOptionNo
                                                     }
-                                                    optionNo={option.optionNo}
                                                     productNo={option.productNo}
                                                     imageUrl={option.imageUrl}
                                                     orderStatusTypeLabel={

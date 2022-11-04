@@ -11,7 +11,7 @@ import { nextActionName } from 'utils/order';
 import { flex } from 'utils/styles/mixin';
 
 interface OrderOptionListItemProps extends HTMLAttributes<HTMLLIElement> {
-    optionNo: number;
+    orderOptionNo: number;
     productNo: string | number;
     imageUrl: string;
     orderStatusTypeLabel: string;
@@ -83,7 +83,7 @@ const ClaimButton = styled(SecondaryButton)`
 `;
 
 const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
-    optionNo,
+    orderOptionNo,
     productNo,
     imageUrl,
     orderStatusType,
@@ -188,12 +188,12 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                             >
                                 반품요청
                             </ClaimButton>
-                            <ClaimButton
+                            {/* <ClaimButton
                                 onClick={() =>
                                     navigate('/my-page/claim/refund', {
                                         state: {
                                             productNo,
-                                            optionNo,
+                                            orderOptionNo,
                                             imageUrl,
                                             productName,
                                             optionName,
@@ -203,7 +203,7 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                                 }
                             >
                                 취소요청
-                            </ClaimButton>
+                            </ClaimButton> */}
                             {/* {nextActions?.map((action, index) => {
                                 return (
                                     <ClaimButton key={index}>

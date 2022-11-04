@@ -9,6 +9,7 @@ import {
     CLAIM_CLASS_TYPE,
     PAY_TYPE,
     PG_TYPE,
+    COUNTRY_CD,
 } from 'models';
 import {
     DeliveryAmtInfo,
@@ -17,15 +18,18 @@ import {
     ReturnAddress,
 } from 'models/order';
 
+// 추가결제방법
+type AdditionalPayType = 'CASH' | 'ACCUMULATION' | 'NAVER_PAY';
+
 // 계좌정보
 interface BankAccountInfo {
-    // 계좌번호 (nullable) (example: 1002134134983)
+    // 계좌번호 (nullable, optional) (example: 1002134134983)
     bankAccount?: string;
-    // 예금주명 (nullable) (example: 홍길동)
+    // 예금주명 (nullable, optional) (example: 홍길동)
     bankDepositorName?: string;
-    // 은행 코드 (nullable) (example: KDB)
+    // 은행 코드 (nullable, optional) (example: KDB)
     bank?: BANK;
-    // 은행명 (nullable) (example: 산업은행)
+    // 은행명 (nullable, optional) (example: 산업은행)
     bankName?: string;
 }
 
@@ -62,26 +66,32 @@ interface ClaimedProductOption {
     orderProductOptionNo: number;
 }
 
-interface InputText {
-    inputValue?: string;
-    inputLabel?: string;
-}
-
+// 교환할 옵션
 interface ExchangeOption {
-    inputTexts: InputText[];
+    // 입력값들
+    inputTexts: {
+        // 구매자 작성형 입력 값 (nullable, optional) (example: HGD)
+        inputValue?: string;
+        // 구매자 작성형 입력 이름 (nullable, optional) (example: 이니셜)
+        inputLabel?: string;
+    }[];
+    // 교환상품수량 (example: 0)
     orderCnt: number;
+    // 교환상품수량 (example: 0)
     optionNo: number;
+    // 교환상품의 몰상품번호 (example: 0)
     productNo: number;
+    // 교환상품의 추가상품 번호 (example: 1)
     additionalProductNo: number;
 }
-type ResponsibleObjectType = null extends RESPONSIBLE_OBJECT_TYPE
-    ? CLAIM_REASON_TYPE
-    : RESPONSIBLE_OBJECT_TYPE;
+
+// 귀책 - responsibleObjectType이 null이면 ClaimReasonType에 매핑되는 귀책 적용 (nullable) (example: BUYER)
+type ResponsibleObjectType = Nullable<RESPONSIBLE_OBJECT_TYPE>;
 
 export interface CancelOptionsBody {
     // 상세사유 (example: 다른상품구매)
     claimReasonDetail: string;
-    // 귀책 - responsibleObjectType이 null이면 ClaimReasonType에 매핑되는 귀책 적용 (nullable) (example: BUYER)
+    // 귀책
     responsibleObjectType: ResponsibleObjectType;
     // 클레임타입 (example: CANCEL)
     claimType: Omit<CLAIM_TYPE, 'NONE'>;
@@ -277,4 +287,70 @@ export interface ClaimOrderOption extends OrderOption {
     claimReasonDetail: Nullable<string>;
     // PG타입 (example: PAYCO)
     pgType: PG_TYPE;
+}
+
+// export interface RequestExchangeBody
+//     extends Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'>,
+//         ReturnOption,
+//         ExchangeRequest {}
+
+export interface RequestExchangeBody {
+    // 상세사유 (example: 다른상품구매)
+    claimReasonDetail: string;
+    // 귀책
+    responsibleObjectType: ResponsibleObjectType;
+    // 입금자명(추가결제시) (nullable, optional)
+    additionalPayRemitter?: string;
+    // 환불계좌정보 (nullable)
+    bankAccountInfo?: BankAccountInfo;
+    // 취소 / 반품할 제품수량 (example: 1)
+    productCnt: number;
+    // 클레임사유 (example: CHANGE_MIND)
+    claimReasonType: CLAIM_REASON_TYPE;
+    // 반품수거방법(SELLER_COLLECT 일 경우 returnAddress(반품수거주소지) 입력 필요) (nullable) (example: SELLER_COLLECT)
+    returnWayType: RETURN_WAY_TYPE;
+    // 택배사타입 (nullable) (example: CJ)
+    deliveryCompanyType?: DELIVERY_COMPANY_TYPE;
+    // 첨부파일 url 리스트 (5개까지 가능) (nullable) (example: url1,url2)
+    claimImageUrls: string[];
+    // 반품수거 주소지(배송상품인 경우 필수, 배송안함상품인 경우 null 가능) (nullable, optional)
+    returnAddress?: ClaimAddress;
+    // 추가결제입금계좌(추가결제시) (nullable, optional)
+    additionalPayBankAccount?: BankAccountInfo;
+    // 환불계좌정보 저장 여부 (nullable, optional) (example: true)
+    saveBankAccountInfo?: boolean;
+    // 추가결제방법 (nullable, optional) (example: CASH,ACCUMULATION)
+    additionalPayType?: AdditionalPayType;
+    // 교환출고지주소 (nullable, optional)
+    exchangeAddress?: ClaimAddress;
+    // 교환할 옵션
+    exchangeOption: ExchangeOption;
+    // 송장번호 (nullable, optional) (example: 123455)
+    invoiceNo?: string;
+}
+
+// 교환, 반품시 사용하는 출고지 주소
+export interface ClaimAddress {
+    // 수령자주소 (example: 서울특별시 구로구 디지털로26길 72)
+    receiverAddress: string;
+    // 연락처2 (example: 01012341234)
+    addressView: string;
+    // 수령자지번주소 (nullable, optional) (example: 서울특별시 구로구 구로동 222-22)
+    receiverJibunAddress?: string;
+    // 수령자명 (example: 홍길동)
+    receiverName: string;
+    // 개인통관고유부호(해외배송상품인 경우 필수) (nullable, optional) (example: P12341234123412)
+    customsIdNumber?: string;
+    // 국가코드 (example: KR)
+    countryCd: COUNTRY_CD;
+    // 수령자우편번호 (example: 12345)
+    receiverZipCd: string;
+    // 수령자상세주소 (nullable, optional) (example: NHN한국사이버결제 3층)
+    receiverDetailAddress?: string;
+    // 배송메모 (nullable, optional) (example: 택배실에 맡겨 주세요.)
+    deliveryMemo?: string;
+    // 수령자연락처1 (example: 01012341234)
+    receiverContact1: string;
+    // 수령자연락처2 (nullable, optional) (example: 01011111111)
+    receiverContact2?: string;
 }

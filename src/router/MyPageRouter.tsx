@@ -11,6 +11,7 @@ import RoundAnalysis from 'pages/MyPage/RoundAnalysis';
 import Password from 'pages/MyPage/Password';
 import Withdrawal from 'pages/MyPage/Withdrawal';
 import NotFound from 'pages/NotFound';
+import Claim from 'pages/MyPage/Claim';
 
 const MyPageRouter = () => (
     <Routes>
@@ -24,6 +25,7 @@ const MyPageRouter = () => (
         <Route path='round-analysis' element={<RoundAnalysis />} />
         <Route path='password' element={<Password />} />
         <Route path='withdrawal' element={<Withdrawal />} />
+        <Route path='claim/:type' element={<Claim />} />
         <Route path='*' element={<NotFound />} />
     </Routes>
 );

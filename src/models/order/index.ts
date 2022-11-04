@@ -1740,7 +1740,7 @@ export interface OrderItems {
     // 회원여부 (example: true)
     member: boolean;
     // 다음에 할 수 있는 작업
-    nextActions: NextAction;
+    nextActions: NextAction[];
     // 에스크로 여부 (example: false)
     escrow: boolean;
     // 주문일자 (example: YYYY-MM-DD hh:mm:ss)

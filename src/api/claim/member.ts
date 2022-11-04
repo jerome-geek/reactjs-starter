@@ -10,6 +10,7 @@ import {
     MemberClaim,
     RefundAccountInfo,
     ReturnOption,
+    RequestExchangeBody,
 } from 'models/claim';
 import { tokenStorage } from 'utils/storage';
 
@@ -58,7 +59,7 @@ const member = {
      * @param param0
      * @returns
      */
-    requestCancelOptionsBody: ({
+    requestCancelOptions: ({
         claimReasonDetail,
         responsibleObjectType,
         claimType,
@@ -240,6 +241,7 @@ const member = {
             }),
         }),
 
+    // TODO: 함수명 변경
     requestCancelClaimOption: (
         orderOptionNo: string,
         {
@@ -298,8 +300,17 @@ const member = {
             }),
         }),
 
+    /**
+     * 회원 클레임 교환 신청하기
+     *  - 선택옵션을 교환하는 API입니다.
+     *
+     * @param orderOptionNo
+     * @param param1
+     * @returns
+     */
     requestExchange: (
         orderOptionNo: string,
+        body: RequestExchangeBody,
         {
             responsibleObjectType,
             claimType,
@@ -405,34 +416,36 @@ const member = {
             }),
         }),
 
+    /**
+     * 회원 주문취소 신청하기
+     *  - 주문을 취소신청하는 API입니다.
+     * @param orderNo
+     * @param param1
+     * @returns
+     */
     requestCancel: (
         orderNo: string,
-        {
-            claimReasonDetail,
-            responsibleObjectType,
-            claimType,
-            saveBankAccountInfo,
-            bankAccountInfo,
-            claimReasonType,
-            refundsImmediately,
-        }: Omit<CancelOptionsBody, 'claimedProductOptions'>,
-    ): Promise<AxiosResponse> =>
-        request({
+        body: Omit<CancelOptionsBody, 'claimedProductOptions'>,
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/profile/orders/${orderNo}/claims/cancel`,
             data: {
-                claimReasonDetail,
-                responsibleObjectType,
-                claimType,
-                saveBankAccountInfo,
-                bankAccountInfo,
-                claimReasonType,
-                refundsImmediately,
+                claimReasonDetail: body.claimReasonDetail,
+                responsibleObjectType: body.responsibleObjectType,
+                claimType: body.claimType,
+                saveBankAccountInfo: body.saveBankAccountInfo,
+                bankAccountInfo: body.bankAccountInfo,
+                claimReasonType: body.claimReasonType,
+                refundsImmediately: body.refundsImmediately,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 };
 
 export default member;

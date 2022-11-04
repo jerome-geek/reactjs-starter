@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { pipe, filter, head } from '@fxts/core';
 import Select, { components, DropdownIndicatorProps } from 'react-select';
 import { useForm, Controller } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
 import { DevTool } from '@hookform/devtools';
+import { useMutation } from 'react-query';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import PrimaryButton from 'components/Button/PrimaryButton';
@@ -14,11 +15,16 @@ import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { flex } from 'utils/styles/mixin';
 import { useMall } from 'hooks';
 import { ReactComponent as DropDownIcon } from 'assets/icons/arrow_drop_down.svg';
+import { memberClaim } from 'api/claim';
+import { CLAIM_TYPE, CLAIM_REASON_TYPE } from 'models';
+import HTTP_RESPONSE from 'const/http';
+import PATHS from 'const/paths';
 
 interface ClaimLocation {
+    orderNo: string;
     imageUrl: string;
     optionName: string;
-    optionNo: number;
+    orderOptionNo: number;
     orderCnt: number;
     productName: string;
     productNo: number;
@@ -125,9 +131,12 @@ const SubmitButton = styled(PrimaryButton).attrs({ type: 'submit' })`
 
 const Claim = () => {
     const { type } = useParams() as { type: string };
+
     const location = useLocation() as {
         state: ClaimLocation;
     };
+
+    const navigate = useNavigate();
 
     // 상품문의는 별도로 처리해주어야함
     const claimList = useMemo(
@@ -156,6 +165,12 @@ const Claim = () => {
                 selectBoxTitle: '취소 사유',
                 placeholder: '취소 신청 유형을 선택해주세요.',
             },
+            {
+                type: 'cancel-all',
+                title: '전체취소',
+                selectBoxTitle: '취소 사유',
+                placeholder: '취소 신청 유형을 선택해주세요.',
+            },
         ],
         [],
     );
@@ -179,9 +194,53 @@ const Claim = () => {
         formState: { errors },
     } = useForm();
 
-    const onSubmit = handleSubmit(async ({ type, title, content }) => {
-        console.log('🚀 ~ file: Claim.tsx ~ line 140 ~ onSubmit ~ type', type);
-    });
+    const onSubmit = handleSubmit(
+        async ({ claimReasonType, title, content }) => {
+            if (type === 'cancel-all') {
+                await cancelAllMutation.mutateAsync({
+                    orderNo: location.state.orderNo,
+                    content,
+                    claimReasonType: claimReasonType.value,
+                });
+            }
+        },
+    );
+
+    // 1. 전체 취소 (type === cancel-all)
+    const cancelAllMutation = useMutation(
+        async ({
+            orderNo,
+            content,
+            claimReasonType,
+        }: {
+            orderNo: string;
+            content: string;
+            claimReasonType: CLAIM_REASON_TYPE;
+        }) =>
+            await memberClaim.requestCancel(orderNo, {
+                claimReasonDetail: content,
+                responsibleObjectType: null,
+                claimType: CLAIM_TYPE.CANCEL,
+                saveBankAccountInfo: false,
+                claimReasonType: claimReasonType,
+                // 즉시환불여부(기본 값: true)(서비스 플랜이 프리미엄이고, 주문상태가 결제완료인 옵션인 경우 즉시환불 가능)
+                refundsImmediately: true,
+            }),
+        {
+            onSuccess: (response) => {
+                if (response.status === HTTP_RESPONSE.HTTP_NO_CONTENT) {
+                    // TODO: alert -> modal 변경
+                    alert('취소 신청이 완료되었습니다');
+                    navigate(PATHS.MY_ORDER_LIST, { replace: true });
+                }
+            },
+        },
+    );
+
+    // TODO: 3. 전체환불 - 환불도 위와 같은 API를 사용, 취소/환불은 같은 API 사용
+    // TODO: 4. 부분환불
+    // TODO: 5. 교환신청
+    // TODO: 6. 반품신청
 
     return (
         <ClaimContainer>
@@ -191,22 +250,24 @@ const Claim = () => {
                 <>
                     <Title>{currentClaim.title}</Title>
 
-                    <ProductContainer>
-                        <ImageContainer>
-                            <img
-                                src={location.state.imageUrl}
-                                alt={location.state.productName}
-                                width='150'
-                                height='150'
-                            />
-                        </ImageContainer>
-                        <ProductInfoContainer>
-                            <ProductName>
-                                {location.state.productName}
-                            </ProductName>
-                            <Option>{`${location.state.optionName} ${location.state.orderCnt}개`}</Option>
-                        </ProductInfoContainer>
-                    </ProductContainer>
+                    {type !== 'cancel-all' && (
+                        <ProductContainer>
+                            <ImageContainer>
+                                <img
+                                    src={location.state.imageUrl}
+                                    alt={location.state.productName}
+                                    width='150'
+                                    height='150'
+                                />
+                            </ImageContainer>
+                            <ProductInfoContainer>
+                                <ProductName>
+                                    {location.state.productName}
+                                </ProductName>
+                                <Option>{`${location.state.optionName} ${location.state.orderCnt}개`}</Option>
+                            </ProductInfoContainer>
+                        </ProductContainer>
+                    )}
 
                     <form onSubmit={onSubmit}>
                         <SelectboxContainer>
@@ -214,7 +275,7 @@ const Claim = () => {
                             <div>
                                 <Controller
                                     control={control}
-                                    name='type'
+                                    name='claimReasonType'
                                     rules={{
                                         required: {
                                             value: true,
