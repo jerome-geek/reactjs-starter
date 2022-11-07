@@ -1,6 +1,6 @@
 import { Swiper as SwiperClass } from 'swiper/types';
 import SlideButton from 'components/Button/SlideButton';
-import React, { FC, useMemo, useRef } from 'react';
+import { FC, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { Swiper, SwiperProps, SwiperSlide } from 'swiper/react';
 import { isBoolean } from '@fxts/core';
@@ -16,12 +16,21 @@ interface ProductImageSliderProps {
 const Container = styled.div`
     width: 100%;
     max-width: 661px;
-    background-color: #f8f8fa;
+    background-color: ${(props) => props.theme.bg2};
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     ${media.medium} {
         margin-bottom: 60px;
     }
+`;
+
+const SwiperContent = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 const PaginationContainer = styled.div`
@@ -29,7 +38,7 @@ const PaginationContainer = styled.div`
     justify-content: center;
     align-items: center;
     width: 100%;
-    bottom: 120px !important;
+    bottom: 20px !important;
 
     .main-swiper-pagination-bullets {
         display: block;
@@ -105,9 +114,9 @@ const ProductImageSlider: FC<ProductImageSliderProps> = ({
                                     key={index}
                                     style={{ width: '100%' }}
                                 >
-                                    <div>
+                                    <SwiperContent>
                                         <img src={image} />
-                                    </div>
+                                    </SwiperContent>
                                 </SwiperSlide>
                             );
                         })}

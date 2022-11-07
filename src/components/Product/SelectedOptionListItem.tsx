@@ -31,6 +31,9 @@ const StyledContainer = styled.li`
     ${media.medium} {
         padding: 12px 20px;
     }
+    ${media.small} {
+        padding: 12px 14px;
+    }
 `;
 
 const OptionName = styled.p`
@@ -54,8 +57,12 @@ const CountContainer = styled(FlexContainer)`
     min-height: 30px;
     min-width: 80px;
     margin-right: 30px;
+    flex-wrap: nowrap;
     ${media.medium} {
         margin-right: 20px;
+    }
+    ${media.small} {
+        margin-right: 8px;
     }
 `;
 
@@ -73,7 +80,7 @@ const Price = styled.span`
         margin-right: 20px;
     }
     ${media.small} {
-        margin-right: 10px;
+        margin-right: 0px;
     }
 `;
 
