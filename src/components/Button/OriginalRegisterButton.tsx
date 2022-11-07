@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import media from 'utils/styles/media';
 
 interface OriginalRegisterButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -31,6 +32,18 @@ const ButtonPlus = styled.div`
         transform: translate(-50%, -50%);
         height: 70%;
         border-left: 4px solid #dbdbdb;
+    }
+    ${media.medium} {
+        width: 29px;
+        height: 29px;
+        border: 2px solid #dbdbdb;
+        &::before {
+            border-top: 2px solid #dbdbdb;
+        }
+
+        &::after {
+            border-left: 2px solid #dbdbdb;
+        }
     }
 `;
 
