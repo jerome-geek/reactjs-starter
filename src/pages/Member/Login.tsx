@@ -4,6 +4,7 @@ import { DevTool } from '@hookform/devtools';
 import { ErrorMessage } from '@hookform/error-message';
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
+import { AxiosError } from 'axios';
 
 import { fetchProfile } from 'state/slices/memberSlice';
 import { useAppDispatch } from 'state/reducers';
@@ -12,18 +13,18 @@ import StyledInput from 'components/Input/StyledInput';
 import Checkbox from 'components/Input/Checkbox';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
-import { authentication } from 'api/auth';
-import { tokenStorage } from 'utils/storage';
-import { isMobile } from 'utils/styles/responsive';
-import media from 'utils/styles/media';
-import { useQueryString } from 'hooks';
-import PATHS from 'const/paths';
 import { ReactComponent as NaverIcon } from 'assets/icons/sns_naver.svg';
 import { ReactComponent as KakaoIcon } from 'assets/icons/sns_kakao.svg';
 import { ReactComponent as FacebookIcon } from 'assets/icons/sns_facebook.svg';
 import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
 import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
+import { authentication } from 'api/auth';
+import { tokenStorage } from 'utils/storage';
+import { isMobile } from 'utils/styles/responsive';
+import media from 'utils/styles/media';
+import { useQueryString } from 'hooks';
+import PATHS from 'const/paths';
 
 interface LoginFormData {
     memberId: string;
@@ -112,6 +113,7 @@ const Login = () => {
         control,
         watch,
         setValue,
+        setError,
         formState: { errors },
     } = useForm<LoginFormData>({
         defaultValues: {
@@ -159,7 +161,11 @@ const Login = () => {
                 }
             }
         } catch (error) {
-            console.error(error);
+            if (error instanceof AxiosError) {
+                setError('memberId', { message: error.response?.data.message });
+                return;
+            }
+            alert('알수 없는 에러가 발생했습니다.');
         }
     });
 
