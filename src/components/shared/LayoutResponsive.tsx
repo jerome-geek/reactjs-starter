@@ -8,7 +8,7 @@ export interface LayoutResponsiveProps extends HTMLAttributes<HTMLDivElement> {
     type?: 'large' | 'medium' | 'small';
 }
 
-const Block = styled.div<LayoutResponsiveProps>`
+const Block = styled.main<LayoutResponsiveProps>`
     width: 1280px;
     padding: 150px 0;
     margin-left: auto;
