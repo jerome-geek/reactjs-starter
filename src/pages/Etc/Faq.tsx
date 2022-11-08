@@ -1,6 +1,6 @@
 import React, { KeyboardEvent, useCallback, useMemo, useState } from 'react';
 import { useQueries } from 'react-query';
-import { AxiosError, AxiosResponse } from 'axios';
+import { AxiosError } from 'axios';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
@@ -21,7 +21,7 @@ import Loader from 'components/shared/Loader';
 import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import { ReactComponent as MobileSearchIcon } from 'assets/icons/search_mobile.svg';
 import BOARD from 'const/board';
-import { BoardList, BoardListItem } from 'models/manage';
+import { BoardDetail } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import { board } from 'api/manage';
@@ -257,12 +257,10 @@ const InquiryButton = styled.div`
     }
 `;
 
-interface FaqItem extends BoardListItem {
-    content?: string;
-}
-interface FaqList extends BoardList {
+interface FaqList {
     isSelected: boolean;
-    items: FaqItem[];
+    totalCount: number;
+    items: BoardDetail[];
     categoryNo: number;
 }
 
@@ -350,7 +348,7 @@ const Faq = () => {
                         categoryNo,
                         keyword,
                     }),
-                onSuccess: (res: AxiosResponse<BoardList>) => {
+                onSuccess: (res: any) => {
                     setFaqList((prev) => {
                         const originItems =
                             find((a) => a.categoryNo === categoryNo, prev)

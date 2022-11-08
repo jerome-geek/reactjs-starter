@@ -5,6 +5,7 @@ import request, { defaultHeaders } from 'api/core';
 import {
     ArticleParams,
     BoardCategory,
+    BoardDetail,
     BoardList,
     PostArticleParams,
 } from 'models/manage';
@@ -112,7 +113,7 @@ const board = {
             password?: string;
             withReplied?: boolean;
         },
-    ): Promise<AxiosResponse> =>
+    ): Promise<AxiosResponse<BoardDetail>> =>
         request({
             method: 'GET',
             url: `boards/${boardNo}/articles/${articleNo}`,

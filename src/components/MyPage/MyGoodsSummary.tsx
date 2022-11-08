@@ -45,7 +45,7 @@ const NoGoodsLink = styled(Link)`
     text-decoration: underline;
 `;
 
-const MyGoodsSummary = ({ myGoods }: any) => {
+const MyGoodsSummary = ({ myGoods, setIsGenuineRegisterModal }: any) => {
     const navigate = useNavigate();
 
     return (
@@ -67,9 +67,9 @@ const MyGoodsSummary = ({ myGoods }: any) => {
                     >
                         <OriginalRegisterButton
                             title='정품 등록하기'
-                            onClick={() =>
-                                console.log('정품 등록하기 버튼 클릭')
-                            }
+                            onClick={() => {
+                                setIsGenuineRegisterModal(true);
+                            }}
                         />
                     </div>
                     <div style={{ flex: 1 }}>
