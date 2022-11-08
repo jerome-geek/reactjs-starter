@@ -2,6 +2,7 @@ import { useEffect, useState, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
 import { head, map, pipe, toArray, filter, concat, slice } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
@@ -16,7 +17,6 @@ import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import { MultiLevelCategory } from 'models/display';
 import { ProductItem } from 'models/product';
 import { isMobile } from 'utils/styles/responsive';
-import { useWindowSize } from 'usehooks-ts';
 
 interface ProductCategory {
     categoryNo: string;

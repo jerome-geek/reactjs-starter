@@ -564,8 +564,6 @@ const Sheet = () => {
         accumulationMutate.mutateAsync(data);
     };
 
-    console.log(getValues('shippingAddress').receiverAddress);
-
     return (
         <>
             <DevTool control={control} placement='top-right' />
