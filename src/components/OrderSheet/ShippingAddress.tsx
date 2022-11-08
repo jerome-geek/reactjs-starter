@@ -78,11 +78,20 @@ const SheetTextInput = styled.input<{ inputWidth?: string }>`
     &:first-child {
         margin-bottom: 12px;
     }
+    &:disabled {
+        color: ${(props) => props.theme.text1};
+        background: ${(props) => props.theme.bg3};
+        text-overflow: ellipsis;
+    }
     ${media.medium} {
         min-height: 54px;
+        font-size: 1.333rem;
         &:first-child {
             width: ${(props: { inputWidth?: string }) =>
                 props.inputWidth ? props.inputWidth : '100%'};
+        }
+        &::placeholder {
+            font-size: 1.333rem;
         }
     }
 `;
@@ -319,7 +328,7 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
                                 container: (provided: any) => ({
                                     ...provided,
                                     marginBottom: `${
-                                        isMobile(width) ? '0' : '10px'
+                                        isMobile(width) ? '54' : '44px'
                                     }`,
                                     boxSizing: 'border-box',
                                     width: '100%',
@@ -333,7 +342,9 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
                                     border: '1px solid #DBDBDB',
                                     borderBottom: menuIsOpen ? 'none' : '',
                                     display: 'flex',
-                                    height: '44px',
+                                    height: `${
+                                        isMobile(width) ? '54px' : '44px'
+                                    }`,
                                     paddingLeft: '5px',
                                     cursor: 'pointer',
                                 }),

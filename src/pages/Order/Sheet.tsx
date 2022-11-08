@@ -564,6 +564,8 @@ const Sheet = () => {
         accumulationMutate.mutateAsync(data);
     };
 
+    console.log(getValues('shippingAddress').receiverAddress);
+
     return (
         <>
             <DevTool control={control} placement='top-right' />
@@ -601,8 +603,8 @@ const Sheet = () => {
                     onClickToggleModal={() =>
                         setIsSearchAddressModal((prev) => !prev)
                     }
-                    width={'720px'}
-                    height={'720px'}
+                    width={isMobile(width) ? 'calc(100vw - 16px)' : '720px'}
+                    height={isMobile(width) ? 'calc(80vh)' : '720px'}
                     register={register}
                     setValue={setValue}
                 />

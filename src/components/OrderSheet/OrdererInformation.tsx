@@ -8,6 +8,7 @@ import { PaymentReserve } from 'models/order';
 import { sheetInputStyle } from 'styles/componentStyle';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { onlyNumberFormatter } from 'utils/validation';
+import media from 'utils/styles/media';
 
 interface OrdererInformationProps {
     register: UseFormRegister<PaymentReserve>;
@@ -31,6 +32,12 @@ const SheetTextInput = styled.input<{ inputWidth?: string }>`
     ${sheetInputStyle.sheetTextInput}
     width: ${(props: { inputWidth?: string }) =>
         props.inputWidth ? props.inputWidth : '100%'};
+    ${media.medium} {
+        font-size: 1.333rem;
+        &::placeholder {
+            font-size: 1.333rem;
+        }
+    }
 `;
 
 const OrdererInformationContainer = styled.div`
