@@ -77,7 +77,7 @@ const MemberPopup: FC<MemberPopupProps> = ({
                     마이페이지
                 </MemberPopupListItem>
                 <MemberPopupListItem
-                    onClick={() => navigate(PATHS.MY_ROUND_ANALYSIS)}
+                    onClick={() => navigate(PATHS.MY_ROUND_ANALYSIS_MAIN)}
                 >
                     라운드 분석
                 </MemberPopupListItem>
