@@ -1,10 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
 
-import Faq from 'pages/Etc/Faq';
-import NotFound from 'pages/NotFound';
 import Notice from 'pages/Etc/Notice';
-import Agency from 'pages/Etc/ Agency';
 import NoticeDetail from 'pages/Etc/NoticeDetail';
+import Faq from 'pages/Etc/Faq';
+import Agency from 'pages/Etc/Agency';
+import NotFound from 'pages/NotFound';
 
 const EtcRouter = () => {
     return (

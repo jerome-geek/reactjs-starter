@@ -7,11 +7,15 @@ import OrderDetail from 'pages/MyPage/OrderDetail';
 import Products from 'pages/MyPage/Products';
 import Coupons from 'pages/MyPage/Coupons';
 import Accumulation from 'pages/MyPage/Accumulation';
-import RoundAnalysis from 'pages/MyPage/RoundAnalysis';
 import Password from 'pages/MyPage/Password';
 import Withdrawal from 'pages/MyPage/Withdrawal';
 import NotFound from 'pages/NotFound';
 import Claim from 'pages/MyPage/Claim';
+import RoundAnalysisLayout from 'pages/MyPage/RoundAnyalysis/Layout';
+import RoundAnalysisMain from 'pages/MyPage/RoundAnyalysis/Main';
+import RoundAnalysisInfo from 'pages/MyPage/RoundAnyalysis/Info';
+import RoundAnalysisStatistics from 'pages/MyPage/RoundAnyalysis/Statistics';
+import RoundAnalysisInfoDetail from 'pages/MyPage/RoundAnyalysis/InfoDetail';
 
 const MyPageRouter = () => (
     <Routes>
@@ -22,7 +26,12 @@ const MyPageRouter = () => (
         <Route path='products' element={<Products />} />
         <Route path='coupons' element={<Coupons />} />
         <Route path='accumulation' element={<Accumulation />} />
-        <Route path='round-analysis' element={<RoundAnalysis />} />
+        <Route path='round-analysis' element={<RoundAnalysisLayout />}>
+            <Route path='main' element={<RoundAnalysisMain />} />
+            <Route path='info' element={<RoundAnalysisInfo />} />
+            <Route path='info/:roundNo' element={<RoundAnalysisInfoDetail />} />
+            <Route path='statistics' element={<RoundAnalysisStatistics />} />
+        </Route>
         <Route path='password' element={<Password />} />
         <Route path='withdrawal' element={<Withdrawal />} />
         <Route path='claim/:type' element={<Claim />} />
