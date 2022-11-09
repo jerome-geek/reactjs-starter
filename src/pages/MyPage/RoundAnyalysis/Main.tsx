@@ -121,10 +121,10 @@ const Main = () => {
             )}
 
             {/* TODO: 메인탭인 경우 차트 요약만 보여준다 */}
-            <Statistics />
+            <Statistics isMainTab />
 
             {/* TODO: 메인탭인 경우 최대 4개만 보여준다 */}
-            <RoundInfo />
+            <RoundInfo isMainTab />
         </>
     );
 };

@@ -6,7 +6,7 @@ import media from 'utils/styles/media';
 import { flex } from 'utils/styles/mixin';
 import roundStats from 'mock/roundStats.json';
 import { FC } from 'react';
-import { add, pipe, sum } from '@fxts/core';
+import { add, identity, pipe, slice, sum, take, toArray } from '@fxts/core';
 
 interface InfoProps {
     isMainTab?: boolean;
@@ -95,15 +95,18 @@ const RoundDescription = styled.div`
 
 const Info: FC<InfoProps> = ({ isMainTab = true }) => {
     const navigate = useNavigate();
-    console.log(roundStats.data.roundStatistics.roundInfo);
+
+    const roundInfoList = pipe(roundStats.data.roundStatistics.roundInfo, (a) =>
+        isMainTab ? toArray(take(4, a)) : identity(a),
+    );
 
     return (
         <StyledContainer>
             <SectionTitle>라운드 내역</SectionTitle>
             <RoundList>
-                {roundStats.data.roundStatistics.roundInfo.length > 0 ? (
+                {roundInfoList.length > 0 ? (
                     <>
-                        {roundStats.data.roundStatistics.roundInfo.map(
+                        {roundInfoList.map(
                             ({ no, score, clubname, date, par }) => (
                                 <RoundListItem
                                     key={no}

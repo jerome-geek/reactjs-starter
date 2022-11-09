@@ -1,8 +1,8 @@
-import React, { FC, useState, useLayoutEffect, useMemo } from 'react';
+import { FC, useState, useLayoutEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-import { isEmpty, map, pipe, toArray, filter, head, take } from '@fxts/core';
+import { isEmpty, map, pipe, toArray } from '@fxts/core';
 
 import media from 'utils/styles/media';
 import { flex } from 'utils/styles/mixin';
@@ -282,11 +282,3 @@ const Statistics: FC<StatisticsProps> = ({ isMainTab = true }) => {
 };
 
 export default Statistics;
-
-// import React from 'react';
-
-// const Statistics = () => {
-//     return <div>Statistics</div>;
-// };
-
-// export default Statistics;
