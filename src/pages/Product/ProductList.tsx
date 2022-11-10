@@ -2,6 +2,7 @@ import { useEffect, useState, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import styled from 'styled-components';
+import { useWindowSize } from 'usehooks-ts';
 import { head, map, pipe, toArray, filter, concat, slice } from '@fxts/core';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
@@ -15,6 +16,7 @@ import PATHS from 'const/paths';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
 import { MultiLevelCategory } from 'models/display';
 import { ProductItem } from 'models/product';
+import { isMobile } from 'utils/styles/responsive';
 
 interface ProductCategory {
     categoryNo: string;
@@ -75,6 +77,10 @@ const ProductListDownContainer = styled.section`
     ${media.small} {
         justify-content: center;
     }
+`;
+
+const EmptyProductCard = styled.div`
+    width: 31%;
 `;
 
 const EmptyProductListContainer = styled.div`
@@ -157,6 +163,8 @@ const ProductList = () => {
             isActive: true,
         },
     ]);
+
+    const { width } = useWindowSize();
 
     useQuery(
         ['categoryInfo', { categoryNo }],
@@ -307,6 +315,9 @@ const ProductList = () => {
         },
     );
 
+    const isProductCountMultipleOfThreePlus2 =
+        productList?.items && productList.items.length % 3 === 2;
+
     return (
         <>
             <SEOHelmet data={{ title: categoryInfo?.label }} />
@@ -389,6 +400,10 @@ const ProductList = () => {
                                     />
                                 ),
                             )}
+                            {!isMobile(width) &&
+                                isProductCountMultipleOfThreePlus2 && (
+                                    <EmptyProductCard />
+                                )}
                         </>
                     )}
                 </ProductListDownContainer>

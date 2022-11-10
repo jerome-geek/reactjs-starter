@@ -111,7 +111,7 @@ const CartName = styled.div`
             font-weight: 400;
         }
     }
-    ${media.small} {
+    ${media.medium} {
         > p {
             font-size: 1.2rem;
         }
@@ -251,8 +251,8 @@ const MobileCartPriceBox = styled.div`
         letter-spacing: 0;
         font-size: 1rem;
     }
-    ${media.small} {
-        font-size: 1.6rem;
+    ${media.medium} {
+        font-size: 1.333rem;
     }
 `;
 
