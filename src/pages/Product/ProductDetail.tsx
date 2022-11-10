@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import { isNil, pipe, map, sum, toArray, head, slice } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
@@ -20,11 +20,13 @@ import ProductImageSlider from 'components/Product/ProductImageSlider';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ShareModal from 'components/Modal/ShareModal';
 import ProductSticker from 'components/Product/ProductSticker';
+import ProductPolicy from 'components/Product/ProductPolicy';
 import { cart, orderSheet } from 'api/order';
-import { banner } from 'api/display';
 import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { OrderSheetBody, ShoppingCartBody } from 'models/order';
+import { isLogin } from 'utils/users';
+import useBanners from 'hooks/queries/useBanners';
 import useProductOptionList from 'hooks/queries/useProductOptionList';
 import useProductDetail from 'hooks/queries/useProductDetail';
 import { isMobile } from 'utils/styles/responsive';
@@ -37,7 +39,6 @@ import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 import HTTP_RESPONSE from 'const/http';
-import { isLogin } from 'utils/users';
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -263,11 +264,6 @@ const ProductDetail = () => {
 
     const { width } = useWindowSize();
 
-    // TODO: 제거 예정
-    const [productImageData, setProductImageData] = useState<{
-        [id: string]: string[];
-    }>({ represent: [] });
-
     const [productOptionList, setProductOptionList] = useState<FlatOption[]>(
         [],
     );
@@ -280,16 +276,7 @@ const ProductDetail = () => {
 
     const productDetailData = useProductDetail({
         productNo,
-        options: {
-            onSuccess: (data) => {
-                setProductImageData((prev) => ({
-                    ...prev,
-                    represent: data?.baseInfo?.imageUrls,
-                }));
-            },
-        },
     });
-
     useProductOptionList({
         productNo,
         options: {
@@ -393,13 +380,7 @@ const ProductDetail = () => {
         });
     };
 
-    const { data: mainBannerData } = useQuery(
-        ['mainCategoryBanner', BANNER.MAIN_CATEGORY_BANNER],
-        async () => await banner.getBanners([BANNER.MAIN_CATEGORY_BANNER]),
-        {
-            select: ({ data }) => data,
-        },
-    );
+    const bannerData = useBanners({ banners: [BANNER.MAIN_CATEGORY_BANNER] });
 
     const productDetailTab = useMemo(
         () => [
@@ -456,9 +437,11 @@ const ProductDetail = () => {
                 />
             )}
 
-            {mainBannerData?.[0]?.accounts && (
+            {bannerData?.data?.[0]?.accounts && (
                 <MainCategoryBanners
-                    banners={sortBanners(mainBannerData[0].accounts[0].banners)}
+                    banners={sortBanners(
+                        bannerData?.data[0].accounts[0].banners,
+                    )}
                 />
             )}
 
@@ -647,13 +630,10 @@ const ProductDetail = () => {
                         )}
 
                         {selectedTab === 'productPolicy' && (
-                            <ProductContentContainer
-                                id='productPolicy'
-                                dangerouslySetInnerHTML={{
-                                    __html:
-                                        productDetailData.data?.baseInfo
-                                            .content ?? '',
-                                }}
+                            <ProductPolicy
+                                productName={
+                                    productDetailData.data.baseInfo.productName
+                                }
                             />
                         )}
 
