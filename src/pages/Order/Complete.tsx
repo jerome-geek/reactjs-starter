@@ -447,7 +447,9 @@ const Complete = () => {
                         <>
                             <OrderListButton
                                 to={
-                                    member ? PATHS.MY_ORDER_LIST : PATHS.MY_PAGE
+                                    member
+                                        ? PATHS.MY_ORDER_LIST
+                                        : PATHS.GUEST_LOGIN
                                 }
                             >
                                 {orderComplete('etc.viewOrderList')}

@@ -1,10 +1,12 @@
 import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useWindowSize } from 'usehooks-ts';
 import styled from 'styled-components';
 import { filter, head, pipe, toArray } from '@fxts/core';
 
 import Checkbox from 'components/Input/Checkbox';
+import { isMobile } from 'utils/styles/responsive';
 
 interface OrderTermsAgreementProps {
     isLogin?: boolean;
@@ -34,6 +36,14 @@ const Title = styled.p`
     line-height: 18px;
     letter-spacing: -0.48px;
     font-weight: normal;
+    text-align: center;
+`;
+
+const MobileGuestTitle = styled.p`
+    font-size: 1.333rem;
+    font-weight: 500;
+    line-height: 24px;
+    text-align: center;
 `;
 
 const CheckboxContainer = styled.div`
@@ -72,6 +82,8 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
 }) => {
     const { t: orderSheet } = useTranslation('orderSheet');
 
+    const { width } = useWindowSize();
+
     const isTermChecked = (id: string) =>
         pipe(
             orderTerms,
@@ -82,7 +94,13 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
 
     return (
         <StyledContainer>
-            {!isLogin && (
+            {!isLogin && isMobile(width) ? (
+                <div>
+                    <MobileGuestTitle>
+                        지금 바로 가입하고 3,000원 쿠폰을 받아보세요!
+                    </MobileGuestTitle>
+                </div>
+            ) : (
                 <div>
                     <Title
                         dangerouslySetInnerHTML={{
@@ -92,7 +110,7 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
                 </div>
             )}
 
-            {!isLogin && (
+            {!isLogin && !isMobile(width) && (
                 <div>
                     <CheckboxContainer>
                         <Checkbox

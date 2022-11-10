@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
-import { useWindowSize } from 'usehooks-ts';
+import { useScript, useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
 import { every, pipe, toArray, map } from '@fxts/core';
 import { DevTool } from '@hookform/devtools';
@@ -49,6 +49,7 @@ import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
 import HTTP_RESPONSE from 'const/http';
+import MemberInduceModal from 'components/Modal/MemberInduceModal';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -284,6 +285,10 @@ const PaymentButton = styled(PrimaryButton)`
 const Sheet = () => {
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
+    useScript('https://alpha-shop-api.e-ncp.com/payments/ncp_pay_alpha.js');
+    useScript('https://testpay.kcp.co.kr/plugin/payplus_web.jsp');
+    useScript('https://stgstdpay.inicis.com/stdjs/INIStdPay.js');
+
     const { member } = useMember();
     const isLogin = useMemo(() => !!member, [member]);
 
@@ -311,6 +316,7 @@ const Sheet = () => {
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
     const [isCouponListModal, setIsCouponListModal] = useState(false);
+    const [isMemberInduceModal, setIsMemberInduceModal] = useState(!isLogin);
     const [selectCoupon, setSelectCoupon] = useState<CouponRequest>();
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
         accumulationAmt: 0,
@@ -632,6 +638,14 @@ const Sheet = () => {
                         couponApplyMutate={couponApplyMutate}
                     />
                 ))}
+            {isMemberInduceModal && isMobile(width) && (
+                <MemberInduceModal
+                    width={'calc(100% - 24px)'}
+                    onClickToggleModal={() =>
+                        setIsMemberInduceModal((prev) => !prev)
+                    }
+                ></MemberInduceModal>
+            )}
             <OrderSheetContainer onSubmit={onOrderFormSubmit}>
                 {!isMobile(width) && (
                     <OrderProgress
