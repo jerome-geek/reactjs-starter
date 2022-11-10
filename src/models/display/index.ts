@@ -386,7 +386,7 @@ export interface Brand {
     productCnt: number;
 }
 
-export interface getBannersResponse {
+export interface GetBannersResponse {
     bannerSectionNo: number;
     label: string;
     code: string;

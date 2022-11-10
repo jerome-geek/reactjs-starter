@@ -1,10 +1,4 @@
-import {
-    FC,
-    HTMLAttributeAnchorTarget,
-    HTMLAttributes,
-    memo,
-    useState,
-} from 'react';
+import { FC, HTMLAttributeAnchorTarget, HTMLAttributes, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -64,4 +58,4 @@ const MainCategory: FC<MainCategoryProps> = ({
     );
 };
 
-export default memo(MainCategory);
+export default MainCategory;
