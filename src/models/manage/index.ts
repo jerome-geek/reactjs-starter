@@ -121,26 +121,26 @@ export interface BoardList {
 
 export interface BoardListItem {
     articleNo: number;
-    title: string;
-    imageUrl: string;
-    viewCnt: number;
-    categoryNo: number;
+    attached: Attachment[];
     categoryLabel: string;
-    registerName: string;
-    registerYmdt: Date;
-    registerNo: number;
-    registerType: string;
+    categoryNo: number;
+    imageUrl: string;
     modifierName: string;
-    modifyYmdt: null;
     modifierNo: null;
     modifierType: null;
-    secreted: boolean;
-    repliedCnt: number;
-    replied: boolean;
+    modifyYmdt: null;
     notice: boolean;
-    attached: boolean;
     recommendCount: number;
+    registerName: string;
+    registerNo: number;
+    registerType: string;
+    registerYmdt: Date;
+    replied: boolean;
+    repliedCnt: number;
+    secreted: boolean;
     tags: string[];
+    title: string;
+    viewCnt: number;
 }
 
 export interface BoardDetailState {
@@ -148,32 +148,20 @@ export interface BoardDetailState {
     articleNo: string;
 }
 
-export interface BoardDetail {
-    articleNo: number;
-    title: string;
-    content: string;
-    imageUrl: string;
-    viewCnt: number;
-    categoryNo: number;
-    categoryLabel: string;
-    attachments: string[];
-    registerName: string;
-    registerGroupNames: null;
-    registerYmdt: string;
-    registerNo: number;
-    registerType: string;
-    modifierName: string;
-    modifyYmdt: string;
-    modifierNo: null;
-    modifierType: string;
-    memberId: string;
-    modifiable: boolean;
-    childArticles: number[];
-    secreted: boolean;
-    notice: boolean;
-    parentArticle: number;
-    recommendCount: number;
-    tags: string[];
+export interface BoardDetail extends Omit<BoardListItem, 'attached'> {
+    attachments: Attachment[]; //new
+    childArticles: number[]; //new
+    content: string; //new
+    memberId: string; //new
+    modifiable: boolean; //new
+    parentArticle: number; //new
+    registerGroupNames: null; //new
+}
+
+export interface Attachment {
+    fileName: string;
+    uploadedFileName: string;
+    downloadFileUrl: string;
 }
 
 export interface InquiriesResponse {
