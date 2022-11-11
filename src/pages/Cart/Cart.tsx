@@ -22,6 +22,7 @@ import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import Checkbox from 'components/Input/Checkbox';
 import FlexContainer from 'components/shared/FlexContainer';
+import MemberInduceModal from 'components/Modal/MemberInduceModal';
 import { useAppDispatch } from 'state/reducers';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { useCart, useMember } from 'hooks';
@@ -32,7 +33,7 @@ import {
     OrderProductOption,
     OrderSheetBody,
 } from 'models/order';
-import { isDesktop } from 'utils/styles/responsive';
+import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
 
@@ -241,6 +242,8 @@ const Cart = () => {
     const { member } = useMember();
     const isLogin = useMemo(() => !!member, [member]);
 
+    const [isMemberInduceModal, setIsMemberInduceModal] = useState(false);
+
     const { width } = useWindowSize();
 
     const dispatch = useAppDispatch();
@@ -384,23 +387,32 @@ const Cart = () => {
         },
     );
 
-    const purchaseHandler = () => {
-        const products = pipe(
-            checkedCartList,
-            map((a) => ({
-                channelType: '',
-                productNo: a.productNo,
-                optionNo: a.optionNo,
-                orderCnt: a.orderCnt,
-                optionInputs: a.optionInputs,
-            })),
-            toArray,
-        );
+    const purchaseProducts = useMemo(
+        () =>
+            pipe(
+                checkedCartList,
+                map((a) => ({
+                    channelType: '',
+                    productNo: a.productNo,
+                    optionNo: a.optionNo,
+                    orderCnt: a.orderCnt,
+                    optionInputs: a.optionInputs,
+                })),
+                toArray,
+            ),
+        [checkedCartList],
+    );
 
+    const purchaseCartNos = useMemo(
+        () => pipe(checkedCartList, pluck('cartNo'), toArray),
+        [checkedCartList],
+    );
+
+    const purchaseHandler = () => {
         purchaseMutate({
-            products,
+            products: purchaseProducts,
             productCoupons: [],
-            cartNos: pipe(checkedCartList, pluck('cartNo'), toArray),
+            cartNos: purchaseCartNos,
             trackingKey: '',
             channelType: '',
         });
@@ -525,6 +537,16 @@ const Cart = () => {
 
     return (
         <>
+            {isMemberInduceModal && (
+                <MemberInduceModal
+                    width={'calc(100% - 24px)'}
+                    onClickToggleModal={() =>
+                        setIsMemberInduceModal((prev) => !prev)
+                    }
+                    products={purchaseProducts}
+                    cartNos={purchaseCartNos}
+                ></MemberInduceModal>
+            )}
             <CartContainer>
                 <CartListWrapper>
                     {isCartListForResponsive('mustShowDesktop') && (
@@ -616,7 +638,12 @@ const Cart = () => {
 
                         <DirectPurchaseButton
                             onClick={
-                                checkedCartList.length === 0
+                                !isLogin && isMobile(width)
+                                    ? () =>
+                                          setIsMemberInduceModal(
+                                              (prev) => !prev,
+                                          )
+                                    : checkedCartList.length === 0
                                     ? () => navigate(PATHS.MAIN)
                                     : purchaseHandler
                             }

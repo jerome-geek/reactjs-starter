@@ -30,6 +30,7 @@ interface ShippingAddressProps {
         receiverName: string;
         receiverContact1: string;
     };
+    isSame: boolean;
     setIsSearchAddressModal: Dispatch<SetStateAction<boolean>>;
     errors: FieldErrors<PaymentReserve>;
 }
@@ -109,6 +110,7 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
     ordererInformation,
     setIsSearchAddressModal,
     errors,
+    isSame,
 }) => {
     const [directInput, setDirectInput] = useState(false);
     const [defaultAddress, setDefaultAddress] = useState(false);
@@ -132,17 +134,26 @@ const ShippingAddress: FC<ShippingAddressProps> = ({
     ];
 
     useEffect(() => {
-        if (ordererInformation) {
+        if (isSame && ordererInformation) {
             setValue(
                 'shippingAddress.receiverName',
                 ordererInformation?.receiverName,
+                {
+                    shouldValidate: true,
+                },
             );
             setValue(
                 'shippingAddress.receiverContact1',
-                ordererInformation.receiverContact1,
+                ordererInformation?.receiverContact1,
+                {
+                    shouldValidate: true,
+                },
             );
+        } else {
+            setValue('shippingAddress.receiverName', '');
+            setValue('shippingAddress.receiverContact1', '');
         }
-    }, [ordererInformation, setValue]);
+    }, [isSame, setValue]);
 
     useEffect(() => {
         setValue('useDefaultAddress', defaultAddress);

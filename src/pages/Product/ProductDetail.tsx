@@ -38,6 +38,7 @@ import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
 import HTTP_RESPONSE from 'const/http';
 import { isLogin } from 'utils/users';
+import MemberInduceModal from 'components/Modal/MemberInduceModal';
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -277,6 +278,7 @@ const ProductDetail = () => {
     const [selectedTab, setSelectedTab] = useState('productSummary');
 
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isMemberInduceModal, setIsMemberInduceModal] = useState(false);
 
     const productDetailData = useProductDetail({
         productNo,
@@ -370,16 +372,9 @@ const ProductDetail = () => {
         },
     );
 
-    const purchaseHandler = async () => {
-        if (selectedOptionList.length <= 0) {
-            alert('옵션을 선택해주세요.');
-            return;
-        }
-
-        purchaseMutate.mutateAsync({
-            trackingKey: '',
-            channelType: CHANNEL_TYPE.NAVER_EP,
-            products: pipe(
+    const purchaseProducts = useMemo(
+        () =>
+            pipe(
                 selectedOptionList,
                 map((a) => ({
                     orderCnt: a.count,
@@ -390,6 +385,19 @@ const ProductDetail = () => {
                 })),
                 toArray,
             ),
+        [selectedOptionList],
+    );
+
+    const purchaseHandler = async () => {
+        if (selectedOptionList.length <= 0) {
+            alert('옵션을 선택해주세요.');
+            return;
+        }
+
+        purchaseMutate.mutateAsync({
+            trackingKey: '',
+            channelType: CHANNEL_TYPE.NAVER_EP,
+            products: purchaseProducts,
         });
     };
 
@@ -454,6 +462,16 @@ const ProductDetail = () => {
                     width={isMobile(width) ? 'calc(100% - 48px)' : '700px'}
                     onClickToggleModal={() => setIsModalVisible(false)}
                 />
+            )}
+
+            {isMemberInduceModal && (
+                <MemberInduceModal
+                    width={'calc(100% - 24px)'}
+                    onClickToggleModal={() =>
+                        setIsMemberInduceModal((prev) => !prev)
+                    }
+                    products={purchaseProducts}
+                ></MemberInduceModal>
             )}
 
             {mainBannerData?.[0]?.accounts && (
@@ -590,7 +608,14 @@ const ProductDetail = () => {
                                 </CartButton>
                                 <BuyNowButton
                                     disabled={purchaseMutate.isLoading}
-                                    onClick={purchaseHandler}
+                                    onClick={
+                                        !isLogin() && isMobile(width)
+                                            ? () =>
+                                                  setIsMemberInduceModal(
+                                                      (prev) => !prev,
+                                                  )
+                                            : purchaseHandler
+                                    }
                                 >
                                     {purchaseMutate.isLoading
                                         ? 'loading...'

@@ -1,8 +1,9 @@
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
 import PATHS from 'const/paths';
+import { OrderSheetBody } from 'models/order';
 
 const ModalContainer = styled.div`
     width: 100%;
@@ -52,7 +53,14 @@ const MemberPurchase = styled(Link)`
     color: #fff;
 `;
 
-const MemberInduceModal = ({ width, onClickToggleModal }: ModalDefaultType) => {
+const MemberInduceModal = ({
+    width,
+    onClickToggleModal,
+    cartNos,
+    products,
+}: Pick<OrderSheetBody, 'cartNos' | 'products'> & ModalDefaultType) => {
+    const navigate = useNavigate();
+
     return (
         <Modal width={width} onClickToggleModal={onClickToggleModal}>
             <ModalContainer>
@@ -70,7 +78,12 @@ const MemberInduceModal = ({ width, onClickToggleModal }: ModalDefaultType) => {
                     <GuestPurchase
                         onClick={() => {
                             onClickToggleModal();
-                            // navigate();
+                            navigate(PATHS.ORDER_AGREE, {
+                                state: {
+                                    cartNos,
+                                    products,
+                                },
+                            });
                         }}
                     >
                         비회원 구매

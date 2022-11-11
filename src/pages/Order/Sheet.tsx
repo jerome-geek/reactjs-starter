@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
@@ -49,7 +49,7 @@ import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
 import HTTP_RESPONSE from 'const/http';
-import MemberInduceModal from 'components/Modal/MemberInduceModal';
+import { isLogin } from 'utils/users';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -281,16 +281,20 @@ const PaymentButton = styled(PrimaryButton)`
         left: 0;
     }
 `;
+const ncpPayScript = process.env.REACT_APP_NCP_PAY_SCRIPT;
+const payPlusScript = process.env.REACT_APP_PAY_PLUS_SCRIPT;
+const inisisPayScript = process.env.REACT_APP_INISIS_PAY_SCRIPT;
 
 const Sheet = () => {
     const { orderSheetNo } = useParams() as { orderSheetNo: string };
 
-    useScript('https://alpha-shop-api.e-ncp.com/payments/ncp_pay_alpha.js');
-    useScript('https://testpay.kcp.co.kr/plugin/payplus_web.jsp');
-    useScript('https://stgstdpay.inicis.com/stdjs/INIStdPay.js');
+    useScript(ncpPayScript!);
+    useScript(payPlusScript!);
+    useScript(inisisPayScript!);
 
     const { member } = useMember();
-    const isLogin = useMemo(() => !!member, [member]);
+
+    const { width } = useWindowSize();
 
     const [orderList, setOrderList] = useState<
         Array<
@@ -303,20 +307,35 @@ const Sheet = () => {
     const [ordererInformation, setOrdererInformation] = useState(false);
     const [orderTerms, setOrderTerms] = useState<
         { id: string; url: ''; isChecked: boolean }[]
-    >(
-        isLogin
-            ? [{ id: 'agreePurchase', url: '', isChecked: false }]
-            : [
-                  { id: 'agreeOrderService', url: '', isChecked: false },
-                  { id: 'agreeOrderInformation', url: '', isChecked: false },
-                  { id: 'agreePurchase', url: '', isChecked: false },
-              ],
-    );
+    >([
+        { id: 'agreeOrderService', url: '', isChecked: false },
+        {
+            id: 'agreeOrderInformation',
+            url: '',
+            isChecked: false,
+        },
+        { id: 'agreePurchase', url: '', isChecked: false },
+    ]);
+
+    useEffect(() => {
+        setOrderTerms(
+            isLogin() || (!isLogin() && isMobile(width))
+                ? [{ id: 'agreePurchase', url: '', isChecked: false }]
+                : [
+                      { id: 'agreeOrderService', url: '', isChecked: false },
+                      {
+                          id: 'agreeOrderInformation',
+                          url: '',
+                          isChecked: false,
+                      },
+                      { id: 'agreePurchase', url: '', isChecked: false },
+                  ],
+        );
+    }, [width]);
 
     const [isShippingListModal, setIsShippingListModal] = useState(false);
     const [isSearchAddressModal, setIsSearchAddressModal] = useState(false);
     const [isCouponListModal, setIsCouponListModal] = useState(false);
-    const [isMemberInduceModal, setIsMemberInduceModal] = useState(!isLogin);
     const [selectCoupon, setSelectCoupon] = useState<CouponRequest>();
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
         accumulationAmt: 0,
@@ -342,8 +361,6 @@ const Sheet = () => {
         totalStandardAmt: 0,
         usedAccumulationAmt: 0,
     });
-
-    const { width } = useWindowSize();
 
     const { mallInfo } = useMall();
 
@@ -390,7 +407,7 @@ const Sheet = () => {
             //         ?.productName,
             useDefaultAddress: false,
             deliveryMemo: '',
-            member: isLogin,
+            member: isLogin(),
             // coupons: {
             //     productCoupons: null,
             //     cartCouponIssueNo: null,
@@ -510,7 +527,7 @@ const Sheet = () => {
         setOrderTerms((prev) =>
             pipe(
                 prev,
-                map((a: any) =>
+                map((a) =>
                     a.id === term ? { ...a, isChecked: !a.isChecked } : a,
                 ),
                 toArray,
@@ -638,14 +655,6 @@ const Sheet = () => {
                         couponApplyMutate={couponApplyMutate}
                     />
                 ))}
-            {isMemberInduceModal && isMobile(width) && (
-                <MemberInduceModal
-                    width={'calc(100% - 24px)'}
-                    onClickToggleModal={() =>
-                        setIsMemberInduceModal((prev) => !prev)
-                    }
-                ></MemberInduceModal>
-            )}
             <OrderSheetContainer onSubmit={onOrderFormSubmit}>
                 {!isMobile(width) && (
                     <OrderProgress
@@ -655,7 +664,7 @@ const Sheet = () => {
                 )}
                 <SheetMainContainer>
                     <SheetOrderWrapper>
-                        {!isLogin && !isMobile(width) && (
+                        {!isLogin() && !isMobile(width) && (
                             <GuestLoginBox>
                                 <p>{sheet('etc.inviteJoin')}</p>
                                 <Link to={PATHS.JOIN_AGREEMENT}>
@@ -753,23 +762,18 @@ const Sheet = () => {
                             register={register}
                             setValue={setValue}
                             getValues={getValues}
-                            ordererInformation={
-                                ordererInformation
-                                    ? {
-                                          receiverName: getValues(
-                                              'orderer.ordererName',
-                                          ),
-                                          receiverContact1: getValues(
-                                              'orderer.ordererContact1',
-                                          ),
-                                      }
-                                    : undefined
-                            }
+                            isSame={ordererInformation}
+                            ordererInformation={{
+                                receiverName: getValues('orderer.ordererName'),
+                                receiverContact1: getValues(
+                                    'orderer.ordererContact1',
+                                ),
+                            }}
                             setIsSearchAddressModal={setIsSearchAddressModal}
                             errors={errors}
                         />
 
-                        {isLogin ? (
+                        {isLogin() ? (
                             <DiscountApply
                                 paymentInfo={paymentInfo}
                                 setValue={setValue}
@@ -789,7 +793,7 @@ const Sheet = () => {
                             />
                         )}
 
-                        {!isLogin && (
+                        {!isLogin() && (
                             <GuestOrderPassword
                                 register={register}
                                 errors={errors}
@@ -813,7 +817,7 @@ const Sheet = () => {
                         )}
 
                         <OrderTermsAgreement
-                            isLogin={isLogin}
+                            isLogin={isLogin()}
                             orderTerms={orderTerms}
                             isAllOrderTermsChecked={isAllOrderTermsChecked}
                             agreeHandler={agreeHandler}

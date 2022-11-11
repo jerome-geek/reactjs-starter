@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { useMutation } from 'react-query';
 import { every, find, map, pipe, toArray } from '@fxts/core';
 
 import MobileHeader from 'components/shared/MobileHeader';
 import Checkbox from 'components/Input/Checkbox';
 import PATHS from 'const/paths';
+import { OrderSheetBody } from 'models/order';
+import { orderSheet } from 'api/order';
 
 const Container = styled.main`
     width: 100%;
@@ -63,7 +66,7 @@ const AgreeButtonList = styled.li`
 
 const GoTermContentPage = styled(Link)``;
 
-const GoSheetButton = styled(Link)`
+const GoSheetButton = styled.button`
     display: block;
     width: 100%;
     font-size: 1.333rem;
@@ -82,6 +85,10 @@ interface TermsType {
     path: string;
 }
 
+interface LocationState {
+    state: Pick<OrderSheetBody, 'cartNos' | 'products'>;
+}
+
 const OrderAgreement = () => {
     const [termList, setTermList] = useState<TermsType[]>([
         {
@@ -98,7 +105,32 @@ const OrderAgreement = () => {
         },
     ]);
 
-    const { orderNo } = useParams() as { orderNo: string };
+    const navigate = useNavigate();
+
+    const location = useLocation() as LocationState;
+
+    const { mutate: purchaseMutate } = useMutation(
+        async (orderSheetList: OrderSheetBody) =>
+            await orderSheet.writeOrderSheet(orderSheetList),
+        {
+            onSuccess: (res) => {
+                navigate(`${PATHS.ORDER}/${res.data.orderSheetNo}`);
+            },
+            onError: () => {
+                alert('구매 실패!');
+            },
+        },
+    );
+
+    const purchaseHandler = () => {
+        purchaseMutate({
+            products: location.state.products,
+            productCoupons: [],
+            cartNos: location.state.cartNos,
+            trackingKey: '',
+            channelType: '',
+        });
+    };
 
     const agreeAllHandler = (checked: boolean) => {
         setTermList((prev) =>
@@ -114,7 +146,7 @@ const OrderAgreement = () => {
         setTermList((prev) =>
             pipe(
                 prev,
-                map((a: any) =>
+                map((a) =>
                     a.id === term ? { ...a, isChecked: !a.isChecked } : a,
                 ),
                 toArray,
@@ -170,7 +202,15 @@ const OrderAgreement = () => {
                         );
                     })}
                 </AgreeButtonListContainer>
-                <GoSheetButton to={`${PATHS.ORDER}/${orderNo}`}>
+                <GoSheetButton
+                    onClick={() => {
+                        if (isAllOrderTermsChecked) {
+                            purchaseHandler();
+                            return;
+                        }
+                        alert('약관에 동의를 해주셔야 합니다!');
+                    }}
+                >
                     다음
                 </GoSheetButton>
             </Container>
