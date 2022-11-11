@@ -2,19 +2,19 @@ import { useQuery, UseQueryOptions } from 'react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 
 import { CLAIM_TYPE } from 'models';
-import { memberClaim } from 'api/claim';
 import { GetOrderOptionDetailForClaimResponse } from 'models/claim';
+import { memberClaim } from 'api/claim';
 
 interface useClaimOrderOptionDetailParams {
-    orderOptionNo: number;
+    orderOptionNo: string;
     params: {
         claimType: CLAIM_TYPE;
     };
     options?: UseQueryOptions<
         AxiosResponse<GetOrderOptionDetailForClaimResponse>,
-        AxiosError,
+        AxiosError<ShopByErrorResponse>,
         GetOrderOptionDetailForClaimResponse,
-        [string, any]
+        [string, { orderOptionNo: string; claimType: CLAIM_TYPE }]
     >;
 }
 
@@ -24,7 +24,10 @@ const useClaimOrderOptionDetail = ({
     options,
 }: useClaimOrderOptionDetailParams) => {
     return useQuery(
-        ['claim_orderOptionDetail', orderOptionNo],
+        [
+            'claim_orderOptionDetail',
+            { orderOptionNo, claimType: params.claimType },
+        ],
         async () =>
             await memberClaim.getOrderOptionDetailForClaim(
                 orderOptionNo,

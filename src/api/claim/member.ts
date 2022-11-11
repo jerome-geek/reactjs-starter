@@ -240,7 +240,7 @@ const member = {
      * @returns
      */
     getOrderOptionDetailForClaim: (
-        orderOptionNo: number,
+        orderOptionNo: string,
         params: { claimType: CLAIM_TYPE },
     ): Promise<AxiosResponse<GetOrderOptionDetailForClaimResponse>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
@@ -323,7 +323,7 @@ const member = {
      * @returns
      */
     requestExchange: (
-        orderOptionNo: number,
+        orderOptionNo: string,
         body: RequestExchangeBody,
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
@@ -371,7 +371,7 @@ const member = {
      *  - 단일옵션을 반품하는 API입니다.
      */
     requestReturnOfSingleOption: (
-        orderOptionNo: number,
+        orderOptionNo: string,
         body: ReturnBody,
     ): Promise<AxiosResponse> => {
         const accessTokenInfo = tokenStorage.getAccessToken();

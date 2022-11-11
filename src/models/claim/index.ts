@@ -340,8 +340,8 @@ export interface ClaimOrderOption extends OrderOption {
 export interface RequestExchangeBody {
     // 상세사유 (example: 다른상품구매)
     claimReasonDetail: string;
-    // 귀책
-    responsibleObjectType: ResponsibleObjectType;
+    // 귀책 (nullable, optional)
+    responsibleObjectType?: ResponsibleObjectType;
     // 입금자명(추가결제시) (nullable, optional)
     additionalPayRemitter?: string;
     // 환불계좌정보 (nullable)
@@ -350,12 +350,12 @@ export interface RequestExchangeBody {
     productCnt: number;
     // 클레임사유 (example: CHANGE_MIND)
     claimReasonType: CLAIM_REASON_TYPE;
-    // 반품수거방법(SELLER_COLLECT 일 경우 returnAddress(반품수거주소지) 입력 필요) (nullable) (example: SELLER_COLLECT)
-    returnWayType: RETURN_WAY_TYPE;
+    // 반품수거방법(SELLER_COLLECT 일 경우 returnAddress(반품수거주소지) 입력 필요) (nullable, optional) (example: SELLER_COLLECT)
+    returnWayType?: RETURN_WAY_TYPE;
     // 택배사타입 (nullable) (example: CJ)
     deliveryCompanyType?: DELIVERY_COMPANY_TYPE;
-    // 첨부파일 url 리스트 (5개까지 가능) (nullable) (example: url1,url2)
-    claimImageUrls: string[];
+    // 첨부파일 url 리스트 (5개까지 가능) (nullable, optional) (example: url1,url2)
+    claimImageUrls?: string[];
     // 반품수거 주소지(배송상품인 경우 필수, 배송안함상품인 경우 null 가능) (nullable, optional)
     returnAddress?: ClaimAddress;
     // 추가결제입금계좌(추가결제시) (nullable, optional)
