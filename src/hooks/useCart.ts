@@ -35,6 +35,7 @@ const useCart = () => {
             }),
         {
             enabled: !isLogin(),
+            keepPreviousData: true,
             select: (response) => response.data,
             onSuccess: (data) => setCartInfo(data),
         },
@@ -45,6 +46,7 @@ const useCart = () => {
         async () => await cart.getCart(),
         {
             enabled: isLogin(),
+            keepPreviousData: true,
             select: (response) => response.data,
             onSuccess: (data) => setCartInfo(data),
             onError: (error) => {
