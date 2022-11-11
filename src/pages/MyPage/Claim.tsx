@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { pipe, filter, head } from '@fxts/core';
+import { pipe, filter, head, isEmpty } from '@fxts/core';
 import Select, { components, DropdownIndicatorProps } from 'react-select';
 import { useForm, Controller } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
 import { DevTool } from '@hookform/devtools';
 import { useMutation } from 'react-query';
+import { AxiosError, AxiosResponse } from 'axios';
 
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import PrimaryButton from 'components/Button/PrimaryButton';
@@ -14,6 +15,7 @@ import StyledInput from 'components/Input/StyledInput';
 import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { flex } from 'utils/styles/mixin';
 import { useMall } from 'hooks';
+import useClaimOrderOptionDetail from 'hooks/queries/useClaimOrderOptionDetail';
 import { ReactComponent as DropDownIcon } from 'assets/icons/arrow_drop_down.svg';
 import { memberClaim } from 'api/claim';
 import { CLAIM_TYPE, CLAIM_REASON_TYPE } from 'models';
@@ -22,12 +24,7 @@ import PATHS from 'const/paths';
 
 interface ClaimLocation {
     orderNo: string;
-    imageUrl: string;
-    optionName: string;
-    orderOptionNo: number;
-    orderCnt: number;
-    productName: string;
-    productNo: number;
+    orderOptionNo: string;
 }
 
 const ClaimContainer = styled(LayoutResponsive)`
@@ -139,37 +136,50 @@ const Claim = () => {
     const navigate = useNavigate();
 
     // 상품문의는 별도로 처리해주어야함
-    const claimList = useMemo(
+    const claimList = useMemo<
+        {
+            type: string;
+            title: string;
+            selectBoxTitle: string;
+            placeholder: string;
+            claimType: CLAIM_TYPE;
+        }[]
+    >(
         () => [
             {
                 type: 'inquiry',
                 title: '상품문의',
                 selectBoxTitle: '문의 유형',
                 placeholder: '문의 유형을 선택해주세요.',
+                claimType: CLAIM_TYPE.NONE,
             },
             {
                 type: 'exchange',
                 title: '교환 신청',
                 selectBoxTitle: '교환 사유',
                 placeholder: '교환 신청 유형을 선택해주세요.',
+                claimType: CLAIM_TYPE.EXCHANGE,
             },
             {
                 type: 'return',
                 title: '반품 신청',
                 selectBoxTitle: '반품 사유',
                 placeholder: '반품 신청 유형을 선택해주세요.',
+                claimType: CLAIM_TYPE.RETURN,
             },
             {
                 type: 'refund',
                 title: '환불/취소',
                 selectBoxTitle: '취소 사유',
                 placeholder: '취소 신청 유형을 선택해주세요.',
+                claimType: CLAIM_TYPE.CANCEL,
             },
             {
                 type: 'cancel-all',
                 title: '전체취소',
                 selectBoxTitle: '취소 사유',
                 placeholder: '취소 신청 유형을 선택해주세요.',
+                claimType: CLAIM_TYPE.CANCEL,
             },
         ],
         [],
@@ -203,10 +213,45 @@ const Claim = () => {
                     claimReasonType: claimReasonType.value,
                 });
             }
+
+            if (type === 'return') {
+                await returnMutation.mutateAsync({
+                    orderOptionNo: location.state.orderOptionNo,
+                    content,
+                    // claimReasonType: claimReasonType.value,
+                    claimReasonType,
+                });
+            }
+
+            if (type === 'exchange') {
+                await exchangeMutation.mutateAsync({
+                    orderOptionNo: location.state.orderOptionNo,
+                    content,
+                    claimReasonType: claimReasonType.value,
+                });
+            }
         },
     );
 
-    // 1. 전체 취소 (type === cancel-all)
+    const detailData = useClaimOrderOptionDetail({
+        orderOptionNo: location.state.orderOptionNo,
+        params: {
+            claimType: currentClaim?.claimType as CLAIM_TYPE,
+        },
+        options: {
+            onError: (error) => {
+                alert(error?.response?.data?.message || '에러가 발생했습니다.');
+                navigate('/my-page/order/list', { replace: true });
+            },
+        },
+    });
+    if (isEmpty(detailData)) {
+    }
+
+    // 1. 문의하기
+
+    // 2. 전체 취소 (type === cancel-all)
+    // 3. 전체환불 - 환불도 위와 같은 API를 사용, 취소/환불은 같은 API 사용
     const cancelAllMutation = useMutation(
         async ({
             orderNo,
@@ -236,11 +281,84 @@ const Claim = () => {
             },
         },
     );
-
-    // TODO: 3. 전체환불 - 환불도 위와 같은 API를 사용, 취소/환불은 같은 API 사용
     // TODO: 4. 부분환불
     // TODO: 5. 교환신청
-    // TODO: 6. 반품신청
+    const exchangeMutation = useMutation<
+        AxiosResponse<{}>,
+        AxiosError<ShopByErrorResponse>,
+        {
+            orderOptionNo: string;
+            content: string;
+            claimReasonType: CLAIM_REASON_TYPE;
+        }
+    >(
+        async ({
+            orderOptionNo,
+            content,
+            claimReasonType,
+        }: {
+            orderOptionNo: string;
+            content: string;
+            claimReasonType: CLAIM_REASON_TYPE;
+        }) =>
+            await memberClaim.requestExchange(orderOptionNo, {
+                claimReasonDetail: content,
+                productCnt: detailData.data?.originalOption.orderCnt!,
+                claimReasonType,
+                exchangeOption: {
+                    inputTexts: [{}],
+                    orderCnt: detailData.data?.originalOption.orderCnt!,
+                    optionNo: detailData.data?.originalOption.optionNo!,
+                    productNo: detailData.data?.originalOption.productNo!,
+                    additionalProductNo:
+                        detailData.data?.originalOption.additionalProductNo!,
+                },
+            }),
+        {
+            onSuccess: (response) => {
+                if (response.status === HTTP_RESPONSE.HTTP_NO_CONTENT) {
+                    // TODO: alert -> modal 변경
+                    alert('교환 신청이 완료되었습니다');
+                    navigate(PATHS.MY_ORDER_LIST, { replace: true });
+                }
+            },
+            onError: (error) => {
+                alert(error?.response?.data?.message || '에러가 발생했습니다.');
+            },
+        },
+    );
+
+    // TODO: 6. 반품신청(가상계좌 반품 구현 X)
+    const returnMutation = useMutation<
+        AxiosResponse<{}>,
+        AxiosError<ShopByErrorResponse>,
+        {
+            orderOptionNo: string;
+            content: string;
+            claimReasonType: CLAIM_REASON_TYPE;
+        }
+    >(
+        async ({ orderOptionNo, content, claimReasonType }) =>
+            await memberClaim.requestReturnOfSingleOption(orderOptionNo, {
+                claimReasonDetail: content,
+                claimType: CLAIM_TYPE.RETURN,
+                saveBankAccountInfo: false,
+                productCnt: 1, // TODO: 상품 정보 가져와서 넣기
+                claimReasonType,
+            }),
+        {
+            onSuccess: (response) => {
+                if (response.status === HTTP_RESPONSE.HTTP_NO_CONTENT) {
+                    // TODO: alert -> modal 변경
+                    alert('반품 신청이 완료되었습니다');
+                    navigate(PATHS.MY_ORDER_LIST, { replace: true });
+                }
+            },
+            onError: (error) => {
+                alert(error?.response?.data?.message || '에러가 발생했습니다.');
+            },
+        },
+    );
 
     return (
         <ClaimContainer>
@@ -250,21 +368,29 @@ const Claim = () => {
                 <>
                     <Title>{currentClaim.title}</Title>
 
-                    {type !== 'cancel-all' && (
+                    {type !== 'cancel-all' && detailData.data && (
                         <ProductContainer>
                             <ImageContainer>
                                 <img
-                                    src={location.state.imageUrl}
-                                    alt={location.state.productName}
+                                    src={
+                                        detailData.data?.originalOption.imageUrl
+                                    }
+                                    alt={
+                                        detailData.data?.originalOption
+                                            .productName
+                                    }
                                     width='150'
                                     height='150'
                                 />
                             </ImageContainer>
                             <ProductInfoContainer>
                                 <ProductName>
-                                    {location.state.productName}
+                                    {
+                                        detailData.data?.originalOption
+                                            .productName
+                                    }
                                 </ProductName>
-                                <Option>{`${location.state.optionName} ${location.state.orderCnt}개`}</Option>
+                                <Option>{`${detailData.data?.originalOption.optionName} ${detailData.data?.originalOption.orderCnt}개`}</Option>
                             </ProductInfoContainer>
                         </ProductContainer>
                     )}

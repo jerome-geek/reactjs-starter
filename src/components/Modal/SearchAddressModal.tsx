@@ -14,7 +14,7 @@ import Modal, { ModalDefaultType } from 'components/Modal/Modal';
 
 const Title = styled.h2`
     margin: 50px 0 40px;
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
     letter-spacing: -1.2px;
     color: ${(props) => props.theme.text1};
@@ -33,6 +33,7 @@ const SearchInputForm = styled.form`
 const SearchInput = styled.input`
     width: 100%;
     height: 23px;
+    font-size: 14px;
 `;
 
 const DescriptionContainer = styled.div`
@@ -116,6 +117,8 @@ const JibunAddress = styled.div`
     }
     cursor: pointer;
 `;
+
+const PaginationContainer = styled.div``;
 
 const NoResultContainer = styled.div`
     width: 100%;
@@ -277,14 +280,16 @@ const SearchAddressModal = ({
                             },
                         )}
                     </SearchListContainer>
-                    <Pagination
-                        total={addressData?.data?.totalCount}
-                        defaultCurrent={page}
-                        onChange={(current) => {
-                            setPage(() => current);
-                        }}
-                        style={{ margin: '40px 0' }}
-                    />
+                    <PaginationContainer>
+                        <Pagination
+                            total={addressData?.data?.totalCount}
+                            defaultCurrent={page}
+                            onChange={(current) => {
+                                setPage(() => current);
+                            }}
+                            style={{ margin: '40px 0' }}
+                        />
+                    </PaginationContainer>
                 </>
             ) : (
                 <NoResultContainer>

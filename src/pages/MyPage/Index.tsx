@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import styled from 'styled-components';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
+import GenuineRegisterModal from 'components/Modal/GenuineRegisterModal';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import OrderSummarySection from 'components/Order/OrderSummarySection';
 import ShoppingSummary from 'components/Order/ShoppingSummary';
@@ -48,6 +50,8 @@ const MyPageTitle = styled.h1`
 `;
 
 const MyPageIndex = () => {
+    const [isGenuineRegisterModal, setIsGenuineRegisterModal] = useState(false);
+
     const { member, onLogOutClick } = useMember();
 
     const { data: accumulationData } = useQuery(
@@ -81,6 +85,12 @@ const MyPageIndex = () => {
 
     return (
         <>
+            {isGenuineRegisterModal && (
+                <GenuineRegisterModal
+                    onClickToggleModal={() => setIsGenuineRegisterModal(false)}
+                    width={'752px'}
+                />
+            )}
             <SEOHelmet data={{ title: '마이페이지' }} />
 
             <MyPageContainer>
@@ -139,7 +149,10 @@ const MyPageIndex = () => {
                 </MyPageSection>
 
                 <MyPageSection>
-                    <MyGoodsSummary myGoods={[1, 2, 3, 4]} />
+                    <MyGoodsSummary
+                        setIsGenuineRegisterModal={setIsGenuineRegisterModal}
+                        myGoods={[1, 2, 3, 4]}
+                    />
                 </MyPageSection>
 
                 <MyPageSection style={{ border: 0 }}>
