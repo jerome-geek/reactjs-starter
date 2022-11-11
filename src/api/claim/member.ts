@@ -11,6 +11,8 @@ import {
     RefundAccountInfo,
     ReturnOption,
     RequestExchangeBody,
+    ReturnBody,
+    GetOrderOptionDetailForClaimResponse,
 } from 'models/claim';
 import { tokenStorage } from 'utils/storage';
 
@@ -219,6 +221,7 @@ const member = {
             }),
         });
     },
+
     cancelClaimByClaimNo: (claimNo: string): Promise<AxiosResponse> =>
         request({
             method: 'PUT',
@@ -228,18 +231,29 @@ const member = {
             }),
         }),
 
-    getContentsForClaim: (
-        orderOptionNo: string,
-        { claimType }: { claimType: CLAIM_TYPE },
-    ): Promise<AxiosResponse> =>
-        request({
+    /**
+     * 회원 클레임 신청을 위한 정보 조회하기
+     *  - 선택옵션에 대한 클레임을 신청할 때 필요한 정보를 조회합니다.
+     *
+     * @param orderOptionNo
+     * @param param1
+     * @returns
+     */
+    getOrderOptionDetailForClaim: (
+        orderOptionNo: number,
+        params: { claimType: CLAIM_TYPE },
+    ): Promise<AxiosResponse<GetOrderOptionDetailForClaimResponse>> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'GET',
             url: `/profile/order-options/${orderOptionNo}/claims`,
-            params: { claimType },
+            params: { claimType: params.claimType },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     // TODO: 함수명 변경
     requestCancelClaimOption: (
@@ -309,50 +323,37 @@ const member = {
      * @returns
      */
     requestExchange: (
-        orderOptionNo: string,
+        orderOptionNo: number,
         body: RequestExchangeBody,
-        {
-            responsibleObjectType,
-            claimType,
-            productCnt,
-            claimReasonType,
-            returnWayType,
-            claimImageUrls,
-            claimReasonDetail,
-            bankAccountInfo,
-            saveBankAccountInfo,
-            returnAddress,
-            deliveryCompanyType,
-            invoiceNo,
-            exchangeAddress,
-            exchangeOption,
-        }: Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'> &
-            ReturnOption &
-            ExchangeRequest,
-    ): Promise<AxiosResponse> =>
-        request({
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/profile/order-options/${orderOptionNo}/claims/exchange`,
             data: {
-                responsibleObjectType,
-                claimType,
-                productCnt,
-                claimReasonType,
-                returnWayType,
-                claimImageUrls,
-                claimReasonDetail,
-                bankAccountInfo,
-                saveBankAccountInfo,
-                returnAddress,
-                deliveryCompanyType,
-                invoiceNo,
-                exchangeAddress,
-                exchangeOption,
+                claimReasonDetail: body.claimReasonDetail,
+                responsibleObjectType: body.responsibleObjectType,
+                additionalPayRemitter: body.additionalPayRemitter,
+                bankAccountInfo: body.bankAccountInfo,
+                productCnt: body.productCnt,
+                claimReasonType: body.claimReasonType,
+                returnWayType: body.returnWayType,
+                deliveryCompanyType: body.deliveryCompanyType,
+                claimImageUrls: body.claimImageUrls,
+                returnAddress: body.returnAddress,
+                additionalPayBankAccount: body.additionalPayBankAccount,
+                saveBankAccountInfo: body.saveBankAccountInfo,
+                additionalPayType: body.additionalPayType,
+                exchangeAddress: body.exchangeAddress,
+                exchangeOption: body.exchangeOption,
+                invoiceNo: body.invoiceNo,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     getClaimDetailByOrderOptionNo: (
         orderOptionNo: string,
@@ -365,45 +366,38 @@ const member = {
             }),
         }),
 
+    /**
+     * 회원 반품 신청하기(단일옵션)
+     *  - 단일옵션을 반품하는 API입니다.
+     */
     requestReturnOfSingleOption: (
-        orderOptionNo: string,
-        {
-            claimImageUrls,
-            claimType,
-            productCnt,
-            claimReasonType,
-            claimReasonDetail,
-            bankAccountInfo,
-            saveBankAccountInfo,
-            returnAddress,
-            returnWayType,
-            deliveryCompanyType,
-            invoiceNo,
-            responsibleObjectType,
-        }: ReturnOption &
-            Omit<GetEstimatedRefundPriceBody, 'claimedProductOptions'>,
-    ): Promise<AxiosResponse> =>
-        request({
+        orderOptionNo: number,
+        body: ReturnBody,
+    ): Promise<AxiosResponse> => {
+        const accessTokenInfo = tokenStorage.getAccessToken();
+
+        return request({
             method: 'POST',
             url: `/profile/order-options/${orderOptionNo}/claims/return`,
             data: {
-                claimImageUrls,
-                claimType,
-                productCnt,
-                claimReasonType,
-                claimReasonDetail,
-                bankAccountInfo,
-                saveBankAccountInfo,
-                returnAddress,
-                returnWayType,
-                deliveryCompanyType,
-                invoiceNo,
-                responsibleObjectType,
+                claimReasonDetail: body.claimReasonDetail,
+                responsibleObjectType: body.responsibleObjectType,
+                claimType: body.claimType,
+                bankAccountInfo: body.bankAccountInfo,
+                saveBankAccountInfo: body.saveBankAccountInfo,
+                productCnt: body.productCnt,
+                claimReasonType: body.claimReasonType,
+                returnWayType: body.returnWayType,
+                deliveryCompanyType: body.deliveryCompanyType,
+                claimImageUrls: body.claimImageUrls,
+                invoiceNo: body.invoiceNo,
+                returnAddress: body.returnAddress,
             },
             headers: Object.assign({}, defaultHeaders(), {
-                accessToken: localStorage.getItem('accessToken') || '',
+                accessToken: accessTokenInfo?.accessToken || '',
             }),
-        }),
+        });
+    },
 
     cancelClaimByOrderOptionNo: (
         orderOptionNo: string,

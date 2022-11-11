@@ -10,12 +10,20 @@ import {
     PAY_TYPE,
     PG_TYPE,
     COUNTRY_CD,
+    OPTION_TYPE,
+    CLAIM_STATUS_TYPE,
+    ORDER_STATUS_TYPE,
 } from 'models';
 import {
+    Delivery,
     DeliveryAmtInfo,
+    NextAction,
     OrderOption,
+    OrderStatusDate,
+    Price,
     ProductAmtInfo,
     ReturnAddress,
+    ShippingAddress,
 } from 'models/order';
 
 // 추가결제방법
@@ -105,6 +113,41 @@ export interface CancelOptionsBody {
     claimReasonType: CLAIM_REASON_TYPE;
     // 즉시환불여부(기본 값: true)(서비스 플랜이 프리미엄이고, 주문상태가 결제완료인 옵션인 경우 즉시환불 가능) (example: true)
     refundsImmediately: boolean;
+}
+
+export interface ReturnBody {
+    // 상세사유 (example: 다른상품구매)
+    claimReasonDetail: string;
+    // 귀책 (nullable, optional)
+    responsibleObjectType?: ResponsibleObjectType;
+    // 클레임타입 (example: CANCEL)
+    claimType: Omit<CLAIM_TYPE, 'NONE'>;
+    // 환불계좌정보 저장 여부 (example: true)
+    saveBankAccountInfo: boolean;
+    // 계좌정보 (nullable, optional)
+    bankAccountInfo?: BankAccountInfo;
+    // 취소/반품할 제품수량 (example: 1)
+    productCnt: number;
+    // 클레임사유 (example: CHANGE_MIND)
+    claimReasonType: CLAIM_REASON_TYPE;
+    // 반품상품 수거방법 (nullable, optional) (example: SELLER_COLLECT)
+    returnWayType?: RETURN_WAY_TYPE;
+    // 택배사타입 (nullable, optional) (example: CJ)
+    deliveryCompanyType?: Nullable<DELIVERY_COMPANY_TYPE>;
+    // 반품/교환 이미지 첨부파일 url 리스트 (nullable, optional) (example: url1,url2)
+    claimImageUrls?: string[];
+    // 송장번호 (nullable, optional) (example: 123455)
+    invoiceNo?: Nullable<string>;
+    // 반품 주소(배송상품인 경우 필수, 배송안함상품인 경우 null 가능) (nullable, optional)
+    returnAddress?: Nullable<ReturnShppingAddress>;
+}
+
+// 반품 주소
+interface ReturnShppingAddress extends ShippingAddress {
+    // 주소록 (nullable) (example: 홍길동집)
+    addressName?: string;
+    // 배송메모 (nullable) (example: 택배실에 맡겨 주세요.)
+    deliveryMemo?: string;
 }
 
 export interface GetEstimatedRefundPriceBody {
@@ -353,4 +396,172 @@ export interface ClaimAddress {
     receiverContact1: string;
     // 수령자연락처2 (nullable, optional) (example: 01011111111)
     receiverContact2?: string;
+}
+
+export interface GetOrderOptionDetailForClaimResponse {
+    // 택배사타입 (example: CJ)
+    deliveryCompanyTypes: string;
+    // 클레임 대상 상품
+    originalOption: ClaimableOption;
+    // 클레임 사유 목록
+    claimReasonTypes: {
+        // 귀책
+        responsibleObjectType: ResponsibleObjectType;
+        /**
+         * 클레임 사유
+         *  - 샵바이 프로: 모든 클레임 사유
+         *  - 샵바이 프리미엄
+         *      - 입금대기, 결제완료(취소신청): CHANGE_MIND
+         *      - 입금대기, 결제완료(교환신청): CHANGE_MIND, DEFECTIVE_PRODUCT, WRONG_DELIVERY, OTHERS_BUYER
+         *      - 상품준비중, 배송준비중(취소신청): CHANGE_MIND, WRONG_PRODUCT_DETAIL, DELAY_DELIVERY
+         *      - 상품준비중, 배송준비중, 배송중, 배송완료(교환신청, 반품신청): CHANGE_MIND, WRONG_PRODUCT_DETAIL, DELAY_DELIVERY, DEFECTIVE_PRODUCT, WRONG_DELIVERY, OTHERS_BUYER
+         */
+        claimReasonType: CLAIM_REASON_TYPE;
+        // 클레임사유명 (example: 단순변심)
+        label: string;
+    };
+    // 수거지(반품할 물건을 수거하러 갈 주소) (nullable)
+    returnAddress: Nullable<ClaimAddress>;
+    // 클레임타입 (example: CANCEL)
+    claimType: Omit<CLAIM_TYPE, 'NONE'>;
+    // 결제수단 (nullable) (example: CREDIT_CARD)
+    payType: Nullable<PAY_TYPE>;
+    // 교환배송지 (nullable)
+    exchangeAddress: Nullable<ClaimAddress>;
+    // 같이 클레임 가능한 상품
+    claimableOptions: ClaimableOption[];
+    // 귀책 - responsibleObjectType이 null이면 ClaimReasonType에 매핑되는 귀책 적용
+    responsibleObjectTypes: ResponsibleObjectType;
+    // 환불 가능한 은행
+    availableBanks: {
+        // 은행 코드 (example: KDB)
+        bank: BANK;
+        // 은행명 (example: 산업은행)
+        label: string;
+    };
+    // 등록되어 있는 환불계좌 (nullable)
+    refundAccount: Nullable<{
+        // 계좌번호 (nullable) (example: 1002134134983)
+        bankAccount: string;
+        // 예금주명 (nullable) (example: 홍길동)
+        bankDepositorName: string;
+        // 은행 코드 (nullable) (example: KDB)
+        bank: BANK;
+        // 은행명 (nullable) (example: 산업은행)
+        bankName: string;
+    }>;
+    // 택배사 목록
+    deliveryCompanyTypeWithLabels: {
+        // 택배사타입 (example: CJ)
+        deliveryCompanyType: DELIVERY_COMPANY_TYPE;
+        // 택배사명 (example: CJ대한통운)
+        label: string;
+    };
+    // 반품할 물건을 보낼 주소 (nullable)
+    returnWarehouse: Nullable<{
+        // 요약정보 (example: 12345 서울특별시 구로구 디지털로26길 72 NHN한국사이버결제 3층)
+        summary: string;
+        // 주소 (nullable) (example: 서울특별시 구로구 디지털로26길 72)
+        address: Nullable<string>;
+        // 수령자명 (nullable) (example: 홍길동)
+        receiverName: Nullable<string>;
+        // 연락처 (nullable) (example: 01012341234)
+        contact: Nullable<string>;
+        // 지번주소 (nullable) (example: 서울특별시 구로구 구로동 222-22)
+        jibunAddress: Nullable<string>;
+        // 상세주소 (nullable) (example: NHN한국사이버결제 3층)
+        detailAddress: Nullable<string>;
+        // 우편번호 (nullable) (example: 12345)
+        zipCd: Nullable<string>;
+        // 대체문구 (nullable) (example: 물류센터)
+        substitutionText: Nullable<string>;
+    }>;
+}
+
+export interface ClaimableOption {
+    // 예약상품 배송 지정일 (nullable) (example: YYYY-MM-DD hh:mm:ss)
+    reservationDeliveryYmdt: Nullable<string>;
+    // 클레임 번호 (nullable) (example: 1)
+    claimNo: Nullable<number>;
+    // [alpha 개발중]사은품 여부 (example: false)
+    isFreeGift: boolean;
+    // 구매자 작성형 옵션
+    inputs: {
+        // 구매자 작성형 입력 값 (nullable) (example: HGD)
+        inputValue: Nullable<string>;
+        // 구매자 작성형 입력 이름 (nullable) (example: 이니셜)
+        inputLabel: Nullable<string>;
+    }[];
+    // 클레임사유 (nullable) (example: CHANGE_MIND)
+    claimReasonType: Nullable<CLAIM_REASON_TYPE>;
+    // 배송상품여부 (example: true)
+    deliverable: boolean;
+    // 옵션사용여부 (example: true)
+    optionUsed: boolean;
+    // 상품명 (example: Nike 운동화)
+    productName: string;
+    // 수량할인 여부
+    isQuantityDiscount: boolean;
+    // 클레임상태(한글) (nullable) (example: 취소완료[환불완료])
+    claimStatusTypeLabel: string;
+    // 클레임상태 (nullable) (example: CANCEL_NO_REFUND)
+    claimStatusType: Nullable<CLAIM_STATUS_TYPE>;
+    // 추가상품번호 (example: 1)
+    additionalProductNo: number;
+    // 옵션형태(PRODUCT_ONLY:옵션없음, NORMAL_OPTION:일반옵션) (example: PRODUCT_ONLY)
+    optionType: Omit<OPTION_TYPE, 'ADDITIONAL_PRODUCT'>;
+    // 결제수단 (example: CREDIT_CARD)
+    payType: PAY_TYPE;
+    // 해외배송여부(true: 해외배송, false: 국내배송) (example: false)
+    deliveryInternationalYn: boolean;
+    // 금액정보
+    price: Price;
+    // 상품 이미지 URL (example: url)
+    imageUrl: string;
+    // 회원여부 (example: true)
+    member: boolean;
+    // 예약주문여부 (example: false)
+    reservation: boolean;
+    // 다음에 할 수 있는 작업
+    nextActions: Omit<NextAction, 'actionGroupType'>[];
+    // 환불가능여부 (example: true)
+    refundable: boolean;
+    // 옵션번호 (example: 1)
+    optionNo: number;
+    // 주문상품옵션번호 (example: 1)
+    orderOptionNo: number;
+    // 상품번호 (example: 1)
+    productNo: number;
+    // 상세사유 (nullable) (example: 상세사유)
+    claimReasonDetail: Nullable<string>;
+    // 옵션권장출력값 (example: test)
+    optionTitle: Nullable<string>;
+    // 배송정보
+    delivery: Omit<Delivery, 'usesShippingInfoLaterInput' | 'deliveryType'>;
+    // 브랜드명 (nullable) (example: Nike)
+    brandName: Nullable<string>;
+    // PG타입 (example: PAYCO)
+    pgType: PG_TYPE;
+    // 주문번호 (example: 1)
+    orderNo: string;
+    // 주문상태 (example: DEPOSIT_WAIT)
+    orderStatusType: ORDER_STATUS_TYPE;
+    // 옵션값 (example: 255)
+    optionValue: string;
+    // 주문수량 (example: 10)
+    orderCnt: number;
+    // 교환여부 (nullable) (example: Y)
+    exchangeYn: Nullable<string>;
+    // 적립금 (nullable) (example: 0)
+    accumulationAmt: Nullable<number>;
+    // 주문날짜정보
+    orderStatusDate: Omit<OrderStatusDate, 'payYmdt'>;
+    // 브랜드영문명 (nullable) (example: enB)
+    brandNameEn: Nullable<string>;
+    // 영어상품명 (nullable) (example: Nike shoes)
+    productNameEn: Nullable<string>;
+    // 옵션명 (example: 사이즈)
+    optionName: string;
+    // 옵션관리코드 (nullable) (example: 1)
+    optionManagementCd: string;
 }
