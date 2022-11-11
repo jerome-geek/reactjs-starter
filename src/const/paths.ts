@@ -29,6 +29,7 @@ const PATHS = {
     GUEST_ORDER: '/guest/order',
     GUEST_ORDER_DETAIL: '/guest/order/detail',
     ORDER: '/order/sheet',
+    ORDER_AGREE: '/order/agreement',
     MANAGER: '/manager',
     MANUAL_LIST: '/manual/list',
     MANUAL_DETAIL: '/manual/detail',

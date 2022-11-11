@@ -234,6 +234,9 @@ const SearchAddressModal = ({
                                                 setValue(
                                                     'shippingAddress.receiverAddress',
                                                     roadAddress,
+                                                    {
+                                                        shouldValidate: true,
+                                                    },
                                                 );
                                                 setValue(
                                                     'shippingAddress.receiverJibunAddress',
@@ -256,6 +259,9 @@ const SearchAddressModal = ({
                                                 setValue(
                                                     'shippingAddress.receiverAddress',
                                                     roadAddress,
+                                                    {
+                                                        shouldValidate: true,
+                                                    },
                                                 );
                                                 setValue(
                                                     'shippingAddress.receiverJibunAddress',
