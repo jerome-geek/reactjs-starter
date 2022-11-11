@@ -169,21 +169,33 @@ const OrderOptionListItem: FC<OrderOptionListItemProps> = ({
                         <ClaimButtonContainer>
                             <ClaimButton
                                 onClick={() =>
-                                    navigate('/my-page/claim/inquiry')
+                                    navigate('/my-page/claim/inquiry', {
+                                        state: {
+                                            orderOptionNo,
+                                        },
+                                    })
                                 }
                             >
                                 문의하기
                             </ClaimButton>
                             <ClaimButton
                                 onClick={() =>
-                                    navigate('/my-page/claim/exchange')
+                                    navigate('/my-page/claim/exchange', {
+                                        state: {
+                                            orderOptionNo,
+                                        },
+                                    })
                                 }
                             >
                                 교환하기
                             </ClaimButton>
                             <ClaimButton
                                 onClick={() =>
-                                    navigate('/my-page/claim/return')
+                                    navigate('/my-page/claim/return', {
+                                        state: {
+                                            orderOptionNo,
+                                        },
+                                    })
                                 }
                             >
                                 반품요청
