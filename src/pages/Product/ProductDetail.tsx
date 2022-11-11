@@ -22,11 +22,12 @@ import ShareModal from 'components/Modal/ShareModal';
 import ProductSticker from 'components/Product/ProductSticker';
 import ProductPolicy from 'components/Product/ProductPolicy';
 import MemberInduceModal from 'components/Modal/MemberInduceModal';
-import { cart, orderSheet } from 'api/order';
+import { orderSheet } from 'api/order';
 import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
-import { OrderSheetBody, ShoppingCartBody } from 'models/order';
+import { OrderSheetBody } from 'models/order';
 import { isLogin } from 'utils/users';
+import { useCartMutate } from 'hooks/mutations';
 import useBanners from 'hooks/queries/useBanners';
 import useProductOptionList from 'hooks/queries/useProductOptionList';
 import useProductDetail from 'hooks/queries/useProductDetail';
@@ -279,6 +280,7 @@ const ProductDetail = () => {
     const productDetailData = useProductDetail({
         productNo,
     });
+
     useProductOptionList({
         productNo,
         options: {
@@ -288,18 +290,7 @@ const ProductDetail = () => {
         },
     });
 
-    const cartMutate = useMutation(
-        async (cartList: Omit<ShoppingCartBody, 'cartNo'>[]) =>
-            await cart.registerCart(cartList),
-        {
-            onSuccess: (res) => {
-                alert(productDetail('successCartAlert'));
-            },
-            onError: () => {
-                alert(productDetail('failCartAlert'));
-            },
-        },
-    );
+    const cartMutate = useCartMutate();
 
     const addCartHandler = () => {
         if (selectedOptionList.length <= 0) {

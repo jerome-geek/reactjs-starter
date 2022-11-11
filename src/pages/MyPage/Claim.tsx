@@ -246,6 +246,7 @@ const Claim = () => {
         },
     });
     if (isEmpty(detailData)) {
+        navigate('/my-page/order/list', { replace: true });
     }
 
     // 1. 문의하기
