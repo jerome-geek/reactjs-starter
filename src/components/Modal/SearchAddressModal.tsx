@@ -1,16 +1,13 @@
-import { PropsWithChildren, useRef, useState } from 'react';
+import { FormEvent, PropsWithChildren, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { AxiosResponse } from 'axios';
-import { useQuery } from 'react-query';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import Pagination from 'rc-pagination';
-import 'rc-pagination/assets/index.css';
 
-import { PaymentReserve } from 'models/order';
-import { AddressResponse } from 'models/manage';
-import { address } from 'api/manage';
-import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
+import { useAddress } from 'hooks/queries';
+import { PaymentReserve } from 'models/order';
+import { ReactComponent as SearchIcon } from 'assets/icons/search.svg';
+import 'rc-pagination/assets/index.css';
 
 const Title = styled.h2`
     margin: 50px 0 40px;
@@ -143,23 +140,27 @@ const SearchAddressModal = ({
     register: UseFormRegister<PaymentReserve>;
     setValue: UseFormSetValue<PaymentReserve>;
 }) => {
-    const [page, setPage] = useState(1);
-    const [keyword, setKeyword] = useState('');
     const searchKeyword = useRef<HTMLInputElement>(null);
 
-    const { data: addressData } = useQuery<AxiosResponse<AddressResponse>>(
-        ['searchAddressData', { page, keyword: keyword }],
-        async () =>
-            await address.searchAddress({
-                pageNumber: page,
-                pageSize: 7,
+    const [searchCondition, setSearchCondition] = useState({
+        pageNumber: 1,
+        keyword: '',
+    });
+
+    const addressData = useAddress(searchCondition);
+
+    const onSubmitClick = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        const keyword = searchKeyword?.current?.value;
+
+        if (keyword && keyword.length >= 2) {
+            setSearchCondition((prev) => ({
+                ...prev,
                 keyword,
-            }),
-        {
-            refetchOnWindowFocus: false,
-            enabled: !!keyword,
-        },
-    );
+            }));
+        }
+    };
 
     return (
         <Modal
@@ -168,27 +169,19 @@ const SearchAddressModal = ({
             height={height}
         >
             <Title>우편번호 검색</Title>
-            <SearchInputForm
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    if (
-                        !searchKeyword.current?.value ||
-                        searchKeyword.current?.value.length < 2
-                    ) {
-                        return;
-                    }
-                    setKeyword(searchKeyword.current?.value!);
-                }}
-            >
+
+            <SearchInputForm onSubmit={onSubmitClick}>
                 <SearchInput
                     placeholder='예) 서울특별시 구로구'
                     type='search'
+                    name='keyword'
                     ref={searchKeyword}
                 />
-                <button>
+                <button type='submit'>
                     <SearchIcon />
                 </button>
             </SearchInputForm>
+
             {!addressData?.data ? (
                 <DescriptionContainer>
                     <DescriptionTip>이렇게 검색해 보세요!</DescriptionTip>
@@ -283,9 +276,12 @@ const SearchAddressModal = ({
                     <PaginationContainer>
                         <Pagination
                             total={addressData?.data?.totalCount}
-                            defaultCurrent={page}
+                            defaultCurrent={searchCondition.pageNumber}
                             onChange={(current) => {
-                                setPage(() => current);
+                                setSearchCondition((prev) => ({
+                                    ...prev,
+                                    pageNumber: current,
+                                }));
                             }}
                             style={{ margin: '40px 0' }}
                         />

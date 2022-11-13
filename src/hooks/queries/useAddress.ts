@@ -26,6 +26,7 @@ const useAddress = ({ pageNumber, keyword, options }: useAddressParams) => {
             }),
         {
             enabled: !!keyword,
+            keepPreviousData: true,
             select: ({ data }) => data,
             ...options,
         },
