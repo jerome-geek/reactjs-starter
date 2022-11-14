@@ -8,7 +8,7 @@ interface useOrderSheetParams<T = OrderSheetResponse> {
     orderSheetNo: string;
     options?: UseQueryOptions<
         AxiosResponse<T>,
-        AxiosError,
+        AxiosError<ShopByErrorResponse>,
         T,
         [string, { orderSheetNo: string }]
     >;
@@ -24,6 +24,13 @@ const useOrderSheet = ({ orderSheetNo, options }: useOrderSheetParams) => {
         {
             enabled: !!orderSheetNo,
             select: ({ data }) => data,
+            onError: (error) => {
+                alert(
+                    error?.response?.data?.message ||
+                        '주문서 생성에 실패하였습니다.',
+                );
+                return;
+            },
             ...options,
         },
     );

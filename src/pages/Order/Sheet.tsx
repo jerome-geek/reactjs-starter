@@ -818,7 +818,6 @@ const Sheet = () => {
                         )}
 
                         <OrderTermsAgreement
-                            isLogin={isLogin()}
                             orderTerms={orderTerms}
                             isAllOrderTermsChecked={isAllOrderTermsChecked}
                             agreeHandler={agreeHandler}

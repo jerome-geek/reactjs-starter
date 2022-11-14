@@ -12,24 +12,26 @@ import {
 import { tokenStorage } from 'utils/storage';
 
 const orderSheet = {
-    writeOrderSheet: ({
-        productCoupons,
-        trackingKey,
-        cartNos,
-        channelType,
-        products,
-    }: OrderSheetBody): Promise<AxiosResponse<{ orderSheetNo: string }>> => {
+    /**
+     * 주문서 작성하기
+     * - 주문을 진행 할 상품정보를 전달하는 API 입니다.
+     * - 주문서 페이지 진입전에 실행합니다.
+     * - 비회원 주문인 경우 accessToken을 null로 보냅니다.
+     */
+    writeOrderSheet: (
+        body: OrderSheetBody,
+    ): Promise<AxiosResponse<{ orderSheetNo: string }>> => {
         const accessTokenInfo = tokenStorage.getAccessToken();
 
         return request({
             method: 'POST',
             url: '/order-sheets',
             data: {
-                productCoupons,
-                trackingKey,
-                cartNos,
-                channelType,
-                products,
+                productCoupons: body.productCoupons,
+                trackingKey: body.trackingKey,
+                cartNos: body.cartNos,
+                channelType: body.channelType,
+                products: body.products,
             },
             headers: Object.assign({}, defaultHeaders(), {
                 accessToken: accessTokenInfo?.accessToken || '',
