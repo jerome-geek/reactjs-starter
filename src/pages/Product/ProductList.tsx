@@ -1,6 +1,5 @@
 import { useEffect, useState, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from 'react-query';
 import styled from 'styled-components';
 import { useWindowSize } from 'usehooks-ts';
 import { head, map, pipe, toArray, filter, concat, slice } from '@fxts/core';
@@ -9,8 +8,7 @@ import SEOHelmet from 'components/shared/SEOHelmet';
 import ProductSort from 'components/Product/ProductSort';
 import ProductCard from 'components/Search/ProductCard';
 import Loader from 'components/shared/Loader';
-import { product } from 'api/product';
-import { category } from 'api/display';
+import { useCategory, useProductList } from 'hooks/queries';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
 import { PRODUCT_BY, ORDER_DIRECTION } from 'models';
@@ -166,12 +164,9 @@ const ProductList = () => {
 
     const { width } = useWindowSize();
 
-    useQuery(
-        ['categoryInfo', { categoryNo }],
-        async () => await category.getCategory(categoryNo),
-        {
-            enabled: !!categoryNo,
-            select: ({ data }) => data,
+    useCategory({
+        categoryNo,
+        options: {
             onSuccess: (data) => {
                 setCategoryInfo(
                     pipe(
@@ -182,7 +177,7 @@ const ProductList = () => {
                 );
             },
         },
-    );
+    });
 
     useLayoutEffect(() => {
         const multiLevelCategories = categoryInfo?.children ?? [];
@@ -301,19 +296,8 @@ const ProductList = () => {
         setSearchParams((prev) => ({ ...prev, categoryNos: categoryNo }));
     };
 
-    const { data: productList, isFetching: isProductListFetching } = useQuery(
-        ['productList', searchParams],
-        async () => await product.searchProducts(searchParams),
-        {
-            select: (res) => res?.data,
-            onError: (error) => {
-                console.log(
-                    '🚀 ~ file: ProductList.tsx ~ line 261 ~ ProductList ~ error',
-                    error,
-                );
-            },
-        },
-    );
+    const { data: productList, isFetching: isProductListFetching } =
+        useProductList({ searchParams });
 
     const isProductCountMultipleOfThreePlus2 =
         productList?.items && productList.items.length % 3 === 2;

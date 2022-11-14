@@ -274,10 +274,14 @@ enum SALE_STATUS {
 
 // TODO: 체크 필요
 enum PRODUCT_SALE_STATUS {
-    ONSALE = 'ONSALE', // 판매중 상품만 조회
-    ALL_CONDITIONS = 'ALL_CONDITIONS', // 전체 판매 상태 조회
-    READY_ON_SALE = 'READY_ONSALE', // 판매대기와 판매중 상품 조회
-    RESERVATION_AND_ONSALE = 'RESERVATION_AND_ONSALE', // 예약판매중인 상품과 판매중인 상품만 조회
+    // 판매중 상품만 조회
+    ONSALE = 'ONSALE',
+    // 전체 판매 상태 조회
+    ALL_CONDITIONS = 'ALL_CONDITIONS',
+    // 판매대기와 판매중 상품 조회
+    READY_ON_SALE = 'READY_ONSALE',
+    // 예약판매중인 상품과 판매중인 상품만 조회
+    RESERVATION_AND_ONSALE = 'RESERVATION_AND_ONSALE',
 }
 
 // 상품문의 유형 값
@@ -505,11 +509,17 @@ enum CRITERION {
     RECENT_PRODUCT = 'RECENT_PRODUCT',
 }
 
+// 최종 할인가격 검색 조건
 enum DISCOUNTED_COMPARISON {
+    // 초과
     GT = 'GT',
+    // 미만
     LTE = 'LTE',
+    // 이상
     GTE = 'GTE',
+    // 동등
     EQ = 'EQ',
+    // 사이의
     BETWEEN = 'BETWEEN',
 }
 
@@ -597,13 +607,23 @@ enum OPTION_TYPE {
 }
 
 enum PRODUCT_BY {
+    // 판매인기순(검색엔진 도입)
     POPULAR = 'POPULAR',
+    // 판매일자
     SALE_YMD = 'SALE_YMD',
+    // 판매종료일자
+    SALE_END_YMD = 'SALE_END_YMD',
+    // 가격순
     DISCOUNTED_PRICE = 'DISCOUNTED_PRICE',
+    // 상품평
     REVIEW = 'REVIEW',
+    // 총판매량순
     SALE_CNT = 'SALE_CNT',
+    // 최근상품순
     RECENT_PRODUCT = 'RECENT_PRODUCT',
+    // MD추천순
     MD_RECOMMEND = 'MD_RECOMMEND',
+    // 좋아요
     LIKE_CNT = 'LIKE_CNT',
 }
 

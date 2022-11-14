@@ -22,7 +22,7 @@ const DiscountApplyContainer = styled.div`
     margin-bottom: 60px;
 `;
 
-const DiscountApplyTitle = styled.h3`
+const Title = styled.h3`
     font-size: 24px;
     letter-spacing: -1.2px;
     line-height: 36px;
@@ -36,71 +36,50 @@ const DiscountApplyTitle = styled.h3`
     }
 `;
 
-const DiscountContainer = styled.div`
+const ContentList = styled.ul`
     border-top: 2px solid #222943;
     border-bottom: 2px solid #222943;
     padding: 30px 0;
-
-    ${media.medium} {
-        padding: 20px 0;
-    }
 `;
 
-const DiscountContentContainer = styled.div`
+const ContentListItem = styled.li`
     display: flex;
     align-items: center;
-    flex-direction: row;
-    border-bottom: 1px solid #dbdbdb;
-    text-align: left;
-    min-height: 104px;
+    justify-content: flex-start;
+    margin-bottom: 10px;
 
     ${media.medium} {
         flex-direction: column;
-        align-items: baseline;
-    }
-
-    &:last-child {
-        border-bottom: none;
+        align-items: flex-start;
     }
 `;
 
-const DiscountContentTitle = styled.p`
-    font-size: 1rem;
-    letter-spacing: 0;
+const ListItemTitle = styled.p`
+    width: 100%;
+    max-width: 200px;
+    font-size: 16px;
     line-height: 24px;
+    letter-spacing: 0;
     color: #191919;
-    padding-right: 120px;
-    margin-bottom: 0px;
 
     ${media.medium} {
-        font-size: 16px;
-        line-height: 24px;
+        margin-bottom: 10px;
+        margin-left: 10px;
         letter-spacing: -0.64px;
-        text-align: left;
-        margin-bottom: 12px;
     }
 `;
 
-const DiscountInputContainer = styled.div`
+const InputContainer = styled.div`
     display: flex;
     color: ${(props) => props.theme.text1};
     margin-right: 20px;
-    flex-direction: column;
 
     ${media.medium} {
         width: 100%;
-        justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
+        justify-content: flex-start;
         margin-right: 4px;
     }
-`;
-
-const AccumulationAmountBox = styled.div<{ boxWidth?: string }>`
-    width: ${(props) => (props.boxWidth ? props.boxWidth : '100%')};
-    display: flex;
-    flex-direction: row;
-    justify-content: end;
-    margin-bottom: 10px;
 `;
 
 const DiscountInput = styled(StyledInput)`
@@ -108,12 +87,15 @@ const DiscountInput = styled(StyledInput)`
     background: ${(props) => props.theme.bg2};
     padding: 15px 20px;
     margin-right: 20px;
+    width: 100%;
+    max-width: 330px;
 
     ${media.medium} {
         font-size: 16px;
         line-height: 24px;
         color: #a8a8a8;
         letter-spacing: -0.64px;
+        max-width: none;
     }
 `;
 
@@ -129,6 +111,11 @@ const AccumulationDescription = styled.p`
     letter-spacing: 0px;
     color: #8f8f8f;
     font-size: 12px;
+    margin-left: 200px;
+
+    ${media.medium} {
+        margin-left: 0;
+    }
 `;
 
 const DiscountApply: FC<DiscounApplyProps> = ({
@@ -150,71 +137,64 @@ const DiscountApply: FC<DiscounApplyProps> = ({
 
     return (
         <DiscountApplyContainer>
-            <DiscountApplyTitle>
-                {orderSheet('applyDiscount.title')}
-            </DiscountApplyTitle>
+            <Title>{orderSheet('applyDiscount.title')}</Title>
 
-            <DiscountContainer>
-                <DiscountContentContainer>
-                    <DiscountContentTitle>
+            <ContentList>
+                <ContentListItem>
+                    <ListItemTitle>
                         {orderSheet('applyDiscount.category.coupon')}
-                    </DiscountContentTitle>
-                    <DiscountInputContainer>
-                        <AccumulationAmountBox>
-                            <DiscountInput
-                                readOnly
-                                value={paymentInfo?.cartCouponAmt || ''}
-                            />
-                            <ApplyButton onClick={() => onCouponModalClick()}>
-                                {orderSheet('applyDiscount.applyCoupon')}
-                            </ApplyButton>
-                        </AccumulationAmountBox>
-                    </DiscountInputContainer>
-                </DiscountContentContainer>
+                    </ListItemTitle>
 
-                <DiscountContentContainer>
-                    <DiscountContentTitle>
+                    <InputContainer>
+                        <DiscountInput
+                            readOnly
+                            value={paymentInfo?.cartCouponAmt || ''}
+                        />
+                        <ApplyButton onClick={() => onCouponModalClick()}>
+                            {orderSheet('applyDiscount.applyCoupon')}
+                        </ApplyButton>
+                    </InputContainer>
+                </ContentListItem>
+
+                <ContentListItem>
+                    <ListItemTitle>
                         {orderSheet('applyDiscount.category.accumulation')}
-                    </DiscountContentTitle>
-                    <DiscountInputContainer>
-                        <AccumulationAmountBox>
-                            <DiscountInput
-                                onChange={(e) =>
-                                    onDiscountChange(e.currentTarget.value)
-                                }
-                                value={subPayAmt}
-                            />
-                            <ApplyButton
-                                onClick={() => onAccumulationButtonClick()}
-                            >
-                                {orderSheet('applyDiscount.useAccumulation')}
-                            </ApplyButton>
-                        </AccumulationAmountBox>
-                        {paymentInfo && mallInfo && (
-                            <AccumulationDescription
-                                dangerouslySetInnerHTML={{
-                                    __html: `${orderSheet(
-                                        'applyDiscount.availableAccumulation',
-                                    )} : ${KRW(
-                                        paymentInfo.availableMaxAccumulationAmt,
-                                        {
-                                            symbol:
-                                                mallInfo?.accumulationConfig
-                                                    .accumulationUnit || '',
-                                            precision: 0,
-                                            pattern: `<b># !</b>`,
-                                        },
-                                    )
-                                        .subtract(
-                                            paymentInfo.usedAccumulationAmt,
-                                        )
-                                        .format()} `,
-                                }}
-                            />
-                        )}
-                    </DiscountInputContainer>
-                </DiscountContentContainer>
-            </DiscountContainer>
+                    </ListItemTitle>
+                    <InputContainer>
+                        <DiscountInput
+                            onChange={(e) =>
+                                onDiscountChange(e.currentTarget.value)
+                            }
+                            value={subPayAmt}
+                        />
+                        <ApplyButton
+                            onClick={() => onAccumulationButtonClick()}
+                        >
+                            {orderSheet('applyDiscount.useAccumulation')}
+                        </ApplyButton>
+                    </InputContainer>
+                </ContentListItem>
+                {paymentInfo && mallInfo && (
+                    <AccumulationDescription
+                        dangerouslySetInnerHTML={{
+                            __html: `${orderSheet(
+                                'applyDiscount.availableAccumulation',
+                            )} : ${KRW(
+                                paymentInfo.availableMaxAccumulationAmt,
+                                {
+                                    symbol:
+                                        mallInfo?.accumulationConfig
+                                            .accumulationUnit || '',
+                                    precision: 0,
+                                    pattern: `<b># !</b>`,
+                                },
+                            )
+                                .subtract(paymentInfo.usedAccumulationAmt)
+                                .format()} `,
+                        }}
+                    />
+                )}
+            </ContentList>
         </DiscountApplyContainer>
     );
 };

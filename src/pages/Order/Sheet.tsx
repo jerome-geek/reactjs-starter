@@ -16,6 +16,7 @@ import ShippingAddress from 'components/OrderSheet/ShippingAddress';
 import DiscountApply from 'components/OrderSheet/DiscountApply';
 import CommonPayment from 'components/OrderSheet/CommonPayment';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
+import AdditionalInfo from 'components/OrderSheet/AdditionalInfo';
 import ShippingListModal from 'components/Modal/ShippingListModal';
 import MobileShippingListModal from 'components/Modal/MobileShippingListModal';
 import SearchAddressModal from 'components/Modal/SearchAddressModal';
@@ -50,6 +51,7 @@ import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
 import HTTP_RESPONSE from 'const/http';
 import { isLogin } from 'utils/users';
+import PaymentButton from 'components/Button/PaymentButton';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -272,15 +274,6 @@ const SheetOrderPriceWrapper = styled.div`
     }
 `;
 
-const PaymentButton = styled(PrimaryButton)`
-    width: 100%;
-
-    ${media.small} {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-    }
-`;
 const ncpPayScript = process.env.REACT_APP_NCP_PAY_SCRIPT;
 const payPlusScript = process.env.REACT_APP_PAY_PLUS_SCRIPT;
 const inisisPayScript = process.env.REACT_APP_INISIS_PAY_SCRIPT;
@@ -366,70 +359,8 @@ const Sheet = () => {
 
     const { t: sheet } = useTranslation('orderSheet');
 
-    // TODO:해외배송상품여부에 따라 통관부호 받아야함
-    const {
-        register,
-        handleSubmit,
-        getValues,
-        setValue,
-        watch,
-        control,
-        formState: { errors },
-    } = useForm<PaymentReserve>({
-        defaultValues: {
-            orderSheetNo,
-            orderTitle: '',
-            pgType: PG_TYPE.INICIS,
-            payType: PAY_TYPE.CREDIT_CARD,
-            orderer: {
-                ordererName: member?.memberName,
-                ordererEmail: member?.email,
-                ordererContact1: member?.mobileNo,
-                ordererContact2: '',
-            },
-            shippingAddress: {
-                addressNo: 0,
-                receiverZipCd: '',
-                receiverAddress: '',
-                receiverJibunAddress: '',
-                receiverDetailAddress: '',
-                receiverName: '',
-                addressName: '',
-                requestShippingDate: '',
-                receiverContact1: '',
-                receiverContact2: '',
-                // customsIdNumber: null, // TODO: 해외배송 상품인 경우 처리 필요
-                countryCd: COUNTRY_CD.KR,
-                shippingInfoLaterInputContact: '',
-            },
-            // orderTitle:
-            //     orderData?.data.deliveryGroups[0]?.orderProducts[0]
-            //         ?.productName,
-            useDefaultAddress: false,
-            deliveryMemo: '',
-            member: isLogin(),
-            // coupons: {
-            //     productCoupons: null,
-            //     cartCouponIssueNo: null,
-            // },
-            tempPassword: '', // TODO: 비회원용
-            updateMember: false,
-            subPayAmt: 0,
-            inAppYn: 'N',
-            // accumulationAmt: 0,  // TODO: schema 확인 필요
-            // availableMaxAccumulationAmt: 0,  // TODO: schema 확인 필요
-            // paymentAmt: 0, // TODO: schema 확인 필요
-            // paymentAmt: orderData?.data.paymentInfo.paymentAmt,
-            bankAccountToDeposit: {
-                bankAccount: mallInfo?.bankAccountInfo.bankAccount,
-                bankCode: mallInfo?.bankAccountInfo.bankName,
-                bankDepositorName: mallInfo?.bankAccountInfo.bankDepositorName,
-            },
-        },
-    });
-
     const { data: orderData, refetch: orderRefetch } = useQuery(
-        ['orderData', { member: member?.memberName }],
+        ['orderData', { member: member?.memberId }],
         async () =>
             await orderSheet.getOrderSheet(orderSheetNo, {
                 includeMemberAddress: false,
@@ -464,6 +395,66 @@ const Sheet = () => {
         },
     );
 
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        setValue,
+        watch,
+        control,
+        formState: { errors },
+    } = useForm<PaymentReserve>({
+        defaultValues: {
+            orderSheetNo,
+            orderTitle: '',
+            pgType: PG_TYPE.INICIS,
+            payType: PAY_TYPE.CREDIT_CARD,
+            orderer: {
+                ordererName: member?.memberName,
+                ordererEmail: member?.email,
+                ordererContact1: member?.mobileNo,
+                ordererContact2: '',
+            },
+            shippingAddress: {
+                addressNo: 0,
+                receiverZipCd: '',
+                receiverAddress: '',
+                receiverJibunAddress: '',
+                receiverDetailAddress: '',
+                receiverName: '',
+                addressName: '',
+                requestShippingDate: '',
+                receiverContact1: '',
+                receiverContact2: '',
+                countryCd: COUNTRY_CD.KR,
+                shippingInfoLaterInputContact: '',
+            },
+            // orderTitle:
+            //     orderData?.data.deliveryGroups[0]?.orderProducts[0]
+            //         ?.productName,
+            useDefaultAddress: false,
+            deliveryMemo: '',
+            member: isLogin(),
+            // coupons: {
+            //     productCoupons: null,
+            //     cartCouponIssueNo: null,
+            // },
+            tempPassword: '', // TODO: 비회원용
+            updateMember: false,
+            subPayAmt: 0,
+            inAppYn: 'N',
+            // accumulationAmt: 0,  // TODO: schema 확인 필요
+            // availableMaxAccumulationAmt: 0,  // TODO: schema 확인 필요
+            // paymentAmt: 0, // TODO: schema 확인 필요
+            // paymentAmt: orderData?.data.paymentInfo.paymentAmt,
+            bankAccountToDeposit: {
+                bankAccount: mallInfo?.bankAccountInfo.bankAccount,
+                bankCode: mallInfo?.bankAccountInfo.bankName,
+                bankDepositorName: mallInfo?.bankAccountInfo.bankDepositorName,
+            },
+        },
+    });
+
     const totalDeliveryAmt = useMemo(
         () => paymentInfo?.deliveryAmt + paymentInfo?.remoteDeliveryAmt,
         [paymentInfo?.deliveryAmt, paymentInfo?.remoteDeliveryAmt],
@@ -487,6 +478,10 @@ const Sheet = () => {
             paymentInfo?.productCouponAmt,
             paymentInfo?.deliveryCouponAmt,
         ],
+    );
+    const isAdditionalInfoVisible = useMemo(
+        () => !!orderData?.requireCustomsIdNumber,
+        [orderData?.requireCustomsIdNumber],
     );
 
     const { mutate: couponApplyMutate } = useMutation(
@@ -655,6 +650,7 @@ const Sheet = () => {
                         couponApplyMutate={couponApplyMutate}
                     />
                 ))}
+
             <OrderSheetContainer onSubmit={onOrderFormSubmit}>
                 {!isMobile(width) && (
                     <OrderProgress
@@ -772,6 +768,16 @@ const Sheet = () => {
                             setIsSearchAddressModal={setIsSearchAddressModal}
                             errors={errors}
                         />
+
+                        {isAdditionalInfoVisible && (
+                            <AdditionalInfo
+                                register={register}
+                                errors={errors}
+                                isRequireCustomsIdNumber={
+                                    !!orderData?.requireCustomsIdNumber
+                                }
+                            />
+                        )}
 
                         {isLogin() ? (
                             <DiscountApply
