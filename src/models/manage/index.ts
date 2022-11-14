@@ -44,10 +44,8 @@ export interface Item {
     oldZipCode: string;
 }
 
-export interface AddressResponse {
-    totalCount: number;
+export interface AddressResponse extends ItemList<Item> {
     groupByStates: GroupByState[];
-    items: Item[];
 }
 
 export interface ArticleParams extends Paging {

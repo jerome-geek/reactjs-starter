@@ -50,35 +50,65 @@ export interface GroupCodeParams {
 
 export interface ProductSearchParams {
     filter?: {
+        // 판매가 - 즉시할인 - 추가상품할인이 적용된 "최종 할인가격", between검색일 경우 입력값 2개 필요(다수 정보는 항목 추가 필요) (Example : "1000")
         discountedPrices?: number;
+        // 검색어(여러 검색어일 경우 space 로 구분 OR 연산) (Example : "검색어1 검색어2")
         keywords?: string;
+        // 결과내 검색(결과 내 검색의 검색어 space 구분 AND 연산) (Example : "검색어1 검색어2")
         keywordInResult?: string;
+        // 최종 할인가격 검색 조건 (Example : "GT")
         discountedComparison?: DISCOUNTED_COMPARISON;
-        deliveryConditionType?: DELIVERY_CONDITION_TYPE;
+        // 배송비 타입 (Example : "free")
+        // deliveryConditionType?: DELIVERY_CONDITION_TYPE;
+        deliveryConditionType?: Omit<
+            DELIVERY_CONDITION_TYPE,
+            'QUANTITY_PROPOSITIONAL_FEE' | 'PRICE_FEE' | 'QUANTITY_FEE'
+        >;
+        // 판매 상태 (default: ONSALE) (Example : "ALL_CONDITIONS")
         saleStatus?: PRODUCT_SALE_STATUS;
+        // 품절 상품 포함 여부(default: false) (Example : "false")
         soldout?: boolean;
+        // 총 상품평 수 포함 여부(default: false, false 설정 시 무조건 0) (Example : "false")
         totalReviewCount?: boolean;
+        // 서비스에 계약된 모든 쇼핑몰 조회 여부 (default: false) (Example : "false")
         familyMalls?: boolean;
+        // 판매자관리코드 같은 상품 검색 (Example : "managementcode")
         productManagementCd?: string;
+        //  조회시 제외할 상품번호 (Example : "10001")
         excludeMallProductNo?: number;
+        // 조회할 상품번호 (Example : "10000")
         includeMallProductNo?: number;
     };
     order?: {
         by?: PRODUCT_BY;
+        // 정렬기준(default : DESC) (Example : "DESC")
         direction?: ORDER_DIRECTION;
+        // 품절상품 뒤로 배치 여부(default = false) (Example : "false")
         soldoutPlaceEnd?: boolean;
     };
+    // 전시 카테고리 번호(여러개 일 경우 항목 추가) (Example : "1,2,3,4")
     categoryNos?: string;
+    // 브랜드 번호(여러개 일 경우 항목 추가) (Example : "1,2,3,4")
     brandNos?: number;
+    // 파트너 번호(상품 공급업체 번호) (Example : "1")
     partnerNo?: number;
+    // 클라이언트 키 (Example : "test-client-key")
     clientKey?: string;
+    // 페이지 번호 (Example : "1")
     pageNumber?: number;
+    // 한 페이지당 노출 수 (Example : "10")
     pageSize?: number;
+    // 세일 상품만 조회 여부(default: false) (Example : "false")
     onlySaleProduct?: boolean;
+    // 목록에 최대 할인 쿠폰 가격 포함 여부(default: false) (Example : "false")
     hasMaxCouponAmt?: boolean;
+    //  목록 카운트 포함 여부(default: false) (Example : "false")
     hasTotalCount?: boolean;
+    // 목록에 옵션 value 포함 여부(default: false) (Example : "false")
     hasOptionValues?: boolean;
+    // summary 정보 포함 여부(default: true) (Example : "true")
     includeSummaryInfo?: boolean;
+    // 배송 구분 (Example : "MALL")
     shippingAreaType?: SHIPPING_AREA_TYPE_PARAMS;
 }
 

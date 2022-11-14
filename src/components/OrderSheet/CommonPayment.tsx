@@ -61,7 +61,8 @@ const DefaultPaymentTitle = styled.p`
     letter-spacing: 0;
     line-height: 24px;
     color: #191919;
-    padding-right: 120px;
+    width: 100%;
+    max-width: 200px;
 `;
 
 const PaymentList = styled.div`

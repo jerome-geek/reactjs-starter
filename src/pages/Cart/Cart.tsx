@@ -16,8 +16,8 @@ import {
 } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
-import PrimaryButton from 'components/Button/PrimaryButton';
 import SecondaryButton from 'components/Button/SecondaryButton';
+import PaymentButton from 'components/Button/PaymentButton';
 import CartList from 'components/Cart/CartList';
 import OrderSheetPrice from 'components/OrderSheet/OrderSheetPrice';
 import Checkbox from 'components/Input/Checkbox';
@@ -214,15 +214,6 @@ const CartPriceWrapper = styled.div`
     }
 `;
 
-const DirectPurchaseButton = styled(PrimaryButton)`
-    width: 100%;
-
-    ${media.small} {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-    }
-`;
 interface testInterface extends OrderProductOption {
     deliveryAmt: number;
     productName: string;
@@ -636,7 +627,7 @@ const Cart = () => {
                             totalPaymentAmt={checkedPriceData.totalAmt}
                         />
 
-                        <DirectPurchaseButton
+                        <PaymentButton
                             onClick={
                                 !isLogin && isMobile(width)
                                     ? () =>
@@ -651,7 +642,7 @@ const Cart = () => {
                             {checkedCartList.length === 0
                                 ? '쇼핑 계속하기'
                                 : `${checkedCartList.length} 개 상품 바로구매 `}
-                        </DirectPurchaseButton>
+                        </PaymentButton>
                     </CartPriceWrapper>
                 </CartPriceContainer>
             </CartContainer>
