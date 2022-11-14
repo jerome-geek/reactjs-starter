@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { useMutation } from 'react-query';
 import { every, find, map, pipe, toArray } from '@fxts/core';
 
 import MobileHeader from 'components/shared/MobileHeader';
 import Checkbox from 'components/Input/Checkbox';
-import PATHS from 'const/paths';
+import { useOrderSheetMutation } from 'hooks/mutations';
 import { OrderSheetBody } from 'models/order';
-import { orderSheet } from 'api/order';
 
 const Container = styled.main`
     width: 100%;
@@ -105,32 +103,7 @@ const OrderAgreement = () => {
         },
     ]);
 
-    const navigate = useNavigate();
-
     const location = useLocation() as LocationState;
-
-    const { mutate: purchaseMutate } = useMutation(
-        async (orderSheetList: OrderSheetBody) =>
-            await orderSheet.writeOrderSheet(orderSheetList),
-        {
-            onSuccess: (res) => {
-                navigate(`${PATHS.ORDER}/${res.data.orderSheetNo}`);
-            },
-            onError: () => {
-                alert('구매 실패!');
-            },
-        },
-    );
-
-    const purchaseHandler = () => {
-        purchaseMutate({
-            products: location.state.products,
-            productCoupons: [],
-            cartNos: location.state.cartNos,
-            trackingKey: '',
-            channelType: '',
-        });
-    };
 
     const agreeAllHandler = (checked: boolean) => {
         setTermList((prev) =>
@@ -165,6 +138,22 @@ const OrderAgreement = () => {
 
     const isTermChecked = (id: string) =>
         find((a) => a.id === id, termList)?.isChecked;
+
+    const orderSheetMutation = useOrderSheetMutation();
+
+    const onPurchaseButtonClick = async () => {
+        if (isAllOrderTermsChecked) {
+            await orderSheetMutation.mutateAsync({
+                products: location.state.products,
+                productCoupons: [],
+                cartNos: location.state.cartNos,
+                trackingKey: '',
+                channelType: '',
+            });
+        } else {
+            alert('약관에 동의를 해주셔야 합니다!');
+        }
+    };
 
     return (
         <>
@@ -202,15 +191,7 @@ const OrderAgreement = () => {
                         );
                     })}
                 </AgreeButtonListContainer>
-                <GoSheetButton
-                    onClick={() => {
-                        if (isAllOrderTermsChecked) {
-                            purchaseHandler();
-                            return;
-                        }
-                        alert('약관에 동의를 해주셔야 합니다!');
-                    }}
-                >
+                <GoSheetButton onClick={onPurchaseButtonClick}>
                     다음
                 </GoSheetButton>
             </Container>

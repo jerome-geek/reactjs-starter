@@ -26,16 +26,13 @@ import MemberInduceModal from 'components/Modal/MemberInduceModal';
 import { useAppDispatch } from 'state/reducers';
 import { deleteCart, updateCart } from 'state/slices/cartSlice';
 import { useCart, useMember } from 'hooks';
-import { cart, guestOrder, orderSheet } from 'api/order';
-import {
-    DeliveryGroup,
-    OptionInputs,
-    OrderProductOption,
-    OrderSheetBody,
-} from 'models/order';
+import { useOrderSheetMutation } from 'hooks/mutations';
+import { cart, guestOrder } from 'api/order';
+import { DeliveryGroup, OptionInputs, OrderProductOption } from 'models/order';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import PATHS from 'const/paths';
+import { isLogin } from 'utils/users';
 
 export interface OrderPrice {
     [id: string]: { name: string; price: string | number };
@@ -231,7 +228,6 @@ const Cart = () => {
     });
 
     const { member } = useMember();
-    const isLogin = useMemo(() => !!member, [member]);
 
     const [isMemberInduceModal, setIsMemberInduceModal] = useState(false);
 
@@ -300,7 +296,7 @@ const Cart = () => {
                 divideInvalidProducts: true,
             }),
         {
-            enabled: !isLogin,
+            enabled: !isLogin(),
             select: (response) => response.data,
             onSuccess: (data) => {
                 setCheckedPriceData({
@@ -329,7 +325,7 @@ const Cart = () => {
             });
         },
         {
-            enabled: isLogin,
+            enabled: isLogin(),
             select: (res) => res.data,
             onSuccess: (data) => {
                 setCheckedPriceData({
@@ -365,19 +361,6 @@ const Cart = () => {
         },
     );
 
-    const { mutate: purchaseMutate } = useMutation(
-        async (orderSheetList: OrderSheetBody) =>
-            await orderSheet.writeOrderSheet(orderSheetList),
-        {
-            onSuccess: (res) => {
-                navigate(`${PATHS.ORDER}/${res.data.orderSheetNo}`);
-            },
-            onError: () => {
-                alert('구매 실패!');
-            },
-        },
-    );
-
     const purchaseProducts = useMemo(
         () =>
             pipe(
@@ -399,8 +382,10 @@ const Cart = () => {
         [checkedCartList],
     );
 
-    const purchaseHandler = () => {
-        purchaseMutate({
+    const orderSheetMutation = useOrderSheetMutation();
+
+    const purchaseHandler = async () => {
+        orderSheetMutation.mutateAsync({
             products: purchaseProducts,
             productCoupons: [],
             cartNos: purchaseCartNos,
@@ -410,7 +395,7 @@ const Cart = () => {
     };
 
     const productCountHandler = (count: number, cartNo: number) => () => {
-        const cartInfo = isLogin
+        const cartInfo = isLogin()
             ? pipe(
                   cartList,
                   filter((a) => a.cartNo === cartNo),
@@ -427,7 +412,7 @@ const Cart = () => {
                 return;
             }
 
-            if (isLogin) {
+            if (isLogin()) {
                 updateCartMutate({
                     cartNo: cartInfo.cartNo,
                     orderCnt: cartInfo.orderCnt + count,
@@ -445,7 +430,7 @@ const Cart = () => {
     };
 
     const deleteCartList = (cartNo: number) => () => {
-        if (isLogin) {
+        if (isLogin()) {
             deleteCartMutate({ cartNo: [cartNo] });
         } else {
             dispatch(
@@ -468,7 +453,7 @@ const Cart = () => {
             toArray,
         );
 
-        if (isLogin) {
+        if (isLogin()) {
             deleteCartMutate({ cartNo: checkedCartNoList });
         } else {
             dispatch(
@@ -600,7 +585,7 @@ const Cart = () => {
                                             productCountHandler
                                         }
                                         deleteCartList={deleteCartList}
-                                        isLogin={isLogin}
+                                        isLogin={isLogin()}
                                     />
                                 );
                             })
@@ -629,7 +614,7 @@ const Cart = () => {
 
                         <PaymentButton
                             onClick={
-                                !isLogin && isMobile(width)
+                                !isLogin() && isMobile(width)
                                     ? () =>
                                           setIsMemberInduceModal(
                                               (prev) => !prev,

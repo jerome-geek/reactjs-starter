@@ -1,11 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useMutation } from 'react-query';
 import { useTranslation } from 'react-i18next';
 import { isNil, pipe, map, sum, toArray, head, slice } from '@fxts/core';
-import { useWindowSize } from 'usehooks-ts';
-import { AxiosError } from 'axios';
+import { useLockedBody, useWindowSize } from 'usehooks-ts';
 
 import { useAppDispatch } from 'state/reducers';
 import { setCart } from 'state/slices/cartSlice';
@@ -22,12 +20,10 @@ import ShareModal from 'components/Modal/ShareModal';
 import ProductSticker from 'components/Product/ProductSticker';
 import ProductPolicy from 'components/Product/ProductPolicy';
 import MemberInduceModal from 'components/Modal/MemberInduceModal';
-import { orderSheet } from 'api/order';
 import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
-import { OrderSheetBody } from 'models/order';
 import { isLogin } from 'utils/users';
-import { useCartMutate } from 'hooks/mutations';
+import { useCartMutate, useOrderSheetMutation } from 'hooks/mutations';
 import useBanners from 'hooks/queries/useBanners';
 import useProductOptionList from 'hooks/queries/useProductOptionList';
 import useProductDetail from 'hooks/queries/useProductDetail';
@@ -40,7 +36,6 @@ import PATHS from 'const/paths';
 import { ReactComponent as ShareIcon } from 'assets/icons/share.svg';
 import { ReactComponent as AddCartIcon } from 'assets/icons/add_cart.svg';
 import { ReactComponent as NewIcon } from 'assets/icons/new.svg';
-import HTTP_RESPONSE from 'const/http';
 
 const ProductContainer = styled(LayoutResponsive)`
     max-width: 1280px;
@@ -332,24 +327,6 @@ const ProductDetail = () => {
         }
     };
 
-    const purchaseMutate = useMutation(
-        async (orderSheetList: OrderSheetBody) =>
-            await orderSheet.writeOrderSheet(orderSheetList),
-        {
-            onSuccess: (res) => {
-                if (res.status === HTTP_RESPONSE.HTTP_OK) {
-                    navigate({
-                        pathname: `/order/sheet/${res.data.orderSheetNo}`,
-                    });
-                }
-            },
-            onError: (error) => {
-                const err = error as AxiosError<ShopByErrorResponse>;
-                alert(err?.response?.data?.message);
-            },
-        },
-    );
-
     const purchaseProducts = useMemo(
         () =>
             pipe(
@@ -365,6 +342,7 @@ const ProductDetail = () => {
             ),
         [selectedOptionList],
     );
+    const orderSheetMutation = useOrderSheetMutation();
 
     const purchaseHandler = async () => {
         if (selectedOptionList.length <= 0) {
@@ -372,7 +350,7 @@ const ProductDetail = () => {
             return;
         }
 
-        purchaseMutate.mutateAsync({
+        orderSheetMutation.mutateAsync({
             trackingKey: '',
             channelType: CHANNEL_TYPE.NAVER_EP,
             products: purchaseProducts,
@@ -426,6 +404,11 @@ const ProductDetail = () => {
             ),
         [selectedOptionList],
     );
+
+    const [_, setLocked] = useLockedBody();
+    useEffect(() => {
+        setLocked(isMemberInduceModal);
+    }, [setLocked, isMemberInduceModal]);
 
     return (
         <>
@@ -581,7 +564,7 @@ const ProductDetail = () => {
                                     <StyledAddCartIcon />
                                 </CartButton>
                                 <BuyNowButton
-                                    disabled={purchaseMutate.isLoading}
+                                    disabled={orderSheetMutation.isLoading}
                                     onClick={
                                         !isLogin() && isMobile(width)
                                             ? () =>
@@ -591,7 +574,7 @@ const ProductDetail = () => {
                                             : purchaseHandler
                                     }
                                 >
-                                    {purchaseMutate.isLoading
+                                    {orderSheetMutation.isLoading
                                         ? 'loading...'
                                         : productDetail('buyNow')}
                                 </BuyNowButton>

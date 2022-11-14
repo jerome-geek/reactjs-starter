@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import Modal, { ModalDefaultType } from 'components/Modal/Modal';
@@ -44,7 +44,7 @@ const ButtonContainer = styled.div`
     }
 `;
 
-const GuestPurchase = styled.button`
+const GuestPurchase = styled(Link)`
     border: ${(props) => `1px solid ${props.theme.line2}`};
 `;
 
@@ -59,7 +59,7 @@ const MemberInduceModal = ({
     cartNos,
     products,
 }: Pick<OrderSheetBody, 'cartNos' | 'products'> & ModalDefaultType) => {
-    const navigate = useNavigate();
+    const location = useLocation();
 
     return (
         <Modal width={width} onClickToggleModal={onClickToggleModal}>
@@ -76,19 +76,14 @@ const MemberInduceModal = ({
                 </Description>
                 <ButtonContainer>
                     <GuestPurchase
-                        onClick={() => {
-                            onClickToggleModal();
-                            navigate(PATHS.ORDER_AGREE, {
-                                state: {
-                                    cartNos,
-                                    products,
-                                },
-                            });
-                        }}
+                        to={PATHS.ORDER_AGREE}
+                        state={{ cartNos, products }}
                     >
                         비회원 구매
                     </GuestPurchase>
-                    <MemberPurchase to={PATHS.JOIN_AGREEMENT}>
+                    <MemberPurchase
+                        to={`${PATHS.LOGIN}?returnUrl=${location.pathname}`}
+                    >
                         회원 구매
                     </MemberPurchase>
                 </ButtonContainer>

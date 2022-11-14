@@ -253,10 +253,15 @@ export interface PasswordParams {
 }
 
 export interface OrderSheetBody {
+    // 상품 쿠폰 (nullable, optional)
     productCoupons?: ProductCoupons[];
+    // 쇼핑채널링-추적키 (example: 10a00a00-a00a-00a0-a000-000000aa0000)
     trackingKey: string;
+    // 장바구니 번호 리스트 (장바구니 통해서 구매한 경우 - 구매 완료 시 해당 장바구니를 삭제합니다.) (nullable) (example: [1, 2, 3])
     cartNos?: number[];
+    // 쇼핑채널링-채널타입 (example: NAVER_EP)
     channelType: string;
+    // 상품 정보
     products: Products[];
 }
 

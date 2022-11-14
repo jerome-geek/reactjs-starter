@@ -7,9 +7,9 @@ import { filter, head, pipe, toArray } from '@fxts/core';
 
 import Checkbox from 'components/Input/Checkbox';
 import { isMobile } from 'utils/styles/responsive';
+import { isLogin } from 'utils/users';
 
 interface OrderTermsAgreementProps {
-    isLogin?: boolean;
     orderTerms: { id: string; url: ''; isChecked: boolean }[];
     isAllOrderTermsChecked: boolean;
     agreeHandler: (term: string) => void;
@@ -21,6 +21,7 @@ const StyledContainer = styled.div`
     border: 1px solid #d1d2d2;
     padding-left: 30px;
     padding-right: 30px;
+    white-space: nowrap;
 
     > div {
         &:not(:last-child) {
@@ -74,7 +75,7 @@ const StyledLink = styled(Link)`
 `;
 
 const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
-    isLogin = false,
+    // isLogin = false,
     agreeHandler,
     orderTerms,
     agreeAllHandler,
@@ -94,23 +95,15 @@ const OrderTermsAgreement: FC<OrderTermsAgreementProps> = ({
 
     return (
         <StyledContainer>
-            {!isLogin && isMobile(width) ? (
+            {!isLogin() && isMobile(width) && (
                 <div>
                     <MobileGuestTitle>
                         지금 바로 가입하고 3,000원 쿠폰을 받아보세요!
                     </MobileGuestTitle>
                 </div>
-            ) : (
-                <div>
-                    <Title
-                        dangerouslySetInnerHTML={{
-                            __html: orderSheet('etc.guestAlert'),
-                        }}
-                    />
-                </div>
             )}
 
-            {!isLogin && !isMobile(width) && (
+            {!isLogin() && !isMobile(width) && (
                 <div>
                     <CheckboxContainer>
                         <Checkbox
