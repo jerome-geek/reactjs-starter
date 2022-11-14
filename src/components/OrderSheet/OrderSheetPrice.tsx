@@ -24,6 +24,7 @@ interface OrderSheetPriceProps {
 const OrderSheetPriceContainer = styled.div`
     background: #f8f8fa;
     width: 100%;
+    margin-bottom: 12px;
 `;
 
 const CartOrderPriceTitle = styled.div`
