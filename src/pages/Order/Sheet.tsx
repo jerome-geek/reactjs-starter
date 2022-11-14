@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
-import { useQuery, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import { useForm } from 'react-hook-form';
 import { useScript, useWindowSize } from 'usehooks-ts';
 import { useTranslation } from 'react-i18next';
@@ -24,8 +24,8 @@ import GuestOrderPassword from 'components/OrderSheet/GuestOrderPassword';
 import CouponListModal from 'components/Modal/CouponListModal';
 import MobileCouponListModal from 'components/Modal/MobileCouponListModal';
 import OrderTermsAgreement from 'components/OrderSheet/OrderTermsAgreement';
-import PrimaryButton from 'components/Button/PrimaryButton';
 import OrderProgress from 'components/OrderSheet/OrderProgress';
+import PaymentButton from 'components/Button/PaymentButton';
 import { ReactComponent as Checked } from 'assets/icons/checkbox_square_checked.svg';
 import { ReactComponent as UnChecked } from 'assets/icons/checkbox_square_unchecked.svg';
 import {
@@ -51,7 +51,7 @@ import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
 import HTTP_RESPONSE from 'const/http';
 import { isLogin } from 'utils/users';
-import PaymentButton from 'components/Button/PaymentButton';
+import { useOrderSheet } from 'hooks/queries';
 
 const OrderSheetContainer = styled.form`
     width: 1280px;
@@ -359,14 +359,9 @@ const Sheet = () => {
 
     const { t: sheet } = useTranslation('orderSheet');
 
-    const { data: orderData, refetch: orderRefetch } = useQuery(
-        ['orderData', { member: member?.memberId }],
-        async () =>
-            await orderSheet.getOrderSheet(orderSheetNo, {
-                includeMemberAddress: false,
-            }),
-        {
-            select: ({ data }) => data,
+    const { data: orderData, refetch: orderRefetch } = useOrderSheet({
+        orderSheetNo,
+        options: {
             onSuccess: (data) => {
                 setOrderList(() => {
                     const newOrderList: Array<
@@ -393,7 +388,7 @@ const Sheet = () => {
                 setPaymentInfo(data?.paymentInfo);
             },
         },
-    );
+    });
 
     const {
         register,
