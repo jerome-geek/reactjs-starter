@@ -3,10 +3,7 @@ import styled from 'styled-components';
 
 import media from 'utils/styles/media';
 
-// TODO: 추후 제거 예정
-export interface LayoutResponsiveProps extends HTMLAttributes<HTMLDivElement> {
-    type?: 'large' | 'medium' | 'small';
-}
+export interface LayoutResponsiveProps extends HTMLAttributes<HTMLDivElement> {}
 
 const Block = styled.main<LayoutResponsiveProps>`
     padding: 150px 0;
@@ -14,6 +11,7 @@ const Block = styled.main<LayoutResponsiveProps>`
     margin-right: auto;
     text-align: center;
     width: calc(100% - 2rem);
+    max-width: 1280px;
 
     ${media.xxlarge} {
         max-width: 1280px;
@@ -35,12 +33,11 @@ const Block = styled.main<LayoutResponsiveProps>`
 `;
 
 const LayoutResponsive = ({
-    type,
     children,
     ...props
 }: LayoutResponsiveProps) => {
     return (
-        <Block type={type} {...props}>
+        <Block {...props}>
             {children}
         </Block>
     );
