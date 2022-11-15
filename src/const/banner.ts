@@ -6,6 +6,7 @@ const BANNER = {
     MAIN_CATEGORY_BANNER:
         process.env.REACT_APP_MODE === 'development' ? '004' : '',
     MAIN_ETC_BANNER: process.env.REACT_APP_MODE === 'development' ? '008' : '',
+    VC_MANAGER: process.env.REACT_APP_MODE === 'development' ? '009' : '',
 };
 
 export default BANNER;

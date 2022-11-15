@@ -40,4 +40,11 @@ const hideScrollbar = () => {
     `;
 };
 
-export { ellipsis, flex, hideScrollbar };
+const backgroundImage = (imageUrl: string) => {
+    return css`
+        background-image: url('${imageUrl}');
+        background-size: cover;
+    `;
+};
+
+export { ellipsis, flex, hideScrollbar, backgroundImage };

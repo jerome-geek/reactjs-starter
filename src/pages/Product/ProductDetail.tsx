@@ -24,7 +24,7 @@ import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { isLogin } from 'utils/users';
 import { useCartMutate, useOrderSheetMutation } from 'hooks/mutations';
-import useBanners from 'hooks/queries/useBanners';
+import { useBanners } from 'hooks/queries';
 import useProductOptionList from 'hooks/queries/useProductOptionList';
 import useProductDetail from 'hooks/queries/useProductDetail';
 import { isMobile } from 'utils/styles/responsive';
