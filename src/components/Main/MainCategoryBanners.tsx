@@ -49,7 +49,7 @@ const MainCategoryBannersWrapper = styled.div`
     }
 
     ${media.small} {
-        margin: 44px 34px;
+        margin: 44px 16px;
     }
 `;
 

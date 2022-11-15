@@ -9,6 +9,7 @@ import SocialMedia from 'components/Footer/SocialMedia';
 import DropDown from 'components/shared/DropDown';
 import { useMall } from 'hooks';
 import media from 'utils/styles/media';
+import { hideScrollbar } from 'utils/styles/mixin';
 import PATHS from 'const/paths';
 import BREAKPOINTS from 'const/breakpoints';
 import { ReactComponent as YoutubeIcon } from 'assets/icons/youtube.svg';
@@ -55,9 +56,14 @@ const FooterTopMenuList = styled.ul`
     ${media.small} {
         margin-bottom: 30px;
         white-space: nowrap;
-        width: 100%;
         overflow-x: scroll;
+        width: 100%;
+        padding-left: 0;
+        margin-right: -24px;
+        position: relative;
     }
+
+    ${hideScrollbar}
 `;
 
 const FooterTopMenuListItem = styled.li`

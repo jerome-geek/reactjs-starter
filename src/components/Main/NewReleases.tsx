@@ -1,9 +1,10 @@
-import React, { FC, useMemo, useRef } from 'react';
+import { FC, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { Swiper, SwiperProps, SwiperSlide } from 'swiper/react';
 import { Swiper as SwiperClass } from 'swiper/types';
 import { head, isBoolean } from '@fxts/core';
+import { useWindowSize } from 'usehooks-ts';
 
 import SlideButton from 'components/Button/SlideButton';
 import { Product } from 'models/display';
@@ -50,6 +51,7 @@ const NewReleasesTitle = styled.h3`
     ${media.small} {
         font-size: 24px;
         line-height: 28px;
+        margin-bottom: 10px;
     }
 `;
 
@@ -135,6 +137,7 @@ const NewReleasesCardPrice = styled.span`
 const NewReleases: FC<NewReleasesProps> = ({ settings, title, products }) => {
     const prevElRef = useRef(null);
     const nextElRef = useRef(null);
+    const { width } = useWindowSize();
 
     const newReleasesSettings = useMemo<SwiperProps>(
         () => ({
@@ -169,42 +172,41 @@ const NewReleases: FC<NewReleasesProps> = ({ settings, title, products }) => {
     );
 
     return (
-        <React.Fragment>
-            <NewReleasesContainer>
-                <NewReleasesTitle>{title}</NewReleasesTitle>
-                <Swiper {...newReleasesSettings}>
-                    {products?.map((product: any) => {
-                        return (
-                            <SwiperSlide key={product.productNo}>
-                                <NewReleasesCard
-                                    to={`${PATHS.PRODUCT_DETAIL}/${product.productNo}`}
-                                >
-                                    <NewReleasesImageContainer>
-                                        <NewReleasesImage
-                                            src={head(
-                                                product.listImageUrls as string[],
-                                            )}
-                                        />
-                                    </NewReleasesImageContainer>
-                                    <NewReleasesCardTitle>
-                                        {product.productName}
-                                    </NewReleasesCardTitle>
-                                    <NewReleasesCardDesc>
-                                        {product.promotionText}
-                                    </NewReleasesCardDesc>
+        <NewReleasesContainer>
+            <NewReleasesTitle>{title}</NewReleasesTitle>
 
-                                    <NewReleasesCardPrice>
-                                        {`${KRW(product.salePrice).format()}`}
-                                    </NewReleasesCardPrice>
-                                </NewReleasesCard>
-                            </SwiperSlide>
-                        );
-                    })}
-                </Swiper>
-                <StyledSlideButton slideButtonType='prev' ref={prevElRef} />
-                <StyledSlideButton slideButtonType='next' ref={nextElRef} />
-            </NewReleasesContainer>
-        </React.Fragment>
+            <Swiper {...newReleasesSettings}>
+                {products?.map((product: any) => {
+                    return (
+                        <SwiperSlide key={product.productNo}>
+                            <NewReleasesCard
+                                to={`${PATHS.PRODUCT_DETAIL}/${product.productNo}`}
+                            >
+                                <NewReleasesImageContainer>
+                                    <NewReleasesImage
+                                        src={head(
+                                            product.listImageUrls as string[],
+                                        )}
+                                    />
+                                </NewReleasesImageContainer>
+                                <NewReleasesCardTitle>
+                                    {product.productName}
+                                </NewReleasesCardTitle>
+                                <NewReleasesCardDesc>
+                                    {product.promotionText}
+                                </NewReleasesCardDesc>
+
+                                <NewReleasesCardPrice>
+                                    {`${KRW(product.salePrice).format()}`}
+                                </NewReleasesCardPrice>
+                            </NewReleasesCard>
+                        </SwiperSlide>
+                    );
+                })}
+            </Swiper>
+            <StyledSlideButton slideButtonType='prev' ref={prevElRef} />
+            <StyledSlideButton slideButtonType='next' ref={nextElRef} />
+        </NewReleasesContainer>
     );
 };
 
