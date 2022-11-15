@@ -7,5 +7,6 @@
     "macDownload": "맥 다운로드",
     "windowsDownload": "윈도우 다운로드",
     "allContents": "전체보기",
-    "noContents": "해당 카테고리에 등록된 상품이 없습니다."
+    "noContents": "해당 카테고리에 등록된 상품이 없습니다.",
+    "goToMain": "메인으로 돌아가기"
 }

@@ -2,18 +2,20 @@ import { useState, useMemo, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
-import { concat, head, map, omit, pipe, tap, toArray } from '@fxts/core';
+import { concat, head, map, omit, pipe, toArray } from '@fxts/core';
 import { useWindowSize } from 'usehooks-ts';
 
 import SEOHelmet from 'components/shared/SEOHelmet';
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ManualCard from 'components/Card/ManualCard';
+import ManagerTopContent from 'components/VC/ManagerTopContent';
+import { useBanners, useCategories, useProductList } from 'hooks/queries';
+import PATHS from 'const/paths';
+import BANNER from 'const/banner';
+import { isDesktop } from 'utils/styles/responsive';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
 import { ProductItem, ProductSearchParams } from 'models/product';
-import PATHS from 'const/paths';
-import { isDesktop } from 'utils/styles/responsive';
-import { useCategories, useProductList } from 'hooks/queries';
 import { ReactComponent as Mac } from 'assets/icons/mac.svg';
 import { ReactComponent as Windows } from 'assets/icons/windows.svg';
 
@@ -121,6 +123,8 @@ const Manager = () => {
         }
     };
 
+    const banners = useBanners({ banners: [BANNER.VC_MANAGER] });
+
     const categories = useCategories({
         options: {
             enabled: isPageAvailable,
@@ -139,7 +143,6 @@ const Manager = () => {
                     })),
                     concat(prev),
                     toArray,
-                    tap(console.log),
                 ),
             );
         }
@@ -183,37 +186,24 @@ const Manager = () => {
     };
 
     return (
-        <>
+        <div style={{ marginTop: '150px' }}>
             <SEOHelmet data={{ title: manager('managerTitle') }} />
 
-            <LayoutResponsive>
+            {banners?.data?.[0].accounts[0].banners[0] && (
+                <ManagerTopContent
+                    title={banners?.data?.[0].accounts[0].banners[0].name}
+                    description={
+                        banners?.data?.[0].accounts[0].banners[0].description
+                    }
+                    link={banners?.data?.[0].accounts[0].banners[0].landingUrl}
+                    imageUrl={
+                        banners?.data?.[0].accounts[0].banners[0].imageUrl
+                    }
+                />
+            )}
+            <LayoutResponsive style={{ marginTop: '40px', padding: 0 }}>
                 {isDesktop(width) ? (
-                    <div
-                        style={{
-                            padding: '10px',
-                            width: '1280px',
-                            margin: '0 auto',
-                        }}
-                    >
-                        <div style={{ marginTop: '4rem' }}>
-                            <h1 style={{ fontSize: '24px' }}>
-                                {manager('managerTitle')}
-                            </h1>
-
-                            <p
-                                style={{
-                                    whiteSpace: 'pre-line',
-                                    fontSize: '16px',
-                                    margin: '10px 0 30px 0',
-                                }}
-                            >
-                                {manager('managerDesc')}
-                            </p>
-                            <Link to='/etc/notice' style={{ fontSize: '16px' }}>
-                                {manager('howToUse')}
-                            </Link>
-                        </div>
-
+                    <>
                         <CategoriyListContainer>
                             <CategoryList>
                                 {categoryList.map(
@@ -305,7 +295,7 @@ const Manager = () => {
                                 </div>
                             </main>
                         </div>
-                    </div>
+                    </>
                 ) : (
                     <div
                         style={{
@@ -320,12 +310,12 @@ const Manager = () => {
                     >
                         <MobileTitle>{manager('onlyPc')}</MobileTitle>
                         <StyledLink to={PATHS.MAIN}>
-                            메인으로 돌아가기
+                            {manager('goToMain')}
                         </StyledLink>
                     </div>
                 )}
             </LayoutResponsive>
-        </>
+        </div>
     );
 };
 
