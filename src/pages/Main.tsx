@@ -81,6 +81,7 @@ const Main = () => {
             style: {
                 transform: 'translate3d(0, 0, 0)',
                 zIndex: 0,
+                marginBottom: '60px',
             },
         }),
         [],

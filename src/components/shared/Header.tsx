@@ -21,7 +21,7 @@ import { isLogin } from 'utils/users';
 
 const HeaderContainer = styled.header`
     background-color: #fff;
-    padding: 0 80px;
+    padding: 16px 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -30,13 +30,11 @@ const HeaderContainer = styled.header`
     z-index: 1;
 
     ${media.small} {
-        padding: 24px;
+        padding: 30px 24px;
     }
 `;
 
-const LogoContainer = styled.div`
-    padding: 34px 0;
-`;
+const LogoContainer = styled.div``;
 
 const NavContainer = styled.nav`
     & > a {
@@ -52,7 +50,6 @@ const IconContainer = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 34px 0;
 
     & > div {
         cursor: pointer;
