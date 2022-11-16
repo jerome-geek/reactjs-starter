@@ -8,6 +8,7 @@ const BANNER = {
     MAIN_ETC_BANNER: process.env.REACT_APP_MODE === 'development' ? '008' : '',
     VC_MANAGER: process.env.REACT_APP_MODE === 'development' ? '009' : '',
     VC_MANUAL: process.env.REACT_APP_MODE === 'development' ? '010' : '',
+    VC_GOLF_COURSE: process.env.REACT_APP_MODE === 'development' ? '011' : '',
 };
 
 export default BANNER;

@@ -24,6 +24,7 @@ declare module 'react-i18next' {
             serviceCenter: typeof ko.serviceCenter;
             agency: typeof ko.agency;
             myPageInfo: typeof ko.myPageInfo;
+            vc: typeof ko.vc;
             // about: typeof ko.about;
             //   about: typeof ko
         };
