@@ -12,8 +12,9 @@ import ManagerTopContent from 'components/VC/ManagerTopContent';
 import CategoryList, { CategoryListItem } from 'components/VC/CategoryList';
 import { useBanners, useCategories, useProductList } from 'hooks/queries';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
-import { ProductItem, ProductSearchParams } from 'models/product';
+import { ProductSearchParams } from 'models/product';
 import BANNER from 'const/banner';
+import PATHS from 'const/paths';
 import { flex } from 'utils/styles/mixin';
 
 const CategoryListContainer = styled.form`
@@ -172,18 +173,14 @@ const ManualList = () => {
                             {productList.data &&
                             productList?.data?.items?.length > 0 ? (
                                 productList?.data.items?.map(
-                                    ({
-                                        productNo,
-                                        productName,
-                                        imageUrls,
-                                    }: ProductItem) => (
+                                    ({ productNo, productName, imageUrls }) => (
                                         <ManualCard
                                             key={productNo}
                                             title={productName}
                                             imgUrl={head<string[]>(imageUrls)}
                                             onClick={() =>
                                                 navigate(
-                                                    `/manual/detail/${productNo}`,
+                                                    `${PATHS.MANUAL_DETAIL}/${productNo}`,
                                                 )
                                             }
                                         />
