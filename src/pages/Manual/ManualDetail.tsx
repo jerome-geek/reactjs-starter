@@ -2,22 +2,17 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { useTranslation } from 'react-i18next';
 
-import { product } from 'api/product';
+import SEOHelmet from 'components/shared/SEOHelmet';
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import SecondaryButton from 'components/Button/SecondaryButton';
-import SEOHelmet from 'components/shared/SEOHelmet';
+import useProductDetail from 'hooks/queries/useProductDetail';
 
 const ManualDetail = () => {
     const { t: manual } = useTranslation('manual');
-    const { productNo } = useParams();
+    const { productNo } = useParams() as { productNo: string };
 
-    const { data } = useQuery(
-        ['product', productNo],
-        async () => await product.getProductDetail(productNo as string),
-        {
-            enabled: !!productNo,
-        },
-    );
+    const productDetail = useProductDetail({ productNo });
 
     return (
         <>
@@ -27,7 +22,7 @@ const ManualDetail = () => {
                 }}
             />
 
-            <div style={{ padding: '10px', width: '1280px', margin: '0 auto' }}>
+            <LayoutResponsive style={{ textAlign: 'left' }}>
                 <div style={{ marginTop: '4rem' }}>
                     <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>
                         {manual('manualDetailTitle')}
@@ -93,9 +88,13 @@ const ManualDetail = () => {
                     </div>
 
                     <div style={{ textAlign: 'center' }}>
-                        {data?.data.baseInfo.imageUrls.map((image: string) => {
-                            return <img key={image} src={image} alt='main' />;
-                        })}
+                        {productDetail.data?.baseInfo.imageUrls.map(
+                            (image: string) => {
+                                return (
+                                    <img key={image} src={image} alt='main' />
+                                );
+                            },
+                        )}
                     </div>
 
                     {/* <div
@@ -105,7 +104,7 @@ const ManualDetail = () => {
                         }}
                     ></div> */}
                 </div>
-            </div>
+            </LayoutResponsive>
         </>
     );
 };

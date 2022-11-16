@@ -1,172 +1,166 @@
-import React, { useState } from 'react';
+import { useState, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { head } from '@fxts/core';
+import { concat, head, map, omit, pipe, toArray } from '@fxts/core';
 
+import LayoutResponsive from 'components/shared/LayoutResponsive';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import InputWithIcon from 'components/Input/InputWithIcon';
 import ManualCard from 'components/Card/ManualCard';
-import Loader from 'components/shared/Loader';
-import { category } from 'api/display';
-import { product } from 'api/product';
+import ManagerTopContent from 'components/VC/ManagerTopContent';
+import CategoryList, { CategoryListItem } from 'components/VC/CategoryList';
+import { useBanners, useCategories, useProductList } from 'hooks/queries';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
-import { ProductItem, ProductSearchParams } from 'models/product';
+import { ProductSearchParams } from 'models/product';
+import BANNER from 'const/banner';
+import PATHS from 'const/paths';
+import { flex } from 'utils/styles/mixin';
 
-const ManagerCategoryList = styled.ul`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const ManagerCategoryListItem = styled.li<{ isActive?: boolean }>`
-    margin: 0 10px;
-    padding-bottom: 3px;
-    font-size: 16px;
-    color: ${(props) =>
-        props.isActive ? props.theme.text1 : props.theme.text2};
-    text-decoration: ${(props) => props.isActive && 'underline'};
-
-    &:first-child {
-        margin-left: 0;
-    }
-    &:last-child {
-        margin-right: 0;
-    }
+const CategoryListContainer = styled.form`
+    ${flex}
+    justify-content: space-between;
 `;
 
 const ManualList = () => {
-    const [selectedCategory, setSelectedCategory] = useState(0);
+    const [categoryList, setCategoryList] = useState<CategoryListItem[]>([
+        {
+            categoryNo: 0,
+            label: '전체보기',
+            isSelected: true,
+        },
+    ]);
+    const [searchParams, setSearchParams] = useState<ProductSearchParams>({
+        pageNumber: 1,
+        pageSize: 10,
+        hasOptionValues: true,
+        filter: {
+            saleStatus: PRODUCT_SALE_STATUS.ALL_CONDITIONS,
+            soldout: true,
+        },
+        order: {
+            by: PRODUCT_BY.MD_RECOMMEND,
+            direction: ORDER_DIRECTION.DESC,
+        },
+    });
+
+    const categories = useCategories();
+
+    const banners = useBanners({ banners: [BANNER.VC_MANUAL] });
+
+    useLayoutEffect(() => {
+        if (categories.data) {
+            setCategoryList((prev) =>
+                pipe(
+                    categories.data.multiLevelCategories,
+                    map((a) => ({
+                        categoryNo: a.categoryNo,
+                        label: a.label,
+                        isSelected: false,
+                    })),
+                    concat(prev),
+                    toArray,
+                ),
+            );
+        }
+
+        return () => {
+            setCategoryList([
+                {
+                    categoryNo: 0,
+                    label: '전체보기',
+                    isSelected: true,
+                },
+            ]);
+        };
+    }, [categories.data]);
+
     const { t: manual } = useTranslation('manual');
     const navigate = useNavigate();
-    const [keywords, setKeywords] = useState('');
-    const [searchParams, setSearchParams] = useState<ProductSearchParams>(
-        () => {
-            return {
-                pageNumber: 1,
-                pageSize: 10,
-                hasOptionValues: true,
-                filter: {
-                    saleStatus: PRODUCT_SALE_STATUS.ALL_CONDITIONS,
-                    soldout: true,
-                },
-                order: {
-                    by: PRODUCT_BY.MD_RECOMMEND,
-                    direction: ORDER_DIRECTION.DESC,
-                },
-            };
-        },
-    );
 
-    const { data: multiLevelCategories } = useQuery(
-        ['categories'],
-        async () => await category.getCategories(),
-        {
-            refetchOnWindowFocus: false,
-            select: ({ data }) => {
-                return data.multiLevelCategories;
-            },
-        },
-    );
-
-    const onKeywordsChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-        setKeywords(e.target.value);
-
-    const { data: productList, isFetching } = useQuery(
-        ['category_products', searchParams],
-        async () => await product.searchProducts(searchParams),
-        {
-            refetchOnWindowFocus: false,
+    const productList = useProductList({
+        searchParams,
+        options: {
             staleTime: 10000,
             cacheTime: 10000,
-            select: ({ data: { items } }) => {
-                return items;
-            },
         },
-    );
+    });
 
     const onCategoryClick = (categoryNo: number) => {
-        if (categoryNo === 0) {
-            setSelectedCategory(0);
-            setSearchParams((prev: any) => {
-                delete prev.categoryNos;
-                return {
-                    ...prev,
-                };
-            });
-        } else {
-            setSelectedCategory(categoryNo);
-            setSearchParams((prev: any) => {
-                return {
-                    ...prev,
-                    categoryNos: categoryNo,
-                };
-            });
-        }
+        setCategoryList((prev) =>
+            pipe(
+                prev,
+                map((a) => ({ ...a, isSelected: a.categoryNo === categoryNo })),
+                toArray,
+            ),
+        );
+
+        setSearchParams((prev) =>
+            categoryNo === 0
+                ? omit(['categoryNos'] as const, prev)
+                : {
+                      ...prev,
+                      categoryNos: categoryNo.toString(),
+                  },
+        );
     };
+
+    const keywords = useRef<HTMLInputElement>(null);
 
     const onSearchClick = (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setSearchParams((prev: ProductSearchParams) => ({
-            ...prev,
-            filter: {
-                keywords,
-            },
-        }));
+        if (keywords.current !== null) {
+            setSearchParams((prev: ProductSearchParams) => ({
+                ...prev,
+                filter: {
+                    keywords: keywords.current?.value,
+                },
+            }));
+        }
     };
 
     return (
-        <>
+        <div style={{ marginTop: '150px' }}>
             <SEOHelmet
                 data={{
                     title: manual('manualTitle'),
                 }}
             />
 
-            <div style={{ padding: '10px', width: '1280px', margin: '0 auto' }}>
-                <div style={{ marginTop: '4rem' }}>
-                    <h1 style={{ fontSize: '24px' }}>
-                        {manual('manualTitle')}
-                    </h1>
-                </div>
+            {/* TODO: 보이스캐디 매뉴얼 배너 */}
+            {banners?.data?.[0].accounts[0].banners[0] && (
+                <ManagerTopContent
+                    title={banners?.data?.[0].accounts[0].banners[0].name}
+                    description={
+                        banners?.data?.[0].accounts[0].banners[0].description
+                    }
+                    imageUrl={
+                        banners?.data?.[0].accounts[0].banners[0].imageUrl
+                    }
+                />
+            )}
 
-                <form
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginTop: '1.5rem',
-                    }}
-                    onSubmit={onSearchClick}
-                >
-                    <ManagerCategoryList>
-                        <ManagerCategoryListItem
-                            isActive={selectedCategory === 0}
-                            onClick={() => onCategoryClick(0)}
-                        >
-                            전체보기
-                        </ManagerCategoryListItem>
-
-                        {multiLevelCategories?.map(({ categoryNo, label }) => (
-                            <ManagerCategoryListItem
-                                isActive={selectedCategory === categoryNo}
-                                key={categoryNo}
-                                onClick={() => onCategoryClick(categoryNo)}
-                            >
-                                {label}
-                            </ManagerCategoryListItem>
-                        ))}
-                    </ManagerCategoryList>
+            <LayoutResponsive
+                style={{
+                    marginTop: '40px',
+                    marginBottom: '40px',
+                    padding: 0,
+                }}
+            >
+                <CategoryListContainer onSubmit={onSearchClick}>
+                    <CategoryList
+                        list={categoryList}
+                        onListClick={onCategoryClick}
+                    />
 
                     <InputWithIcon
                         placeholder='상품명을 검색하세요.'
-                        value={keywords}
-                        onChange={onKeywordsChange}
+                        ref={keywords}
                     />
-                </form>
+                </CategoryListContainer>
 
                 <div style={{ display: 'flex', marginTop: '2rem' }}>
-                    <main style={{ flex: '1 1 0%' }}>
+                    <section style={{ flex: '1 1 0%' }}>
                         <div
                             style={{
                                 display: 'flex',
@@ -176,33 +170,40 @@ const ManualList = () => {
                                 margin: '-1rem',
                             }}
                         >
-                            {isFetching ? (
-                                <Loader />
-                            ) : (
-                                productList?.map(
-                                    ({
-                                        productNo,
-                                        productName,
-                                        imageUrls,
-                                    }: ProductItem) => (
+                            {productList.data &&
+                            productList?.data?.items?.length > 0 ? (
+                                productList?.data.items?.map(
+                                    ({ productNo, productName, imageUrls }) => (
                                         <ManualCard
                                             key={productNo}
                                             title={productName}
                                             imgUrl={head<string[]>(imageUrls)}
                                             onClick={() =>
                                                 navigate(
-                                                    `/manual/detail/${productNo}`,
+                                                    `${PATHS.MANUAL_DETAIL}/${productNo}`,
                                                 )
                                             }
                                         />
                                     ),
                                 )
+                            ) : (
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                        padding: '100px',
+                                    }}
+                                >
+                                    <p>상품이 없습니다</p>
+                                </div>
                             )}
                         </div>
-                    </main>
+                    </section>
                 </div>
-            </div>
-        </>
+            </LayoutResponsive>
+        </div>
     );
 };
 
