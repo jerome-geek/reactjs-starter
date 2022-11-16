@@ -10,6 +10,7 @@ import LayoutResponsive from 'components/shared/LayoutResponsive';
 import PrimaryButton from 'components/Button/PrimaryButton';
 import ManualCard from 'components/Card/ManualCard';
 import ManagerTopContent from 'components/VC/ManagerTopContent';
+import CategoryList, { CategoryListItem } from 'components/VC/CategoryList';
 import { useBanners, useCategories, useProductList } from 'hooks/queries';
 import PATHS from 'const/paths';
 import BANNER from 'const/banner';
@@ -18,12 +19,6 @@ import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
 import { ProductItem, ProductSearchParams } from 'models/product';
 import { ReactComponent as Mac } from 'assets/icons/mac.svg';
 import { ReactComponent as Windows } from 'assets/icons/windows.svg';
-
-interface ProductCategory {
-    categoryNo: number;
-    label: string;
-    isSelected: boolean;
-}
 
 const MobileTitle = styled.h2`
     font-size: 20px;
@@ -62,21 +57,6 @@ const CategoriyListContainer = styled.div`
     }
 `;
 
-const CategoryList = styled.ul`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-
-const CategoryListItem = styled.li<{ isSelected?: boolean }>`
-    margin: 0 5px;
-    padding: 10px;
-    color: ${(props) => (props.isSelected ? '#fff' : '#000')};
-    font-weight: ${(props) => (props.isSelected ? 'bold' : 'normal')};
-    text-decoration: ${(props) => (props.isSelected ? 'underline' : 'none')};
-    color: ${(props) => (props.isSelected ? '#191919' : '#767676')};
-`;
-
 const DownloadButton = styled(PrimaryButton)`
     svg {
         margin-right: 16px;
@@ -84,7 +64,7 @@ const DownloadButton = styled(PrimaryButton)`
 `;
 
 const Manager = () => {
-    const [categoryList, setCategoryList] = useState<ProductCategory[]>([
+    const [categoryList, setCategoryList] = useState<CategoryListItem[]>([
         {
             categoryNo: 0,
             label: '전체보기',
@@ -201,25 +181,15 @@ const Manager = () => {
                     }
                 />
             )}
+
             <LayoutResponsive style={{ marginTop: '40px', padding: 0 }}>
                 {isDesktop(width) ? (
                     <>
                         <CategoriyListContainer>
-                            <CategoryList>
-                                {categoryList.map(
-                                    ({ categoryNo, label, isSelected }) => (
-                                        <CategoryListItem
-                                            key={categoryNo}
-                                            isSelected={isSelected}
-                                            onClick={() =>
-                                                onCategoryClick(categoryNo)
-                                            }
-                                        >
-                                            {label}
-                                        </CategoryListItem>
-                                    ),
-                                )}
-                            </CategoryList>
+                            <CategoryList
+                                list={categoryList}
+                                onListClick={onCategoryClick}
+                            />
 
                             <p>{manager('downloadDesc')}</p>
                         </CategoriyListContainer>
