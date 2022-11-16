@@ -19,6 +19,7 @@ const useProductList = ({ searchParams, options }: useProductListParams) => {
         ['productList', searchParams],
         async () => await product.searchProducts(searchParams),
         {
+            keepPreviousData: true,
             select: ({ data }) => data,
             ...options,
         },

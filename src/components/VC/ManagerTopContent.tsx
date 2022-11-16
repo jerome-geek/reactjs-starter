@@ -74,9 +74,11 @@ const ManagerTopContent: FC<ManagerTopContentProps> = ({
                     />
                 )}
 
-                <StyledLink to={link}>
-                    <span>{manager('howToUse')}</span>
-                </StyledLink>
+                {link && (
+                    <StyledLink to={link}>
+                        <span>{manager('howToUse')}</span>
+                    </StyledLink>
+                )}
             </ContentContainer>
         </StyledContainer>
     );
