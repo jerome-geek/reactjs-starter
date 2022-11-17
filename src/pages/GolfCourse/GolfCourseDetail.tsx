@@ -581,7 +581,7 @@ const GolfCourseDetail = () => {
                                     {courseDetail('courseRequestMessage')}
                                 </CourseRequestMessage>
                                 <CourseRequestButton
-                                    to={PATHS.GOLF_COURSE_REQUEST}
+                                    to={`${PATHS.GOLF_COURSE_REQUEST}/main`}
                                 >
                                     {courseDetail('courseRequest')}
                                 </CourseRequestButton>

@@ -12,6 +12,7 @@ import courseList from 'locales/ko/courseList.json';
 import serviceCenter from 'locales/ko/serviceCenter.json';
 import agency from 'locales/ko/agency.json';
 import myPageInfo from 'locales/ko/myPageInfo.json';
+import vc from 'locales/ko/vc.json';
 
 export {
     main,
@@ -28,4 +29,5 @@ export {
     serviceCenter,
     agency,
     myPageInfo,
+    vc
 };

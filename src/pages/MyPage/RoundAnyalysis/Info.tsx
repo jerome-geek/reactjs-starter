@@ -1,12 +1,12 @@
+import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
+import { identity, pipe, sum, take, toArray } from '@fxts/core';
 
 import media from 'utils/styles/media';
 import { flex } from 'utils/styles/mixin';
 import roundStats from 'mock/roundStats.json';
-import { FC } from 'react';
-import { add, identity, pipe, slice, sum, take, toArray } from '@fxts/core';
 
 interface InfoProps {
     isMainTab?: boolean;
