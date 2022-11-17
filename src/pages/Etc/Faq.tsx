@@ -24,6 +24,7 @@ import BOARD from 'const/board';
 import { BoardDetail } from 'models/manage';
 import { isDesktop, isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
+import { hideScrollbar } from 'utils/styles/mixin';
 import { board } from 'api/manage';
 import PATHS from 'const/paths';
 import { useMall } from 'hooks';
@@ -110,6 +111,8 @@ const FaqCategoryContainer = styled.ul`
     ${media.small} {
         width: 100vw;
         justify-content: left;
+        overflow: scroll;
+        ${hideScrollbar}
     }
 `;
 
@@ -117,7 +120,7 @@ const MobileFaqCategoryContainer = styled.div`
     ${media.small} {
         width: 100%;
         justify-content: flex-start;
-        overflow-x: scroll;
+        overflow-x: visible;
     }
 `;
 

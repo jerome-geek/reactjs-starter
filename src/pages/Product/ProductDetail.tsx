@@ -24,9 +24,11 @@ import { CHANNEL_TYPE } from 'models';
 import { ProductOption, FlatOption } from 'models/product';
 import { isLogin } from 'utils/users';
 import { useCartMutate, useOrderSheetMutation } from 'hooks/mutations';
-import { useBanners } from 'hooks/queries';
-import useProductOptionList from 'hooks/queries/useProductOptionList';
-import useProductDetail from 'hooks/queries/useProductDetail';
+import {
+    useBanners,
+    useProductDetail,
+    useProductOptionList,
+} from 'hooks/queries';
 import { isMobile } from 'utils/styles/responsive';
 import { sortBanners } from 'utils/banners';
 import media from 'utils/styles/media';
@@ -58,10 +60,12 @@ const ProductContainerTop = styled.div`
 `;
 
 const ProductImageContainer = styled.div`
-    max-width: 661px;
     width: 52%;
     display: flex;
     position: relative;
+    max-width: 661px;
+    max-height: 722px;
+
     ${media.medium} {
         max-width: none;
         width: 100%;
