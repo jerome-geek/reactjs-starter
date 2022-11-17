@@ -21,7 +21,7 @@ import { guestOrder, myOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE, PAY_TYPE } from 'models';
 import { OrderProductOption } from 'models/order';
 import { useMember, useQueryString } from 'hooks';
-import HTTP_RESPONSE from 'const/http';
+import {HTTP_RESPONSE} from 'const/http';
 
 const CompleteContainer = styled(LayoutResponsive)`
     max-width: 840px;

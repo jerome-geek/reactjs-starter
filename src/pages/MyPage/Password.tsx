@@ -14,7 +14,7 @@ import { useDebounce } from 'hooks';
 import media from 'utils/styles/media';
 import { isMobile } from 'utils/styles/responsive';
 import PATHS from 'const/paths';
-import HTTP_RESPONSE from 'const/http';
+import { HTTP_RESPONSE } from 'const/http';
 
 const PasswordContainer = styled.form`
     width: 440px;

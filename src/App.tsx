@@ -6,6 +6,7 @@ import Main from 'pages/Main';
 import PrivateRoute from 'hoc/PrivateRoute';
 import ScrollToTop from 'hoc/ScrollToTop';
 import DefaultLayout from 'components/Layout/DefaultLayout';
+import Test from 'pages/Test';
 
 const MemberRouter = React.lazy(() => import('router/MemberRouter'));
 const JoinCompleted = React.lazy(() => import('pages/Member/JoinCompleted'));
@@ -78,6 +79,10 @@ const App: FC = () => {
                                 path='/support/*'
                                 element={<SupportRouter />}
                             />
+                            {/* 테스트용 페이지 추후 제거 예정 */}
+                            {process.env.NODE_ENV === 'development' && (
+                                <Route path='/test' element={<Test />} />
+                            )}
                             <Route path='/*' element={<NotFound />} />
                         </Routes>
                     </ScrollToTop>
