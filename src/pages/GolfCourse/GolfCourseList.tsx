@@ -1,19 +1,19 @@
-import { useState, useMemo, useLayoutEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useTranslation } from 'react-i18next';
+import { concat, head, map, omit, pipe, toArray } from '@fxts/core';
+
 import LayoutResponsive from 'components/shared/LayoutResponsive';
 import SEOHelmet from 'components/shared/SEOHelmet';
 import CategoryList, { CategoryListItem } from 'components/VC/CategoryList';
 import ManagerTopContent from 'components/VC/ManagerTopContent';
-import BANNER from 'const/banner';
+import ManualCard from 'components/Card/ManualCard';
 import { useBanners, useCategories, useProductList } from 'hooks/queries';
-import styled from 'styled-components';
-
-import { useTranslation } from 'react-i18next';
 import { ORDER_DIRECTION, PRODUCT_BY, PRODUCT_SALE_STATUS } from 'models';
 import { ProductSearchParams } from 'models/product';
-import { concat, head, map, omit, pipe, toArray } from '@fxts/core';
-import ManualCard from 'components/Card/ManualCard';
+import BANNER from 'const/banner';
 import PATHS from 'const/paths';
-import { useNavigate } from 'react-router-dom';
 
 const CategoriyListContainer = styled.div`
     display: flex;
@@ -52,9 +52,10 @@ const GolfCourseList = () => {
     });
 
     const { t: vc } = useTranslation('vc');
+
     const navigate = useNavigate();
 
-    const banners = useBanners({ banners: [BANNER.VC_GOLF_COURSE] });
+    const banners = useBanners({ banners: [BANNER.VC_MANUAL] });
 
     const categories = useCategories();
 
@@ -116,7 +117,7 @@ const GolfCourseList = () => {
         <div style={{ marginTop: '150px' }}>
             <SEOHelmet
                 data={{
-                    title: vc('golfCourse.title'),
+                    title: vc('golfCourse.request.title'),
                 }}
             />
 

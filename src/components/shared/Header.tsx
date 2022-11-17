@@ -141,7 +141,7 @@ const Header = () => {
                 children: [
                     { name: '보이스캐디 매니저', url: PATHS.MANAGER },
                     { name: '매뉴얼', url: PATHS.MANUAL_LIST },
-                    { name: '지원 골프 코스', url: PATHS.GOLF_COURSE_LIST },
+                    { name: '지원 골프 코스', url: `${PATHS.GOLF_COURSE_LIST}/main` },
                     { name: '자주하는 질문', url: PATHS.FAQ },
                     { name: '고객센터' },
                     { name: '1:1 문의' },
