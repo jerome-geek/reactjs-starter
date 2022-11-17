@@ -19,7 +19,7 @@ import useClaimOrderOptionDetail from 'hooks/queries/useClaimOrderOptionDetail';
 import { ReactComponent as DropDownIcon } from 'assets/icons/arrow_drop_down.svg';
 import { memberClaim } from 'api/claim';
 import { CLAIM_TYPE, CLAIM_REASON_TYPE } from 'models';
-import HTTP_RESPONSE from 'const/http';
+import {HTTP_RESPONSE} from 'const/http';
 import PATHS from 'const/paths';
 
 interface ClaimLocation {

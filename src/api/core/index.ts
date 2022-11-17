@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-import HTTP_RESPONSE from 'const/http';
+import { HTTP_RESPONSE } from 'const/http';
 import PATHS from 'const/paths';
 import { getPlatform } from 'utils';
 import { tokenStorage } from 'utils/storage';

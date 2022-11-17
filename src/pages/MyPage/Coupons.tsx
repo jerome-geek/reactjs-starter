@@ -12,7 +12,7 @@ import Coupon from 'components/Coupon/Coupon';
 import IssuableCoupon from 'components/Coupon/IssuableCoupon';
 import media, { mediaQuery } from 'utils/styles/media';
 import { isDesktop } from 'utils/styles/responsive';
-import HTTP_RESPONSE from 'const/http';
+import { HTTP_RESPONSE } from 'const/http';
 import { useMember } from 'hooks';
 import useCouponData from 'hooks/queries/useCouponData';
 import useIssuableCouponsQuery from 'hooks/queries/useIssuableCouponsQuery';

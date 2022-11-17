@@ -13,7 +13,7 @@ import { guestOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE } from 'models';
 import { tokenStorage } from 'utils/storage';
 import PATHS from 'const/paths';
-import HTTP_RESPONSE from 'const/http';
+import { HTTP_RESPONSE } from 'const/http';
 
 interface GuestLoginFormData {
     guestOrderNo: string;

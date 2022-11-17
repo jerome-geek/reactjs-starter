@@ -49,7 +49,7 @@ import { useMall, useMember } from 'hooks';
 import PATHS from 'const/paths';
 import { KRW } from 'utils/currency';
 import payment from 'utils/payment';
-import HTTP_RESPONSE from 'const/http';
+import { HTTP_RESPONSE } from 'const/http';
 import { isLogin } from 'utils/users';
 import { useOrderSheet } from 'hooks/queries';
 
