@@ -1314,6 +1314,65 @@ enum INPUT_MATCHING_TYPE {
     AMOUNT = 'AMOUNT',
 }
 
+/***** 아래부터는 통합 회원 관리에서 쓰이는 타입 *****/
+enum VC_MEMBER_ACCOUNT_CD {
+    VC = '01',
+    GOOGLE = '02',
+    FACEBOOK = '03',
+    APPLE = '04',
+    KAKAO = '05',
+    NAVER = '06',
+}
+
+enum VC_MEMBER_CD {
+    NORMAL = '01',
+    CADDIE = '02',
+}
+
+enum VC_SERVICE_CD {
+    KOREA = '01',
+    USA = '02',
+    JAPAN = '03',
+    MVC = '04',
+    MSC = '05',
+    VSE = '06',
+    Y1 = '07',
+    VCM = '08',
+}
+
+enum VC_NATION_CD {
+    USA = 'USA',
+    JPN = 'JPN',
+    KOR = 'KOR',
+}
+
+enum VC_CLAUSE_CD {
+    // 서비스 이용약관
+    SERVICE = '0001',
+    // 개인정보 처리방침
+    PERSONAL_INFORMATION = '0002',
+    // 위치정보사업 이용약관
+    LOCATION_INFORMATION = '0003',
+    // 위치기반서비스 이용약관
+    LOCATION_BASED_SERVICE = '0004',
+    // VSE 서비스 이용약관
+    VSE_SERVICE = '0005',
+    // 마케팅 활용 동의
+    MARKETING = '0006',
+}
+
+enum VC_MEMBER_STATUS_CD {
+    JOIN = '01',
+    WITHDRAW = '02',
+    DORMANT = '03',
+    NOT_REGISTERED = '04',
+}
+
+enum VC_CONFIRM_METHOD_CD {
+    EMAIL = '01',
+    SMS = '02',
+}
+
 export {
     REQUIRED_TYPE,
     IMAGE_DISPLAY_TYPE,
@@ -1395,4 +1454,11 @@ export {
     PRODUCT_OPTION_TYPE,
     SALE_TYPE,
     INPUT_MATCHING_TYPE,
+    VC_MEMBER_ACCOUNT_CD,
+    VC_MEMBER_CD,
+    VC_SERVICE_CD,
+    VC_NATION_CD,
+    VC_CLAUSE_CD,
+    VC_MEMBER_STATUS_CD,
+    VC_CONFIRM_METHOD_CD,
 };
