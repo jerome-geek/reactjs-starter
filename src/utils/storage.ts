@@ -1,29 +1,35 @@
-import { IssueAccessTokenResponse } from 'models/auth';
-
 type LocalStorage = typeof window.localStorage;
 
-enum TokenStorageKey {
+enum TOKEN_STORAGE_KEY {
     ACCESS_TOKEN = 'ACCESS_TOKEN',
     GUEST_TOKEN = 'GUEST_TOKEN',
+    REFRESH_TOKEN = 'REFRESH_TOKEN',
 }
 
-interface AccessTokenInfo extends IssueAccessTokenResponse {
-    expiry: number;
+enum TOKEN_PREFIX {
+    VC = 'VC',
+    SHOPBY = 'SHOPBY',
 }
 
-// TODO: SHOPBY TOKEN, VC TOKEN 분리
-const PREFIX_LOCAL_STORAGE = 'SHOPBY_';
+interface AccessToken {
+    accessToken: string;
+    refreshToken?: string;
+    expiry: number; // unix timestamp
+}
 
 abstract class Storage<T extends string> {
     private readonly storage: LocalStorage;
+    private readonly prefix: TOKEN_PREFIX;
 
     private getOriginKey(key: T) {
-        return `${PREFIX_LOCAL_STORAGE}${key}`;
+        return `${this.prefix}_${key}`;
     }
 
-    protected constructor(
+    constructor(
+        prefix: TOKEN_PREFIX,
         getStorage = (): LocalStorage => window.localStorage,
     ) {
+        this.prefix = prefix;
         this.storage = getStorage();
     }
 
@@ -45,36 +51,45 @@ abstract class Storage<T extends string> {
     }
 }
 
-class TokenStorage extends Storage<TokenStorageKey> {
-    constructor() {
-        super();
-    }
-
-    getAccessToken(): Nullable<AccessTokenInfo> {
-        const data = this.get(TokenStorageKey.ACCESS_TOKEN);
+class TokenStorage extends Storage<TOKEN_STORAGE_KEY> {
+    getAccessToken(): Nullable<AccessToken> {
+        const data = this.get(TOKEN_STORAGE_KEY.ACCESS_TOKEN);
 
         return data ? JSON.parse(data) : null;
     }
 
     setAccessToken(accessToken: string) {
-        this.set(TokenStorageKey.ACCESS_TOKEN, accessToken);
+        this.set(TOKEN_STORAGE_KEY.ACCESS_TOKEN, accessToken);
     }
 
     getGuestToken() {
-        const data = this.get(TokenStorageKey.GUEST_TOKEN);
+        const data = this.get(TOKEN_STORAGE_KEY.GUEST_TOKEN);
 
         return data ? JSON.parse(data) : '';
     }
 
     setGuestToken(guestToken: string) {
-        this.set(TokenStorageKey.GUEST_TOKEN, guestToken);
+        this.set(TOKEN_STORAGE_KEY.GUEST_TOKEN, guestToken);
+    }
+
+    getRefreshToken() {
+        const data = this.get(TOKEN_STORAGE_KEY.REFRESH_TOKEN);
+
+        return data ? JSON.parse(data) : '';
+    }
+
+    setRereshToken(refreshToken: string) {
+        this.set(TOKEN_STORAGE_KEY.REFRESH_TOKEN, refreshToken);
     }
 
     clear() {
-        this.clearItems([TokenStorageKey.ACCESS_TOKEN]);
+        this.clearItems([TOKEN_STORAGE_KEY.ACCESS_TOKEN]);
     }
 }
 
-const tokenStorage = new TokenStorage();
+// TODO: storage 역할 분리로 인해 제거 제거예정
+const tokenStorage = new TokenStorage(TOKEN_PREFIX.SHOPBY);
+const shopbyTokenStorage = new TokenStorage(TOKEN_PREFIX.SHOPBY);
+const vcTokenStorage = new TokenStorage(TOKEN_PREFIX.VC);
 
-export { tokenStorage };
+export { tokenStorage, shopbyTokenStorage, vcTokenStorage };

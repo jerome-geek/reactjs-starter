@@ -20,7 +20,7 @@ import { ReactComponent as GoogleIcon } from 'assets/icons/sns_google.svg';
 import { ReactComponent as AppleIcon } from 'assets/icons/sns_apple.svg';
 import LoginLogo from 'assets/logo/loginLogo.png';
 import { authentication } from 'api/auth';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 import { isMobile } from 'utils/styles/responsive';
 import media from 'utils/styles/media';
 import { useQueryString } from 'hooks';
@@ -145,9 +145,9 @@ const Login = () => {
                         // TODO: 비밀번호 90일 초과시 로직 비밀번호 변경 성공 => 로그아웃 / 비밀번호 변경 안함 => 로그인
                     } else {
                         // TODO: 비밀번호 90일 초과하지 않은 경우 로그인 처리
-                        tokenStorage.setAccessToken(
+                        shopbyTokenStorage.setAccessToken(
                             JSON.stringify({
-                                ...data,
+                                accessToken: data.accessToken,
                                 expiry:
                                     new Date().getTime() + data.expireIn * 1000,
                             }),

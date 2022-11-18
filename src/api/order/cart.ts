@@ -9,7 +9,7 @@ import {
     OptionInputs,
     ShoppingCartBody,
 } from 'models/order/index';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 
 const cart = {
     getCart: (
@@ -17,7 +17,7 @@ const cart = {
             divideInvalidProducts?: boolean;
         } = { divideInvalidProducts: false },
     ): Promise<AxiosResponse<CartList>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -40,7 +40,7 @@ const cart = {
         orderCnt: number;
         optionInputs: OptionInputs[];
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'PUT',
@@ -55,7 +55,7 @@ const cart = {
     registerCart: (
         body: Omit<ShoppingCartBody, 'cartNo'>[],
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'POST',
@@ -72,7 +72,7 @@ const cart = {
     }: {
         cartNo: number | number[];
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'DELETE',
@@ -102,7 +102,7 @@ const cart = {
         cartNo: number[] | number | null;
         divideInvalidProducts?: boolean;
     }): Promise<AxiosResponse<CartPriceInfo>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -120,7 +120,7 @@ const cart = {
     },
 
     getCartCount: (): Promise<AxiosResponse<{ count: number }>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -137,7 +137,7 @@ const cart = {
     }: Pick<ShoppingCartBody, 'cartNo'> & {
         divideInvalidProducts?: boolean;
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -150,7 +150,7 @@ const cart = {
     },
 
     checkCartValidation: (): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -171,7 +171,7 @@ const cart = {
     getMaximumCouponCartPrice: (params: {
         cartNo: number;
     }): Promise<AxiosResponse<getMaximumCouponCartPriceResponse>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
