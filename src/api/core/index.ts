@@ -22,13 +22,22 @@ const request: AxiosInstance = axios.create({
 request.defaults.timeout = 5000;
 
 // 요청 인터셉터 추가
-request.interceptors.request.use((config) => {
-    if (!isLogin()) {
-        shopbyTokenStorage.clear();
-    }
+request.interceptors.request.use(
+    (config) => {
+        config.headers = config.headers ?? {};
 
-    return config;
-});
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
+
+        if (isLogin()) {
+            config.headers['accessToken'] = accessTokenInfo?.accessToken || '';
+        } else {
+            shopbyTokenStorage.clear();
+        }
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);
 
 // 응답 인터셉터 추가
 request.interceptors.response.use(
