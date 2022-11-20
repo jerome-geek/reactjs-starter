@@ -34,3 +34,8 @@ interface ShopByErrorResponse {
     path: string;
     status: number;
 }
+
+interface MemberIntegrationResponse {
+    code: string;
+    message: string;
+}

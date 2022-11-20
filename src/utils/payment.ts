@@ -1,17 +1,17 @@
 import { getPlatform } from 'utils';
-import { tokenStorage } from 'utils/storage';
-
-const accessTokenInfo = tokenStorage.getAccessToken();
+import { shopbyTokenStorage } from 'utils/storage';
 
 const payment = {
-    setConfiguration: () =>
-        window.NCPPay.setConfiguration({
+    setConfiguration: () => {
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
+
+        return window.NCPPay.setConfiguration({
             clientId: process.env.REACT_APP_CLIENT_ID,
             confirmUrl: `${window.location.origin}/order/complete`,
             platform: getPlatform(),
             accessToken: accessTokenInfo?.accessToken || '',
-        }),
-
+        });
+    },
     reservation: (paymentData: any) => {
         if (!window.NCPPay) {
             throw new Error('ncp_pay 스크립트를 로드해주세요.');
@@ -21,4 +21,4 @@ const payment = {
     },
 };
 
-export default payment;
+export default Object.freeze(payment);

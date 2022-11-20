@@ -9,25 +9,27 @@ import {
     OptionInputs,
     ShoppingCartBody,
 } from 'models/order/index';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 
 const cart = {
+    /**
+     * 장바구니 가져오기
+     * - 로그인된 유저의 장바구니 목록을 조회하기 위한 API 입니다.
+     *
+     * @param params
+     * @returns
+     */
     getCart: (
         params: {
             divideInvalidProducts?: boolean;
         } = { divideInvalidProducts: false },
     ): Promise<AxiosResponse<CartList>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'GET',
             url: '/cart',
             params: {
                 divideInvalidProducts: params.divideInvalidProducts,
             },
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
@@ -40,30 +42,20 @@ const cart = {
         orderCnt: number;
         optionInputs: OptionInputs[];
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'PUT',
             url: '/cart',
             data: [{ orderCnt, cartNo, optionInputs }],
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
     registerCart: (
         body: Omit<ShoppingCartBody, 'cartNo'>[],
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'POST',
             url: '/cart',
             data: body,
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
@@ -72,8 +64,6 @@ const cart = {
     }: {
         cartNo: number | number[];
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'DELETE',
             url: '/cart',
@@ -81,9 +71,6 @@ const cart = {
             paramsSerializer: (params) => {
                 return qs.stringify(params, { arrayFormat: 'comma' });
             },
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
@@ -102,8 +89,6 @@ const cart = {
         cartNo: number[] | number | null;
         divideInvalidProducts?: boolean;
     }): Promise<AxiosResponse<CartPriceInfo>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'GET',
             url: '/cart/calculate',
@@ -113,21 +98,13 @@ const cart = {
             },
             paramsSerializer: (param) =>
                 qs.stringify(param, { arrayFormat: 'comma' }),
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
     getCartCount: (): Promise<AxiosResponse<{ count: number }>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'GET',
             url: '/cart/count',
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
@@ -137,7 +114,7 @@ const cart = {
     }: Pick<ShoppingCartBody, 'cartNo'> & {
         divideInvalidProducts?: boolean;
     }): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -150,14 +127,9 @@ const cart = {
     },
 
     checkCartValidation: (): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'GET',
             url: '/cart/validate',
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 
@@ -171,15 +143,10 @@ const cart = {
     getMaximumCouponCartPrice: (params: {
         cartNo: number;
     }): Promise<AxiosResponse<getMaximumCouponCartPriceResponse>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
-
         return request({
             method: 'GET',
             url: '/cart/coupons/maximum',
             params: params?.cartNo,
-            headers: Object.assign({}, defaultHeaders(), {
-                accessToken: accessTokenInfo?.accessToken || '',
-            }),
         });
     },
 };

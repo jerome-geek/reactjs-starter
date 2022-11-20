@@ -12,7 +12,7 @@ import {
     IssueAccessTokenResponse,
     OpenIdAccessToken,
 } from 'models/auth';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 
 const authentication = {
     checkCertificatedNumber: ({
@@ -199,7 +199,7 @@ const authentication = {
         }),
 
     deleteAccessToken: (): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'DELETE',

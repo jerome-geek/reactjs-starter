@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-export interface getCurrentIpResponse {
+export interface GetCurrentIpResponse {
     IPv4: string;
     city: string;
     country_code: string;
@@ -14,9 +14,9 @@ export interface getCurrentIpResponse {
 const utils = {
     /**
      * 현재 접속한 클라이언트 IP 정보를 가져온다 (https://geolocation-db.com/ 참고)
-     * @returns Promise<AxiosResponse<getCurrentIpResponse>>
+     * @returns Promise<AxiosResponse<GetCurrentIpResponse>>
      */
-    getCurrentIp: (): Promise<AxiosResponse<getCurrentIpResponse>> => {
+    getCurrentIp: (): Promise<AxiosResponse<GetCurrentIpResponse>> => {
         return axios({
             method: 'GET',
             baseURL: 'https://geolocation-db.com/json/',

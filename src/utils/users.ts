@@ -1,9 +1,9 @@
 import { isBoolean } from '@fxts/core';
 
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 
 const isLogin = () => {
-    const accessToken = tokenStorage.getAccessToken();
+    const accessToken = shopbyTokenStorage.getAccessToken();
 
     return isBoolean(
         accessToken?.accessToken && accessToken?.expiry > new Date().getTime(),

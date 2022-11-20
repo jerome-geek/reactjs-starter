@@ -10,7 +10,7 @@ import {
     OrderDetailResponse,
     OrderItems,
 } from 'models/order';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 
 interface GetOrderListParams extends Paging, SearchDate {
     // !키값과 실제 쓰는 enum값과 다르니 주의
@@ -38,7 +38,7 @@ const myOrder = {
             endYmd: dayjs().format('YYYY-MM-DD'),
         },
     ): Promise<AxiosResponse<ItemList<OrderItems>>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -71,7 +71,7 @@ const myOrder = {
             orderRequestTypes: ORDER_REQUEST_TYPE;
         },
     ): Promise<AxiosResponse<OrderDetailResponse>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -97,7 +97,7 @@ const myOrder = {
             endYmd: dayjs().format('YYYY-MM-DD'),
         },
     ): Promise<AxiosResponse<OrderSummary>> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -117,7 +117,7 @@ const myOrder = {
      * @returns Promise<AxiosResponse>
      */
     confirmPurchase: (orderOptionNo: string): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'PUT',
@@ -136,7 +136,7 @@ const myOrder = {
      * @returns Promise<AxiosResponse>
      */
     processDeliveryDone: (orderOptionNo: string): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'PUT',
@@ -161,7 +161,7 @@ const myOrder = {
             endYmd: dayjs().format('YYYY-MM-DD'),
         },
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -189,7 +189,7 @@ const myOrder = {
             endYmd: dayjs().format('YYYY-MM-DD'),
         },
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -216,7 +216,7 @@ const myOrder = {
         orderNo: string,
         params?: CashReceiptBody,
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'POST',
@@ -247,7 +247,7 @@ const myOrder = {
             claimType: CLAIM_TYPE;
         },
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'GET',
@@ -275,7 +275,7 @@ const myOrder = {
         add: boolean,
         body?: DeliveryBody,
     ): Promise<AxiosResponse> => {
-        const accessTokenInfo = tokenStorage.getAccessToken();
+        const accessTokenInfo = shopbyTokenStorage.getAccessToken();
 
         return request({
             method: 'PUT',
