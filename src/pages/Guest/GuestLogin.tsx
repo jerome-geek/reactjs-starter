@@ -11,7 +11,7 @@ import StyledErrorMessage from 'components/Common/StyledErrorMessage';
 import { isDesktop } from 'utils/styles/responsive';
 import { guestOrder } from 'api/order';
 import { ORDER_REQUEST_TYPE } from 'models';
-import { tokenStorage } from 'utils/storage';
+import { shopbyTokenStorage } from 'utils/storage';
 import PATHS from 'const/paths';
 import { HTTP_RESPONSE } from 'const/http';
 
@@ -61,7 +61,7 @@ const GuestLogin = () => {
             });
 
             if (response.status === HTTP_RESPONSE.HTTP_OK) {
-                tokenStorage.setGuestToken(
+                shopbyTokenStorage.setGuestToken(
                     JSON.stringify({
                         accessToken: response.data.guestToken,
                     }),

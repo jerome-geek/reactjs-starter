@@ -1,4 +1,5 @@
-import axios, { AxiosResponse } from 'axios';
+import { vcRequest } from 'api/core';
+import { AxiosResponse } from 'axios';
 import {
     VC_CLAUSE_CD,
     VC_CONFIRM_METHOD_CD,
@@ -113,6 +114,7 @@ interface Clause {
     mandatoryItem: string;
     mandatoryTerm: string;
 }
+
 interface GetMemberInfoResponse extends MemberIntegrationResponse {
     memberInfo: {
         mbNo: number;
@@ -153,11 +155,20 @@ interface GetClausesResponse extends MemberIntegrationResponse {
     clauseList: Clause[];
 }
 
+interface RefershTokenResponse extends MemberIntegrationResponse {
+    access_token: string;
+    expires_in: string;
+    id_token: string;
+    refresh_token: string;
+    scope: string;
+    vse_uid: string;
+}
+
 const BASE_URL = 'http://3.39.37.100:8080';
 
 const member = {
     join: (body: MemberJoinBody): Promise<AxiosResponse<JoinResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'POST',
             baseURL: BASE_URL,
             url: '/members/new-member',
@@ -168,7 +179,7 @@ const member = {
     checkId: (params: {
         mbId: string;
     }): Promise<AxiosResponse<MemberIntegrationResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'GET',
             baseURL: BASE_URL,
             url: '/members/id',
@@ -186,8 +197,7 @@ const member = {
         serviceGbnCd: VC_SERVICE_CD;
         mbLastLoginIp: string;
     }): Promise<AxiosResponse<LoginResponse>> => {
-        return axios({
-            // headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        return vcRequest({
             method: 'POST',
             baseURL: BASE_URL,
             url: '/token',
@@ -198,7 +208,7 @@ const member = {
     getMemberInfo: (params: {
         serviceGbnCd: VC_SERVICE_CD;
     }): Promise<AxiosResponse<GetMemberInfoResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'GET',
             baseURL: BASE_URL,
             url: '/members/info',
@@ -218,7 +228,7 @@ const member = {
     updateMemberInfo: (
         body: UpdateMemberBody,
     ): Promise<AxiosResponse<MemberIntegrationResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'PUT',
             baseURL: BASE_URL,
             url: '/members/info',
@@ -235,7 +245,7 @@ const member = {
     findPassword: (
         params: FindPasswordParams,
     ): Promise<AxiosResponse<MemberIntegrationResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'GET',
             baseURL: BASE_URL,
             url: '/members/pw',
@@ -252,7 +262,7 @@ const member = {
     getClauses: (
         params: GetClausesParams,
     ): Promise<AxiosResponse<GetClausesResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'GET',
             baseURL: BASE_URL,
             url: '/members/info',
@@ -270,7 +280,7 @@ const member = {
         oldPassword: string;
         newPassword: string;
     }): Promise<AxiosResponse<MemberIntegrationResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'PUT',
             baseURL: BASE_URL,
             url: '/members/pw',
@@ -296,10 +306,21 @@ const member = {
             mbStatusCd: VC_MEMBER_STATUS_CD;
         }[];
     }): Promise<AxiosResponse<MemberIntegrationResponse>> => {
-        return axios({
+        return vcRequest({
             method: 'POST',
             baseURL: BASE_URL,
             url: '/service',
+            data: body,
+        });
+    },
+
+    refreshToken: (
+        body: RefershTokenResponse,
+    ): Promise<AxiosResponse<MemberIntegrationResponse>> => {
+        return vcRequest({
+            method: 'POST',
+            baseURL: BASE_URL,
+            url: '/token/refresh',
             data: body,
         });
     },
