@@ -33,6 +33,8 @@ request.interceptors.request.use(
         } else {
             shopbyTokenStorage.clear();
         }
+
+        return config;
     },
     (error) => {
         return Promise.reject(error);
